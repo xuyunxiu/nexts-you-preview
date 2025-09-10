@@ -1,267 +1,201 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>NEXT'S YOU — Preview</title>
-<link rel="manifest" href="manifest.json"/>
-<style>
-  :root{--bg:#111;--panel:#1a1a1a;--ui:#222;--text:#fff;--muted:#aaa;--brand:#ff2d2d;--tea:#4b433f;--bubble:#5a4036}
-  *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,Arial}
-  h2{margin:0}
-  section{display:none;padding:16px 16px 88px}
-  section.active{display:block}
-  .topbar{position:sticky;top:0;background:var(--ui);padding:12px 16px;display:flex;align-items:center;gap:12px;z-index:10}
-  .topbar h2{font-size:18px}
-  .btn{border:none;background:#333;color:#fff;border-radius:10px;padding:8px 12px}
-  .btn-red{background:var(--brand)}
-  input{background:#1c1c1c;color:#fff;border:1px solid #2a2a2a;border-radius:10px;padding:10px}
-  nav{position:fixed;left:0;right:0;bottom:0;background:#1b1b1b;border-top:1px solid #2a2a2a;display:flex;justify-content:space-around;padding:10px}
-  nav.hidden{display:none} nav button{background:none;border:none;color:#fff}
-  .product{background:#1c1c1c;border:1px solid #2a2a2a;border-radius:12px;padding:12px;margin:10px 0;text-align:left}
-  .badge{font-size:12px;opacity:.7}
+  <meta charset="UTF-8">
+  <title>NEXT’S YOU</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { margin:0; font-family:sans-serif; background:#111; color:#fff; }
+    nav { position:fixed; bottom:0; left:0; right:0; background:#000; display:flex; }
+    nav button { flex:1; padding:12px; background:#000; color:#fff; border:none; }
+    .page { display:none; padding:70px 16px 80px; }
+    .active { display:block; }
 
-  /* 首頁藝人卡 */
-  .artist-list{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;text-align:left}
-  .artist-card{background:#1c1c1c;border:1px solid #2a2a2a;border-radius:14px;padding:12px;display:flex;gap:10px;align-items:center}
-  .artist-card img{width:44px;height:44px;border-radius:50%;object-fit:cover}
+    /* Friends tabs */
+    .tabs { display:flex; border-bottom:1px solid #444; }
+    .tabs button { flex:1; padding:10px; border:none; background:#111; color:#aaa; }
+    .tabs button.active { color:#fff; border-bottom:2px solid #f00; }
+    .friend-card { background:#222; margin:10px 0; padding:12px; border-radius:8px; }
+    .friend-card img { width:40px; height:40px; border-radius:20px; vertical-align:middle; margin-right:8px; }
+    .friend-card button { margin-top:8px; padding:6px 12px; border:none; border-radius:4px; background:#f00; color:#fff; }
 
-  /* DM */
-  .dm-top{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;background:var(--ui);position:sticky;top:0;z-index:10}
-  .menu-btn{background:#333;border:none;color:#fff;border-radius:10px;padding:6px 10px}
-  .dm-heart{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;background:#4a403c;border:1px solid rgba(255,255,255,.12);border-radius:14px}
-  .dm-heart b{color:#ff7d7d}
-  .dm-messages{background:var(--panel);padding:12px;text-align:left;min-height:300px}
-  .msg{max-width:75%;padding:10px 14px;border-radius:16px;margin:6px 0;font-size:15px;line-height:1.4;word-break:break-word}
-  .msg.me{background:var(--bubble);color:#fff;margin-left:auto;border-bottom-right-radius:4px}
-  .msg.artist{background:#fff;color:#111;border-bottom-left-radius:4px}
-  .sub-balloon{margin-top:6px;padding:8px 12px;background:#eee;color:#555;border-radius:12px;font-size:13px;line-height:1.3}
-  .dm-input{position:sticky;bottom:64px;background:var(--ui);display:flex;gap:10px;padding:10px}
-  .dm-input input{flex:1}
-  .dm-input button{border:none;background:var(--brand);color:#fff;border-radius:50%;padding:10px 14px}
+    /* DM */
+    .chat-box { background:#000; height:70vh; overflow-y:auto; padding:10px; }
+    .bubble { background:#333; margin:5px 0; padding:8px 12px; border-radius:12px; max-width:70%; }
+    .input-row { display:flex; }
+    .input-row input { flex:1; padding:10px; border:none; }
+    .input-row button { width:50px; background:#f00; border:none; color:#fff; }
 
-  /* 相簿 */
-  #galleryGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:10px}
-  #galleryGrid img{width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:8px}
-</style>
+    /* Album modal */
+    #albumModal { position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.9); display:none; }
+    #albumModal .content { padding:20px; }
+    #albumModal img { width:100%; margin-bottom:10px; }
+
+    /* Live */
+    .live-artist { background:#222; padding:20px; border-radius:8px; margin-bottom:12px; }
+    .live-fans { max-height:40vh; overflow-y:auto; background:#111; padding:10px; }
+    .fan-msg { background:#333; margin:5px 0; padding:6px 10px; border-radius:8px; }
+
+    /* Wallet */
+    .wallet button { display:block; margin:12px auto; padding:10px 20px; background:#f00; border:none; color:#fff; border-radius:6px; }
+  </style>
 </head>
 <body>
 
-<!-- 登入 -->
-<section id="login" class="active">
-  <div class="topbar"><h2>登入</h2></div>
-  <p>選擇登入方式</p>
-  <button class="btn btn-red" onclick="login('line')">用 LINE 登入（模擬）</button>
-  <div style="margin-top:10px">
-    <input id="inviteCode" placeholder="輸入邀請碼，例如 NEXT2025"/>
-    <button class="btn" onclick="login('code')">使用邀請碼</button>
+<!-- Friends -->
+<div id="friends" class="page active">
+  <h2>Friends</h2>
+  <div class="tabs">
+    <button onclick="filterFriends('artist')" class="active">藝人</button>
+    <button onclick="filterFriends('group')">團體</button>
+    <button onclick="filterFriends('purchased')">已購買</button>
+    <button onclick="filterFriends('unpurchased')">未購買</button>
   </div>
-</section>
+  <div id="friendsList"></div>
+</div>
 
-<!-- 首頁：藝人清單 -->
-<section id="home">
-  <div class="topbar">
-    <h2>Friends</h2>
-    <button class="btn" style="margin-left:auto" onclick="showPage('wallet')">錢包</button>
-  </div>
+<!-- DM list -->
+<div id="dmList" class="page">
+  <h2>DM 聊天室</h2>
+  <div id="dmRooms"></div>
+</div>
 
-  <div class="badge" style="text-align:left;margin:6px 0">Purchase a pass</div>
-  <div class="artist-card" onclick="openDM('group')">
-    <img src="assets/group.jpg" onerror="this.src='https://picsum.photos/200?gr';" alt="">
-    <div><b>ALIDAY PROJECT</b><div class="badge">團體 DM</div></div>
-  </div>
-
-  <div class="badge" style="text-align:left;margin:18px 0 6px">Recommended Artists</div>
-  <div id="artistList" class="artist-list"></div>
-</section>
-
-<!-- DM -->
-<section id="dm">
-  <div class="dm-top">
-    <button class="btn" onclick="showPage('home')">‹</button>
-    <div id="dmTitle">ALLDAY PROJECT — 團體 DM</div>
-    <div style="display:flex;align-items:center;gap:10px">
-      <button class="menu-btn" onclick="openGallery()">▦</button>
-      <div class="dm-heart"><b>♡</b><span id="heartDays">+0</span></div>
-    </div>
-  </div>
-  <div id="dm-messages" class="dm-messages"></div>
-  <div class="dm-input">
-    <input id="dmInput" placeholder="輸入訊息…" />
+<!-- DM chat -->
+<div id="dmChat" class="page">
+  <h2 id="chatTitle"></h2>
+  <button onclick="openAlbum()" style="position:absolute; right:16px; top:70px;">📷</button>
+  <div id="chatBox" class="chat-box"></div>
+  <div class="input-row">
+    <input id="chatInput" placeholder="輸入訊息..."/>
     <button onclick="sendMessage()">➤</button>
   </div>
-</section>
+</div>
 
-<!-- 相簿（由 DM 同步） -->
-<section id="gallery">
-  <div class="topbar"><h2>相簿</h2></div>
-  <div id="galleryGrid"></div>
-</section>
+<!-- Album -->
+<div id="albumModal">
+  <div class="content">
+    <h3>相簿</h3>
+    <img src="https://placekitten.com/400/300">
+    <img src="https://placekitten.com/401/301">
+    <button onclick="closeAlbum()">關閉</button>
+  </div>
+</div>
 
-<!-- 直播（佔位） -->
-<section id="live">
-  <div class="topbar"><h2>直播</h2></div>
-  <p>文字直播或影片牆（佔位）。</p>
-</section>
+<!-- Live -->
+<div id="live" class="page">
+  <h2>文字直播</h2>
+  <div class="live-artist" id="liveArtist">
+    <strong>主播：</strong> 오늘 TMI 알려줄게요~
+  </div>
+  <div class="live-fans" id="liveFans"></div>
+  <div class="input-row">
+    <input id="fanInput" placeholder="輸入留言..."/>
+    <button onclick="sendFanMsg()">送出</button>
+  </div>
+</div>
 
-<!-- 錢包：分數與購買 -->
-<section id="wallet">
-  <div class="topbar"><h2>錢包</h2><button class="btn" style="margin-left:auto" onclick="logout()">登出</button></div>
-  <p><strong>我的分數：</strong><span id="points">0</span></p>
-  <div class="product"><p>7天 DM 權益 — 70 分</p><button class="btn btn-red" onclick="buyProduct(70,7)">購買</button></div>
-  <div class="product"><p>30天 DM 權益 — 250 分</p><button class="btn btn-red" onclick="buyProduct(250,30)">購買</button></div>
-</section>
+<!-- Wallet -->
+<div id="wallet" class="page wallet">
+  <h2>錢包</h2>
+  <button onclick="markPurchased('ALDAY')">購買團體 pass</button>
+  <button onclick="markPurchased('WOOCHAN')">購買 Woochan pass</button>
+</div>
 
-<!-- 底部導覽 -->
-<nav id="nav" class="hidden">
-  <button onclick="showPage('home')">首頁</button>
-  <button onclick="showPage('dm')">DM</button>
-  <button onclick="showPage('gallery')">相簿</button>
+<nav>
+  <button onclick="showPage('friends')">首頁</button>
+  <button onclick="showPage('dmList')">DM</button>
   <button onclick="showPage('live')">直播</button>
   <button onclick="showPage('wallet')">錢包</button>
 </nav>
 
 <script>
-/* ---------- 初始化 ---------- */
-if(!localStorage.getItem('points')) localStorage.setItem('points', 200);
-if(!localStorage.getItem('userId')) localStorage.setItem('userId','u_'+Math.random().toString(36).slice(2,10));
-const USER_ID = localStorage.getItem('userId');
+  let purchased = {}; // 存購買狀態
+  let friends = [
+    {id:"ALDAY", name:"ALLDAY PROJECT", type:"group", img:"https://placekitten.com/80/80", bg:"#333"},
+    {id:"WOOCHAN", name:"Woochan", type:"artist", img:"https://placekitten.com/81/81", bg:"#444"},
+    {id:"ANNIE", name:"Annie", type:"artist", img:"https://placekitten.com/82/82", bg:"#555"}
+  ];
 
-/* 藝人清單（放你自己的頭像檔到 assets/） */
-const ARTISTS=[
-  {id:'y1',name:'YOUNGSEO',avatar:'assets/a1.jpg'},
-  {id:'an',name:'ANNIE',avatar:'assets/a2.jpg'},
-  {id:'ba',name:'BAILEY',avatar:'assets/a3.jpg'},
-  {id:'tz',name:'TARZZAN',avatar:'assets/a4.jpg'},
-  {id:'wc',name:'WOOCHAN',avatar:'assets/a5.jpg'}
-];
-
-/* ---------- 登入 / 導覽 ---------- */
-function login(method){
-  if(method==='line' || (method==='code' && (document.getElementById('inviteCode').value.trim()==='NEXT2025'))){
-    localStorage.setItem('loggedIn','true'); showPage('home'); renderPoints(); renderArtists();
-  }else alert('邀請碼錯誤！');
-}
-function logout(){ localStorage.removeItem('loggedIn'); showPage('login'); }
-
-function showPage(page){
-  if(!localStorage.getItem('loggedIn') && page!=='login') page='login';
-  document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));
-  document.getElementById(page).classList.add('active');
-  const nav=document.getElementById('nav');
-  if(localStorage.getItem('loggedIn') && page!=='login') nav.classList.remove('hidden'); else nav.classList.add('hidden');
-  if(page==='home'){ renderPoints(); renderArtists(); }
-  if(page==='dm'){ renderHearts(); renderDM(); }
-  if(page==='gallery'){ renderGallery(); }
-}
-
-/* ---------- 首頁：藝人清單 ---------- */
-function renderArtists(){
-  const box=document.getElementById('artistList'); if(!box) return;
-  box.innerHTML = ARTISTS.map(a=>`
-    <div class="artist-card" onclick="openDM('${a.id}')">
-      <img src="${a.avatar}" onerror="this.src='https://picsum.photos/200?u=${a.id}'" alt="">
-      <div><b>${a.name}</b><div class="badge">立即私訊</div></div>
-    </div>`).join('');
-}
-function openDM(artistId){
-  localStorage.setItem('currentArtist', artistId||'group');
-  document.getElementById('dmTitle').textContent = (artistId && ARTISTS.find(a=>a.id===artistId)?.name) ? ARTISTS.find(a=>a.id===artistId).name+' — DM' : 'ALLDAY PROJECT — 團體 DM';
-  showPage('dm');
-}
-
-/* ---------- Key 設計：每人×每藝人 ---------- */
-function currentArtist(){ return localStorage.getItem('currentArtist') || 'group'; }
-function dmKey(){ return `dm_${USER_ID}_${currentArtist()}`; }
-function galleryKey(){ return `gallery_${currentArtist()}`; }
-
-/* 初始化 DM 種子 */
-(function seed(){
-  const k = dmKey(); if(!localStorage.getItem(k)){
-    localStorage.setItem(k, JSON.stringify([{role:'artist',type:'text',text:'歡迎來到 DM！',trans:'Welcome to DM!',ts:Date.now()}]));
+  function showPage(id){
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
   }
-})();
 
-/* ---------- 購買/分數/♡+N ---------- */
-function renderPoints(){ document.getElementById('points').textContent = localStorage.getItem('points') || '0'; }
-function buyProduct(cost, days){
-  let p=parseInt(localStorage.getItem('points')||'0',10);
-  if(p<cost) return alert('分數不足！');
-  p-=cost; localStorage.setItem('points',p);
-  localStorage.setItem('purchaseDate', new Date().toISOString().split('T')[0]);
-  localStorage.setItem('duration', days);
-  alert(`✅ 已購買 ${days} 天 DM 權益！`); renderPoints(); renderHearts();
-}
-function renderHearts(){
-  const el=document.getElementById('heartDays'); if(!el) return;
-  const start=localStorage.getItem('purchaseDate'); const dur=parseInt(localStorage.getItem('duration')||'0',10);
-  if(!start||dur<=0){ el.textContent='+0'; return; }
-  const s=new Date(start), t=new Date(); s.setHours(0,0,0,0); t.setHours(0,0,0,0);
-  const n=Math.floor((t-s)/86400000); el.textContent = (n<=dur)?`+${n}`:'+0';
-}
+  function renderFriends(filter="artist"){
+    let list=document.getElementById("friendsList");
+    list.innerHTML="";
+    let data=friends.filter(f=>{
+      if(filter==="artist") return f.type==="artist";
+      if(filter==="group") return f.type==="group";
+      if(filter==="purchased") return purchased[f.id];
+      if(filter==="unpurchased") return !purchased[f.id];
+    });
+    data.forEach(f=>{
+      let card=document.createElement("div");
+      card.className="friend-card";
+      card.innerHTML=`<img src="${f.img}">${f.name}<br>
+      <button onclick="enterProfile('${f.id}')">開始聊天</button>`;
+      list.appendChild(card);
+    });
+  }
 
-/* ---------- DM：渲染 / 發送 / 藝人推送 ---------- */
-function passStartTS(){ const d=localStorage.getItem('purchaseDate'); if(!d) return null; const s=new Date(d); s.setHours(0,0,0,0); return s.getTime(); }
+  function filterFriends(mode){
+    document.querySelectorAll('.tabs button').forEach(b=>b.classList.remove('active'));
+    event.target.classList.add('active');
+    renderFriends(mode);
+  }
 
-function renderDM(){
-  const list=JSON.parse(localStorage.getItem(dmKey())||'[]');
-  const showFrom = passStartTS(); // 購買後才顯示
-  const box=document.getElementById('dm-messages'); box.innerHTML='';
-  let lastDate='';
-  list.filter(m=>!showFrom || (m.ts||0)>=showFrom).forEach(m=>{
-    const d=new Date(m.ts||Date.now());
-    const D=`${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日`;
-    const hh=d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
-    if(D!==lastDate){ const chip=document.createElement('div'); chip.style.cssText="align-self:center;background:var(--tea);color:#efe8e3;padding:6px 12px;border-radius:14px;font-size:12px;margin:6px 0 2px;opacity:.9;"; chip.textContent=D; box.appendChild(chip); lastDate=D; }
+  function enterProfile(id){
+    if(purchased[id]){
+      openChat(id);
+    } else {
+      showPage("wallet");
+    }
+  }
 
-    const wrap=document.createElement('div'); wrap.className='msg '+(m.role==='fan'?'me':'artist');
-    if(m.type==='image'){ const img=new Image(); img.src=m.url; img.style="max-width:100%;border-radius:10px;"; wrap.appendChild(img); if(m.caption){ const c=document.createElement('div'); c.className='sub-balloon'; c.textContent=m.caption; wrap.appendChild(c);} }
-    else { const main=document.createElement('div'); main.textContent=m.text||''; wrap.appendChild(main); if(m.role==='artist'&&m.trans){ const sub=document.createElement('div'); sub.className='sub-balloon'; sub.textContent=m.trans; wrap.appendChild(sub);} }
-    const time=document.createElement('div'); time.style.cssText="text-align:right;font-size:12px;opacity:.7;margin-top:4px;"; time.textContent=hh; wrap.appendChild(time);
-    box.appendChild(wrap);
-  });
-}
-function sendMessage(){
-  const inp=document.getElementById('dmInput'); const t=(inp.value||'').trim(); if(!t) return;
-  const list=JSON.parse(localStorage.getItem(dmKey())||'[]');
-  list.push({role:'fan',type:'text',text:t,ts:Date.now()});
-  localStorage.setItem(dmKey(), JSON.stringify(list)); inp.value=''; renderDM();
-}
-/* 提供測試：藝人文字/圖片（圖片會同步到相簿） */
-function addArtistMessage(text,translation){
-  const dm=JSON.parse(localStorage.getItem(dmKey())||'[]'); dm.push({role:'artist',type:'text',text,trans:translation||'',ts:Date.now()});
-  localStorage.setItem(dmKey(), JSON.stringify(dm)); renderDM();
-}
-function addArtistImage(url,caption){
-  const dm=JSON.parse(localStorage.getItem(dmKey())||'[]'); dm.push({role:'artist',type:'image',url,caption:caption||'',ts:Date.now()});
-  localStorage.setItem(dmKey(), JSON.stringify(dm));
-  const gal=JSON.parse(localStorage.getItem(galleryKey())||'[]'); gal.push({url,caption:caption||'',ts:Date.now()}); localStorage.setItem(galleryKey(), JSON.stringify(gal));
-  renderDM();
-}
+  function openChat(id){
+    showPage("dmChat");
+    document.getElementById("chatTitle").innerText=friends.find(f=>f.id===id).name;
+    let box=document.getElementById("chatBox");
+    box.innerHTML=`<div class="bubble">歡迎來到 ${id} DM！</div>`;
+    box.scrollTop=box.scrollHeight;
+  }
 
-/* ---------- 相簿 ---------- */
-function openGallery(){ showPage('gallery'); renderGallery(); }
-function renderGallery(){
-  const grid=document.getElementById('galleryGrid'); const list=JSON.parse(localStorage.getItem(galleryKey())||'[]');
-  grid.innerHTML = list.length? list.slice().reverse().map(i=>`<img src="${i.url}" alt="" onerror="this.src='https://picsum.photos/400?ph'">`).join('') : '<div style="opacity:.6;">還沒有照片</div>';
-}
+  function sendMessage(){
+    let val=document.getElementById("chatInput").value;
+    if(!val) return;
+    let box=document.getElementById("chatBox");
+    let msg=document.createElement("div");
+    msg.className="bubble";
+    msg.style.background="#f00";
+    msg.innerText=val;
+    box.appendChild(msg);
+    document.getElementById("chatInput").value="";
+    box.scrollTop=box.scrollHeight;
+  }
 
-/* ---------- 小工具：分數快捷調整（管理用） ---------- */
-(function hookPointsCheat(){
-  const el=document.getElementById('points'); if(!el) return;
-  el.style.textDecoration='underline'; el.style.cursor='pointer'; el.title='點我調整分數';
-  el.onclick=()=>{ const v=prompt('輸入要調整的分數，可負數，例如 +50 或 -30','+50'); if(!v) return;
-    const delta=parseInt(v,10); if(isNaN(delta)) return alert('格式錯誤');
-    const cur=parseInt(localStorage.getItem('points')||'0',10); localStorage.setItem('points',cur+delta); renderPoints(); alert(`已調整：${delta} 分`); };
-})();
+  function openAlbum(){ document.getElementById("albumModal").style.display="block"; }
+  function closeAlbum(){ document.getElementById("albumModal").style.display="none"; }
 
-/* ---------- 啟動 ---------- */
-window.addEventListener('load', ()=>{
-  if(localStorage.getItem('loggedIn')){ showPage('home'); renderArtists(); } else { showPage('login'); }
-});
+  function sendFanMsg(){
+    let val=document.getElementById("fanInput").value;
+    if(!val) return;
+    let box=document.getElementById("liveFans");
+    let div=document.createElement("div");
+    div.className="fan-msg";
+    div.innerText=val;
+    box.appendChild(div);
+    document.getElementById("fanInput").value="";
+    box.scrollTop=box.scrollHeight;
+  }
 
-/* 可選：註冊 SW（若你 sw.js 存在） */
-if('serviceWorker' in navigator){ navigator.serviceWorker.register('sw.js'); }
+  function markPurchased(id){
+    purchased[id]=true;
+    alert("已購買 " + id);
+    renderFriends();
+  }
+
+  renderFriends();
 </script>
 </body>
 </html>
