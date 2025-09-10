@@ -577,72 +577,61 @@ function dismissShot(remember=false){
 /* ===== BOOT ===== */
 window.addEventListener('load', ()=>{ if(localStorage.getItem('loggedIn')) showPage('home'); else showPage('login'); });
 </script>
- <!-- 🔻🔻🔻 SPLASH PACK：貼在 </body> 前就好 🔻🔻🔻 -->
-<style>
-  /* ==== Splash: 先浮現 "NEXT ONE" → 反轉成 "NEXT’S YOU"（NEXT 全程不動） ==== */
-  #splash{
-    position:fixed; inset:0; z-index:9999; display:grid; place-items:center;
-    background:
-      radial-gradient(1200px 600px at 120% -10%, rgba(224,21,47,.16), transparent 60%),
-      radial-gradient(900px 500px at -10% -10%, rgba(255,255,255,.05), transparent 60%),
-      linear-gradient(180deg,#101115 0%, #0c0c0e 100%);
-    color:#fff; pointer-events:none;
-  }
-  #splash.hide{animation: splashFade .5s ease forwards}
-  @keyframes splashFade{to{opacity:0; visibility:hidden}}
-
-  .splash-logo{
-    font-weight:900; letter-spacing:.3px; display:flex; align-items:baseline; gap:6px;
-    font-size:28px;
-  }
-  /* 初始透明（準備浮現） */
-  .splash-logo .NEXT,.splash-logo .ONE,.splash-logo .SYOU{opacity:0; transform:none}
-
-  /* Phase 1：NEXT + ONE 一起「淡入浮現」 */
-  #splash.play .NEXT, #splash.play .ONE{
-    opacity:1; transform:none; transition:opacity .6s ease .05s;
-  }
-
-  /* Phase 2：反轉——ONE 下沉淡出；’S YOU 上浮淡入（NEXT 不動） */
-  #splash.swap .ONE{
-    opacity:0; transform:translateY(14px); transition:transform .55s ease, opacity .55s ease;
-  }
-  #splash.swap .SYOU{
-    opacity:1; transform:translateY(-6px); transition:transform .55s ease .05s, opacity .55s ease .05s;
-  }
-
-  @media (min-width:420px){
-    .splash-logo{font-size:40px}
-    .splash-logo .NEXT,.splash-logo .ONE,.splash-logo .SYOU{font-size:40px}
-  }
-  @media (prefers-reduced-motion:reduce){
-    #splash.play .NEXT,#splash.play .ONE,#splash.swap .ONE,#splash.swap .SYOU{transition:none}
-  }
-</style>
-
-<div id="splash" aria-hidden="true">
-  <div class="splash-logo">
-    <span class="NEXT">NEXT</span>
-    <span class="ONE">&nbsp;ONE</span>
-    <span class="SYOU">&nbsp;’S&nbsp;YOU</span>
+ <!-- 🚀 開場動畫 -->
+<div id="splash">
+  <div class="splash-text">
+    <span id="next">NEXT</span>
+    <span id="one"> ONE</span>
+    <span id="you">’S YOU</span>
   </div>
 </div>
 
+<style>
+  #splash {
+    position:fixed; top:0; left:0; right:0; bottom:0;
+    background:#000; color:#fff;
+    display:flex; justify-content:center; align-items:center;
+    font-size:2.2em; font-weight:bold;
+    z-index:9999;
+    text-align:center;
+  }
+  .splash-text { display:flex; align-items:center; }
+  #one { display:inline-block; }
+  #you { opacity:0; margin-left:0.3em; color:red; }
+
+  /* 動畫 */
+  .fadeIn { animation: fadeIn 1s forwards; }
+  .fadeOut { animation: fadeOut 1s forwards; }
+  .fadeInRight { animation: fadeInRight 1s forwards; }
+
+  @keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
+  @keyframes fadeOut { from{opacity:1;} to{opacity:0;} }
+  @keyframes fadeInRight {
+    from {opacity:0; transform:translateX(20px);}
+    to   {opacity:1; transform:translateX(0);}
+  }
+</style>
+
 <script>
-  (function runSplash(){
-    var el = document.getElementById('splash');
-    if(!el) return;
-    // Phase 1：NEXT ONE 浮現
-    requestAnimationFrame(function(){ el.classList.add('play'); });
-    // Phase 2：反轉成 NEXT’S YOU
-    var PHASE1 = 800;     // 看「NEXT ONE」0.8s
-    setTimeout(function(){ el.classList.add('swap'); }, PHASE1);
-    // Phase 3：停留再淡出並移除
-    var HOLD = 1600;      // 反轉後停 1.6s
-    setTimeout(function(){ el.classList.add('hide'); }, PHASE1 + HOLD);
-    setTimeout(function(){ el && el.remove(); }, PHASE1 + HOLD + 600);
-  })();
+  window.addEventListener("load", ()=>{
+    const splash = document.getElementById("splash");
+    const one = document.getElementById("one");
+    const you = document.getElementById("you");
+    const next = document.getElementById("next");
+
+    // Step 1: NEXT ONE 一起浮現
+    next.classList.add("fadeIn");
+    one.classList.add("fadeIn");
+
+    // Step 2: ONE 消失
+    setTimeout(()=> one.classList.add("fadeOut"), 2000);
+
+    // Step 3: 'S YOU 出現（紅色）
+    setTimeout(()=> you.classList.add("fadeInRight"), 2500);
+
+    // Step 4: 動畫結束後隱藏開場
+    setTimeout(()=> splash.style.display="none", 4000);
+  });
 </script>
-<!-- 🔺🔺🔺 SPLASH PACK 結束 🔺🔺🔺 --> 
 </body>
 </html>
