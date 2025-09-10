@@ -5,21 +5,19 @@
   <title>NEXT'S YOU — Preview (Polished UI)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 
-  <!-- 防快取 -->
+  <!-- 防快取（HTTP 層） -->
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
 
-  <!-- ================= IG-Neumorphism Theme (Scoped, No Layout Changes) ================= -->
   <style>
-    /* 只作用在 body.nx（避免蓋掉你其它頁的樣式） */
+    /* ===== 主題：僅作用於 body.nx（避免污染其它頁） ===== */
     body.nx{
       --bg:#0f0f12; --card:#16181d; --hover:#1b1e24; --line:rgba(255,255,255,.06);
       --text:#f6f7fb; --sub:#b5bac7; --muted:#8c92a1;
       --accent:#ff2d55; --accent-2:#ff3b63; --ok:#2ecc71; --ng:#ff5a5f;
-      --r:16px; --r-sm:12px; --shadow: 12px 18px 40px rgba(0,0,0,.45);
+      --r:16px; --shadow: 12px 18px 40px rgba(0,0,0,.45);
     }
-    /* 淺色主題（若未來你想開，NX.setTheme('light') 即可。預設 dark） */
     body.nx.light{
       --bg:#f7f8fb; --card:#ffffff; --hover:#f1f2f6; --line:rgba(0,0,0,.08);
       --text:#121317; --sub:#4a4e59; --muted:#6b7280;
@@ -27,7 +25,6 @@
       --shadow: 8px 12px 26px rgba(0,0,0,.12);
     }
 
-    /* 背景氛圍 */
     html,body{height:100%}
     body.nx{
       margin:0; color:var(--text);
@@ -39,43 +36,42 @@
       font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
     }
 
-    /* 區塊 / 卡片（對現有 .panel、.card、.product 套皮） */
+    /* 通用容器/卡片 */
     .panel, .card, .product{
       background:var(--card); border:1px solid var(--line); border-radius:var(--r); box-shadow:var(--shadow);
     }
     .panel.soft{ padding:16px }
 
-    /* 通用排版 */
-    section{display:none; padding:16px 16px 96px}
+    /* 每個頁籤區塊 */
+    section{display:none; padding:16px 16px 96px; box-sizing: border-box;}
     section.active{display:block; animation:fadeIn .24s ease}
     @keyframes fadeIn{from{opacity:0; transform:translateY(6px)} to{opacity:1; transform:none}}
     h2,h3,p{margin:0}
     .ghost{opacity:.75; color:var(--sub)}
     .list-col{display:grid; gap:12px}
 
-    /* Friends Header（HOME） */
+    /* HOME 頁首 */
     #friendsHeader{display:flex; justify-content:space-between; align-items:center; gap:12px}
     #friendsHeader .me{display:flex; align-items:center; gap:12px}
     #friendsHeader img{width:48px; height:48px; border-radius:50%; object-fit:cover; border:1px solid var(--line)}
     #friendsHeader .nick{font-weight:800}
 
-    /* Tabs（藝人/團體/已購買/未購買） */
+    /* Tabs */
     .tabs{display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin:14px 0}
     .tabs button{
       border:none; border-radius:999px; padding:10px 0; font-weight:800; color:var(--sub);
-      background:var(--card); border:1px solid var(--line); box-shadow:var(--shadow);
-      cursor:pointer;
+      background:var(--card); border:1px solid var(--line); box-shadow:var(--shadow); cursor:pointer;
     }
     .tabs button.active{ color:var(--text); background:linear-gradient(180deg, var(--hover), var(--card)); border-color:transparent }
 
-    /* 列表的卡片樣式 */
+    /* List 卡片 */
     .card .row{display:flex; align-items:center; gap:12px}
     .card .row img{width:52px; height:52px; border-radius:50%; object-fit:cover; border:1px solid var(--line)}
     .badge{display:inline-block; margin-top:6px; padding:4px 8px; border-radius:999px; font-size:12px; font-weight:800; border:1px solid var(--line)}
     .badge.ok{background:rgba(46,204,113,.15); color:#aef7c6}
     .badge.ng{background:rgba(255,90,95,.15); color:#ffb3b5}
 
-    /* DM 頁 */
+    /* DM */
     .topbar{display:flex; align-items:center; gap:12px; margin-bottom:10px}
     .topbar .dm-top{display:flex; align-items:center; gap:10px}
     .dm-title{font-weight:800}
@@ -92,23 +88,23 @@
     .dm-input input{flex:1; border:none; outline:none; border-radius:16px; padding:14px 16px; background:var(--hover); color:var(--text); box-shadow:inset 0 1px 0 rgba(255,255,255,.04); border:1px solid var(--line)}
     .dm-input button{width:52px; height:52px; border:none; border-radius:18px; font-weight:900; color:#fff; background:linear-gradient(180deg,var(--accent),var(--accent-2)); cursor:pointer}
 
-    /* GALLERY */
+    /* Gallery */
     #galleryGrid{display:grid; grid-template-columns:1fr 1fr; gap:12px}
     #galleryGrid img{width:100%; height:100%; object-fit:cover; border-radius:14px; border:1px solid var(--line); box-shadow:var(--shadow)}
 
-    /* LIVE */
+    /* Live */
     .live-host{padding:16px}
     .live-host .title{font-weight:800; opacity:.9}
     .live-fans{display:grid; gap:10px; margin-top:12px}
     .fan-item{padding:12px; border-radius:12px; background:var(--card); border:1px solid var(--line)}
 
-    /* NAV（底部） */
-    nav{position:fixed; left:0; right:0; bottom:0; background:#0f1116; border-top:1px solid var(--line); display:flex; justify-content:space-around; padding:12px 8px 16px; backdrop-filter:blur(8px)}
+    /* 底部 Nav */
+    nav{position:fixed; left:0; right:0; bottom:0; background:#0f1116; border-top:1px solid var(--line); display:flex; justify-content:space-around; padding:12px 8px 16px; backdrop-filter:blur(8px); z-index:9990}
     nav.hidden{display:none}
     nav button{background:transparent; border:none; color:var(--text); font-weight:800; padding:8px 10px; border-radius:12px; cursor:pointer}
     nav button:active{background:var(--hover)}
 
-    /* LOGIN 卡片置中樣式（避免 input 偏移） */
+    /* ===== 登入卡片（置中 + 防偏移） ===== */
     #login.center{
       min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px 16px;
     }
@@ -121,13 +117,11 @@
       border:1px solid var(--line); border-radius:12px; background:var(--hover); color:var(--text);
       box-sizing:border-box;
     }
-    .btn-full{
-      width:100%; padding:14px; font-size:15px; font-weight:600; border:none; border-radius:12px; cursor:pointer;
-    }
+    .btn-full{ width:100%; padding:14px; font-size:15px; font-weight:600; border:none; border-radius:12px; cursor:pointer; }
     .btn-line{ background:#06C755; color:#fff; margin-bottom:12px; }
     .btn-white{ background:#fff; color:#000; }
 
-    /* 截圖警告 modal */
+    /* 截圖警告 */
     #shotModal{display:none; position:fixed; inset:0; place-items:center; background:rgba(0,0,0,.4); z-index:9998}
     #shotModal .box{max-width:560px; width:90%; background:var(--card); border:1px solid var(--line); border-radius:var(--r); box-shadow:var(--shadow); padding:16px}
     #shotModal .warn{margin-top:6px; padding:12px; border-radius:12px; background:rgba(255,45,85,.12); border:1px dashed rgba(255,45,85,.35)}
@@ -145,33 +139,15 @@
     #splash .one.hide   { animation: sp-fade-out .4s ease forwards; }
     #splash .syou.play  { animation: sp-flip-in .6s ease forwards; }
     #splash.hide        { transition: opacity .4s ease; opacity:0; }
-/* ===== PATCH: 登入頁時一律隱藏底部 nav（雙保險） ===== */
-#login.active ~ nav { display: none !important; }
 
-/* 修正 iOS 置中時可能被安全區影響而偏移 */
-#login.login-center {
-  min-height: 100vh;
-  display: flex; align-items: center; justify-content: center;
-  padding: 24px 16px; box-sizing: border-box;
-}
-#login .login-card {
-  width: 100%; max-width: 360px;
-  text-align: center;
-  padding: 24px; border-radius: 16px;
-}
-#login .login-input {
-  width: 100%; padding: 12px; font-size: 15px; margin: 12px 0;
-  border: 1px solid var(--line); border-radius: 12px;
-  background: var(--hover); color: var(--text);
-  box-sizing: border-box;
-}
-#login .btn-block { width: 100%; padding: 14px; border-radius: 12px; }
+    /* 登入頁時，一律隱藏底部 nav（雙保險） */
+    #login.active ~ nav { display: none !important; }
   </style>
 </head>
 
 <body class="nx">
 
-<!-- ===== LOGIN（置中卡片） ===== -->
+<!-- ===== LOGIN ===== -->
 <section id="login" class="active center">
   <div class="login-card panel soft">
     <h2 style="margin-bottom:20px">登入</h2>
@@ -330,7 +306,7 @@
   </div>
 </div>
 
-<!-- ================= SCRIPTS（單一塊，無打架） ================= -->
+<!-- ================= SCRIPTS ================= -->
 <script>
 /* ===== DATA ===== */
 const ARTISTS = [
@@ -345,7 +321,7 @@ const GROUPS = [{id:'group', name:'ALLDAY PROJECT', avatar:'https://picsum.photo
 if(!localStorage.getItem('points')) localStorage.setItem('points', 200);
 if(!localStorage.getItem('userId')) localStorage.setItem('userId','u_'+Math.random().toString(36).slice(2,10));
 
-/* ===== LOGIN FLOW（LINE / 邀請碼：NEXT2025） ===== */
+/* ===== LOGIN（LINE / 邀請碼） ===== */
 function fakeLogin(method){
   const code = (document.getElementById('inviteCode')?.value || '').trim();
   if(method==='line' || (method==='code' && code==='NEXT2025')){
@@ -359,20 +335,17 @@ function fakeLogin(method){
 document.getElementById('lineLoginBtn').addEventListener('click', ()=>fakeLogin('line'));
 document.getElementById('codeLoginBtn').addEventListener('click', ()=>fakeLogin('code'));
 
-/* ===== NAV 顯示/隱藏（DM / gallery 不顯示） ===== */
+/* ===== NAV 顯示/隱藏 ===== */
 function showPage(id){
   document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));
   const target = document.getElementById(id);
   if (target) target.classList.add('active');
 
   const nav = document.getElementById('nav');
-  if (localStorage.getItem('loggedIn') && id!=='login' && id!=='dm' && id!=='gallery') {
-    nav.classList.remove('hidden');
-  } else {
-    nav.classList.add('hidden');
-  }
+  const hideNav = (id==='login' || id==='dm' || id==='gallery');
+  if (localStorage.getItem('loggedIn') && !hideNav) nav.classList.remove('hidden');
+  else nav.classList.add('hidden');
 
-  // 每頁刷新
   if(id==='home'){ renderProfile(); setHomeTab(HOME_TAB||'artists'); }
   if(id==='dmList'){ renderDMList(); }
   if(id==='dm'){ renderHearts(); renderDM(); }
@@ -403,7 +376,7 @@ function saveProfile(){
   showPage('home');
 }
 
-/* ===== HOME LIST & FILTER ===== */
+/* ===== HOME & FILTER ===== */
 let HOME_TAB='artists';
 function setHomeTab(tab){
   HOME_TAB=tab;
@@ -451,8 +424,12 @@ function markPurchased(id, yes=true){
   localStorage.setItem('purchases', JSON.stringify(map));
   alert(`已標記 ${id} 為 ${yes?'已購買':'未購買'}`);
 }
+function logout(){
+  localStorage.removeItem('loggedIn');
+  showPage('login');
+}
 
-/* ===== DM LIST & GATING ===== */
+/* ===== DM 清單 & 權益判斷 ===== */
 function passActive(){
   const start=localStorage.getItem('purchaseDate'); const dur=parseInt(localStorage.getItem('duration')||'0',10);
   if(!start||dur<=0) return false;
@@ -529,7 +506,6 @@ function sendMessage(){
   list.push({role:'fan',type:'text',text:t,ts:Date.now()});
   localStorage.setItem(dmKey(), JSON.stringify(list)); inp.value=''; renderDM();
 }
-/* console helpers */
 function addArtistMessage(text,translation){
   const dm=JSON.parse(localStorage.getItem(dmKey())||'[]'); dm.push({role:'artist',type:'text',text,trans:translation||'',ts:Date.now()});
   localStorage.setItem(dmKey(), JSON.stringify(dm)); renderDM();
@@ -571,18 +547,13 @@ function renderHearts(){
   const n=Math.floor((t-s)/86400000); el.textContent = (n<=dur)?`+${n}`:'+0';
 }
 
-/* ===== SCREENSHOT WARNING ===== */
-function showScreenshotWarning(){
-  const modal = document.getElementById('shotModal');
-  if(!modal) return;
-  modal.style.display = 'grid';
-}
+/* ===== 截圖警告（桌機模擬） ===== */
+function showScreenshotWarning(){ const m=document.getElementById('shotModal'); if(m) m.style.display='grid'; }
 function dismissShot(){ const m=document.getElementById('shotModal'); if(m) m.style.display='none'; }
-/* 桌面模擬：按下 PrintScreen 觸發；行動端需 App 原生 API 才能偵測 */
 window.addEventListener('keyup', e=>{ if(e.key === 'PrintScreen'){ showScreenshotWarning(); }});
-document.addEventListener('copy', ()=>{ showScreenshotWarning(); });
+document.addEventListener('copy', showScreenshotWarning);
 
-/* ===== THEME BOOT ===== */
+/* ===== THEME ===== */
 (function(){
   window.NX = window.NX || {};
   NX.setTheme = mode => {
@@ -598,7 +569,7 @@ document.addEventListener('copy', ()=>{ showScreenshotWarning(); });
   }
 })();
 
-/* ===== BOOT ===== */
+/* ===== BOOT（含 Splash） ===== */
 window.addEventListener('load', ()=>{
   // Splash：兩次 RAF 確保進畫面
   (function(){
@@ -620,9 +591,9 @@ window.addEventListener('load', ()=>{
   if(localStorage.getItem('loggedIn')) showPage('home'); else showPage('login');
 });
 
-/* ===== CACHE BUSTER（可保留） ===== */
+/* ===== CACHE BUSTER（前端側安全刷新） ===== */
 (function(){
-  const BUILD = 'b2025-09-11-02';
+  const BUILD = 'b2025-09-11-03';
   const KEY_BUILD = '_nx_build';
   const KEY_JUST  = '_nx_just_refreshed';
   try{
@@ -641,8 +612,10 @@ window.addEventListener('load', ()=>{
   }catch(e){}
   window.addEventListener('pageshow', e => { if (e.persisted) location.reload(); });
   window.NX = window.NX || {};
-  window.NX.refresh = function(){ try{ sessionStorage.removeItem('_nx_just_refreshed'); localStorage.removeItem('_nx_build'); }catch(_){}
-    location.reload(); };
+  window.NX.refresh = function(){
+    try{ sessionStorage.removeItem('_nx_just_refreshed'); localStorage.removeItem('_nx_build'); }catch(_){}
+    location.reload();
+  };
 })();
 </script>
 </body>
