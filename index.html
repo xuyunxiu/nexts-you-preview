@@ -33,6 +33,47 @@
       --shadow-soft:0 6px 16px rgba(0,0,0,.28);
     }
 
+    /* ==== Splash: 先浮現 "NEXT ONE" → 再切成 "NEXT’S YOU" ==== */
+#splash{
+  position:fixed; inset:0; z-index:9999; display:grid; place-items:center;
+  background:
+    radial-gradient(1200px 600px at 120% -10%, rgba(224,21,47,.16), transparent 60%),
+    radial-gradient(900px 500px at -10% -10%, rgba(255,255,255,.05), transparent 60%),
+    linear-gradient(180deg,#101115 0%, #0c0c0e 100%);
+  color:#fff;
+}
+#splash.hide{animation: splashFade .5s ease forwards}
+@keyframes splashFade{to{opacity:0; visibility:hidden}}
+
+.splash-logo{
+  font-weight:900; letter-spacing:.3px; display:flex; align-items:baseline; gap:6px;
+  font-size:28px;
+}
+
+/* 初始：全部透明（準備「浮現」） */
+.splash-logo .NEXT,.splash-logo .ONE,.splash-logo .SYOU{opacity:0; transform:none}
+
+/* Phase 1：播放時，只有 "NEXT" 與 "ONE" 一起「浮現」（淡入，不移動） */
+#splash.play .NEXT, #splash.play .ONE{
+  opacity:1; transform:none; transition:opacity .6s ease .05s;
+}
+
+/* Phase 2：反轉切換（ONE 下沉淡出，’S YOU 上浮淡入；NEXT 完全不動） */
+#splash.swap .ONE{
+  opacity:0; transform:translateY(14px); transition:transform .55s ease, opacity .55s ease;
+}
+#splash.swap .SYOU{
+  opacity:1; transform:translateY(-6px); transition:transform .55s ease .05s, opacity .55s ease .05s;
+}
+
+@media (min-width:420px){
+  .splash-logo{font-size:40px}
+  .splash-logo .NEXT,.splash-logo .ONE,.splash-logo .SYOU{font-size:40px}
+}
+@media (prefers-reduced-motion: reduce){
+  #splash.play .NEXT,#splash.play .ONE,#splash.swap .ONE,#splash.swap .SYOU{transition:none}
+}
+
     /* ============ RESET ============ */
     *{box-sizing:border-box}
     html,body{height:100%}
