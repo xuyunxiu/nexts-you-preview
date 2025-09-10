@@ -577,46 +577,60 @@ function dismissShot(remember=false){
 /* ===== BOOT ===== */
 window.addEventListener('load', ()=>{ if(localStorage.getItem('loggedIn')) showPage('home'); else showPage('login'); });
 </script>
- <!-- 🚀 開場動畫 -->
+ <!-- 🚀 開場動畫：NEXT 固定 + 'S YOU 翻轉出現 -->
 <div id="splash">
-  <div class="splash-text" id="textOne">NEXT ONE</div>
-  <div class="splash-text hidden" id="textTwo">
-    <span style="color:white;">NEXT</span>
-    <span style="color:red;"> ’S YOU</span>
+  <div class="stage">
+    <span class="next">NEXT</span>
+    <span id="one" class="one">ONE</span>
+    <span id="syou" class="syou">’S YOU</span>
   </div>
 </div>
 
 <style>
   #splash {
-    position: fixed;
-    top:0; left:0; right:0; bottom:0;
-    background:black;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    z-index:9999;
-    flex-direction:column;
+    position: fixed; inset: 0; background: #000;
+    display: flex; justify-content: center; align-items: center;
+    z-index: 9999;
   }
-  .splash-text {
-    font-size:32px;
-    font-weight:bold;
-    color:white;
-    text-align:center;
+  .stage {
+    font-weight: 700; font-size: 44px; color: #fff;
+    display: flex; gap: 20px; align-items: center;
   }
-  .hidden { display:none; }
+  .next { color: #fff; }
+  .one { opacity: 0; }
+  .syou { opacity: 0; color: #e42323; transform: rotateY(90deg); }
+
+  /* 動畫定義 */
+  @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+  @keyframes fadeOut { from{opacity:1} to{opacity:0} }
+  @keyframes flipIn {
+    from { opacity:0; transform: rotateY(90deg); }
+    to   { opacity:1; transform: rotateY(0deg); }
+  }
 </style>
 
 <script>
-  // 切換動畫
-  setTimeout(()=>{
-    document.getElementById("textOne").classList.add("hidden");
-    document.getElementById("textTwo").classList.remove("hidden");
-  },1500);
+  const one = document.getElementById("one");
+  const syou = document.getElementById("syou");
+  const splash = document.getElementById("splash");
 
-  // 結束動畫 → 移除 splash
+  // Step 1: 顯示 NEXT ONE
+  one.style.animation = "fadeIn 600ms ease forwards";
+
+  // Step 2: ONE 消失，'S YOU 翻轉進場
   setTimeout(()=>{
-    document.getElementById("splash").style.display="none";
-  },3000);
+    one.style.animation = "fadeOut 400ms ease forwards";
+    setTimeout(()=>{
+      syou.style.animation = "flipIn 600ms ease forwards";
+    }, 400);
+  }, 1200);
+
+  // Step 3: 最後淡出整個開場
+  setTimeout(()=>{
+    splash.style.transition = "opacity 400ms ease";
+    splash.style.opacity = "0";
+    setTimeout(()=> splash.remove(), 450);
+  }, 2800);
 </script>
 </body>
 </html>
