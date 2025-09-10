@@ -53,7 +53,7 @@
     .ghost{opacity:.75; color:var(--sub)}
     .list-col{display:grid; gap:12px}
 
-    /* Friends Header（你已有的 #friendsHeader） */
+    /* Friends Header（HOME） */
     #friendsHeader{display:flex; justify-content:space-between; align-items:center; gap:12px}
     #friendsHeader .me{display:flex; align-items:center; gap:12px}
     #friendsHeader img{width:48px; height:48px; border-radius:50%; object-fit:cover; border:1px solid var(--line)}
@@ -64,10 +64,11 @@
     .tabs button{
       border:none; border-radius:999px; padding:10px 0; font-weight:800; color:var(--sub);
       background:var(--card); border:1px solid var(--line); box-shadow:var(--shadow);
+      cursor:pointer;
     }
     .tabs button.active{ color:var(--text); background:linear-gradient(180deg, var(--hover), var(--card)); border-color:transparent }
 
-    /* 列表的卡片樣式（你 renderHome / renderDMList 已輸出 .card 了） */
+    /* 列表的卡片樣式 */
     .card .row{display:flex; align-items:center; gap:12px}
     .card .row img{width:52px; height:52px; border-radius:50%; object-fit:cover; border:1px solid var(--line)}
     .badge{display:inline-block; margin-top:6px; padding:4px 8px; border-radius:999px; font-size:12px; font-weight:800; border:1px solid var(--line)}
@@ -78,7 +79,7 @@
     .topbar{display:flex; align-items:center; gap:12px; margin-bottom:10px}
     .topbar .dm-top{display:flex; align-items:center; gap:10px}
     .dm-title{font-weight:800}
-    .menu-btn{width:40px; height:40px; border-radius:12px; border:1px solid var(--line); background:var(--card); color:var(--text)}
+    .menu-btn{width:40px; height:40px; border-radius:12px; border:1px solid var(--line); background:var(--card); color:var(--text); cursor:pointer}
     .pill{display:flex; align-items:center; gap:6px; padding:8px 12px; border-radius:999px; border:1px solid var(--line); background:linear-gradient(180deg,var(--hover),var(--card)); font-weight:800}
     .dm-wrap{display:flex; flex-direction:column; gap:12px}
     .dm-messages{display:flex; flex-direction:column; gap:14px; max-height:62vh; overflow:auto; padding-bottom:6px}
@@ -89,7 +90,7 @@
     .msg time{position:absolute; right:14px; bottom:-18px; font-size:11px; color:var(--muted)}
     .dm-input{position:fixed; left:0; right:0; bottom:0; padding:12px 14px; background:linear-gradient(180deg,rgba(0,0,0,0),rgba(0,0,0,.55)); backdrop-filter:blur(10px); display:flex; gap:10px}
     .dm-input input{flex:1; border:none; outline:none; border-radius:16px; padding:14px 16px; background:var(--hover); color:var(--text); box-shadow:inset 0 1px 0 rgba(255,255,255,.04); border:1px solid var(--line)}
-    .dm-input button{width:52px; height:52px; border:none; border-radius:18px; font-weight:900; color:#fff; background:linear-gradient(180deg,var(--accent),var(--accent-2))}
+    .dm-input button{width:52px; height:52px; border:none; border-radius:18px; font-weight:900; color:#fff; background:linear-gradient(180deg,var(--accent),var(--accent-2)); cursor:pointer}
 
     /* GALLERY */
     #galleryGrid{display:grid; grid-template-columns:1fr 1fr; gap:12px}
@@ -101,82 +102,65 @@
     .live-fans{display:grid; gap:10px; margin-top:12px}
     .fan-item{padding:12px; border-radius:12px; background:var(--card); border:1px solid var(--line)}
 
-    /* NAV（若保留） */
+    /* NAV（底部） */
     nav{position:fixed; left:0; right:0; bottom:0; background:#0f1116; border-top:1px solid var(--line); display:flex; justify-content:space-around; padding:12px 8px 16px; backdrop-filter:blur(8px)}
     nav.hidden{display:none}
-    nav button{background:transparent; border:none; color:var(--text); font-weight:800; padding:8px 10px; border-radius:12px}
+    nav button{background:transparent; border:none; color:var(--text); font-weight:800; padding:8px 10px; border-radius:12px; cursor:pointer}
     nav button:active{background:var(--hover)}
 
-    /* 截圖警告 modal（沿用你的結構，加基本皮膚） */
-    #shotModal{display:none; position:fixed; inset:0; place-items:center; background:rgba(0,0,0,.4)}
+    /* LOGIN 卡片置中樣式（避免 input 偏移） */
+    #login.center{
+      min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px 16px;
+    }
+    .login-card{
+      width:100%; max-width:360px; text-align:center; padding:24px; border-radius:16px; background:var(--card);
+      border:1px solid var(--line); box-shadow:var(--shadow);
+    }
+    .login-input{
+      width:100%; padding:12px; font-size:15px; margin:0 0 12px 0; display:block;
+      border:1px solid var(--line); border-radius:12px; background:var(--hover); color:var(--text);
+      box-sizing:border-box;
+    }
+    .btn-full{
+      width:100%; padding:14px; font-size:15px; font-weight:600; border:none; border-radius:12px; cursor:pointer;
+    }
+    .btn-line{ background:#06C755; color:#fff; margin-bottom:12px; }
+    .btn-white{ background:#fff; color:#000; }
+
+    /* 截圖警告 modal */
+    #shotModal{display:none; position:fixed; inset:0; place-items:center; background:rgba(0,0,0,.4); z-index:9998}
     #shotModal .box{max-width:560px; width:90%; background:var(--card); border:1px solid var(--line); border-radius:var(--r); box-shadow:var(--shadow); padding:16px}
     #shotModal .warn{margin-top:6px; padding:12px; border-radius:12px; background:rgba(255,45,85,.12); border:1px dashed rgba(255,45,85,.35)}
 
-    /* 開場動畫（置中、NEXT 靜止、'S YOU 翻轉、ONE 先出場） */
-    #splash{position:fixed; inset:0; background:#000; display:flex; justify-content:center; align-items:center; z-index:9999}
-    #splash .stage{display:flex; gap:20px; align-items:center; font-weight:800; font-size:44px; color:#fff}
+    /* Splash */
+    #splash{position:fixed; inset:0; background:#000; display:flex; justify-content:center; align-items:center; z-index:9999; pointer-events:none}
+    #splash .stage{display:flex; gap:20px; align-items:center; justify-content:center; font-weight:800; font-size:44px; color:#fff; transform:translateZ(0); will-change:opacity,transform}
     #splash .next{color:#fff}
     #splash .one{opacity:0}
-    #splash .syou{opacity:0; color:#e42323; transform:rotateY(90deg)}
-    @keyframes fadeIn {from{opacity:0} to{opacity:1}}
-    @keyframes fadeOut{from{opacity:1} to{opacity:0}}
-    @keyframes flipIn{from{opacity:0; transform:rotateY(90deg)} to{opacity:1; transform:rotateY(0)}}
+    #splash .syou{opacity:0; color:#e42323; transform:rotateY(90deg); transform-origin:left center}
+    @keyframes sp-fade-in  { from{opacity:0} to{opacity:1} }
+    @keyframes sp-fade-out { from{opacity:1} to{opacity:0} }
+    @keyframes sp-flip-in  { from{opacity:0; transform:rotateY(90deg)} to{opacity:1; transform:rotateY(0)} }
+    #splash .one.play   { animation: sp-fade-in .6s ease forwards; }
+    #splash .one.hide   { animation: sp-fade-out .4s ease forwards; }
+    #splash .syou.play  { animation: sp-flip-in .6s ease forwards; }
+    #splash.hide        { transition: opacity .4s ease; opacity:0; }
   </style>
-  <!-- ================================================================== -->
 </head>
 
-<body class="nx"><!-- 加上 .nx 讓整個主題只在這頁生效 -->
+<body class="nx">
 
-<!-- ===== LOGIN ===== -->
-<section id="login" class="active" style="display:flex;justify-content:center;align-items:center;min-height:100vh;">
-  <div class="panel soft" style="width:90%;max-width:360px;text-align:center;padding:24px;border-radius:16px;background:var(--card);">
+<!-- ===== LOGIN（置中卡片） ===== -->
+<section id="login" class="active center">
+  <div class="login-card panel soft">
     <h2 style="margin-bottom:20px">登入</h2>
-    
-    <!-- LINE 按鈕 -->
-    <button id="lineLoginBtn" 
-      style="width:100%;padding:14px;font-size:16px;font-weight:600;
-             border:none;border-radius:12px;cursor:pointer;
-             background:#06C755;color:white;margin-bottom:14px;">
-      用 LINE 登入（模擬）
-    </button>
-    
-    <!-- 邀請碼輸入 -->
-    <input id="inviteCode" placeholder="輸入邀請碼，例如 NEXT2025"
-      style="width:100%;padding:12px;font-size:15px;margin-bottom:12px;
-             border:1px solid var(--line);border-radius:12px;
-             background:var(--hover);color:var(--text);">
-    
-    <!-- 使用邀請碼 -->
-    <button id="codeLoginBtn"
-      style="width:100%;padding:14px;font-size:15px;font-weight:600;
-             border:none;border-radius:12px;cursor:pointer;
-             background:white;color:black;">
-      使用邀請碼
-    </button>
+    <button id="lineLoginBtn" class="btn-full btn-line">用 LINE 登入（模擬）</button>
+    <input id="inviteCode" class="login-input" placeholder="輸入邀請碼，例如 NEXT2025" />
+    <button id="codeLoginBtn" class="btn-full btn-white">使用邀請碼</button>
   </div>
 </section>
 
-<script>
-/* ===== LOGIN FLOW ===== */
-function fakeLogin(method){
-  const code = document.getElementById('inviteCode').value.trim();
-  if(method==='line' || (method==='code' && code==='NEXT2025')){
-    localStorage.setItem('loggedIn','true');
-    if(!localStorage.getItem('fanId')){
-      localStorage.setItem('fanId','FAN'+Math.floor(Math.random()*100000));
-    }
-    showPage('home');
-  }else{
-    alert('❌ 邀請碼錯誤！');
-  }
-}
-
-// 綁定按鈕
-document.getElementById('lineLoginBtn').addEventListener('click', ()=>fakeLogin('line'));
-document.getElementById('codeLoginBtn').addEventListener('click', ()=>fakeLogin('code'));
-</script>
-
-<!-- HOME -->
+<!-- ===== HOME ===== -->
 <section id="home">
   <div id="friendsHeader" class="panel soft">
     <div class="me">
@@ -187,8 +171,8 @@ document.getElementById('codeLoginBtn').addEventListener('click', ()=>fakeLogin(
   </div>
 
   <div class="tabs">
-    <button id="tab-artists" class="active" onclick="setHomeTab('artists')">藝人</button>
-    <button id="tab-groups" onclick="setHomeTab('groups')">團體</button>
+    <button id="tab-artists"   class="active" onclick="setHomeTab('artists')">藝人</button>
+    <button id="tab-groups"    onclick="setHomeTab('groups')">團體</button>
     <button id="tab-purchased" onclick="setHomeTab('purchased')">已購買</button>
     <button id="tab-unpurchased" onclick="setHomeTab('unpurchased')">未購買</button>
   </div>
@@ -197,7 +181,7 @@ document.getElementById('codeLoginBtn').addEventListener('click', ()=>fakeLogin(
   <div id="homeEmpty" class="ghost" style="padding:12px;display:none">這一類目前是空的～</div>
 </section>
 
-<!-- PROFILE -->
+<!-- ===== PROFILE ===== -->
 <section id="profile">
   <div class="topbar"><h2>我的個人頁</h2></div>
   <div class="panel soft" style="text-align:center">
@@ -214,7 +198,7 @@ document.getElementById('codeLoginBtn').addEventListener('click', ()=>fakeLogin(
   </div>
 </section>
 
-<!-- DM LIST -->
+<!-- ===== DM LIST ===== -->
 <section id="dmList">
   <div class="topbar"><h2>Messages</h2></div>
   <div id="dmListWrap" class="list-col"></div>
@@ -223,7 +207,7 @@ document.getElementById('codeLoginBtn').addEventListener('click', ()=>fakeLogin(
   </div>
 </section>
 
-<!-- DM CHAT -->
+<!-- ===== DM CHAT ===== -->
 <section id="dm">
   <div class="topbar">
     <div class="dm-top">
@@ -245,7 +229,7 @@ document.getElementById('codeLoginBtn').addEventListener('click', ()=>fakeLogin(
   </div>
 </section>
 
-<!-- GALLERY (僅 ▦ 進) -->
+<!-- ===== GALLERY ===== -->
 <section id="gallery">
   <div class="topbar">
     <h2>相簿</h2>
@@ -254,7 +238,7 @@ document.getElementById('codeLoginBtn').addEventListener('click', ()=>fakeLogin(
   <div id="galleryGrid"></div>
 </section>
 
-<!-- LIVE -->
+<!-- ===== LIVE ===== -->
 <section id="live">
   <div class="topbar"><h2>LIVE</h2></div>
   <div class="panel soft live-host">
@@ -269,9 +253,12 @@ document.getElementById('codeLoginBtn').addEventListener('click', ()=>fakeLogin(
   </div>
 </section>
 
-<!-- WALLET -->
+<!-- ===== WALLET ===== -->
 <section id="wallet">
-  <div class="topbar"><h2>錢包</h2><div style="margin-left:auto"><button class="btn" onclick="logout()" style="border:1px solid var(--line); border-radius:12px; padding:8px 12px; background:var(--card); color:var(--text)">登出</button></div></div>
+  <div class="topbar">
+    <h2>錢包</h2>
+    <div style="margin-left:auto"><button class="btn" onclick="logout()" style="border:1px solid var(--line); border-radius:12px; padding:8px 12px; background:var(--card); color:var(--text)">登出</button></div>
+  </div>
   <div class="panel soft">
     <p><b>我的分數：</b><span id="points">0</span></p>
     <div class="product" style="padding:12px; display:flex; align-items:center; justify-content:space-between; margin-top:10px">
@@ -291,30 +278,21 @@ document.getElementById('codeLoginBtn').addEventListener('click', ()=>fakeLogin(
   </div>
 </section>
 
-<script>
-/* ===== 截圖警告（每次截圖觸發） ===== */
-function showScreenshotWarning(){
-  const modal = document.getElementById('shotModal');
-  if(!modal) return;
-  modal.querySelector('.warn').innerHTML = `
-    <b>已偵測到螢幕截圖</b><br>
-    未經授權擷取、轉傳或外流藝人之文字、照片或影片，可能違反平台規範並影響他人權益。<br>
-    因此產生的任何後果與責任，將由您自行承擔。若持續違規，帳號與相關權益可能被停用。
-  `;
-  modal.style.display = 'grid';
-}
-function dismissShot(){ const m=document.getElementById('shotModal'); if(m) m.style.display='none'; }
+<!-- ===== 截圖警告 Modal ===== -->
+<div id="shotModal">
+  <div class="box">
+    <h3>截圖提醒</h3>
+    <div class="warn">
+      未經授權擷取、轉傳或外流藝人之文字、照片或影片，可能違反平台規範並影響他人權益。<br/>
+      因此產生的任何後果與責任，將由您自行承擔。若持續違規，帳號與相關權益可能被停用。
+    </div>
+    <div style="margin-top:12px; text-align:right">
+      <button onclick="dismissShot()" class="btn" style="border:1px solid var(--line); border-radius:12px; padding:8px 12px; background:var(--card); color:var(--text)">我知道了</button>
+    </div>
+  </div>
+</div>
 
-/* 桌面模擬：按下 PrintScreen 觸發；行動端需 App 原生 API 才能偵測 */
-window.addEventListener('keyup', e=>{
-  if(e.key === 'PrintScreen'){ showScreenshotWarning(); }
-});
-
-/* 額外：拷貝事件也提醒（有時候使用者會複製文字/圖片後外流） */
-document.addEventListener('copy', ()=>{ showScreenshotWarning(); });
-</script>
-
-<!-- NAV -->
+<!-- ===== NAV（底部） ===== -->
 <nav id="nav" class="hidden">
   <button onclick="showPage('home')">首頁</button>
   <button onclick="showPage('dmList')">DM</button>
@@ -322,6 +300,16 @@ document.addEventListener('copy', ()=>{ showScreenshotWarning(); });
   <button onclick="showPage('wallet')">錢包</button>
 </nav>
 
+<!-- ===== SPLASH ===== -->
+<div id="splash" aria-hidden="true">
+  <div class="stage">
+    <span class="next">NEXT</span>
+    <span class="one"  id="spOne">ONE</span>
+    <span class="syou" id="spYou">’S YOU</span>
+  </div>
+</div>
+
+<!-- ================= SCRIPTS（單一塊，無打架） ================= -->
 <script>
 /* ===== DATA ===== */
 const ARTISTS = [
@@ -332,17 +320,30 @@ const ARTISTS = [
 ];
 const GROUPS = [{id:'group', name:'ALLDAY PROJECT', avatar:'https://picsum.photos/120?u=grp', kind:'group'}];
 
-/* ===== STATE ===== */
+/* ===== STATE 初始 ===== */
 if(!localStorage.getItem('points')) localStorage.setItem('points', 200);
 if(!localStorage.getItem('userId')) localStorage.setItem('userId','u_'+Math.random().toString(36).slice(2,10));
-  
+
+/* ===== LOGIN FLOW（LINE / 邀請碼：NEXT2025） ===== */
+function fakeLogin(method){
+  const code = (document.getElementById('inviteCode')?.value || '').trim();
+  if(method==='line' || (method==='code' && code==='NEXT2025')){
+    localStorage.setItem('loggedIn','true');
+    if(!localStorage.getItem('fanId')) localStorage.setItem('fanId','FAN'+Math.floor(Math.random()*100000));
+    showPage('home');
+  }else{
+    alert('❌ 邀請碼錯誤！');
+  }
+}
+document.getElementById('lineLoginBtn').addEventListener('click', ()=>fakeLogin('line'));
+document.getElementById('codeLoginBtn').addEventListener('click', ()=>fakeLogin('code'));
+
 /* ===== NAV 顯示/隱藏（DM / gallery 不顯示） ===== */
 function showPage(id){
-  // 切頁
   document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
+  const target = document.getElementById(id);
+  if (target) target.classList.add('active');
 
-  // 底部 nav：登入後才顯示，但 DM / gallery 隱藏
   const nav = document.getElementById('nav');
   if (localStorage.getItem('loggedIn') && id!=='login' && id!=='dm' && id!=='gallery') {
     nav.classList.remove('hidden');
@@ -353,7 +354,7 @@ function showPage(id){
   // 每頁刷新
   if(id==='home'){ renderProfile(); setHomeTab(HOME_TAB||'artists'); }
   if(id==='dmList'){ renderDMList(); }
-  if(id==='dm'){ renderHearts(); renderDM(); }   // 不再呼叫 maybeWarnShot()
+  if(id==='dm'){ renderHearts(); renderDM(); }
   if(id==='gallery'){ renderGallery(); }
   if(id==='wallet'){ renderPoints(); }
   if(id==='profile'){ prepProfile(); }
@@ -368,7 +369,7 @@ function openProfile(){ showPage('profile'); }
 function prepProfile(){
   document.getElementById('editNickname').value = localStorage.getItem('nickname') || '暱稱';
   document.getElementById('editAvatar').src = localStorage.getItem('avatar') || 'https://picsum.photos/160?u=me';
-  document.getElementById('fanId').textContent = localStorage.getItem('fanId');
+  document.getElementById('fanId').textContent = localStorage.getItem('fanId') || '';
 }
 function changeAvatar(e){
   const f=e.target.files[0]; if(!f) return;
@@ -551,11 +552,14 @@ function renderHearts(){
 
 /* ===== SCREENSHOT WARNING ===== */
 function showScreenshotWarning(){
-  document.getElementById('shotModal').style.display='grid';
+  const modal = document.getElementById('shotModal');
+  if(!modal) return;
+  modal.style.display = 'grid';
 }
-function dismissShot(){
-  document.getElementById('shotModal').style.display='none';
-}
+function dismissShot(){ const m=document.getElementById('shotModal'); if(m) m.style.display='none'; }
+/* 桌面模擬：按下 PrintScreen 觸發；行動端需 App 原生 API 才能偵測 */
+window.addEventListener('keyup', e=>{ if(e.key === 'PrintScreen'){ showScreenshotWarning(); }});
+document.addEventListener('copy', ()=>{ showScreenshotWarning(); });
 
 /* ===== THEME BOOT ===== */
 (function(){
@@ -574,145 +578,50 @@ function dismissShot(){
 })();
 
 /* ===== BOOT ===== */
-window.addEventListener('load', ()=>{ if(localStorage.getItem('loggedIn')) showPage('home'); else showPage('login'); });
+window.addEventListener('load', ()=>{
+  // Splash：兩次 RAF 確保進畫面
+  (function(){
+    const splash = document.getElementById('splash');
+    const one    = document.getElementById('spOne');
+    const you    = document.getElementById('spYou');
+    const raf = window.requestAnimationFrame || (fn=>setTimeout(fn,16));
+    const safeHide = () => { if (!splash) return; splash.classList.add('hide'); setTimeout(()=>splash.remove(), 460); };
+    const killer = setTimeout(safeHide, 4500);
+    function start(){
+      one.classList.add('play');
+      setTimeout(()=>{ one.classList.remove('play'); one.classList.add('hide'); setTimeout(()=>{ you.classList.add('play'); }, 400); }, 900);
+      setTimeout(()=>{ clearTimeout(killer); safeHide(); }, 2600);
+    }
+    window.addEventListener('pageshow', (e)=>{ if (e.persisted) start(); }, {once:true});
+    raf(()=> raf(start));
+  })();
 
-/* ===== SPLASH ===== */
+  if(localStorage.getItem('loggedIn')) showPage('home'); else showPage('login');
+});
+
+/* ===== CACHE BUSTER（可保留） ===== */
 (function(){
-  const one = document.getElementById("one");
-  const syou = document.getElementById("syou");
-  const splash = document.getElementById("splash");
-  one.style.animation = "fadeIn 600ms ease forwards";
-  setTimeout(()=>{
-    one.style.animation = "fadeOut 400ms ease forwards";
-    setTimeout(()=>{ syou.style.animation = "flipIn 600ms ease forwards"; }, 400);
-  }, 1200);
-  setTimeout(()=>{
-    splash.style.transition = "opacity 420ms ease";
-    splash.style.opacity = "0";
-    setTimeout(()=> splash.remove(), 460);
-  }, 2800);
-})();
-</script>
-<!-- 🚀 Stable Splash: NEXT 固定、'S YOU 翻轉；失敗保險 4.5s 強制關閉 -->
-<style>
-  #splash {
-    position: fixed; inset: 0; background: #000;
-    display: flex; justify-content: center; align-items: center;
-    z-index: 9999; pointer-events: none;
-  }
-  #splash .stage {
-    display: flex; gap: 20px; align-items: center; justify-content:center;
-    font-weight: 800; font-size: 44px; color: #fff;
-    transform: translateZ(0);
-    will-change: opacity, transform;
-  }
-  #splash .next { color:#fff; }
-  #splash .one  { opacity:0; }
-  #splash .syou { opacity:0; color:#e42323; transform: rotateY(90deg); transform-origin: left center; }
-
-  /* 動畫 */
-  @keyframes sp-fade-in  { from{opacity:0} to{opacity:1} }
-  @keyframes sp-fade-out { from{opacity:1} to{opacity:0} }
-  @keyframes sp-flip-in  { from{opacity:0; transform:rotateY(90deg)} to{opacity:1; transform:rotateY(0)} }
-
-  #splash .one.play   { animation: sp-fade-in .6s ease forwards; }
-  #splash .one.hide   { animation: sp-fade-out .4s ease forwards; }
-  #splash .syou.play  { animation: sp-flip-in .6s ease forwards; }
-  #splash.hide        { transition: opacity .4s ease; opacity:0; }
-</style>
-
-<div id="splash" aria-hidden="true">
-  <div class="stage">
-    <span class="next">NEXT</span>
-    <span class="one"  id="spOne">ONE</span>
-    <span class="syou" id="spYou">’S YOU</span>
-  </div>
-</div>
-
-<script>
-(function(){
-  const splash = document.getElementById('splash');
-  const one    = document.getElementById('spOne');
-  const you    = document.getElementById('spYou');
-
-  // 兼容 iOS：等一幀 → 再等一幀，確保第一次 paint 之後才加動畫 class
-  const raf = window.requestAnimationFrame || (fn=>setTimeout(fn,16));
-  const safeHide = () => { if (!splash) return; splash.classList.add('hide'); setTimeout(()=>splash.remove(), 460); };
-
-  // 4.5s 保險：不論如何強制關閉，避免卡住
-  const killer = setTimeout(safeHide, 4500);
-
-  function start(){
-    // Step1: ONE 顯示
-    one.classList.add('play');
-
-    // Step2: ONE 淡出 → 'S YOU 翻轉進場
-    setTimeout(()=>{
-      one.classList.remove('play'); one.classList.add('hide');
-      setTimeout(()=>{ you.classList.add('play'); }, 400);
-    }, 900);
-
-    // Step3: 整個 splash 淡出
-    setTimeout(()=>{
-      clearTimeout(killer);
-      safeHide();
-    }, 2600);
-  }
-
-  // 針對 iOS/Safari 返回頁面(BFCache) 的處理：回來就重跑一次
-  window.addEventListener('pageshow', (e)=>{ if (e.persisted) start(); }, {once:true});
-
-  // 兩次 RAF，保證 DOM 真的進畫面
-  raf(()=> raf(start));
-})();
-</script>
-<!-- 🔧 CACHE BUSTER (paste just before </body>) -->
-<script>
-(function(){
-  // ➊ 每次你發新版本，把下面這個字串隨便改：日期/編號都行
-  const BUILD = 'b2025-09-11-01';
+  const BUILD = 'b2025-09-11-02';
   const KEY_BUILD = '_nx_build';
   const KEY_JUST  = '_nx_just_refreshed';
-
   try{
     const prev = localStorage.getItem(KEY_BUILD);
     const just = sessionStorage.getItem(KEY_JUST);
-
-    // ➋ 如果偵測到版本變了，而且還沒刷新過 → 立刻清快取並帶版本參數重新載入
     if (prev !== BUILD && !just) {
       sessionStorage.setItem(KEY_JUST, '1');
       localStorage.setItem(KEY_BUILD, BUILD);
-
-      // a) 刪掉可能的 CacheStorage（GitHub Pages/瀏覽器層）
-      if ('caches' in window) {
-        caches.keys().then(keys => keys.forEach(k => caches.delete(k)));
-      }
-
-      // b) 註銷任何 Service Worker（如果不小心註冊過）
+      if ('caches' in window) caches.keys().then(keys => keys.forEach(k => caches.delete(k)));
       if (navigator.serviceWorker && navigator.serviceWorker.getRegistrations) {
         navigator.serviceWorker.getRegistrations().then(list => list.forEach(r => r.unregister()));
       }
-
-      // c) 改寫網址加上版本參數，確保 HTML 也重抓（避免中繼節點快取）
-      const u = new URL(location.href);
-      u.searchParams.set('v', BUILD);
-      location.replace(u.toString());
-      return; // 中止後續程式，等待重新載入
+      const u = new URL(location.href); u.searchParams.set('v', BUILD); location.replace(u.toString());
+      return;
     }
-  }catch(e){/* 靜默忽略 */ }
-
-  // ➌ iOS/Safari 返回上一頁會用 BFCache，這裡偵測並強制重整
+  }catch(e){}
   window.addEventListener('pageshow', e => { if (e.persisted) location.reload(); });
-
-  // ➍ 提供一個手動指令：在瀏覽器 console 打 NX.refresh() 可手動清一次並刷新
   window.NX = window.NX || {};
-  window.NX.refresh = function(){
-    try{
-      sessionStorage.removeItem('_nx_just_refreshed');
-      localStorage.removeItem('_nx_build');
-    }catch(_){}
-    location.reload();
-  };
+  window.NX.refresh = function(){ try{ sessionStorage.removeItem('_nx_just_refreshed'); localStorage.removeItem('_nx_build'); }catch(_){}
+    location.reload(); };
 })();
 </script>
 </body>
