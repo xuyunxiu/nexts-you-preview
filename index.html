@@ -10,5 +10,12 @@
 <body>
   <h1>NEXT’S YOU — Preview v0.0.9</h1>
   <p>首頁測試成功 🎉</p>
+  <script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js').catch(console.warn);
+    });
+  }
+</script>
 </body>
 </html>
