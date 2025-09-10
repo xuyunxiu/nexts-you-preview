@@ -1,238 +1,189 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>NEXT’S YOU — PWA Preview</title>
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#000000">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NEXT'S YOU — Preview</title>
   <style>
-    :root { --bg:#000; --fg:#fff; --muted:#9aa0a6; --card:#111; --line:#222; }
-    *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--fg);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang TC","Noto Sans TC",sans-serif}
-    header{display:flex;align-items:center;gap:8px;padding:12px 14px;border-bottom:1px solid var(--line)}
-    header h1{font-size:15px;margin:0;font-weight:800;letter-spacing:.4px}
-    .pill{margin-left:auto;background:#1f1f1f;border:1px solid #2a2a2a;color:#fff;padding:4px 10px;border-radius:999px;font-size:12px}
-    nav{position:fixed;left:0;right:0;bottom:0;display:flex;border-top:1px solid var(--line);background:#0a0a0a}
-    nav a{flex:1;text-align:center;padding:10px 6px;text-decoration:none;color:#cfcfcf;font-size:12px}
-    .wrap{padding:14px 14px 70px}
-    .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px}
-    .btn{padding:12px 16px;border-radius:12px;border:1px solid #e11; background:#e11; color:#fff;font-weight:800}
-    .btn.ghost{background:transparent;border-color:#333}
-    .row{display:flex;gap:10px;align-items:center}
-    input{width:100%;padding:10px;border-radius:12px;border:1px solid #303134;background:#0f0f0f;color:#fff}
-    .hidden{display:none}
-    .list{display:flex;flex-direction:column;gap:10px}
-    .msg{display:flex;gap:10px}
-    .msg .avatar{width:34px;height:34px;border-radius:50%;background:#333}
-    .msg .bubble{max-width:75%;background:#1a1a1a;border:1px solid #262626;padding:10px 12px;border-radius:14px}
-    .msg.me{flex-direction:row-reverse}
-    .msg.me .bubble{background:#261313;border-color:#3a1a1a}
-    .caption{font-size:12px;color:var(--muted);margin-top:4px}
-    .hr{height:1px;background:var(--line);margin:10px 0}
-    .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
-    .tile{height:100px;border-radius:10px;background:linear-gradient(135deg,#2a2a2a,#121212);border:1px solid #222}
-    .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:78px;background:#e11;color:#fff;padding:10px 14px;border-radius:999px;font-size:12px;display:none}
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #111;
+      color: #fff;
+      text-align: center;
+    }
+    section { display: none; padding: 20px; }
+    section.active { display: block; }
+    nav {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: #222; display: flex; justify-content: space-around;
+      padding: 10px 0;
+    }
+    nav.hidden { display: none; }
+    nav button {
+      background: none; border: none; color: #fff; font-size: 16px;
+    }
+    .btn {
+      display: inline-block; padding: 10px 20px; margin: 10px;
+      border-radius: 6px; font-size: 16px; cursor: pointer;
+    }
+    .btn-red { background: red; color: #fff; }
+    input { padding: 8px; border-radius: 4px; border: none; margin: 5px; }
+    .topbar {
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .hearts {
+      font-size: 18px; color: pink;
+    }
+    .product {
+      background: #222; margin: 10px; padding: 15px; border-radius: 8px;
+    }
   </style>
 </head>
 <body>
-  <header>
-    <h1>NEXT’S YOU — Preview</h1>
-    <span class="pill">♡+<span id="heartDays">0</span></span>
-  </header>
+  <!-- 登入頁 -->
+  <section id="login" class="active">
+    <h2>登入</h2>
+    <button class="btn btn-red" onclick="login('line')">用 LINE 登入（模擬）</button>
+    <br>
+    <input type="text" id="inviteCode" placeholder="輸入邀請碼，例如 NEXT2025">
+    <button class="btn" onclick="login('code')">使用邀請碼</button>
+  </section>
 
-  <div class="wrap">
-    <!-- LOGIN -->
-    <section id="v-login">
-      <div class="card">
-        <h3 style="margin:0 0 8px">登入</h3>
-        <div class="row" style="gap:8px">
-          <button id="btnLine" class="btn">用 LINE 登入（模擬）</button>
-          <span style="color:#999">或</span>
-          <input id="invite" placeholder="輸入邀請碼，如 NEXT2025">
-          <button id="btnInvite" class="btn ghost">使用邀請碼</button>
-        </div>
-      </div>
-      <div class="card">
-        <strong>互動起始日</strong>
-        <div class="caption">設定後會顯示上方「♡+N 天」</div>
-        <div class="row" style="margin-top:8px">
-          <input id="purchaseDate" type="date">
-          <button id="btnSetPurchase" class="btn ghost">設定</button>
-        </div>
-      </div>
-    </section>
+  <!-- 首頁 -->
+  <section id="home">
+    <div class="topbar">
+      <h2>首頁</h2>
+    </div>
+    <p>這裡是首頁內容！</p>
+    <p><strong>我的分數：</strong><span id="points">0</span></p>
+    <h3>商品區</h3>
+    <div class="product">
+      <p>7天 DM 權益 — 70 分</p>
+      <button onclick="buyProduct(70,7)">購買</button>
+    </div>
+    <div class="product">
+      <p>30天 DM 權益 — 250 分</p>
+      <button onclick="buyProduct(250,30)">購買</button>
+    </div>
+  </section>
 
-    <!-- HOME -->
-    <section id="v-home" class="hidden">
-      <div class="card" style="text-align:center">
-        <h2 style="margin:8px 0 2px;letter-spacing:.4px">NEXT ONE</h2>
-        <div class="caption">（按下方按鈕進入團體 DM）</div>
-        <button id="btnLetsGo" class="btn" style="margin-top:12px">Let’s Go!</button>
-      </div>
-    </section>
+  <!-- DM -->
+  <section id="dm">
+    <div class="topbar">
+      <h2>DM</h2>
+      <div class="hearts">♡<span id="heartDays">0</span></div>
+    </div>
+    <p>這裡會顯示聊天記錄。</p>
+  </section>
 
-    <!-- DM -->
-    <section id="v-dm" class="hidden">
-      <div class="row" style="justify-content:space-between;margin-bottom:8px">
-        <div class="pill">ALlDAY PROJECT — 團體 DM</div>
-        <button id="btnToGallery" class="btn ghost" title="藝人照片牆">▦</button>
-      </div>
-      <div id="dmList" class="list"></div>
-      <div class="hr"></div>
-      <div class="row">
-        <input id="dmInput" placeholder="對 NEXT’s 留言…">
-        <button id="btnSendDM" class="btn">送出</button>
-      </div>
-    </section>
+  <!-- 相簿 -->
+  <section id="gallery">
+    <h2>相簿</h2>
+    <p>藝人上傳的圖片會顯示在這裡。</p>
+  </section>
 
-    <!-- GALLERY -->
-    <section id="v-gallery" class="hidden">
-      <div class="row" style="justify-content:space-between;margin-bottom:8px">
-        <div class="pill">藝人照片牆</div>
-        <button id="btnBackDM" class="btn ghost">返回 DM</button>
-      </div>
-      <div id="grid" class="grid"></div>
-    </section>
+  <!-- 直播 -->
+  <section id="live">
+    <h2>直播</h2>
+    <p>文字直播或影片牆。</p>
+  </section>
 
-    <!-- LIVE (basic) -->
-    <section id="v-live" class="hidden">
-      <div class="pill">文字直播（主播 / 粉絲留言分流）</div>
-      <div class="hr"></div>
-      <div class="row" style="gap:10px;align-items:flex-start">
-        <div class="card" style="flex:1">
-          <strong>主播留言區</strong>
-          <div id="hostFeed" class="list" style="margin-top:8px"></div>
-          <div class="row" style="margin-top:8px">
-            <input id="hostInput" placeholder="以主播身分輸入文字（預覽）">
-            <button id="btnHostSend" class="btn ghost">發佈</button>
-          </div>
-        </div>
-        <div class="card" style="flex:1">
-          <strong>粉絲留言</strong>
-          <div id="fanFeed" class="list" style="margin-top:8px"></div>
-          <div class="row" style="margin-top:8px">
-            <input id="fanInput" placeholder="以粉絲身分輸入留言（預覽）">
-            <button id="btnFanSend" class="btn">送出</button>
-          </div>
-        </div>
-      </div>
-    </section>
-  </div>
-
-  <nav>
-    <a href="#login">登入</a>
-    <a href="#home">首頁</a>
-    <a href="#dm">DM</a>
-    <a href="#gallery">相簿</a>
-    <a href="#live">直播</a>
+  <!-- 底部導覽 -->
+  <nav id="nav" class="hidden">
+    <button onclick="showPage('home')">首頁</button>
+    <button onclick="showPage('dm')">DM</button>
+    <button onclick="showPage('gallery')">相簿</button>
+    <button onclick="showPage('live')">直播</button>
   </nav>
 
-  <div id="toast" class="toast"></div>
-
   <script>
-    // --- SPA Router ---
-    const V = {
-      login: document.getElementById('v-login'),
-      home: document.getElementById('v-home'),
-      dm: document.getElementById('v-dm'),
-      gallery: document.getElementById('v-gallery'),
-      live: document.getElementById('v-live'),
-    };
-    function show(name){
-      Object.values(V).forEach(el=>el.classList.add('hidden'));
-      (V[name]||V.login).classList.remove('hidden');
-      location.hash = name;
-    }
-    window.addEventListener('hashchange', ()=>{ show(location.hash.replace('#','')); renderAll(); });
-
-    // --- Toast ---
-    const toastEl = document.getElementById('toast');
-    const toast = m => { toastEl.textContent=m; toastEl.style.display='block'; setTimeout(()=>toastEl.style.display='none',1500); };
-
-    // --- Storage util ---
-    const S = { get:(k,d)=>{ try{return JSON.parse(localStorage.getItem(k)) ?? d}catch(e){return d} },
-                set:(k,v)=>localStorage.setItem(k,JSON.stringify(v)) };
-
-    // --- Auth (mock) ---
-    document.getElementById('btnLine').onclick = ()=>{
-      S.set('auth',{method:'line',user:'Producer'}); toast('LINE 登入成功（預覽）'); show('home'); renderAll();
-    };
-    document.getElementById('btnInvite').onclick = ()=>{
-      const code = (document.getElementById('invite').value||'').trim();
-      if(!code) return toast('請輸入邀請碼');
-      S.set('auth',{method:'invite',code}); toast('邀請碼通過'); show('home'); renderAll();
-    };
-
-    // --- Hearts (♡+N) ---
-    const heartDaysEl = document.getElementById('heartDays');
-    const pdEl = document.getElementById('purchaseDate');
-    document.getElementById('btnSetPurchase').onclick = ()=>{
-      const v = pdEl.value; if(!v) return toast('請選日期'); S.set('purchaseDate', v); renderHearts(); toast('已設定互動起始日');
-    };
-    function daysSince(d){ if(!d) return 0; const a=new Date(d), b=new Date(); a.setHours(0,0,0,0); b.setHours(0,0,0,0); const n=Math.floor((b-a)/86400000); return n<0?0:n; }
-    function renderHearts(){ const d = S.get('purchaseDate',''); heartDaysEl.textContent = daysSince(d); if(pdEl) pdEl.value = d||''; }
-
-    // --- Home ---
-    document.getElementById('btnLetsGo').onclick = ()=>{ show('dm'); renderAll(); };
-
-    // --- DM ---
-    const dmList = document.getElementById('dmList');
-    document.getElementById('btnSendDM').onclick = ()=>{
-      const inp = document.getElementById('dmInput'); const t = inp.value.trim(); if(!t) return;
-      const msgs = S.get('dm',[]); msgs.push({me:true,text:t,ts:Date.now()}); S.set('dm',msgs); inp.value=''; renderDM();
-    };
-    function renderDM(){
-      const msgs = S.get('dm',[]);
-      dmList.innerHTML = '';
-      msgs.forEach(m=>{
-        const row = document.createElement('div'); row.className='msg '+(m.me?'me':'');
-        row.innerHTML = `<div class="avatar"></div>
-          <div class="bubble">${m.text}<div class="caption">${new Date(m.ts).toLocaleString()}</div></div>`;
-        dmList.appendChild(row);
-      });
+    // --- 假的初始分數 (測試用)，之後你們後台會去改 ---
+    if (!localStorage.getItem('points')) {
+      localStorage.setItem('points', 200); // 預設200分
     }
 
-    // --- Gallery ---
-    const grid = document.getElementById('grid');
-    document.getElementById('btnToGallery').onclick = ()=>{ show('gallery'); renderAll(); };
-    document.getElementById('btnBackDM').onclick = ()=>{ show('dm'); renderAll(); };
-    function renderGallery(){
-      grid.innerHTML=''; // 先放 9 個佔位塊（之後換成真圖）
-      for(let i=0;i<9;i++){
-        const t = document.createElement('div'); t.className='tile';
-        t.onclick = ()=> alert('大圖檢視（預覽佔位）');
-        grid.appendChild(t);
+    // --- 登入 ---
+    function login(method) {
+      if (method === 'line' || (method === 'code' && document.getElementById('inviteCode').value.trim() === 'NEXT2025')) {
+        localStorage.setItem('loggedIn', 'true');
+        showPage('home');
+        renderPoints();
+      } else {
+        alert('邀請碼錯誤！');
       }
     }
 
-    // --- Live (split) ---
-    const hostFeed = document.getElementById('hostFeed');
-    const fanFeed  = document.getElementById('fanFeed');
-    document.getElementById('btnHostSend').onclick = ()=>{
-      const i = document.getElementById('hostInput'); const t=i.value.trim(); if(!t) return;
-      const a = S.get('liveHost',[]); a.push({text:t,ts:Date.now()}); S.set('liveHost',a); i.value=''; renderLive();
-    };
-    document.getElementById('btnFanSend').onclick = ()=>{
-      const i = document.getElementById('fanInput'); const t=i.value.trim(); if(!t) return;
-      const a = S.get('liveFans',[]); a.push({text:t,ts:Date.now()}); S.set('liveFans',a); i.value=''; renderLive();
-    };
-    function renderLive(){
-      const H=S.get('liveHost',[]), F=S.get('liveFans',[]);
-      hostFeed.innerHTML=''; H.forEach(x=>{ const d=document.createElement('div'); d.className='card';
-        d.innerHTML=`<div><strong>NEXT</strong></div><div>${x.text}</div><div class="caption">${new Date(x.ts).toLocaleString()}</div>`; hostFeed.appendChild(d); });
-      fanFeed.innerHTML=''; F.forEach(x=>{ const d=document.createElement('div'); d.className='card';
-        d.innerHTML=`<div><strong>粉絲</strong></div><div>${x.text}</div><div class="caption">${new Date(x.ts).toLocaleString()}</div>`; fanFeed.appendChild(d); });
+    // --- 切換頁面 ---
+    function showPage(page) {
+      if (!localStorage.getItem('loggedIn') && page !== 'login') {
+        page = 'login';
+      }
+      document.querySelectorAll('section').forEach(sec => sec.classList.remove('active'));
+      document.getElementById(page).classList.add('active');
+      const nav = document.getElementById('nav');
+      if (localStorage.getItem('loggedIn') && page !== 'login') {
+        nav.classList.remove('hidden');
+      } else {
+        nav.classList.add('hidden');
+      }
+      if (page === 'home') renderPoints();
+      if (page === 'dm') renderHearts();
     }
 
-    // --- Render All ---
-    function renderAll(){ renderHearts(); renderDM(); renderGallery(); renderLive(); }
-    const initial = location.hash.replace('#','') || 'login'; show(initial); renderAll();
-
-    // --- PWA SW ---
-    if('serviceWorker' in navigator){
-      window.addEventListener('load', ()=> navigator.serviceWorker.register('./sw.js').catch(console.warn));
+    // --- 分數顯示 ---
+    function renderPoints() {
+      document.getElementById('points').textContent = localStorage.getItem('points');
     }
+
+    // --- 購買商品 ---
+    function buyProduct(cost, days) {
+      let points = parseInt(localStorage.getItem('points'));
+      if (points >= cost) {
+        points -= cost;
+        localStorage.setItem('points', points);
+        localStorage.setItem('purchaseDate', new Date().toISOString().split('T')[0]);
+        localStorage.setItem('duration', days);
+        alert(`✅ 已購買 ${days} 天 DM 權益！`);
+        renderPoints();
+      } else {
+        alert('分數不足！');
+      }
+    }
+
+    // --- Hearts (♡+N) ---
+    function daysSince(dateStr) {
+      if (!dateStr) return 0;
+      const start = new Date(dateStr);
+      const today = new Date();
+      start.setHours(0,0,0,0);
+      today.setHours(0,0,0,0);
+      return Math.floor((today - start) / 86400000);
+    }
+
+    function renderHearts() {
+      const start = localStorage.getItem('purchaseDate');
+      const duration = parseInt(localStorage.getItem('duration') || 0);
+      if (!start) {
+        document.getElementById('heartDays').textContent = "0";
+        return;
+      }
+      const n = daysSince(start);
+      if (n <= duration) {
+        document.getElementById('heartDays').textContent = n;
+      } else {
+        document.getElementById('heartDays').textContent = "0"; // 過期了
+      }
+    }
+
+    // --- 預設 ---
+    window.onload = () => {
+      if (localStorage.getItem('loggedIn')) {
+        showPage('home');
+      } else {
+        showPage('login');
+      }
+    };
   </script>
 </body>
 </html>
