@@ -127,38 +127,30 @@
 
 <body class="nx"><!-- 加上 .nx 讓整個主題只在這頁生效 -->
 
-<!-- 🔐 LOGIN -->
-<section id="login" class="active" 
-         style="display:flex;align-items:center;justify-content:center;
-                min-height:100vh; padding:20px; box-sizing:border-box;">
-  <div class="panel soft" 
-       style="max-width:360px; width:100%; text-align:center; padding:32px 24px; 
-              border-radius:16px; background:var(--card); box-shadow:0 8px 20px rgba(0,0,0,.35)">
+<!-- ===== LOGIN ===== -->
+<section id="login" class="active" style="display:flex;justify-content:center;align-items:center;min-height:100vh;">
+  <div class="panel soft" style="width:90%;max-width:360px;text-align:center;padding:24px;border-radius:16px;background:var(--card);">
+    <h2 style="margin-bottom:20px">登入</h2>
     
-    <h2 style="margin-bottom:24px; font-size:22px; font-weight:600">登入</h2>
-
-    <!-- LINE Login -->
+    <!-- LINE 按鈕 -->
     <button id="lineLoginBtn" 
-            style="width:100%; margin-bottom:16px; padding:14px; font-size:16px; font-weight:600;
-                   border:none; border-radius:12px; color:#fff; 
-                   background:linear-gradient(90deg,#06c755,#02b34d)">
+      style="width:100%;padding:14px;font-size:16px;font-weight:600;
+             border:none;border-radius:12px;cursor:pointer;
+             background:#06C755;color:white;margin-bottom:14px;">
       用 LINE 登入（模擬）
     </button>
-
-    <!-- Invite Code -->
-    <input id="inviteCode" 
-           placeholder="輸入邀請碼，例如 NEXT2025"
-           style="width:100%; display:block; margin-bottom:8px; 
-                  border:1px solid var(--line); border-radius:12px; 
-                  padding:12px; box-sizing:border-box;
-                  background:var(--hover); color:var(--text); font-size:15px">
-
-    <!-- 錯誤提示 -->
-    <div id="loginError" style="color:#ff4d4f; font-size:13px; height:18px; margin-bottom:12px"></div>
     
-    <button id="codeLoginBtn" 
-            style="width:100%; padding:14px; font-size:15px; font-weight:600; 
-                   border:none; border-radius:12px; background:var(--text); color:var(--card)">
+    <!-- 邀請碼輸入 -->
+    <input id="inviteCode" placeholder="輸入邀請碼，例如 NEXT2025"
+      style="width:100%;padding:12px;font-size:15px;margin-bottom:12px;
+             border:1px solid var(--line);border-radius:12px;
+             background:var(--hover);color:var(--text);">
+    
+    <!-- 使用邀請碼 -->
+    <button id="codeLoginBtn"
+      style="width:100%;padding:14px;font-size:15px;font-weight:600;
+             border:none;border-radius:12px;cursor:pointer;
+             background:white;color:black;">
       使用邀請碼
     </button>
   </div>
@@ -167,24 +159,15 @@
 <script>
 /* ===== LOGIN FLOW ===== */
 function fakeLogin(method){
-  const code=document.getElementById('inviteCode').value.trim();
-  const error=document.getElementById('loginError');
-  
+  const code = document.getElementById('inviteCode').value.trim();
   if(method==='line' || (method==='code' && code==='NEXT2025')){
     localStorage.setItem('loggedIn','true');
     if(!localStorage.getItem('fanId')){
       localStorage.setItem('fanId','FAN'+Math.floor(Math.random()*100000));
     }
-    error.textContent = ''; // 清空錯誤
     showPage('home');
   }else{
-    // ❌ 顯示錯誤訊息
-    error.textContent = '邀請碼錯誤，請再試一次';
-    
-    // ❌ 輸入框抖動
-    const inp=document.getElementById('inviteCode');
-    inp.classList.add('shake');
-    setTimeout(()=>inp.classList.remove('shake'),500);
+    alert('❌ 邀請碼錯誤！');
   }
 }
 
@@ -192,16 +175,6 @@ function fakeLogin(method){
 document.getElementById('lineLoginBtn').addEventListener('click', ()=>fakeLogin('line'));
 document.getElementById('codeLoginBtn').addEventListener('click', ()=>fakeLogin('code'));
 </script>
-
-<style>
-/* 抖動動畫 */
-@keyframes shake {
-  0%,100% { transform: translateX(0); }
-  20%,60% { transform: translateX(-6px); }
-  40%,80% { transform: translateX(6px); }
-}
-.shake { animation: shake 0.4s; }
-</style>
 
 <!-- HOME -->
 <section id="home">
