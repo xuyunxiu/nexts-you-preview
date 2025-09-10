@@ -554,17 +554,79 @@ window.addEventListener('load', ()=>{ if(localStorage.getItem('loggedIn')) showP
   }, 2800);
 })();
 </script>
+<!-- 🚀 Stable Splash: NEXT 固定、'S YOU 翻轉；失敗保險 4.5s 強制關閉 -->
+<style>
+  #splash {
+    position: fixed; inset: 0; background: #000;
+    display: flex; justify-content: center; align-items: center;
+    z-index: 9999; pointer-events: none;
+  }
+  #splash .stage {
+    display: flex; gap: 20px; align-items: center; justify-content:center;
+    font-weight: 800; font-size: 44px; color: #fff;
+    transform: translateZ(0);
+    will-change: opacity, transform;
+  }
+  #splash .next { color:#fff; }
+  #splash .one  { opacity:0; }
+  #splash .syou { opacity:0; color:#e42323; transform: rotateY(90deg); transform-origin: left center; }
 
-<!-- 🚀 開場動畫（置中） -->
-<div id="splash">
+  /* 動畫 */
+  @keyframes sp-fade-in  { from{opacity:0} to{opacity:1} }
+  @keyframes sp-fade-out { from{opacity:1} to{opacity:0} }
+  @keyframes sp-flip-in  { from{opacity:0; transform:rotateY(90deg)} to{opacity:1; transform:rotateY(0)} }
+
+  #splash .one.play   { animation: sp-fade-in .6s ease forwards; }
+  #splash .one.hide   { animation: sp-fade-out .4s ease forwards; }
+  #splash .syou.play  { animation: sp-flip-in .6s ease forwards; }
+  #splash.hide        { transition: opacity .4s ease; opacity:0; }
+</style>
+
+<div id="splash" aria-hidden="true">
   <div class="stage">
     <span class="next">NEXT</span>
-    <span id="one" class="one">ONE</span>
-    <span id="syou" class="syou">’S YOU</span>
+    <span class="one"  id="spOne">ONE</span>
+    <span class="syou" id="spYou">’S YOU</span>
   </div>
 </div>
-<!-- 🔧 CACHE BUSTER (paste just before </body>) -->
+
 <script>
+(function(){
+  const splash = document.getElementById('splash');
+  const one    = document.getElementById('spOne');
+  const you    = document.getElementById('spYou');
+
+  // 兼容 iOS：等一幀 → 再等一幀，確保第一次 paint 之後才加動畫 class
+  const raf = window.requestAnimationFrame || (fn=>setTimeout(fn,16));
+  const safeHide = () => { if (!splash) return; splash.classList.add('hide'); setTimeout(()=>splash.remove(), 460); };
+
+  // 4.5s 保險：不論如何強制關閉，避免卡住
+  const killer = setTimeout(safeHide, 4500);
+
+  function start(){
+    // Step1: ONE 顯示
+    one.classList.add('play');
+
+    // Step2: ONE 淡出 → 'S YOU 翻轉進場
+    setTimeout(()=>{
+      one.classList.remove('play'); one.classList.add('hide');
+      setTimeout(()=>{ you.classList.add('play'); }, 400);
+    }, 900);
+
+    // Step3: 整個 splash 淡出
+    setTimeout(()=>{
+      clearTimeout(killer);
+      safeHide();
+    }, 2600);
+  }
+
+  // 針對 iOS/Safari 返回頁面(BFCache) 的處理：回來就重跑一次
+  window.addEventListener('pageshow', (e)=>{ if (e.persisted) start(); }, {once:true});
+
+  // 兩次 RAF，保證 DOM 真的進畫面
+  raf(()=> raf(start));
+})();
+</script>
 (function(){
   // ➊ 每次你發新版本，把下面這個字串隨便改：日期/編號都行
   const BUILD = 'b2025-09-11-01';
