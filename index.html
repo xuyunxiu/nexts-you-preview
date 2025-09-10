@@ -618,5 +618,73 @@ window.addEventListener('load', ()=>{
   };
 })();
 </script>
+  <script>
+/* -------- 登入狀態：用 body data-auth 管理 -------- */
+function setAuthState(isIn){
+  document.body.setAttribute('data-auth', isIn ? 'in' : 'out');
+}
+
+/* -------- 登入流程（移除 alert，改為內嵌紅字 + 搖晃） -------- */
+function fakeLogin(method){
+  const ipt   = document.getElementById('inviteCode');
+  const err   = document.getElementById('codeError');
+  const raw   = (ipt?.value || '');
+  const code  = raw.trim().toUpperCase();   // 正規化大小寫與空白
+  const ok    = (method==='line') || (method==='code' && code==='NEXT2025');
+
+  // 清除上次錯誤樣式
+  ipt.classList.remove('input-error','shake');
+  if (err) err.style.display = 'none';
+
+  if(ok){
+    localStorage.setItem('loggedIn','true');
+    if(!localStorage.getItem('fanId')){
+      localStorage.setItem('fanId','FAN'+Math.floor(Math.random()*100000));
+    }
+    setAuthState(true);
+    showPage('home');
+  }else{
+    // 顯示「邀請碼錯誤」在 input 下方，並搖晃 input
+    if (err) { err.textContent = '✗ 邀請碼錯誤！'; err.style.display = 'block'; }
+    ipt.classList.add('input-error','shake');
+    ipt.addEventListener('animationend', ()=> ipt.classList.remove('shake'), {once:true});
+    ipt.focus();
+  }
+}
+
+/* 綁定按鈕（保留就好） */
+document.getElementById('lineLoginBtn').addEventListener('click', ()=>fakeLogin('line'));
+document.getElementById('codeLoginBtn').addEventListener('click', ()=>fakeLogin('code'));
+
+/* -------- 切頁：同時控 nav 顯示 -------- */
+function showPage(id){
+  // 切換 section.active
+  document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));
+  const target = document.getElementById(id);
+  if (target) target.classList.add('active');
+
+  // nav：只有「已登入 + 非 login/dm/gallery」才顯示
+  const loggedIn = !!localStorage.getItem('loggedIn');
+  setAuthState(loggedIn);
+  const shouldHideNav = (id==='login' || id==='dm' || id==='gallery' || !loggedIn);
+  const nav = document.getElementById('nav');
+  if (nav) nav.classList.toggle('hidden', shouldHideNav);
+
+  // 每頁渲染
+  if(id==='home'){ renderProfile(); setHomeTab(HOME_TAB||'artists'); }
+  if(id==='dmList'){ renderDMList(); }
+  if(id==='dm'){ renderHearts(); renderDM(); }
+  if(id==='gallery'){ renderGallery(); }
+  if(id==='wallet'){ renderPoints(); }
+  if(id==='profile'){ prepProfile(); }
+}
+
+/* -------- 首次載入：把 body 標記成 in/out 並進到對應頁 -------- */
+window.addEventListener('load', ()=>{
+  const loggedIn = !!localStorage.getItem('loggedIn');
+  setAuthState(loggedIn);
+  showPage(loggedIn ? 'home' : 'login');
+});
+</script>
 </body>
 </html>
