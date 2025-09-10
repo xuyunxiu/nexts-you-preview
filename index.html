@@ -4,164 +4,137 @@
   <meta charset="UTF-8" />
   <title>NEXT'S YOU — Preview (Polished UI)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+
   <!-- 防快取 -->
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
 
-  <!-- === INS-Neumorphism Theme Pack (paste just before </body>) === -->
-<!-- === NX THEME CORE (drop-in, no layout/logic changes) === -->
-<style>
-  /* 主題基底：兩套調色盤 */
-  :root { --theme: dark; }
-  :root[data-theme="dark"]{
-    --bg:#0e0e10; --card:#141417; --hover:#1a1a1f; --border:rgba(255,255,255,.06);
-    --text:#f5f5f5; --sub:#a1a1aa; --muted:#777781;
-    --accent:#ff2d55; --accent-2:#ff335a; --success:#2ecc71; --danger:#ff5a5f;
-    --radius:14px; --radius-sm:10px; --shadow:0 6px 20px rgba(0,0,0,.45); --ring:0 0 0 2px rgba(255,45,85,.25);
-  }
-  :root[data-theme="light"]{
-    --bg:#fafafa; --card:#ffffff; --hover:#f5f6f8; --border:rgba(0,0,0,.08);
-    --text:#111114; --sub:#3b3b44; --muted:#7a7a86;
-    --accent:#ff2d55; --accent-2:#ff335a; --success:#16a34a; --danger:#ef4444;
-    --radius:14px; --radius-sm:10px; --shadow:0 6px 18px rgba(0,0,0,.12); --ring:0 0 0 2px rgba(255,45,85,.25);
-  }
-
-  /* 讓顏色一定吃到（解你“深色字沒變白”的狀況） */
-  html, body, section, nav, .card, .friendCard, .bubble, .pill, .topbar, .live-stage, .live-hero,
-  .live-feed, .textbox, .neo-input, input, textarea, button, .tabs button, .date-chip {
-    color: var(--text) !important;
-  }
-  a { color: var(--accent); }
-
-  /* 背景與漸層（保留 IG 風） */
-  html,body{background:
-    radial-gradient(1200px 800px at 90% -10%, rgba(255,45,85,.08), transparent 50%),
-    radial-gradient(900px 700px at 10% 110%, rgba(109,40,217,.08), transparent 50%),
-    var(--bg) !important;
-  }
-
-  /* 卡片/表層底色（不變動你的版位，只換皮） */
-  .card, .friendCard, .pill, .tabs button { background: var(--card); border:1px solid var(--border); }
-  .tabs button.active{ background: linear-gradient(180deg, var(--hover), var(--card)); color: var(--text) !important; border-color: transparent; box-shadow: var(--shadow); }
-  .textbox, input[type="text"], textarea{ background: var(--hover); border:1px solid var(--border); color: var(--text) !important; }
-  .send-btn, .friendCard .action{ background: linear-gradient(180deg, var(--accent), var(--accent-2)); color:#fff !important; }
-
-  /* 氛圍細節 */
-  .small{ color: var(--muted) !important; }
-  .muted, .friendCard .hint, .live-msg .time{ color: var(--sub) !important; }
-</style>
-
-<script>
-  // ===== 主題控制核心 =====
-  (function(){
-    const root = document.documentElement;
-
-    // 1) 初始：用 localStorage；沒有則跟隨系統
-    const saved = localStorage.getItem('nx-theme');
-    if(saved){ root.setAttribute('data-theme', saved); }
-    else{
-      const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-      root.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+  <!-- ================= IG-Neumorphism Theme (Scoped, No Layout Changes) ================= -->
+  <style>
+    /* 只作用在 body.nx（避免蓋掉你其它頁的樣式） */
+    body.nx{
+      --bg:#0f0f12; --card:#16181d; --hover:#1b1e24; --line:rgba(255,255,255,.06);
+      --text:#f6f7fb; --sub:#b5bac7; --muted:#8c92a1;
+      --accent:#ff2d55; --accent-2:#ff3b63; --ok:#2ecc71; --ng:#ff5a5f;
+      --r:16px; --r-sm:12px; --shadow: 12px 18px 40px rgba(0,0,0,.45);
+    }
+    /* 淺色主題（若未來你想開，NX.setTheme('light') 即可。預設 dark） */
+    body.nx.light{
+      --bg:#f7f8fb; --card:#ffffff; --hover:#f1f2f6; --line:rgba(0,0,0,.08);
+      --text:#121317; --sub:#4a4e59; --muted:#6b7280;
+      --accent:#ff2d55; --accent-2:#ff3b63; --ok:#16a34a; --ng:#ef4444;
+      --shadow: 8px 12px 26px rgba(0,0,0,.12);
     }
 
-    // 2) 對外 API（不放 UI 按鈕，只提供呼叫）
-    window.NX = window.NX || {};
-    window.NX.setTheme = function(theme){
-      if(theme!=='dark' && theme!=='light') return;
-      document.documentElement.setAttribute('data-theme', theme);
-      localStorage.setItem('nx-theme', theme);
-      // 小延遲強制重繪，避免某些 iOS WebView 沒即時套色
-      setTimeout(()=>{ document.documentElement.style.transform='translateZ(0)'; requestAnimationFrame(()=>{ document.documentElement.style.transform=''; }); }, 0);
-    };
-
-    // 3) 跟隨系統（若使用者沒手動選過）
-    if(!saved && window.matchMedia){
-      try{
-        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e=>{
-          root.setAttribute('data-theme', e.matches ? 'dark' : 'light');
-        });
-      }catch(_){}
-    }
-  })();
-</script>
-<!-- === /NX THEME CORE === -->
-
-<!-- 浮動主題切換（點一下 Purple / Black 切換） -->
-<button id="themeBtn" class="neo-card float-toggle" aria-label="Toggle Theme">🟣</button>
-
-<script>
-  /* --- 主題切換（預設 Black；點按切 Purple） --- */
-  (function(){
-    const root = document.documentElement;
-    const saved = localStorage.getItem('neoTheme'); if(saved==='purple') root.classList.add('purple');
-    const btn = document.getElementById('themeBtn');
-    const setIcon = ()=> btn.textContent = root.classList.contains('purple') ? '⚫' : '🟣';
-    setIcon();
-    btn.onclick = ()=>{
-      root.classList.toggle('purple');
-      localStorage.setItem('neoTheme', root.classList.contains('purple') ? 'purple' : 'black');
-      setIcon();
-    };
-  })();
-
-  /* --- 自動把現有頁面元素套上新外觀（免改你的結構） --- */
-  (function applySkin(){
-    // 頂部區塊/主要容器
-    ['home','dm','live','wallet','gallery','profile','login'].forEach(id=>{
-      const el = document.getElementById(id);
-      if(el){ el.classList.add('neo-wrap'); }
-    });
-
-    // DM：訊息列表的每條訊息（你原本的 .msg / .msg.me / .msg.sub 會自動套樣）
-    document.querySelectorAll('.msg').forEach(m=> m.classList.add('bubble'));
-    document.querySelectorAll('.msg.me').forEach(m=> m.classList.add('me'));
-    document.querySelectorAll('.msg.sub').forEach(m=> m.classList.add('sub'));
-
-    // 送出 / 主要動作按鈕
-    document.querySelectorAll('button, .btn').forEach(b=>{
-      const label = (b.textContent||'').trim();
-      if(/送出|開始聊天|購買|發佈|Buy|Start/i.test(label)) b.classList.add('neo-btn');
-      else b.classList.add('neo-item','neo-ghost');
-    });
-
-    // 輸入框
-    document.querySelectorAll('input[type="text"], input[type="search"], textarea').forEach(i=> i.classList.add('neo-input'));
-
-    // 好友/藝人列表項（猜測列表容器 id）
-    const friendList = document.getElementById('friendList') || document.querySelector('.friendList');
-    if(friendList){
-      friendList.querySelectorAll('div').forEach(row=>{
-        // 若內含圖片就視為 friend-card
-        if(row.querySelector('img')){
-          row.classList.add('friend-card','neo-item');
-          const name = row.querySelector('strong, .name, span');
-          if(name) name.classList.add('friend-name');
-        }else{
-          row.classList.add('neo-item');
-        }
-      });
+    /* 背景氛圍 */
+    html,body{height:100%}
+    body.nx{
+      margin:0; color:var(--text);
+      background:
+        radial-gradient(1200px 800px at 90% -10%, rgba(255,45,85,.08), transparent 50%),
+        radial-gradient(900px 700px at 10% 110%, rgba(109,40,217,.08), transparent 50%),
+        var(--bg);
+      -webkit-font-smoothing:antialiased; font-smooth:always;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
     }
 
-    // 膠囊徽章（♡+N、日期膠囊）：依你原本結構附加 .neo-pill
-    document.querySelectorAll('.pill,.hearts,.date-pill,.badge').forEach(p=> p.classList.add('neo-pill'));
+    /* 區塊 / 卡片（對現有 .panel、.card、.product 套皮） */
+    .panel, .card, .product{
+      background:var(--card); border:1px solid var(--line); border-radius:var(--r); box-shadow:var(--shadow);
+    }
+    .panel.soft{ padding:16px }
 
-    // 頂區大卡（首頁 banner / 區塊）加 .neo-card
-    document.querySelectorAll('.card,.panel,.section-card,.product,.live-host, .dm-header').forEach(c=> c.classList.add('neo-card'));
-  })();
-</script>
-<!-- === /INS-Neumorphism Theme Pack === -->
+    /* 通用排版 */
+    section{display:none; padding:16px 16px 96px}
+    section.active{display:block; animation:fadeIn .24s ease}
+    @keyframes fadeIn{from{opacity:0; transform:translateY(6px)} to{opacity:1; transform:none}}
+    h2,h3,p{margin:0}
+    .ghost{opacity:.75; color:var(--sub)}
+    .list-col{display:grid; gap:12px}
+
+    /* Friends Header（你已有的 #friendsHeader） */
+    #friendsHeader{display:flex; justify-content:space-between; align-items:center; gap:12px}
+    #friendsHeader .me{display:flex; align-items:center; gap:12px}
+    #friendsHeader img{width:48px; height:48px; border-radius:50%; object-fit:cover; border:1px solid var(--line)}
+    #friendsHeader .nick{font-weight:800}
+
+    /* Tabs（藝人/團體/已購買/未購買） */
+    .tabs{display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin:14px 0}
+    .tabs button{
+      border:none; border-radius:999px; padding:10px 0; font-weight:800; color:var(--sub);
+      background:var(--card); border:1px solid var(--line); box-shadow:var(--shadow);
+    }
+    .tabs button.active{ color:var(--text); background:linear-gradient(180deg, var(--hover), var(--card)); border-color:transparent }
+
+    /* 列表的卡片樣式（你 renderHome / renderDMList 已輸出 .card 了） */
+    .card .row{display:flex; align-items:center; gap:12px}
+    .card .row img{width:52px; height:52px; border-radius:50%; object-fit:cover; border:1px solid var(--line)}
+    .badge{display:inline-block; margin-top:6px; padding:4px 8px; border-radius:999px; font-size:12px; font-weight:800; border:1px solid var(--line)}
+    .badge.ok{background:rgba(46,204,113,.15); color:#aef7c6}
+    .badge.ng{background:rgba(255,90,95,.15); color:#ffb3b5}
+
+    /* DM 頁 */
+    .topbar{display:flex; align-items:center; gap:12px; margin-bottom:10px}
+    .topbar .dm-top{display:flex; align-items:center; gap:10px}
+    .dm-title{font-weight:800}
+    .menu-btn{width:40px; height:40px; border-radius:12px; border:1px solid var(--line); background:var(--card); color:var(--text)}
+    .pill{display:flex; align-items:center; gap:6px; padding:8px 12px; border-radius:999px; border:1px solid var(--line); background:linear-gradient(180deg,var(--hover),var(--card)); font-weight:800}
+    .dm-wrap{display:flex; flex-direction:column; gap:12px}
+    .dm-messages{display:flex; flex-direction:column; gap:14px; max-height:62vh; overflow:auto; padding-bottom:6px}
+    .msg{max-width:78%; position:relative; padding:12px 14px; border-radius:18px; border:1px solid var(--line); background:linear-gradient(180deg,#fff,#f2f3f5); color:#17181c}
+    .msg .sub-balloon{margin-top:8px; background:#eceff3; padding:10px; border-radius:14px; color:#333; border:1px solid rgba(0,0,0,.06)}
+    .msg.me{margin-left:auto; background:linear-gradient(180deg, var(--hover), #121317); color:#e8eaf0}
+    .date-chip{align-self:center; border:1px solid var(--line); border-radius:999px; padding:6px 12px; color:var(--sub); background:var(--hover); font-weight:800; font-size:12px}
+    .msg time{position:absolute; right:14px; bottom:-18px; font-size:11px; color:var(--muted)}
+    .dm-input{position:fixed; left:0; right:0; bottom:0; padding:12px 14px; background:linear-gradient(180deg,rgba(0,0,0,0),rgba(0,0,0,.55)); backdrop-filter:blur(10px); display:flex; gap:10px}
+    .dm-input input{flex:1; border:none; outline:none; border-radius:16px; padding:14px 16px; background:var(--hover); color:var(--text); box-shadow:inset 0 1px 0 rgba(255,255,255,.04); border:1px solid var(--line)}
+    .dm-input button{width:52px; height:52px; border:none; border-radius:18px; font-weight:900; color:#fff; background:linear-gradient(180deg,var(--accent),var(--accent-2))}
+
+    /* GALLERY */
+    #galleryGrid{display:grid; grid-template-columns:1fr 1fr; gap:12px}
+    #galleryGrid img{width:100%; height:100%; object-fit:cover; border-radius:14px; border:1px solid var(--line); box-shadow:var(--shadow)}
+
+    /* LIVE */
+    .live-host{padding:16px}
+    .live-host .title{font-weight:800; opacity:.9}
+    .live-fans{display:grid; gap:10px; margin-top:12px}
+    .fan-item{padding:12px; border-radius:12px; background:var(--card); border:1px solid var(--line)}
+
+    /* NAV（若保留） */
+    nav{position:fixed; left:0; right:0; bottom:0; background:#0f1116; border-top:1px solid var(--line); display:flex; justify-content:space-around; padding:12px 8px 16px; backdrop-filter:blur(8px)}
+    nav.hidden{display:none}
+    nav button{background:transparent; border:none; color:var(--text); font-weight:800; padding:8px 10px; border-radius:12px}
+    nav button:active{background:var(--hover)}
+
+    /* 截圖警告 modal（沿用你的結構，加基本皮膚） */
+    #shotModal{display:none; position:fixed; inset:0; place-items:center; background:rgba(0,0,0,.4)}
+    #shotModal .box{max-width:560px; width:90%; background:var(--card); border:1px solid var(--line); border-radius:var(--r); box-shadow:var(--shadow); padding:16px}
+    #shotModal .warn{margin-top:6px; padding:12px; border-radius:12px; background:rgba(255,45,85,.12); border:1px dashed rgba(255,45,85,.35)}
+
+    /* 開場動畫（置中、NEXT 靜止、'S YOU 翻轉、ONE 先出場） */
+    #splash{position:fixed; inset:0; background:#000; display:flex; justify-content:center; align-items:center; z-index:9999}
+    #splash .stage{display:flex; gap:20px; align-items:center; font-weight:800; font-size:44px; color:#fff}
+    #splash .next{color:#fff}
+    #splash .one{opacity:0}
+    #splash .syou{opacity:0; color:#e42323; transform:rotateY(90deg)}
+    @keyframes fadeIn {from{opacity:0} to{opacity:1}}
+    @keyframes fadeOut{from{opacity:1} to{opacity:0}}
+    @keyframes flipIn{from{opacity:0; transform:rotateY(90deg)} to{opacity:1; transform:rotateY(0)}}
+  </style>
+  <!-- ================================================================== -->
 </head>
-<body>
+
+<body class="nx"><!-- 加上 .nx 讓整個主題只在這頁生效 -->
 
 <!-- LOGIN -->
 <section id="login" class="active">
-  <div class="panel soft" style="padding:18px">
+  <div class="panel soft">
     <h2 style="margin-bottom:8px">登入</h2>
     <button class="btn btn-red" onclick="login('line')">用 LINE 登入（模擬）</button>
-    <div style="margin-top:8px">
-      <input id="inviteCode" placeholder="輸入邀請碼，例如 NEXT2025" style="width:70%;max-width:320px">
-      <button class="btn" onclick="login('code')">使用邀請碼</button>
+    <div style="margin-top:8px; display:flex; gap:8px; justify-content:center">
+      <input id="inviteCode" placeholder="輸入邀請碼，例如 NEXT2025" style="width:70%;max-width:320px; border:1px solid var(--line); border-radius:12px; padding:10px; background:var(--hover); color:var(--text)">
+      <button class="btn" onclick="login('code')" style="border:1px solid var(--line); border-radius:12px; padding:10px 14px; background:var(--card); color:var(--text)">使用邀請碼</button>
     </div>
   </div>
 </section>
@@ -173,7 +146,7 @@
       <img id="userAvatar" src="https://picsum.photos/80?u=me" alt="頭貼" onclick="openProfile()">
       <div class="nick" id="nickname" onclick="openProfile()">暱稱</div>
     </div>
-    <button class="btn" onclick="showPage('wallet')">錢包</button>
+    <button class="btn" onclick="showPage('wallet')" style="border:1px solid var(--line); border-radius:12px; padding:10px 14px; background:var(--card); color:var(--text)">錢包</button>
   </div>
 
   <div class="tabs">
@@ -183,24 +156,24 @@
     <button id="tab-unpurchased" onclick="setHomeTab('unpurchased')">未購買</button>
   </div>
 
-  <div id="homeList" class="grid"></div>
+  <div id="homeList" class="list-col"></div>
   <div id="homeEmpty" class="ghost" style="padding:12px;display:none">這一類目前是空的～</div>
 </section>
 
 <!-- PROFILE -->
 <section id="profile">
   <div class="topbar"><h2>我的個人頁</h2></div>
-  <div class="panel soft" style="padding:16px; text-align:center">
+  <div class="panel soft" style="text-align:center">
     <img id="editAvatar" src="https://picsum.photos/160?u=me" style="width:96px;height:96px;border-radius:20px;object-fit:cover; border:1px solid var(--line)"><br/>
     <div style="margin:10px 0">
       <input type="file" id="avatarInput" accept="image/*" onchange="changeAvatar(event)">
     </div>
-    <div>
-      <input type="text" id="editNickname" placeholder="輸入暱稱" style="width:70%;max-width:320px">
-      <button class="btn btn-red" onclick="saveProfile()">儲存</button>
+    <div style="display:flex; gap:8px; justify-content:center">
+      <input type="text" id="editNickname" placeholder="輸入暱稱" style="width:70%;max-width:320px; border:1px solid var(--line); border-radius:12px; padding:10px; background:var(--hover); color:var(--text)">
+      <button class="btn btn-red" onclick="saveProfile()" style="border:none; border-radius:12px; padding:10px 14px; background:linear-gradient(180deg,var(--accent),var(--accent-2)); color:#fff">儲存</button>
     </div>
     <p class="ghost" style="margin:10px 0 0"><b>粉絲 ID：</b><span id="fanId"></span></p>
-    <div style="margin-top:10px"><button class="btn" onclick="showPage('home')">返回 Friends</button></div>
+    <div style="margin-top:10px"><button class="btn" onclick="showPage('home')" style="border:1px solid var(--line); border-radius:12px; padding:10px 14px; background:var(--card); color:var(--text)">返回 Friends</button></div>
   </div>
 </section>
 
@@ -209,7 +182,7 @@
   <div class="topbar"><h2>Messages</h2></div>
   <div id="dmListWrap" class="list-col"></div>
   <div id="dmListEmpty" class="ghost" style="margin-top:12px;display:none">
-    目前沒有已開通的 DM。<button class="btn btn-red" onclick="showPage('wallet')">去錢包開通</button>
+    目前沒有已開通的 DM。<button class="btn btn-red" onclick="showPage('wallet')" style="margin-left:6px; border:none; border-radius:12px; padding:8px 12px; background:linear-gradient(180deg,var(--accent),var(--accent-2)); color:#fff">去錢包開通</button>
   </div>
 </section>
 
@@ -217,7 +190,7 @@
 <section id="dm">
   <div class="topbar">
     <div class="dm-top">
-      <button class="btn btn-ghost" onclick="showPage('dmList')">‹ 返回</button>
+      <button class="btn" onclick="showPage('dmList')" style="border:1px solid var(--line); border-radius:12px; padding:8px 12px; background:var(--card); color:var(--text)">‹ 返回</button>
       <div class="dm-title" id="dmTitle">ALLDAY PROJECT — 團體 DM</div>
     </div>
     <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
@@ -239,7 +212,7 @@
 <section id="gallery">
   <div class="topbar">
     <h2>相簿</h2>
-    <div style="margin-left:auto"><button class="btn" onclick="showPage('dm')">返回 DM</button></div>
+    <div style="margin-left:auto"><button class="btn" onclick="showPage('dm')" style="border:1px solid var(--line); border-radius:12px; padding:8px 12px; background:var(--card); color:var(--text)">返回 DM</button></div>
   </div>
   <div id="galleryGrid"></div>
 </section>
@@ -247,35 +220,37 @@
 <!-- LIVE -->
 <section id="live">
   <div class="topbar"><h2>LIVE</h2></div>
-  <div class="live-host">
+  <div class="panel soft live-host">
     <div class="title">主播訊息</div>
     <div id="liveHostMsg" style="font-size:18px;line-height:1.55;margin-top:6px;min-height:40px">等待開播…</div>
     <div id="liveHostTime" class="ghost" style="margin-top:6px;font-size:12px"></div>
   </div>
-
   <div id="liveFans" class="live-fans"></div>
-
   <div style="position:sticky;bottom:96px; display:flex; gap:10px; margin-top:10px">
-    <input id="liveInput" placeholder="發送留言…" style="flex:1; border:none; border-radius:12px; padding:12px; background:#101114; color:#fff; box-shadow:inset 0 0 0 1px #24262c">
-    <button class="btn btn-red" onclick="fanSendLive()">送出</button>
+    <input id="liveInput" placeholder="發送留言…" style="flex:1; border:1px solid var(--line); border-radius:12px; padding:12px; background:var(--hover); color:var(--text)">
+    <button class="btn btn-red" onclick="fanSendLive()" style="border:none; border-radius:12px; padding:10px 14px; background:linear-gradient(180deg,var(--accent),var(--accent-2)); color:#fff">送出</button>
   </div>
 </section>
 
 <!-- WALLET -->
 <section id="wallet">
-  <div class="topbar"><h2>錢包</h2><div style="margin-left:auto"><button class="btn" onclick="logout()">登出</button></div></div>
-  <div class="panel soft" style="padding:14px">
+  <div class="topbar"><h2>錢包</h2><div style="margin-left:auto"><button class="btn" onclick="logout()" style="border:1px solid var(--line); border-radius:12px; padding:8px 12px; background:var(--card); color:var(--text)">登出</button></div></div>
+  <div class="panel soft">
     <p><b>我的分數：</b><span id="points">0</span></p>
-    <div class="product">
-      <h4>7 天 DM 權益 — 70 分</h4><button class="btn btn-red" onclick="buyProduct(70,7)">購買</button>
+    <div class="product" style="padding:12px; display:flex; align-items:center; justify-content:space-between; margin-top:10px">
+      <h4 style="margin:0">7 天 DM 權益 — 70 分</h4><button class="btn btn-red" onclick="buyProduct(70,7)" style="border:none; border-radius:12px; padding:8px 12px; background:linear-gradient(180deg,var(--accent),var(--accent-2)); color:#fff">購買</button>
     </div>
-    <div class="product">
-      <h4>30 天 DM 權益 — 250 分</h4><button class="btn btn-red" onclick="buyProduct(250,30)">購買</button>
+    <div class="product" style="padding:12px; display:flex; align-items:center; justify-content:space-between; margin-top:10px">
+      <h4 style="margin:0">30 天 DM 權益 — 250 分</h4><button class="btn btn-red" onclick="buyProduct(250,30)" style="border:none; border-radius:12px; padding:8px 12px; background:linear-gradient(180deg,var(--accent),var(--accent-2)); color:#fff">購買</button>
     </div>
 
     <h3 style="margin:18px 0 6px">測試購買捷徑</h3>
-    <div class="product"><p>購買「團體」pass</p><button class="btn btn-red" onclick="markPurchased('group',true)">標記已購買（團體）</button></div>
-    <div class="product"><p>購買「WOOCHAN」</p><button class="btn btn-red" onclick="markPurchased('wc',true)">標記已購買（WOOCHAN）</button></div>
+    <div class="product" style="padding:12px; display:flex; align-items:center; justify-content:space-between">
+      <p style="margin:0">購買「團體」pass</p><button class="btn btn-red" onclick="markPurchased('group',true)" style="border:none; border-radius:12px; padding:8px 12px; background:linear-gradient(180deg,var(--accent),var(--accent-2)); color:#fff">標記已購買（團體）</button>
+    </div>
+    <div class="product" style="padding:12px; display:flex; align-items:center; justify-content:space-between; margin-top:10px">
+      <p style="margin:0">購買「WOOCHAN」</p><button class="btn btn-red" onclick="markPurchased('wc',true)" style="border:none; border-radius:12px; padding:8px 12px; background:linear-gradient(180deg,var(--accent),var(--accent-2)); color:#fff">標記已購買（WOOCHAN）</button>
+    </div>
   </div>
 </section>
 
@@ -283,13 +258,11 @@
 <div id="shotModal" class="modal">
   <div class="box">
     <h3>截圖警告（Screenshot Warning）</h3>
-    <div class="warn">
-      ⚠️ 你在聊天室內的截圖、轉傳、外流都可能導致權益被停用。請尊重創作者與社群成員。
-    </div>
+    <div class="warn">⚠️ 你在聊天室內的截圖、轉傳、外流都可能導致權益被停用。請尊重創作者與社群成員。</div>
     <p class="ghost" style="margin:8px 0 0">We protect artists and fans. Unauthorized capture/redistribution is prohibited.</p>
-    <div class="actions">
-      <button class="btn" onclick="dismissShot()">我知道了</button>
-      <button class="btn btn-red" onclick="dismissShot(true)">不再提示</button>
+    <div class="actions" style="display:flex; gap:10px; margin-top:10px">
+      <button class="btn" onclick="dismissShot()" style="border:1px solid var(--line); border-radius:12px; padding:8px 12px; background:var(--card); color:var(--text)">我知道了</button>
+      <button class="btn btn-red" onclick="dismissShot(true)" style="border:none; border-radius:12px; padding:8px 12px; background:linear-gradient(180deg,var(--accent),var(--accent-2)); color:#fff">不再提示</button>
     </div>
   </div>
 </div>
@@ -452,7 +425,6 @@ function openDM(id){
   document.getElementById('dmTitle').textContent = title || 'DM';
   showPage('dm');
 }
-
 function passStartTS(){ const d=localStorage.getItem('purchaseDate'); if(!d) return null; const s=new Date(d); s.setHours(0,0,0,0); return s.getTime(); }
 
 function renderDM(){
@@ -472,7 +444,7 @@ function renderDM(){
 
     const wrap=document.createElement('div'); wrap.className='msg '+(m.role==='fan'?'me':'artist');
     if(m.type==='image'){
-      const img=new Image(); img.src=m.url; img.style="max-width:100%;border-radius:12px;border:1px solid #e5e5e5";
+      const img=new Image(); img.src=m.url; img.style="max-width:100%;border-radius:12px;border:1px solid var(--line)";
       wrap.appendChild(img);
       if(m.caption){ const c=document.createElement('div'); c.className='sub-balloon'; c.textContent=m.caption; wrap.appendChild(c); }
     }else{
@@ -490,7 +462,7 @@ function sendMessage(){
   list.push({role:'fan',type:'text',text:t,ts:Date.now()});
   localStorage.setItem(dmKey(), JSON.stringify(list)); inp.value=''; renderDM();
 }
-/* for console tests */
+/* console helpers */
 function addArtistMessage(text,translation){
   const dm=JSON.parse(localStorage.getItem(dmKey())||'[]'); dm.push({role:'artist',type:'text',text,trans:translation||'',ts:Date.now()});
   localStorage.setItem(dmKey(), JSON.stringify(dm)); renderDM();
@@ -543,10 +515,47 @@ function dismissShot(remember=false){
   document.getElementById('shotModal').style.display='none';
 }
 
+/* ===== THEME BOOT (預設跟隨系統；可用 window.NX.setTheme('dark'|'light') 切換) ===== */
+(function(){
+  window.NX = window.NX || {};
+  NX.setTheme = mode => {
+    const b=document.body; if(!b.classList.contains('nx')) b.classList.add('nx');
+    b.classList.remove('light','dark'); b.classList.add(mode==='light'?'light':'dark');
+    localStorage.setItem('nx-theme', mode==='light'?'light':'dark');
+  };
+  const saved=localStorage.getItem('nx-theme');
+  if(saved){ NX.setTheme(saved); }
+  else{
+    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    NX.setTheme(prefersDark ? 'dark' : 'light'); // 仍以 system 為初始
+  }
+})();
+
 /* ===== BOOT ===== */
 window.addEventListener('load', ()=>{ if(localStorage.getItem('loggedIn')) showPage('home'); else showPage('login'); });
+
+/* ===== SPLASH（NEXT 固定 + ONE 出現 + 'S YOU 翻轉 + 整個淡出） ===== */
+(function(){
+  const one = document.getElementById("one");
+  const syou = document.getElementById("syou");
+  const splash = document.getElementById("splash");
+  // 1) NEXT ONE
+  one.style.animation = "fadeIn 600ms ease forwards";
+  // 2) ONE 淡出，'S YOU 翻轉
+  setTimeout(()=>{
+    one.style.animation = "fadeOut 400ms ease forwards";
+    setTimeout(()=>{ syou.style.animation = "flipIn 600ms ease forwards"; }, 400);
+  }, 1200);
+  // 3) 整體淡出
+  setTimeout(()=>{
+    splash.style.transition = "opacity 420ms ease";
+    splash.style.opacity = "0";
+    setTimeout(()=> splash.remove(), 460);
+  }, 2800);
+})();
 </script>
- <!-- 🚀 開場動畫：NEXT 固定 + 'S YOU 翻轉出現 -->
+
+<!-- 🚀 開場動畫（置中） -->
 <div id="splash">
   <div class="stage">
     <span class="next">NEXT</span>
@@ -555,93 +564,5 @@ window.addEventListener('load', ()=>{ if(localStorage.getItem('loggedIn')) showP
   </div>
 </div>
 
-<style>
-  #splash {
-    position: fixed; inset: 0; background: #000;
-    display: flex; justify-content: center; align-items: center;
-    z-index: 9999;
-  }
-  .stage {
-    font-weight: 700; font-size: 44px; color: #fff;
-    display: flex; gap: 20px; align-items: center;
-  }
-  .next { color: #fff; }
-  .one { opacity: 0; }
-  .syou { opacity: 0; color: #e42323; transform: rotateY(90deg); }
-
-  /* 動畫定義 */
-  @keyframes fadeIn { from{opacity:0} to{opacity:1} }
-  @keyframes fadeOut { from{opacity:1} to{opacity:0} }
-  @keyframes flipIn {
-    from { opacity:0; transform: rotateY(90deg); }
-    to   { opacity:1; transform: rotateY(0deg); }
-  }
-</style>
-
-<script>
-  const one = document.getElementById("one");
-  const syou = document.getElementById("syou");
-  const splash = document.getElementById("splash");
-
-  // Step 1: 顯示 NEXT ONE
-  one.style.animation = "fadeIn 600ms ease forwards";
-
-  // Step 2: ONE 消失，'S YOU 翻轉進場
-  setTimeout(()=>{
-    one.style.animation = "fadeOut 400ms ease forwards";
-    setTimeout(()=>{
-      syou.style.animation = "flipIn 600ms ease forwards";
-    }, 400);
-  }, 1200);
-
-  // Step 3: 最後淡出整個開場
-  setTimeout(()=>{
-    splash.style.transition = "opacity 400ms ease";
-    splash.style.opacity = "0";
-    setTimeout(()=> splash.remove(), 450);
-  }, 2800);
-</script>
-<script>
-  (function(){
-    const KEY='nx_theme';
-    const root=document.documentElement;
-
-    // A) 套用已存偏好或跟隨系統
-    const saved=localStorage.getItem(KEY);
-    if(saved==='light'){ root.classList.add('theme-light'); }
-    if(saved==='dark'){  root.classList.add('theme-dark'); }
-
-    // B) 在 Friends Header 動態加按鈕（無需改 HTML）
-    function injectBtn(){
-      const header=document.getElementById('friendsHeader');
-      if(!header || header.querySelector('.theme-toggle')) return;
-      const btn=document.createElement('button');
-      btn.className='theme-toggle';
-      btn.title='切換深/淺色';
-      const syncIcon=()=>{ btn.textContent = root.classList.contains('theme-light') ? '🌙' : '☀️'; };
-      btn.onclick=()=>{
-        if(root.classList.contains('theme-light')){
-          root.classList.remove('theme-light'); root.classList.add('theme-dark');
-          localStorage.setItem(KEY,'dark');
-        }else if(root.classList.contains('theme-dark')){
-          root.classList.remove('theme-dark'); localStorage.removeItem(KEY); // 回到跟隨系統
-        }else{
-          root.classList.add('theme-light'); localStorage.setItem(KEY,'light');
-        }
-        syncIcon();
-      };
-      syncIcon();
-      // 放到 header 右側
-      header.appendChild(btn);
-    }
-
-    // C) 初次與每次切到首頁時都確保有按鈕
-    injectBtn();
-    const _showPage = window.showPage;
-    if(typeof _showPage === 'function'){
-      window.showPage = function(id){ _showPage(id); if(id==='home') injectBtn(); };
-    }
-  })();
-</script>
 </body>
 </html>
