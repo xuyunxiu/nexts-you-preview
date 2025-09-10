@@ -190,7 +190,7 @@
 <section id="dm">
   <div class="topbar">
     <div class="dm-top">
-      <button class="btn" onclick="showPage('dmList')" style="border:1px solid var(--line); border-radius:12px; padding:8px 12px; background:var(--card); color:var(--text)">‹ 返回</button>
+      <button class="btn" onclick="showPage('dmList')" style="border:1px solid var(--line); border-radius:12px; padding:8px 12px; background:var(--card); color:var(--text)">‹</button>
       <div class="dm-title" id="dmTitle">ALLDAY PROJECT — 團體 DM</div>
     </div>
     <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
@@ -254,18 +254,28 @@
   </div>
 </section>
 
-<!-- 截圖警告 MODAL（首次進 DM 顯示一次） -->
-<div id="shotModal" class="modal">
-  <div class="box">
-    <h3>截圖警告（Screenshot Warning）</h3>
-    <div class="warn">⚠️ 你在聊天室內的截圖、轉傳、外流都可能導致權益被停用。請尊重創作者與社群成員。</div>
-    <p class="ghost" style="margin:8px 0 0">We protect artists and fans. Unauthorized capture/redistribution is prohibited.</p>
-    <div class="actions" style="display:flex; gap:10px; margin-top:10px">
-      <button class="btn" onclick="dismissShot()" style="border:1px solid var(--line); border-radius:12px; padding:8px 12px; background:var(--card); color:var(--text)">我知道了</button>
-      <button class="btn btn-red" onclick="dismissShot(true)" style="border:none; border-radius:12px; padding:8px 12px; background:linear-gradient(180deg,var(--accent),var(--accent-2)); color:#fff">不再提示</button>
-    </div>
-  </div>
-</div>
+<script>
+/* ===== 截圖警告（每次截圖觸發） ===== */
+function showScreenshotWarning(){
+  const modal = document.getElementById('shotModal');
+  if(!modal) return;
+  modal.querySelector('.warn').innerHTML = `
+    <b>已偵測到螢幕截圖</b><br>
+    未經授權擷取、轉傳或外流藝人之文字、照片或影片，可能違反平台規範並影響他人權益。<br>
+    因此產生的任何後果與責任，將由您自行承擔。若持續違規，帳號與相關權益可能被停用。
+  `;
+  modal.style.display = 'grid';
+}
+function dismissShot(){ const m=document.getElementById('shotModal'); if(m) m.style.display='none'; }
+
+/* 桌面模擬：按下 PrintScreen 觸發；行動端需 App 原生 API 才能偵測 */
+window.addEventListener('keyup', e=>{
+  if(e.key === 'PrintScreen'){ showScreenshotWarning(); }
+});
+
+/* 額外：拷貝事件也提醒（有時候使用者會複製文字/圖片後外流） */
+document.addEventListener('copy', ()=>{ showScreenshotWarning(); });
+</script>
 
 <!-- NAV -->
 <nav id="nav" class="hidden">
@@ -289,26 +299,25 @@ const GROUPS = [{id:'group', name:'ALLDAY PROJECT', avatar:'https://picsum.photo
 if(!localStorage.getItem('points')) localStorage.setItem('points', 200);
 if(!localStorage.getItem('userId')) localStorage.setItem('userId','u_'+Math.random().toString(36).slice(2,10));
 
-/* ===== LOGIN & NAV ===== */
-function login(m){
-  if(m==='line' || (m==='code' && document.getElementById('inviteCode').value.trim()==='NEXT2025')){
-    localStorage.setItem('loggedIn','true');
-    if(!localStorage.getItem('fanId')) localStorage.setItem('fanId','FAN'+Math.floor(Math.random()*100000));
-    showPage('home');
-  }else alert('邀請碼錯誤！');
-}
-function logout(){ localStorage.removeItem('loggedIn'); showPage('login'); }
-
+<<script>
+/* ===== NAV 顯示/隱藏（DM / gallery 不顯示） ===== */
 function showPage(id){
+  // 切頁
   document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
-  const nav=document.getElementById('nav');
-  if(localStorage.getItem('loggedIn') && id!=='login') nav.classList.remove('hidden'); else nav.classList.add('hidden');
 
-  // 自動刷新
+  // 底部 nav：登入後才顯示，但 DM / gallery 隱藏
+  const nav = document.getElementById('nav');
+  if (localStorage.getItem('loggedIn') && id!=='login' && id!=='dm' && id!=='gallery') {
+    nav.classList.remove('hidden');
+  } else {
+    nav.classList.add('hidden');
+  }
+
+  // 每頁刷新
   if(id==='home'){ renderProfile(); setHomeTab(HOME_TAB||'artists'); }
   if(id==='dmList'){ renderDMList(); }
-  if(id==='dm'){ renderHearts(); renderDM(); maybeWarnShot(); }
+  if(id==='dm'){ renderHearts(); renderDM(); }   // 不再呼叫 maybeWarnShot()
   if(id==='gallery'){ renderGallery(); }
   if(id==='wallet'){ renderPoints(); }
   if(id==='profile'){ prepProfile(); }
@@ -505,17 +514,14 @@ function renderHearts(){
 }
 
 /* ===== SCREENSHOT WARNING ===== */
-function maybeWarnShot(){
-  const key='shotWarnDismissed';
-  if(localStorage.getItem(key)==='true') return;
+function showScreenshotWarning(){
   document.getElementById('shotModal').style.display='grid';
 }
-function dismissShot(remember=false){
-  if(remember) localStorage.setItem('shotWarnDismissed','true');
+function dismissShot(){
   document.getElementById('shotModal').style.display='none';
 }
 
-/* ===== THEME BOOT (預設跟隨系統；可用 window.NX.setTheme('dark'|'light') 切換) ===== */
+/* ===== THEME BOOT ===== */
 (function(){
   window.NX = window.NX || {};
   NX.setTheme = mode => {
@@ -527,26 +533,23 @@ function dismissShot(remember=false){
   if(saved){ NX.setTheme(saved); }
   else{
     const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-    NX.setTheme(prefersDark ? 'dark' : 'light'); // 仍以 system 為初始
+    NX.setTheme(prefersDark ? 'dark' : 'light');
   }
 })();
 
 /* ===== BOOT ===== */
 window.addEventListener('load', ()=>{ if(localStorage.getItem('loggedIn')) showPage('home'); else showPage('login'); });
 
-/* ===== SPLASH（NEXT 固定 + ONE 出現 + 'S YOU 翻轉 + 整個淡出） ===== */
+/* ===== SPLASH ===== */
 (function(){
   const one = document.getElementById("one");
   const syou = document.getElementById("syou");
   const splash = document.getElementById("splash");
-  // 1) NEXT ONE
   one.style.animation = "fadeIn 600ms ease forwards";
-  // 2) ONE 淡出，'S YOU 翻轉
   setTimeout(()=>{
     one.style.animation = "fadeOut 400ms ease forwards";
     setTimeout(()=>{ syou.style.animation = "flipIn 600ms ease forwards"; }, 400);
   }, 1200);
-  // 3) 整體淡出
   setTimeout(()=>{
     splash.style.transition = "opacity 420ms ease";
     splash.style.opacity = "0";
