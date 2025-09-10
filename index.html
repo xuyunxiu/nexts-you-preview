@@ -627,6 +627,8 @@ window.addEventListener('load', ()=>{ if(localStorage.getItem('loggedIn')) showP
   raf(()=> raf(start));
 })();
 </script>
+<!-- 🔧 CACHE BUSTER (paste just before </body>) -->
+<script>
 (function(){
   // ➊ 每次你發新版本，把下面這個字串隨便改：日期/編號都行
   const BUILD = 'b2025-09-11-01';
