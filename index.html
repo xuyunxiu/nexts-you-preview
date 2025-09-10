@@ -601,35 +601,6 @@ window.addEventListener('load', ()=>{ if(localStorage.getItem('loggedIn')) showP
     setTimeout(()=> splash.remove(), 450);
   }, 2800);
 </script>
-  <!-- 🔻 Dark/Light Theme Pack（paste above </body>） -->
-<style>
-  /* 1) 預設走深色（你現有的變數不動） */
-  :root{
-    /* 只覆蓋會影響觀感的幾個 token；沒列到的沿用你現有 */
-    --bg:#0e0e10; --card:#141417; --hover:#1a1a1f; --border:rgba(0,0,0,.22);
-    --text:#0e0f12; --sub:#4b4c52; --muted:#666a73; --accent:#ff2d55; --accent-2:#ff335a;
-  }
-  /* 2) 淺色主題：掛在 <html class="theme-light"> 時生效 */
-  html.theme-light {
-    --bg:#fafafa; --card:#ffffff; --hover:#f4f5f7; --border:rgba(0,0,0,.08);
-    --text:#121317; --sub:#5b5e66; --muted:#7a7f87;
-    --accent:#ff2d55; --accent-2:#ff335a;
-  }
-  /* 3) 系統偏好：若使用者沒手動選，跟隨系統 */
-  @media (prefers-color-scheme: light){
-    html:not(.theme-dark):not(.theme-light){
-      --bg:#fafafa; --card:#ffffff; --hover:#f4f5f7; --border:rgba(0,0,0,.08);
-      --text:#121317; --sub:#5b5e66; --muted:#7a7f87;
-    }
-  }
-  /* 4) 小按鈕樣式（自動插到 #friendsHeader 右上角） */
-  .theme-toggle{
-    display:inline-flex; align-items:center; justify-content:center;
-    width:36px; height:36px; border-radius:12px; border:1px solid var(--border);
-    background:var(--card); color:var(--text); font-size:16px;
-  }
-</style>
-
 <script>
   (function(){
     const KEY='nx_theme';
@@ -672,78 +643,5 @@ window.addEventListener('load', ()=>{ if(localStorage.getItem('loggedIn')) showP
     }
   })();
 </script>
-<!-- 🔺 Theme Pack end -->
-  <style id="nx-hotfix-colors">
-  /* 強制正確的深/淺色主題變數（覆蓋最後那包搞亂的） */
-  :root[data-theme="dark"]{
-    --bg:#0e0e10; --card:#141417; --hover:#1a1a1f; --border:rgba(255,255,255,.06);
-    --text:#f5f5f5; --sub:#a1a1aa; --muted:#777781;
-    --accent:#ff2d55; --accent-2:#ff335a;
-  }
-  :root[data-theme="light"]{
-    --bg:#fafafa; --card:#ffffff; --hover:#f5f6f8; --border:rgba(0,0,0,.08);
-    --text:#111114; --sub:#3b3b44; --muted:#7a7a86;
-    --accent:#ff2d55; --accent-2:#ff335a;
-  }
-  /* 把文字顏色確實套到常見容器（解“深色變黑字”） */
-  html, body, section, nav, .card, .friendCard, .bubble, .pill, .topbar,
-  .live-stage, .live-hero, .live-feed, .textbox, input, textarea, button,
-  .tabs button, .date-chip { color: var(--text) !important; }
-
-  /* 背景回 IG 風 */
-  html,body{
-    background:
-      radial-gradient(1200px 800px at 90% -10%, rgba(255,45,85,.08), transparent 50%),
-      radial-gradient(900px 700px at 10% 110%, rgba(109,40,217,.08), transparent 50%),
-      var(--bg) !important;
-  }
-</style>
-  <!-- ===== NX Hotfix: recover colors + neutralize autoskin ===== -->
-<style id="nx-hotfix">
-  /* 1) 正確主題變數（解：深色卻是黑字） */
-  :root[data-theme="dark"]{
-    --bg:#0e0e10; --card:#141417; --hover:#1a1a1f; --border:rgba(255,255,255,.06);
-    --text:#f5f5f5; --sub:#a1a1aa; --muted:#777781;
-    --accent:#ff2d55; --accent-2:#ff335a;
-  }
-  :root[data-theme="light"]{
-    --bg:#fafafa; --card:#ffffff; --hover:#f5f6f8; --border:rgba(0,0,0,.08);
-    --text:#111114; --sub:#3b3b44; --muted:#7a7a86;
-    --accent:#ff2d55; --accent-2:#ff335a;
-  }
-  /* 2) 文字顏色強制吃變數 */
-  html, body, section, nav, .card, .friendCard, .bubble, .pill, .topbar,
-  .live-stage, .live-hero, .live-feed, .textbox, input, textarea, button,
-  .tabs button, .date-chip { color: var(--text) !important; }
-
-  /* 3) 背景回 IG 風 */
-  html,body{
-    background:
-      radial-gradient(1200px 800px at 90% -10%, rgba(255,45,85,.08), transparent 50%),
-      radial-gradient(900px 700px at 10% 110%, rgba(109,40,217,.08), transparent 50%),
-      var(--bg) !important;
-  }
-
-  /* 4) 將 autoskin 的 neo-* 視覺效果「鈍化」，不影響排版 */
-  .neo-wrap,.neo-card,.neo-item,.neo-ghost,.neo-btn,.neo-input,
-  .friend-card,.friend-name,.neo-pill{
-    background: inherit !important;
-    border: none !important;
-    box-shadow: none !important;
-    color: inherit !important;
-    filter: none !important;
-  }
-  .tabs button.active{ box-shadow:none !important; }
-</style>
-
-<script>
-  // 5) 若前面已經幫元素加了 neo-*，這裡在載入後把它們移掉
-  (function(){
-    const rm = ['neo-wrap','neo-card','neo-item','neo-ghost','neo-btn','neo-input','friend-card','friend-name','neo-pill'];
-    function strip(){ document.querySelectorAll(rm.map(c=>'.'+c).join(',')).forEach(el=>rm.forEach(c=>el.classList.remove(c))); }
-    if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded', strip); } else { strip(); }
-  })();
-</script>
-<!-- ===== /NX Hotfix ===== -->
 </body>
 </html>
