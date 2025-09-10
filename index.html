@@ -10,178 +10,139 @@
   <meta http-equiv="Expires" content="0" />
 
   <style>
-    /* ============ DESIGN TOKENS ============ */
-    :root{
-      /* 黑紅霸氣風 + 工業感 */
-      --bg:#0c0c0e;            /* 背景底黑 */
-      --bg2:#141417;           /* 次層黑 */
-      --ui:#191a1d;            /* 面板 */
-      --line:#2a2c31;          /* 邊框 */
-      --text:#f4f4f5;          /* 正文 */
-      --muted:#a6a7aa;         /* 次文字 */
-      --brand:#e0152f;         /* 主紅 */
-      --brand2:#ff3b3b;        /* 高亮紅 */
-      --glow:rgba(224,21,47,.45);
-      --accent:#9f6f63;        /* 奶茶棕 */
-      --accent-2:#4b433f;      /* 日期膠囊棕 */
-      --teal:#3dd2c6;          /* 成功/在線 */
-      --warn:#ffcc00;          /* 截圖警告色 */
+/* =================== IG 風主題（Drop-in） =================== */
+:root{
+  --bg:#0e0e10;             /* 背景 */
+  --card:#141417;           /* 區塊底 */
+  --hover:#1a1a1f;
+  --border:rgba(255,255,255,.06);
+  --text:#f5f5f5;           /* 主要字 */
+  --sub:#a1a1aa;            /* 次要字 */
+  --muted:#777781;
+  --accent:#ff2d55;         /* IG 粉紅紅 */
+  --accent-2:#ff335a;
+  --success:#2ecc71;
+  --danger:#ff5a5f;
+  --radius:14px;
+  --radius-sm:10px;
+  --shadow:0 6px 20px rgba(0,0,0,.45);
+  --ring:0 0 0 2px rgba(255,45,85,.25);
+  --ease:cubic-bezier(.22,.61,.36,1);
+}
 
-      --radius:14px;
-      --radius-sm:10px;
-      --shadow:0 10px 30px rgba(0,0,0,.45);
-      --shadow-soft:0 6px 16px rgba(0,0,0,.28);
-    }
+/* 全域 */
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{
+  margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
+  color:var(--text);background:
+  radial-gradient(1200px 800px at 90% -10%, rgba(255,45,85,.08), transparent 50%),
+  radial-gradient(900px 700px at 10% 110%, rgba(109,40,217,.08), transparent 50%),
+  var(--bg);
+}
+section{display:none;padding:16px 16px 84px;}
+section.active{display:block;animation:fadeIn .28s var(--ease)}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 
-    /* ============ RESET ============ */
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans TC", Arial;
-      background:
-        radial-gradient(1200px 600px at 120% -10%, rgba(224,21,47,.16), transparent 60%),
-        radial-gradient(900px 500px at -10% -10%, rgba(255,255,255,.05), transparent 60%),
-        linear-gradient(180deg,#101115 0%, #0c0c0e 100%);
-      color:var(--text);
-      -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
-    }
-    h1,h2,h3,b,strong{font-weight:800; letter-spacing:.2px}
-    section{display:none; padding:calc(env(safe-area-inset-top,0) + 12px) 16px 96px}
-    section.active{display:block; animation:fadeIn .18s ease-out}
-    @keyframes fadeIn{from{opacity:.0; transform:translateY(8px)} to{opacity:1; transform:translateY(0)}}
+/* 卡片 */
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow)}
+.row{display:flex;gap:12px;align-items:center}
+.space{height:12px}
 
-    /* ============ NAV (無相簿) ============ */
-    nav{
-      position:fixed; left:0; right:0; bottom:0;
-      padding:8px 12px calc(8px + env(safe-area-inset-bottom,0));
-      background:rgba(14,14,16,.85); backdrop-filter:blur(10px);
-      border-top:1px solid var(--line);
-      display:flex; justify-content:space-around; gap:8px; z-index:50;
-    }
-    nav.hidden{display:none}
-    nav button{
-      flex:1; background:linear-gradient(180deg,#1a1b1f,#141418);
-      border:1px solid var(--line); color:var(--text);
-      border-radius:14px; padding:12px 10px; font-weight:700;
-      box-shadow:var(--shadow-soft); letter-spacing:.2px;
-    }
-    nav button:active{transform:translateY(1px); filter:brightness(.95)}
+/* 頂部條（通用） */
+.topbar{display:flex;align-items:center;justify-content:space-between;margin:4px 0 14px}
+.topbar h2{margin:0;font-size:20px;letter-spacing:.4px}
+.icon-btn{
+  width:36px;height:36px;border-radius:12px;border:1px solid var(--border);
+  display:grid;place-items:center;background:var(--card);box-shadow:var(--shadow);transition:.18s var(--ease)
+}
+.icon-btn:active{transform:scale(.96)}
 
-    /* ============ CARDS / PANELS ============ */
-    .panel{
-      background:var(--ui); border:1px solid var(--line); border-radius:var(--radius);
-      box-shadow:var(--shadow); overflow:hidden;
-    }
-    .soft{box-shadow:var(--shadow-soft)}
+/* ♡ 天數膠囊 / 九宮格 */
+.pill{display:flex;align-items:center;gap:6px;padding:8px 12px;border-radius:999px;
+  background:linear-gradient(180deg,#1a1a1f,#141417);border:1px solid var(--border);box-shadow:var(--shadow);font-weight:700}
+.pill .heart{color:var(--accent);font-size:16px}
 
-    /* top bar (DM / Gallery / Live / Wallet) */
-    .topbar{
-      position:sticky; top:calc(env(safe-area-inset-top,0)); z-index:20;
-      display:flex; align-items:center; gap:10px;
-      padding:12px 12px; margin:-4px 0 10px;
-      background:linear-gradient(180deg, rgba(32,33,37,.95), rgba(25,26,29,.88));
-      border:1px solid var(--line); border-radius:12px;
-    }
-    .topbar h2{margin:0; font-size:18px}
-    .btn,.chip{
-      border:1px solid var(--line); background:#202126; color:var(--text);
-      border-radius:12px; padding:8px 12px; font-weight:700;
-    }
-    .btn-red{background:linear-gradient(180deg, var(--brand2), var(--brand)); border-color:transparent; box-shadow:0 8px 22px var(--glow)}
-    .btn-ghost{background:#1a1b20}
+/* Friends：上方個人區 */
+#friendsHeader{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;box-shadow:var(--shadow)}
+#friendsHeader img{width:44px;height:44px;border-radius:50%;object-fit:cover;border:1px solid var(--border)}
+#friendsHeader .meta{display:flex;flex-direction:column;align-items:flex-start;gap:4px}
+#friendsHeader .name{font-weight:700;font-size:16px}
+#friendsHeader .id{color:var(--muted);font-size:12px}
 
-    /* ============ HOME: 個人區＋分頁＋清單 ============ */
-    #friendsHeader{
-      display:flex; justify-content:space-between; align-items:center; gap:10px;
-      padding:12px; border:1px solid var(--line); border-radius:var(--radius); background:linear-gradient(180deg,#17181c,#141417);
-      box-shadow:var(--shadow-soft);
-    }
-    #friendsHeader .me{display:flex; align-items:center; gap:10px}
-    #friendsHeader img{width:44px;height:44px;border-radius:12px;object-fit:cover; border:1px solid var(--line)}
-    #friendsHeader .nick{font-weight:800; letter-spacing:.3px; cursor:pointer}
+/* Friends：分頁（藝人/團體/已購買/未購買） */
+.tabs{display:flex;gap:8px;margin:14px 0}
+.tabs button{
+  flex:1;padding:10px 0;border:none;border-radius:999px;background:#16161a;color:var(--sub);
+  font-weight:700;letter-spacing:.4px;border:1px solid var(--border);transition:.18s var(--ease)
+}
+.tabs button.active{background:linear-gradient(180deg,#2a2a31,#202028);color:#fff;border-color:transparent;box-shadow:var(--shadow)}
+.friendList{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.friendCard{padding:12px;border:1px solid var(--border);border-radius:var(--radius);background:var(--card);box-shadow:var(--shadow);text-align:left}
+.friendCard .avatar{width:44px;height:44px;border-radius:50%;object-fit:cover;border:1px solid var(--border)}
+.friendCard .title{font-weight:800;margin-top:6px}
+.friendCard .hint{color:var(--muted);font-size:12px;margin-top:2px}
+.friendCard .action{margin-top:10px;background:var(--accent);border:none;color:#fff;font-weight:800;border-radius:12px;padding:10px 12px;width:100%}
+.friendCard .action:active{transform:translateY(1px)}
 
-    .tabs{display:flex; gap:10px; margin:14px 2px 10px}
-    .tabs button{
-      flex:1; padding:10px; border-radius:12px; background:#1a1b21; border:1px solid var(--line); color:#d7d8da; font-weight:800;
-    }
-    .tabs button.active{
-      color:#fff; background:linear-gradient(180deg,#2d0e12,#1a0a0c), linear-gradient(180deg,#2c2c32,#1a1b21);
-      border:1px solid #4a0f18; box-shadow:inset 0 0 0 1px rgba(255,255,255,.05), 0 6px 16px rgba(224,21,47,.25);
-    }
+/* DM：視覺 */
+#dm .chat{display:flex;flex-direction:column;gap:14px}
+.date-chip{
+  align-self:center;background:#2b2b31;color:#ddd;border-radius:999px;padding:6px 12px;
+  border:1px solid var(--border);font-weight:700;font-size:12px;opacity:.85
+}
+.bubble{
+  max-width:78%;text-align:left;padding:12px 14px;border-radius:18px;border:1px solid var(--border);
+  background:linear-gradient(180deg,#ffffff, #f2f2f3);color:#18181b;box-shadow:var(--shadow);position:relative
+}
+.bubble .sub{margin-top:8px;background:#e9e9ed;border-radius:14px;padding:10px;color:#333;border:1px solid rgba(0,0,0,.05)}
+.bubble.me{margin-left:auto;background:linear-gradient(180deg,#26262b,#1c1c20);color:#e8e8ea;border-color:rgba(255,255,255,.04)}
+.time{position:absolute;right:14px;bottom:-18px;color:var(--muted);font-size:11px}
 
-    .grid{display:grid; grid-template-columns:1fr 1fr; gap:12px}
-    .card{
-      cursor:pointer; padding:12px; border:1px solid var(--line); border-radius:16px;
-      background:linear-gradient(180deg,#191a1d,#121316);
-      box-shadow:var(--shadow-soft);
-      transition:transform .1s ease, box-shadow .2s ease, border-color .2s ease;
-    }
-    .card:hover{transform:translateY(-1px); box-shadow:0 10px 26px rgba(224,21,47,.2)}
-    .row{display:flex; gap:10px; align-items:center}
-    .card img{width:56px; height:56px; border-radius:14px; object-fit:cover; border:1px solid var(--line)}
-    .badge{display:inline-flex; align-items:center; gap:6px; margin-top:6px; font-size:12px; padding:4px 10px; border-radius:999px; border:1px solid var(--line); background:#1a1b21; opacity:.9}
-    .ok{background:#0d2a1e; color:#b9ffd0; border-color:#174a36}
-    .ng{background:#2a1414; color:#ffd6d2; border-color:#4d2626}
+/* 輸入列（固定底部） */
+.inputBar{
+  position:fixed;left:0;right:0;bottom:0;padding:10px 14px;background:linear-gradient(180deg, rgba(0,0,0,0), rgba(0,0,0,.55));
+  backdrop-filter:blur(10px)
+}
+.inputWrap{display:flex;gap:10px;align-items:center}
+.textbox{
+  flex:1;background:#151519;border:1px solid var(--border);border-radius:16px;padding:14px 16px;color:#fff;outline:none;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.03)
+}
+.textbox:focus{box-shadow:var(--ring), inset 0 1px 0 rgba(255,255,255,.03)}
+.send-btn{
+  width:52px;height:52px;border-radius:18px;border:none;background:linear-gradient(180deg,var(--accent),var(--accent-2));
+  color:#fff;font-weight:900;font-size:18px;box-shadow:var(--shadow);display:grid;place-items:center
+}
+.send-btn:active{transform:scale(.97)}
 
-    /* ============ DM ============ */
-    .dm-top{display:flex; justify-content:space-between; align-items:center; gap:8px}
-    .dm-title{font-weight:900; letter-spacing:.3px}
-    .menu-btn{border:1px solid var(--line); background:#22242a; color:#fff; border-radius:12px; padding:6px 10px}
-    .pill{display:inline-flex; align-items:center; gap:6px; padding:6px 12px; border-radius:999px; background:#3a2f2b; border:1px solid rgba(255,255,255,.08)}
-    .pill b{color:#ff8a8a}
+/* 相簿九宮格面板（只從DM右上角進入） */
+.grid-gallery{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid-gallery .shot{border-radius:14px;overflow:hidden;border:1px solid var(--border);box-shadow:var(--shadow)}
+.grid-gallery img{width:100%;height:100%;object-fit:cover;display:block}
 
-    .dm-wrap{display:flex; flex-direction:column; height:calc(100vh - 192px)}
-    .dm-messages{flex:1; overflow:auto; padding:14px; border:1px solid var(--line); border-radius:16px; background:linear-gradient(180deg,#141417,#0f0f11)}
-    .date-chip{align-self:center; background:var(--accent-2); color:#efe8e3; padding:6px 12px; border-radius:14px; font-size:12px; margin:8px 0 4px; opacity:.95}
+/* 直播頁：上主播大框，下粉絲留言 */
+.live-stage{display:flex;flex-direction:column;gap:12px}
+.live-hero{height:240px;border-radius:16px;border:1px solid var(--border);background:linear-gradient(180deg,#1b1b20,#121216);
+  display:grid;place-items:center;color:#bbb;box-shadow:var(--shadow);font-weight:800}
+.live-feed{max-height:320px;overflow:auto;padding:10px;border:1px solid var(--border);border-radius:12px;background:#121216}
+.live-msg{padding:10px;border-bottom:1px dashed rgba(255,255,255,.06)}
+.live-msg .name{color:#ddd;font-weight:700}
+.live-input{margin-top:8px}
 
-    .msg{max-width:78%; padding:12px 14px; border-radius:16px; margin:8px 0; font-size:15px; line-height:1.45; word-break:break-word; box-shadow:inset 0 0 0 1px rgba(255,255,255,.04)}
-    .msg.me{background:linear-gradient(180deg,#6c4b40,#5a4036); color:#fff; margin-left:auto; border-bottom-right-radius:5px}
-    .msg.artist{background:linear-gradient(180deg,#ffffff,#efefef); color:#111; border-bottom-left-radius:5px}
-    .sub-balloon{margin-top:6px; padding:8px 10px; background:#ececec; color:#555; border-radius:12px; font-size:13px}
-    .msg time{display:block; text-align:right; font-size:12px; opacity:.7; margin-top:6px}
+/* 底部（若你還保留） */
+nav{position:fixed;left:0;right:0;bottom:0;background:#0f0f12;border-top:1px solid var(--border);
+  display:flex;justify-content:space-around;padding:12px 8px 16px;backdrop-filter:blur(8px)}
+nav.hidden{display:none}
+nav button{background:transparent;border:none;color:#e8e8ea;font-weight:800;padding:8px 10px;border-radius:12px}
+nav button:active{background:#1b1b21}
 
-    .dm-input{display:flex; gap:10px; background:linear-gradient(180deg,#1b1c20,#16171a); border:1px solid var(--line); border-radius:16px; padding:10px; margin-top:10px}
-    .dm-input input{flex:1; border:none; border-radius:12px; padding:12px; background:#101114; color:#fff; box-shadow:inset 0 0 0 1px #24262c}
-    .dm-input button{border:none; border-radius:50%; padding:12px 14px; background:linear-gradient(180deg,var(--brand2),var(--brand)); color:#fff; box-shadow:0 10px 22px var(--glow)}
-
-    /* ============ GALLERY (僅 ▦ 進) ============ */
-    #galleryGrid{display:grid; grid-template-columns:repeat(3,1fr); gap:6px}
-    #galleryGrid img{width:100%; aspect-ratio:1/1; object-fit:cover; border-radius:10px; border:1px solid var(--line)}
-
-    /* ============ LIVE ============ */
-    .live-host{background:linear-gradient(180deg,#1e2025,#181a1e); border:1px solid var(--line); border-radius:16px; padding:14px; margin-bottom:12px; box-shadow:var(--shadow-soft)}
-    .live-host .title{font-weight:900; letter-spacing:.3px; opacity:.9}
-    .live-fans{background:#141418; border:1px solid var(--line); border-radius:16px; padding:10px; max-height:40vh; overflow:auto}
-    .fan-item{background:#1c1d22; border:1px solid var(--line); border-radius:12px; padding:8px 10px; margin:6px 0}
-
-    /* ============ WALLET ============ */
-    .product{background:linear-gradient(180deg,#191a1e,#141417); border:1px solid var(--line); border-radius:16px; padding:12px; margin:10px 0; text-align:left; box-shadow:var(--shadow-soft)}
-    .product h4{margin:0 0 6px}
-    .ghost{opacity:.8}
-
-    /* ============ MODALS ============ */
-    .modal{
-      position:fixed; inset:0; display:none; place-items:center; z-index:80;
-      background:radial-gradient(1200px 600px at 50% -10%, rgba(224,21,47,.18), transparent 60%), rgba(7,7,9,.78);
-      backdrop-filter:blur(8px);
-    }
-    .modal .box{
-      width:min(92vw,520px);
-      background:linear-gradient(180deg,#1b1c20,#141417);
-      border:1px solid var(--line); border-radius:16px; padding:16px; box-shadow:var(--shadow);
-      text-align:left;
-    }
-    .modal h3{margin:0 0 6px}
-    .modal p{color:#ddd; line-height:1.5}
-    .modal .warn{display:flex; align-items:center; gap:10px; padding:10px; background:rgba(255,204,0,.12); border:1px solid rgba(255,204,0,.35); border-radius:12px}
-    .modal .actions{display:flex; justify-content:flex-end; gap:10px; margin-top:12px}
-    .hide{display:none!important}
-
-    /* motion */
-    @media (prefers-reduced-motion:reduce){
-      *{animation:none!important; transition:none!important}
-    }
-  </style>
+/* 可讀性微調 */
+h2,h3,p{margin:0}
+p.muted{color:var(--sub)}
+.small{font-size:12px;color:var(--muted)}
+/* =========================================================== */
+</style>
 </head>
 <body>
 
