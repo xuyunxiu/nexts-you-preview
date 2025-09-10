@@ -127,17 +127,65 @@
 
 <body class="nx"><!-- 加上 .nx 讓整個主題只在這頁生效 -->
 
-<!-- LOGIN -->
-<section id="login" class="active">
-  <div class="panel soft">
-    <h2 style="margin-bottom:8px">登入</h2>
-    <button class="btn btn-red" onclick="login('line')">用 LINE 登入（模擬）</button>
-    <div style="margin-top:8px; display:flex; gap:8px; justify-content:center">
-      <input id="inviteCode" placeholder="輸入邀請碼，例如 NEXT2025" style="width:70%;max-width:320px; border:1px solid var(--line); border-radius:12px; padding:10px; background:var(--hover); color:var(--text)">
-      <button class="btn" onclick="login('code')" style="border:1px solid var(--line); border-radius:12px; padding:10px 14px; background:var(--card); color:var(--text)">使用邀請碼</button>
+<!-- 🔐 LOGIN -->
+<section id="login" class="active" 
+         style="display:flex;align-items:center;justify-content:center;
+                min-height:100vh; padding:20px; box-sizing:border-box;">
+  <div class="panel soft" 
+       style="max-width:400px; width:100%; text-align:center; padding:32px 24px; 
+              border-radius:16px; background:var(--card); box-shadow:0 8px 20px rgba(0,0,0,.35)">
+    
+    <h2 style="margin-bottom:24px; font-size:22px; font-weight:600">登入</h2>
+
+    <button id="lineLoginBtn" class="btn btn-red" 
+            style="width:100%; margin-bottom:16px;">用 LINE 登入（模擬）</button>
+    
+    <div style="display:flex; gap:8px; margin-top:8px; justify-content:center">
+      <input id="inviteCode" 
+             placeholder="輸入邀請碼，例如 NEXT2025"
+             style="flex:1; border:1px solid var(--line); border-radius:12px; 
+                    padding:12px; background:var(--hover); color:var(--text)">
+      <button id="codeLoginBtn" class="btn" 
+              style="border:1px solid var(--line); border-radius:12px; 
+                     padding:12px 18px; background:var(--card); color:var(--text)">
+        使用邀請碼
+      </button>
     </div>
   </div>
 </section>
+
+<script>
+/* ===== LOGIN FLOW ===== */
+function fakeLogin(method){
+  if(method==='line' || (method==='code' && document.getElementById('inviteCode').value.trim()==='NEXT2025')){
+    localStorage.setItem('loggedIn','true');
+    if(!localStorage.getItem('fanId')){
+      localStorage.setItem('fanId','FAN'+Math.floor(Math.random()*100000));
+    }
+    showPage('home');
+  }else{
+    // ❌ 錯誤時 input 抖動
+    const inp=document.getElementById('inviteCode');
+    inp.classList.add('shake');
+    setTimeout(()=>inp.classList.remove('shake'),500);
+    alert('邀請碼錯誤！');
+  }
+}
+
+// 綁定按鈕
+document.getElementById('lineLoginBtn').addEventListener('click', ()=>fakeLogin('line'));
+document.getElementById('codeLoginBtn').addEventListener('click', ()=>fakeLogin('code'));
+</script>
+
+<style>
+/* 抖動動畫 */
+@keyframes shake {
+  0%,100% { transform: translateX(0); }
+  20%,60% { transform: translateX(-6px); }
+  40%,80% { transform: translateX(6px); }
+}
+.shake { animation: shake 0.4s; }
+</style>
 
 <!-- HOME -->
 <section id="home">
