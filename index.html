@@ -10,128 +10,82 @@
   <meta http-equiv="Expires" content="0" />
 
   <!-- === INS-Neumorphism Theme Pack (paste just before </body>) === -->
+<!-- === NX THEME CORE (drop-in, no layout/logic changes) === -->
 <style>
-  :root{
-    --bg: #0f0f13;
-    --bg-elev: #181a20;
-    --card: #1f222a;
-    --txt: #e9ecf1;
-    --muted:#9aa4b2;
-    --accent:#ff3b30;           /* 紅：DM 送出 / 高亮 */
-    --accent-soft:#ff3b3033;
-    --shadow-dark: rgba(0,0,0,.45);
-    --shadow-light: rgba(255,255,255,.08);
-    --radius-xl: 22px;
-    --radius-lg: 18px;
-    --radius-md: 14px;
-    --blur: 14px;
+  /* 主題基底：兩套調色盤 */
+  :root { --theme: dark; }
+  :root[data-theme="dark"]{
+    --bg:#0e0e10; --card:#141417; --hover:#1a1a1f; --border:rgba(255,255,255,.06);
+    --text:#f5f5f5; --sub:#a1a1aa; --muted:#777781;
+    --accent:#ff2d55; --accent-2:#ff335a; --success:#2ecc71; --danger:#ff5a5f;
+    --radius:14px; --radius-sm:10px; --shadow:0 6px 20px rgba(0,0,0,.45); --ring:0 0 0 2px rgba(255,45,85,.25);
   }
-  /* Purple Mode */
-  :root.purple{
-    --bg: #19161f;
-    --bg-elev:#211c2a;
-    --card:#292235;
-    --txt:#f3f0ff;
-    --muted:#bfb7d9;
-    --accent:#8b5cf6;
-    --accent-soft:#8b5cf644;
-    --shadow-dark: rgba(25, 8, 46, .55);
-    --shadow-light: rgba(255,255,255,.06);
+  :root[data-theme="light"]{
+    --bg:#fafafa; --card:#ffffff; --hover:#f5f6f8; --border:rgba(0,0,0,.08);
+    --text:#111114; --sub:#3b3b44; --muted:#7a7a86;
+    --accent:#ff2d55; --accent-2:#ff335a; --success:#16a34a; --danger:#ef4444;
+    --radius:14px; --radius-sm:10px; --shadow:0 6px 18px rgba(0,0,0,.12); --ring:0 0 0 2px rgba(255,45,85,.25);
   }
 
-  /* 全域底色與字 */
-  html,body{background:var(--bg); color:var(--txt); }
-  body{transition:background .25s ease,color .25s ease;}
+  /* 讓顏色一定吃到（解你“深色字沒變白”的狀況） */
+  html, body, section, nav, .card, .friendCard, .bubble, .pill, .topbar, .live-stage, .live-hero,
+  .live-feed, .textbox, .neo-input, input, textarea, button, .tabs button, .date-chip {
+    color: var(--text) !important;
+  }
+  a { color: var(--accent); }
 
-  /* 霧面柔光卡片 */
-  .neo-card{
-    background: var(--card);
-    border-radius: var(--radius-xl);
-    box-shadow:
-      16px 16px 32px var(--shadow-dark),
-      -10px -10px 22px var(--shadow-light);
-    border: 1px solid rgba(255,255,255,.04);
+  /* 背景與漸層（保留 IG 風） */
+  html,body{background:
+    radial-gradient(1200px 800px at 90% -10%, rgba(255,45,85,.08), transparent 50%),
+    radial-gradient(900px 700px at 10% 110%, rgba(109,40,217,.08), transparent 50%),
+    var(--bg) !important;
   }
 
-  /* 小卡／列表項 */
-  .neo-item{
-    background: var(--bg-elev);
-    border-radius: var(--radius-lg);
-    padding:14px 16px;
-    box-shadow:
-      10px 10px 20px var(--shadow-dark),
-      -8px -8px 16px var(--shadow-light);
-    border: 1px solid rgba(255,255,255,.05);
-  }
+  /* 卡片/表層底色（不變動你的版位，只換皮） */
+  .card, .friendCard, .pill, .tabs button { background: var(--card); border:1px solid var(--border); }
+  .tabs button.active{ background: linear-gradient(180deg, var(--hover), var(--card)); color: var(--text) !important; border-color: transparent; box-shadow: var(--shadow); }
+  .textbox, input[type="text"], textarea{ background: var(--hover); border:1px solid var(--border); color: var(--text) !important; }
+  .send-btn, .friendCard .action{ background: linear-gradient(180deg, var(--accent), var(--accent-2)); color:#fff !important; }
 
-  /* 玻璃膠囊（♡+N、日期、標籤） */
-  .neo-pill{
-    display:inline-flex; align-items:center; gap:8px;
-    padding:8px 14px; border-radius:999px;
-    background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(0,0,0,.15));
-    backdrop-filter: blur(var(--blur));
-    -webkit-backdrop-filter: blur(var(--blur));
-    border:1px solid rgba(255,255,255,.08);
-    color:var(--txt);
-    box-shadow: 0 8px 18px var(--shadow-dark);
-  }
-
-  /* 主要按鈕（送出、開始聊天） */
-  .neo-btn{
-    appearance:none; border:0; cursor:pointer;
-    padding:14px 18px; border-radius:16px; font-weight:700;
-    color:#fff; background: var(--accent);
-    box-shadow:
-      0 12px 24px var(--accent-soft),
-      inset 0 -2px 0 rgba(0,0,0,.25);
-    transition: transform .06s ease, box-shadow .2s ease;
-  }
-  .neo-btn:active{ transform: translateY(1px); box-shadow: 0 8px 18px var(--accent-soft), inset 0 -1px 0 rgba(0,0,0,.3); }
-
-  /* 次要按鈕（灰膠囊） */
-  .neo-ghost{
-    background: var(--bg-elev); color:var(--txt);
-    border:1px solid rgba(255,255,255,.06);
-  }
-
-  /* 輸入框（DM / Live / 搜尋） */
-  .neo-input{
-    width:100%; padding:14px 16px; color:var(--txt);
-    background: var(--bg-elev); border-radius:18px; border:1px solid rgba(255,255,255,.06);
-    box-shadow: inset 6px 6px 14px rgba(0,0,0,.45), inset -6px -6px 14px rgba(255,255,255,.04);
-    outline:none;
-  }
-  .neo-input::placeholder{color:var(--muted);}
-
-  /* DM 泡泡（奶茶棕可保留你原色，只換質感） */
-  .bubble{
-    padding:14px 16px; border-radius:16px; line-height:1.5;
-    background: var(--bg-elev); border:1px solid rgba(255,255,255,.06);
-    box-shadow: 10px 10px 24px var(--shadow-dark), -8px -8px 16px var(--shadow-light);
-  }
-  .bubble.me{ background: linear-gradient(180deg, #6b4b3a, #5a3f30); }
-  .bubble.sub{ margin-top:8px; color:var(--muted); background:transparent; border:1px dashed rgba(255,255,255,.12); }
-
-  /* 好友卡片（頭像 + 名稱 + 背景縮圖） */
-  .friend-card{
-    display:flex; align-items:center; gap:14px; padding:12px 14px;
-  }
-  .friend-card img{
-    width:56px; height:56px; border-radius:16px; object-fit:cover;
-    box-shadow: 6px 6px 14px var(--shadow-dark), -4px -4px 10px var(--shadow-light);
-  }
-  .friend-name{font-weight:800; letter-spacing:.3px;}
-  .friend-meta{color:var(--muted); font-size:12px;}
-
-  /* 浮動主題切換 */
-  .float-toggle{
-    position: fixed; top: 22px; right: 18px; z-index: 9999;
-    width:46px; height:46px; display:grid; place-items:center;
-  }
-
-  /* 頁內大區塊容器美化（Home / DM / Live 的主要卡片） */
-  .neo-wrap{ padding:16px; border-radius:24px; }
+  /* 氛圍細節 */
+  .small{ color: var(--muted) !important; }
+  .muted, .friendCard .hint, .live-msg .time{ color: var(--sub) !important; }
 </style>
+
+<script>
+  // ===== 主題控制核心 =====
+  (function(){
+    const root = document.documentElement;
+
+    // 1) 初始：用 localStorage；沒有則跟隨系統
+    const saved = localStorage.getItem('nx-theme');
+    if(saved){ root.setAttribute('data-theme', saved); }
+    else{
+      const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      root.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+    }
+
+    // 2) 對外 API（不放 UI 按鈕，只提供呼叫）
+    window.NX = window.NX || {};
+    window.NX.setTheme = function(theme){
+      if(theme!=='dark' && theme!=='light') return;
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem('nx-theme', theme);
+      // 小延遲強制重繪，避免某些 iOS WebView 沒即時套色
+      setTimeout(()=>{ document.documentElement.style.transform='translateZ(0)'; requestAnimationFrame(()=>{ document.documentElement.style.transform=''; }); }, 0);
+    };
+
+    // 3) 跟隨系統（若使用者沒手動選過）
+    if(!saved && window.matchMedia){
+      try{
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e=>{
+          root.setAttribute('data-theme', e.matches ? 'dark' : 'light');
+        });
+      }catch(_){}
+    }
+  })();
+</script>
+<!-- === /NX THEME CORE === -->
 
 <!-- 浮動主題切換（點一下 Purple / Black 切換） -->
 <button id="themeBtn" class="neo-card float-toggle" aria-label="Toggle Theme">🟣</button>
