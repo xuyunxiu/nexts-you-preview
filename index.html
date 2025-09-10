@@ -145,6 +145,27 @@
     #splash .one.hide   { animation: sp-fade-out .4s ease forwards; }
     #splash .syou.play  { animation: sp-flip-in .6s ease forwards; }
     #splash.hide        { transition: opacity .4s ease; opacity:0; }
+/* ===== PATCH: 登入頁時一律隱藏底部 nav（雙保險） ===== */
+#login.active ~ nav { display: none !important; }
+
+/* 修正 iOS 置中時可能被安全區影響而偏移 */
+#login.login-center {
+  min-height: 100vh;
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px 16px; box-sizing: border-box;
+}
+#login .login-card {
+  width: 100%; max-width: 360px;
+  text-align: center;
+  padding: 24px; border-radius: 16px;
+}
+#login .login-input {
+  width: 100%; padding: 12px; font-size: 15px; margin: 12px 0;
+  border: 1px solid var(--line); border-radius: 12px;
+  background: var(--hover); color: var(--text);
+  box-sizing: border-box;
+}
+#login .btn-block { width: 100%; padding: 14px; border-radius: 12px; }
   </style>
 </head>
 
