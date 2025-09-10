@@ -1,188 +1,140 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>NEXT'S YOU — Preview</title>
-
-  <!-- 基礎樣式 -->
   <style>
-    :root{
-      --bg:#111; --card:#1b1b1b; --text:#fff; --muted:#9aa; --line:#222; --red:#e02424;
-      /* DM 色票 */
-      --dm-bg:#2b2623; --dm-card:#3a3330; --dm-fan:#7d5a47; --dm-artist:#ffffff;
-      --dm-muted:#c9bdb6; --dm-input:#e9e3de;
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #111;
+      color: #fff;
+      text-align: center;
     }
-    *{ box-sizing:border-box; }
-    body{ margin:0; font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif; background:var(--bg); color:var(--text); }
-    h2{ margin:16px 0; }
-    section{ display:none; padding:16px 16px 90px; }
-    section.active{ display:block; }
-
-    /* 底部導覽 */
-    nav{
-      position:fixed; left:0; right:0; bottom:0; height:50px; background:#121212;
-      display:flex; justify-content:space-around; align-items:center; border-top:1px solid var(--line);
-      padding-bottom:max(0px, env(safe-area-inset-bottom)); z-index:20;
+    section { display: none; padding: 20px; }
+    section.active { display: block; }
+    nav {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: #222; display: flex; justify-content: space-around;
+      padding: 10px 0;
     }
-    nav.hidden{ display:none; }
-    nav button{ background:none; border:none; color:#fff; font-size:15px; }
-
-    /* 按鈕/卡片 */
-    .btn{ display:inline-block; padding:10px 16px; border-radius:10px; font-weight:600; cursor:pointer; border:none; }
-    .btn-red{ background:var(--red); color:#fff; }
-    .product{ background:var(--card); margin:10px 0; padding:14px; border-radius:12px; text-align:left; }
-
-    /* -------- DM：DAY OFF 風格 -------- */
-    #dm{ padding:0; background:var(--dm-bg); }
-    #dm .topbar{ position:sticky; top:0; background:var(--dm-bg); border:none; padding:12px 14px; z-index:10; }
-    .dm-head{ display:grid; grid-template-columns:44px 1fr auto auto; gap:10px; align-items:center; }
-    .dm-back{
-      width:32px; height:32px; border-radius:16px; display:flex; align-items:center; justify-content:center;
-      color:#fff; opacity:.9; border:1px solid rgba(255,255,255,.15)
+    nav.hidden { display: none; }
+    nav button {
+      background: none; border: none; color: #fff; font-size: 16px;
     }
-    .dm-title{ text-align:left; font-weight:800; font-size:20px; letter-spacing:.5px; }
-    .dm-grid,.dm-heart{ height:32px; border-radius:10px; display:flex; align-items:center; justify-content:center; color:#fff; }
-    .dm-grid{ width:32px; border:1px solid rgba(255,255,255,.18); }
-    .dm-heart{ padding:0 10px; background:#4a403c; gap:6px; border:1px solid rgba(255,255,255,.12); }
-    .dm-heart b{ color:#ff7d7d; }
+    .btn {
+      display: inline-block; padding: 10px 20px; margin: 10px;
+      border-radius: 6px; font-size: 16px; cursor: pointer;
+    }
+    .btn-red { background: red; color: #fff; }
+    input { padding: 8px; border-radius: 4px; border: none; margin: 5px; }
+    .topbar {
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .hearts {
+      font-size: 18px; color: pink;
+    }
+    .product {
+      background: #222; margin: 10px; padding: 15px; border-radius: 8px;
+    }
 
-    .chat-box{ height:calc(100dvh - 50px - 72px - 78px); overflow:auto; padding:8px 12px 0; display:flex; flex-direction:column; gap:10px; }
-    .row{ display:flex; gap:10px; align-items:flex-end; }
-    .row.artist{ flex-direction:row; } .row.fan{ flex-direction:row-reverse; }
-    .avatar{ width:38px; height:38px; border-radius:50%; overflow:hidden; box-shadow:0 1px 0 rgba(0,0,0,.2); }
-    .avatar img{ width:100%; height:100%; object-fit:cover; display:block; }
-    .bubble{ max-width:74%; display:flex; flex-direction:column; gap:6px; }
-    .balloon{ padding:12px 14px; border-radius:14px; line-height:1.35; font-size:15px; box-shadow:0 1px 0 rgba(0,0,0,.18); }
-    .artist .balloon{ background:var(--dm-artist); color:#2a2623; }
-    .fan .balloon{ background:var(--dm-fan); color:#fff; }
-    .time{ font-size:12px; color:var(--dm-muted); align-self:flex-end; padding:0 6px; }
-    .date-chip{ align-self:center; background:#4b433f; color:#efe8e3; padding:6px 12px; border-radius:14px; font-size:12px; margin:6px 0 2px; opacity:.9; }
-
-    .input-bar{ position:fixed; left:0; right:0; bottom:50px; background:transparent; border:none; padding:10px 12px; }
-    .input-wrap{ display:flex; gap:10px; align-items:center; width:100%; background:var(--dm-input); padding:10px 12px; border-radius:16px; }
-    .input-wrap input{ flex:1; height:36px; border:none; outline:none; background:transparent; color:#2b2623; }
-    .send-circle{ width:36px; height:36px; border-radius:18px; display:flex; align-items:center; justify-content:center; background:#5a4a43; color:#fff; font-weight:700; }
-
-    /* -------- 相簿 -------- */
-    .grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
-    .tile{ aspect-ratio:1/1; border-radius:10px; overflow:hidden; background:#222; display:flex; align-items:center; justify-content:center; cursor:pointer; }
-    .tile img{ width:100%; height:100%; object-fit:cover; display:block; }
-    .modal{ position:fixed; inset:0; background:rgba(0,0,0,.85); display:none; align-items:center; justify-content:center; z-index:30; }
-    .modal img{ max-width:92vw; max-height:82vh; border-radius:12px; }
-    .modal.show{ display:flex; }
-
-    /* -------- 直播 -------- */
-    .live-wrap{ display:grid; grid-template-columns:1fr; gap:12px; }
-    .live-col{ background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px; }
-    .live-title{ font-weight:700; margin-bottom:6px; }
-    .live-feed{ max-height:36vh; overflow:auto; display:flex; flex-direction:column; gap:6px; }
-    .live-item{ background:#2a2a2a; border-radius:10px; padding:8px 10px; }
-    .live-input{ margin-top:8px; display:flex; gap:8px; }
-    .live-input input{ flex:1; height:40px; border-radius:10px; border:none; background:#1c1c1c; color:#fff; padding:8px 10px; }
+    /* --- DM 訊息與翻譯副泡泡 --- */
+    .dm-topbar {
+      display:flex;justify-content:space-between;align-items:center;
+      padding:10px;background:#222;
+      position:sticky;top:0;
+    }
+    .dm-messages {
+      min-height:300px;
+      padding:10px;
+      text-align:left;
+      background:#1a1a1a;
+    }
+    .msg {
+      max-width:75%;padding:10px 14px;border-radius:16px;margin:6px 0;
+      font-size:15px;line-height:1.4;word-break:break-word;
+    }
+    .msg.me {
+      background:#5a4036;color:#fff;margin-left:auto;
+      border-bottom-right-radius:4px;
+    }
+    .msg.artist {
+      background:#fff;color:#111;
+      border-bottom-left-radius:4px;
+    }
+    .sub-balloon {
+      margin-top:6px;padding:8px 12px;background:#eee;color:#555;
+      border-radius:12px;font-size:13px;line-height:1.3;
+    }
+    .dm-input {
+      display:flex;gap:10px;padding:10px;background:#222;
+      position:sticky;bottom:0;
+    }
+    .dm-input input {
+      flex:1;padding:8px;border-radius:16px;border:none;
+    }
+    .dm-input button {
+      border:none;background:red;color:#fff;
+      padding:8px 14px;border-radius:50%;
+    }
   </style>
 </head>
 <body>
-
-  <!-- 0) 登入頁（獨立畫面） -->
+  <!-- 登入頁 -->
   <section id="login" class="active">
-    <div style="max-width:520px;margin:10vh auto 0;padding:24px;background:#1b1b1b;border-radius:16px">
-      <h2 style="margin-top:0">登入 NEXT’S YOU</h2>
-      <button class="btn btn-red" style="width:100%;height:48px" onclick="login('line')">
-        用 LINE 登入（模擬）
-      </button>
-      <div style="height:12px"></div>
-      <div style="display:flex;gap:8px">
-        <input id="inviteCode" placeholder="輸入邀請碼，例如 NEXT2025"
-               style="flex:1;height:44px;padding:0 12px;border-radius:10px;border:none;background:#1c1c1c;color:#fff">
-        <button class="btn" style="height:44px" onclick="login('code')">使用邀請碼</button>
-      </div>
-      <p style="opacity:.7;margin:12px 0 0;font-size:13px">登入後才可進入 PLAYGROUND / DM / 相簿 / 直播</p>
-    </div>
+    <h2>登入</h2>
+    <button class="btn btn-red" onclick="login('line')">用 LINE 登入（模擬）</button>
+    <br>
+    <input type="text" id="inviteCode" placeholder="輸入邀請碼，例如 NEXT2025">
+    <button class="btn" onclick="login('code')">使用邀請碼</button>
   </section>
 
-  <!-- 1) 首頁 / PLAYGROUND -->
+  <!-- 首頁 -->
   <section id="home">
-    <div class="topbar" style="position:sticky;top:0;background:#111;border-bottom:1px solid var(--line)">
-      <h2 style="margin:12px 0">NEXT’S YOU — Preview</h2>
-      <div style="width:64px"></div>
-    </div>
-    <div class="product"><b>我的分數：</b><span id="points">0</span></div>
-    <h3 style="text-align:left;margin:14px 0 8px">商品區</h3>
-    <div class="product">
-      <div style="display:flex;justify-content:space-between;align-items:center;">
-        <div>7 天 DM 權益 <span style="color:#aaa">— 70 分</span></div>
-        <button class="btn btn-red" onclick="buyProduct(70,7)">購買</button>
-      </div>
-    </div>
-    <div class="product">
-      <div style="display:flex;justify-content:space-between;align-items:center;">
-        <div>30 天 DM 權益 <span style="color:#aaa">— 250 分</span></div>
-        <button class="btn btn-red" onclick="buyProduct(250,30)">購買</button>
-      </div>
-    </div>
-  </section>
-
-  <!-- 2) DM（DAY OFF 視覺） -->
-  <section id="dm">
     <div class="topbar">
-      <div class="dm-head">
-        <div class="dm-back" onclick="showPage('home')">‹</div>
-        <div class="dm-title">ALLDAY PROJECT</div>
-        <div class="dm-grid">▦</div>
-        <div class="dm-heart"><b>♡</b><span id="heartDays">+0</span></div>
-      </div>
+      <h2>首頁</h2>
     </div>
-
-    <div id="chatBox" class="chat-box"></div>
-
-    <div class="input-bar">
-      <div class="input-wrap">
-        <input type="text" id="chatInput" placeholder="請輸入消息。" />
-        <div class="send-circle" onclick="sendMessage()">➤</div>
-      </div>
+    <p>這裡是首頁內容！</p>
+    <p><strong>我的分數：</strong><span id="points">0</span></p>
+    <h3>商品區</h3>
+    <div class="product">
+      <p>7天 DM 權益 — 70 分</p>
+      <button onclick="buyProduct(70,7)">購買</button>
+    </div>
+    <div class="product">
+      <p>30天 DM 權益 — 250 分</p>
+      <button onclick="buyProduct(250,30)">購買</button>
     </div>
   </section>
 
-  <!-- 3) 相簿（九宮格 → 大圖） -->
+  <!-- DM -->
+  <section id="dm">
+    <div class="dm-topbar">
+      <button onclick="showPage('home')">‹</button>
+      <div>ALLDAY PROJECT — 團體 DM</div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <button>▦</button>
+        <div class="hearts">♡<span id="heartDays">0</span></div>
+      </div>
+    </div>
+    <div id="dm-messages" class="dm-messages"></div>
+    <div class="dm-input">
+      <input id="dmInput" placeholder="輸入訊息…" />
+      <button onclick="sendMessage()">➤</button>
+    </div>
+  </section>
+
+  <!-- 相簿 -->
   <section id="gallery">
-    <div class="topbar" style="position:sticky;top:0;background:#111;border-bottom:1px solid var(--line)">
-      <h2 style="margin:12px 0">相簿</h2>
-      <div style="width:64px"></div>
-    </div>
-    <div id="grid" class="grid"></div>
-
-    <div id="modal" class="modal" onclick="closeModal()">
-      <img id="modalImg" alt="preview">
-    </div>
+    <h2>相簿</h2>
+    <p>藝人上傳的圖片會顯示在這裡。</p>
   </section>
 
-  <!-- 4) 直播（主播/粉絲分流） -->
+  <!-- 直播 -->
   <section id="live">
-    <div class="topbar" style="position:sticky;top:0;background:#111;border-bottom:1px solid var(--line)">
-      <h2 style="margin:12px 0">直播</h2>
-      <div style="width:64px"></div>
-    </div>
-
-    <div class="live-wrap">
-      <div class="live-col">
-        <div class="live-title">主播</div>
-        <div id="hostFeed" class="live-feed"></div>
-        <div class="live-input">
-          <input id="hostInput" placeholder="主播輸出（打字直播）">
-          <button class="btn btn-red" onclick="hostSend()">發佈</button>
-        </div>
-      </div>
-
-      <div class="live-col">
-        <div class="live-title">粉絲</div>
-        <div id="fanFeed" class="live-feed"></div>
-        <div class="live-input">
-          <input id="fanInput" placeholder="粉絲留言">
-          <button class="btn" onclick="fanSend()">送出</button>
-        </div>
-      </div>
-    </div>
+    <h2>直播</h2>
+    <p>文字直播或影片牆。</p>
   </section>
 
   <!-- 底部導覽 -->
@@ -193,171 +145,146 @@
     <button onclick="showPage('live')">直播</button>
   </nav>
 
-  <!-- 邏輯 -->
   <script>
-    /* 初始點數（測試用） */
-    if(!localStorage.getItem('points')) localStorage.setItem('points', 200);
-
-    /* 登入 */
-    function login(method){
-      const ok = method==='line' || (method==='code' && document.getElementById('inviteCode').value.trim()==='NEXT2025');
-      if(!ok){ alert('邀請碼錯誤！'); return; }
-      localStorage.setItem('loggedIn','true');
-      showPage('home'); renderPoints();
+    // 假的初始分數
+    if (!localStorage.getItem('points')) {
+      localStorage.setItem('points', 200);
     }
 
-    /* Router / Guard */
-    function showPage(page){
-      const logged = localStorage.getItem('loggedIn') === 'true';
-      if(!logged) page='login';
-
-      document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));
-      document.getElementById(page).classList.add('active');
-
-      const nav=document.getElementById('nav');
-      nav.style.display = (logged && page!=='login') ? 'flex' : 'none';
-
-      if(page==='home') renderPoints();
-      if(page==='dm'){ renderHearts(); renderDM(); scrollDM(); }
-      if(page==='gallery') renderGallery();
-      if(page==='live') renderLive();
+    // === 每位用戶獨立訊息 ===
+    if (!localStorage.getItem('userId')) {
+      localStorage.setItem('userId', 'u_' + Math.random().toString(36).slice(2,10));
     }
+    const USER_ID = localStorage.getItem('userId');
+    const DM_KEY = `dm_${USER_ID}`;
 
-    /* 點數 / 商品 */
-    function renderPoints(){ document.getElementById('points').textContent = localStorage.getItem('points'); }
-    function buyProduct(cost, days){
-      let pts = parseInt(localStorage.getItem('points')||'0',10);
-      if(pts < cost){ alert('分數不足！'); return; }
-      localStorage.setItem('points', String(pts - cost));
-      localStorage.setItem('purchaseDate', new Date().toISOString().split('T')[0]);
-      localStorage.setItem('duration', String(days));
-      alert(`✅ 已購買 ${days} 天 DM 權益！`);
-      renderPoints();
-    }
-
-    /* Hearts 只在 DM 顯示（+N） */
-    function daysSince(dateStr){
-      if(!dateStr) return 0;
-      const s=new Date(dateStr), t=new Date();
-      s.setHours(0,0,0,0); t.setHours(0,0,0,0);
-      return Math.floor((t-s)/86400000);
-    }
-    function renderHearts(){
-      const el = document.getElementById('heartDays'); if(!el) return;
-      const start = localStorage.getItem('purchaseDate');
-      const duration = parseInt(localStorage.getItem('duration')||'0',10);
-      if(!start || duration<=0){ el.textContent = '+0'; return; }
-      const n = daysSince(start);
-      el.textContent = (n<=duration)? `+${n}` : '+0';
-    }
-
-    /* DM：資料初始化 */
-    const DM_KEY='dmMessages';
-    if(!localStorage.getItem(DM_KEY)){
-      const seed=[{role:'artist', text:'歡迎來到 DM！這裡是團體訊息流～', ts:Date.now()}];
+    if (!localStorage.getItem(DM_KEY)) {
+      const seed = [
+        { role:'artist', text:'歡迎來到 DM！', trans:'Welcome to DM!', ts: Date.now() }
+      ];
       localStorage.setItem(DM_KEY, JSON.stringify(seed));
     }
 
-    /* DM：渲染/送出 */
-    const ART_AVA='https://picsum.photos/seed/artist/200';
-    const FAN_AVA='https://picsum.photos/seed/fan/200';
-
-    function formatDMDate(ts){
-      const d=new Date(ts);
-      return `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日`;
+    // 登入
+    function login(method) {
+      if (method === 'line' || (method === 'code' && document.getElementById('inviteCode').value.trim() === 'NEXT2025')) {
+        localStorage.setItem('loggedIn', 'true');
+        showPage('home');
+        renderPoints();
+      } else {
+        alert('邀請碼錯誤！');
+      }
     }
 
+    // 切換頁面
+    function showPage(page) {
+      if (!localStorage.getItem('loggedIn') && page !== 'login') {
+        page = 'login';
+      }
+      document.querySelectorAll('section').forEach(sec => sec.classList.remove('active'));
+      document.getElementById(page).classList.add('active');
+      const nav = document.getElementById('nav');
+      if (localStorage.getItem('loggedIn') && page !== 'login') {
+        nav.classList.remove('hidden');
+      } else {
+        nav.classList.add('hidden');
+      }
+      if (page === 'home') renderPoints();
+      if (page === 'dm') { renderHearts(); renderDM(); }
+    }
+
+    // 分數顯示
+    function renderPoints() {
+      document.getElementById('points').textContent = localStorage.getItem('points');
+    }
+
+    // 購買
+    function buyProduct(cost, days) {
+      let points = parseInt(localStorage.getItem('points'));
+      if (points >= cost) {
+        points -= cost;
+        localStorage.setItem('points', points);
+        localStorage.setItem('purchaseDate', new Date().toISOString().split('T')[0]);
+        localStorage.setItem('duration', days);
+        alert(`✅ 已購買 ${days} 天 DM 權益！`);
+        renderPoints();
+      } else {
+        alert('分數不足！');
+      }
+    }
+
+    // Hearts (♡+N)
+    function daysSince(dateStr) {
+      if (!dateStr) return 0;
+      const start = new Date(dateStr);
+      const today = new Date();
+      start.setHours(0,0,0,0);
+      today.setHours(0,0,0,0);
+      return Math.floor((today - start) / 86400000);
+    }
+    function renderHearts() {
+      const start = localStorage.getItem('purchaseDate');
+      const duration = parseInt(localStorage.getItem('duration') || 0);
+      if (!start) {
+        document.getElementById('heartDays').textContent = "0";
+        return;
+      }
+      const n = daysSince(start);
+      if (n <= duration) {
+        document.getElementById('heartDays').textContent = n;
+      } else {
+        document.getElementById('heartDays').textContent = "0";
+      }
+    }
+
+    // DM 渲染
     function renderDM(){
-      const list = JSON.parse(localStorage.getItem(DM_KEY)||'[]');
-      const box = document.getElementById('chatBox');
-      box.innerHTML='';
-      let lastDate='';
-
-      list.forEach(m=>{
-        const thisDate = formatDMDate(m.ts);
-        if(thisDate!==lastDate){
-          const chip=document.createElement('div');
-          chip.className='date-chip';
-          chip.textContent=thisDate;
-          box.appendChild(chip);
-          lastDate=thisDate;
+      const list = JSON.parse(localStorage.getItem(DM_KEY) || '[]');
+      const box = document.getElementById('dm-messages');
+      if (!box) return;
+      box.innerHTML = '';
+      list.forEach(m => {
+        const wrap = document.createElement('div');
+        wrap.className = 'msg ' + (m.role === 'fan' ? 'me' : 'artist');
+        wrap.textContent = m.text;
+        if (m.role === 'artist' && m.trans) {
+          const sub = document.createElement('div');
+          sub.className = 'sub-balloon';
+          sub.textContent = m.trans;
+          wrap.appendChild(sub);
         }
-
-        const row=document.createElement('div');
-        row.className='row ' + (m.role==='artist'?'artist':'fan');
-
-        const av=document.createElement('div'); av.className='avatar';
-        const img=document.createElement('img'); img.src=(m.role==='artist'?ART_AVA:FAN_AVA);
-        av.appendChild(img);
-
-        const bubble=document.createElement('div'); bubble.className='bubble';
-        const bal=document.createElement('div'); bal.className='balloon'; bal.textContent=m.text;
-        const tm=document.createElement('div'); tm.className='time';
-        tm.textContent=new Date(m.ts).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-
-        bubble.appendChild(bal); bubble.appendChild(tm);
-        row.appendChild(av); row.appendChild(bubble);
-        box.appendChild(row);
+        box.appendChild(wrap);
       });
     }
 
+    // 粉絲送出訊息
     function sendMessage(){
-      const inp=document.getElementById('chatInput');
-      const t=inp.value.trim(); if(!t) return;
-      const list=JSON.parse(localStorage.getItem(DM_KEY)||'[]');
-      list.push({role:'fan', text:t, ts:Date.now()});
+      const inp = document.getElementById('dmInput');
+      const t = (inp.value || '').trim();
+      if (!t) return;
+      const list = JSON.parse(localStorage.getItem(DM_KEY) || '[]');
+      list.push({ role:'fan', text:t, ts: Date.now() });
       localStorage.setItem(DM_KEY, JSON.stringify(list));
-      inp.value='';
-      renderDM(); scrollDM();
+      inp.value = '';
+      renderDM();
     }
 
-    function scrollDM(){ const box=document.getElementById('chatBox'); requestAnimationFrame(()=>{ box.scrollTop=box.scrollHeight; }); }
-
-    /* 相簿：九宮格 + Modal */
-    const G_KEY='galleryItems';
-    if(!localStorage.getItem(G_KEY)){
-      const demo=[...Array(9)].map((_,i)=>({src:`https://picsum.photos/seed/ny${i}/600/600`}));
-      localStorage.setItem(G_KEY, JSON.stringify(demo));
-    }
-    function renderGallery(){
-      const items=JSON.parse(localStorage.getItem(G_KEY)||'[]');
-      const grid=document.getElementById('grid'); grid.innerHTML='';
-      items.forEach((it)=>{
-        const t=document.createElement('div'); t.className='tile';
-        const img=document.createElement('img'); img.src=it.src; img.alt='photo';
-        t.appendChild(img);
-        t.onclick=()=>openModal(it.src);
-        grid.appendChild(t);
-      });
-    }
-    function openModal(src){ document.getElementById('modalImg').src=src; document.getElementById('modal').classList.add('show'); }
-    function closeModal(){ document.getElementById('modal').classList.remove('show'); }
-
-    /* 直播：主播/粉絲 分流 */
-    const LIVE_H='liveHost', LIVE_F='liveFans';
-    if(!localStorage.getItem(LIVE_H)) localStorage.setItem(LIVE_H, JSON.stringify([{text:'開播囉～今天用打字陪大家！',ts:Date.now()}]));
-    if(!localStorage.getItem(LIVE_F)) localStorage.setItem(LIVE_F, JSON.stringify([{text:'嗨NEXT！到啦～',ts:Date.now()}]));
-
-    function renderLive(){
-      const H=JSON.parse(localStorage.getItem(LIVE_H)||'[]');
-      const F=JSON.parse(localStorage.getItem(LIVE_F)||'[]');
-      const hf=document.getElementById('hostFeed'); const ff=document.getElementById('fanFeed');
-      hf.innerHTML=''; ff.innerHTML='';
-      H.forEach(x=>{ const d=document.createElement('div'); d.className='live-item'; d.innerHTML=`<b>主播</b><div>${x.text}</div><div class="time">${new Date(x.ts).toLocaleString()}</div>`; hf.appendChild(d); });
-      F.forEach(x=>{ const d=document.createElement('div'); d.className='live-item'; d.innerHTML=`<b>粉絲</b><div>${x.text}</div><div class="time">${new Date(x.ts).toLocaleString()}</div>`; ff.appendChild(d); });
-      hf.scrollTop=hf.scrollHeight; ff.scrollTop=ff.scrollHeight;
-    }
-    function hostSend(){ const i=document.getElementById('hostInput'); const t=i.value.trim(); if(!t) return;
-      const H=JSON.parse(localStorage.getItem(LIVE_H)||'[]'); H.push({text:t,ts:Date.now()});
-      localStorage.setItem(LIVE_H, JSON.stringify(H)); i.value=''; renderLive();
-    }
-    function fanSend(){ const i=document.getElementById('fanInput'); const t=i.value.trim(); if(!t) return;
-      const F=JSON.parse(localStorage.getItem(LIVE_F)||'[]'); F.push({text:t,ts:Date.now()});
-      localStorage.setItem(LIVE_F, JSON.stringify(F)); i.value=''; renderLive();
+    // 新增藝人訊息（手動觸發測試用）
+    function addArtistMessage(text, translation){
+      const list = JSON.parse(localStorage.getItem(DM_KEY) || '[]');
+      list.push({ role:'artist', text, trans: translation || '', ts: Date.now() });
+      localStorage.setItem(DM_KEY, JSON.stringify(list));
+      renderDM();
     }
 
-    /* 啟動 */
-    window.onload = ()=>{ showPage(localStorage.getItem('loggedIn')==='true' ? 'home' : 'login'); };
+    // 預設
+    window.onload = () => {
+      if (localStorage.getItem('loggedIn')) {
+        showPage('home');
+      } else {
+        showPage('login');
+      }
+    };
   </script>
 </body>
 </html>
