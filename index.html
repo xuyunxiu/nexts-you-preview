@@ -9,140 +9,194 @@
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
 
-  <style>
-/* =================== IG 風主題（Drop-in） =================== */
-:root{
-  --bg:#0e0e10;             /* 背景 */
-  --card:#141417;           /* 區塊底 */
-  --hover:#1a1a1f;
-  --border:rgba(255,255,255,.06);
-  --text:#f5f5f5;           /* 主要字 */
-  --sub:#a1a1aa;            /* 次要字 */
-  --muted:#777781;
-  --accent:#ff2d55;         /* IG 粉紅紅 */
-  --accent-2:#ff335a;
-  --success:#2ecc71;
-  --danger:#ff5a5f;
-  --radius:14px;
-  --radius-sm:10px;
-  --shadow:0 6px 20px rgba(0,0,0,.45);
-  --ring:0 0 0 2px rgba(255,45,85,.25);
-  --ease:cubic-bezier(.22,.61,.36,1);
-}
+  <!-- === INS-Neumorphism Theme Pack (paste just before </body>) === -->
+<style>
+  :root{
+    --bg: #0f0f13;
+    --bg-elev: #181a20;
+    --card: #1f222a;
+    --txt: #e9ecf1;
+    --muted:#9aa4b2;
+    --accent:#ff3b30;           /* 紅：DM 送出 / 高亮 */
+    --accent-soft:#ff3b3033;
+    --shadow-dark: rgba(0,0,0,.45);
+    --shadow-light: rgba(255,255,255,.08);
+    --radius-xl: 22px;
+    --radius-lg: 18px;
+    --radius-md: 14px;
+    --blur: 14px;
+  }
+  /* Purple Mode */
+  :root.purple{
+    --bg: #19161f;
+    --bg-elev:#211c2a;
+    --card:#292235;
+    --txt:#f3f0ff;
+    --muted:#bfb7d9;
+    --accent:#8b5cf6;
+    --accent-soft:#8b5cf644;
+    --shadow-dark: rgba(25, 8, 46, .55);
+    --shadow-light: rgba(255,255,255,.06);
+  }
 
-/* 全域 */
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{height:100%}
-body{
-  margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
-  color:var(--text);background:
-  radial-gradient(1200px 800px at 90% -10%, rgba(255,45,85,.08), transparent 50%),
-  radial-gradient(900px 700px at 10% 110%, rgba(109,40,217,.08), transparent 50%),
-  var(--bg);
-}
-section{display:none;padding:16px 16px 84px;}
-section.active{display:block;animation:fadeIn .28s var(--ease)}
-@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  /* 全域底色與字 */
+  html,body{background:var(--bg); color:var(--txt); }
+  body{transition:background .25s ease,color .25s ease;}
 
-/* 卡片 */
-.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow)}
-.row{display:flex;gap:12px;align-items:center}
-.space{height:12px}
+  /* 霧面柔光卡片 */
+  .neo-card{
+    background: var(--card);
+    border-radius: var(--radius-xl);
+    box-shadow:
+      16px 16px 32px var(--shadow-dark),
+      -10px -10px 22px var(--shadow-light);
+    border: 1px solid rgba(255,255,255,.04);
+  }
 
-/* 頂部條（通用） */
-.topbar{display:flex;align-items:center;justify-content:space-between;margin:4px 0 14px}
-.topbar h2{margin:0;font-size:20px;letter-spacing:.4px}
-.icon-btn{
-  width:36px;height:36px;border-radius:12px;border:1px solid var(--border);
-  display:grid;place-items:center;background:var(--card);box-shadow:var(--shadow);transition:.18s var(--ease)
-}
-.icon-btn:active{transform:scale(.96)}
+  /* 小卡／列表項 */
+  .neo-item{
+    background: var(--bg-elev);
+    border-radius: var(--radius-lg);
+    padding:14px 16px;
+    box-shadow:
+      10px 10px 20px var(--shadow-dark),
+      -8px -8px 16px var(--shadow-light);
+    border: 1px solid rgba(255,255,255,.05);
+  }
 
-/* ♡ 天數膠囊 / 九宮格 */
-.pill{display:flex;align-items:center;gap:6px;padding:8px 12px;border-radius:999px;
-  background:linear-gradient(180deg,#1a1a1f,#141417);border:1px solid var(--border);box-shadow:var(--shadow);font-weight:700}
-.pill .heart{color:var(--accent);font-size:16px}
+  /* 玻璃膠囊（♡+N、日期、標籤） */
+  .neo-pill{
+    display:inline-flex; align-items:center; gap:8px;
+    padding:8px 14px; border-radius:999px;
+    background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(0,0,0,.15));
+    backdrop-filter: blur(var(--blur));
+    -webkit-backdrop-filter: blur(var(--blur));
+    border:1px solid rgba(255,255,255,.08);
+    color:var(--txt);
+    box-shadow: 0 8px 18px var(--shadow-dark);
+  }
 
-/* Friends：上方個人區 */
-#friendsHeader{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;box-shadow:var(--shadow)}
-#friendsHeader img{width:44px;height:44px;border-radius:50%;object-fit:cover;border:1px solid var(--border)}
-#friendsHeader .meta{display:flex;flex-direction:column;align-items:flex-start;gap:4px}
-#friendsHeader .name{font-weight:700;font-size:16px}
-#friendsHeader .id{color:var(--muted);font-size:12px}
+  /* 主要按鈕（送出、開始聊天） */
+  .neo-btn{
+    appearance:none; border:0; cursor:pointer;
+    padding:14px 18px; border-radius:16px; font-weight:700;
+    color:#fff; background: var(--accent);
+    box-shadow:
+      0 12px 24px var(--accent-soft),
+      inset 0 -2px 0 rgba(0,0,0,.25);
+    transition: transform .06s ease, box-shadow .2s ease;
+  }
+  .neo-btn:active{ transform: translateY(1px); box-shadow: 0 8px 18px var(--accent-soft), inset 0 -1px 0 rgba(0,0,0,.3); }
 
-/* Friends：分頁（藝人/團體/已購買/未購買） */
-.tabs{display:flex;gap:8px;margin:14px 0}
-.tabs button{
-  flex:1;padding:10px 0;border:none;border-radius:999px;background:#16161a;color:var(--sub);
-  font-weight:700;letter-spacing:.4px;border:1px solid var(--border);transition:.18s var(--ease)
-}
-.tabs button.active{background:linear-gradient(180deg,#2a2a31,#202028);color:#fff;border-color:transparent;box-shadow:var(--shadow)}
-.friendList{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.friendCard{padding:12px;border:1px solid var(--border);border-radius:var(--radius);background:var(--card);box-shadow:var(--shadow);text-align:left}
-.friendCard .avatar{width:44px;height:44px;border-radius:50%;object-fit:cover;border:1px solid var(--border)}
-.friendCard .title{font-weight:800;margin-top:6px}
-.friendCard .hint{color:var(--muted);font-size:12px;margin-top:2px}
-.friendCard .action{margin-top:10px;background:var(--accent);border:none;color:#fff;font-weight:800;border-radius:12px;padding:10px 12px;width:100%}
-.friendCard .action:active{transform:translateY(1px)}
+  /* 次要按鈕（灰膠囊） */
+  .neo-ghost{
+    background: var(--bg-elev); color:var(--txt);
+    border:1px solid rgba(255,255,255,.06);
+  }
 
-/* DM：視覺 */
-#dm .chat{display:flex;flex-direction:column;gap:14px}
-.date-chip{
-  align-self:center;background:#2b2b31;color:#ddd;border-radius:999px;padding:6px 12px;
-  border:1px solid var(--border);font-weight:700;font-size:12px;opacity:.85
-}
-.bubble{
-  max-width:78%;text-align:left;padding:12px 14px;border-radius:18px;border:1px solid var(--border);
-  background:linear-gradient(180deg,#ffffff, #f2f2f3);color:#18181b;box-shadow:var(--shadow);position:relative
-}
-.bubble .sub{margin-top:8px;background:#e9e9ed;border-radius:14px;padding:10px;color:#333;border:1px solid rgba(0,0,0,.05)}
-.bubble.me{margin-left:auto;background:linear-gradient(180deg,#26262b,#1c1c20);color:#e8e8ea;border-color:rgba(255,255,255,.04)}
-.time{position:absolute;right:14px;bottom:-18px;color:var(--muted);font-size:11px}
+  /* 輸入框（DM / Live / 搜尋） */
+  .neo-input{
+    width:100%; padding:14px 16px; color:var(--txt);
+    background: var(--bg-elev); border-radius:18px; border:1px solid rgba(255,255,255,.06);
+    box-shadow: inset 6px 6px 14px rgba(0,0,0,.45), inset -6px -6px 14px rgba(255,255,255,.04);
+    outline:none;
+  }
+  .neo-input::placeholder{color:var(--muted);}
 
-/* 輸入列（固定底部） */
-.inputBar{
-  position:fixed;left:0;right:0;bottom:0;padding:10px 14px;background:linear-gradient(180deg, rgba(0,0,0,0), rgba(0,0,0,.55));
-  backdrop-filter:blur(10px)
-}
-.inputWrap{display:flex;gap:10px;align-items:center}
-.textbox{
-  flex:1;background:#151519;border:1px solid var(--border);border-radius:16px;padding:14px 16px;color:#fff;outline:none;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.03)
-}
-.textbox:focus{box-shadow:var(--ring), inset 0 1px 0 rgba(255,255,255,.03)}
-.send-btn{
-  width:52px;height:52px;border-radius:18px;border:none;background:linear-gradient(180deg,var(--accent),var(--accent-2));
-  color:#fff;font-weight:900;font-size:18px;box-shadow:var(--shadow);display:grid;place-items:center
-}
-.send-btn:active{transform:scale(.97)}
+  /* DM 泡泡（奶茶棕可保留你原色，只換質感） */
+  .bubble{
+    padding:14px 16px; border-radius:16px; line-height:1.5;
+    background: var(--bg-elev); border:1px solid rgba(255,255,255,.06);
+    box-shadow: 10px 10px 24px var(--shadow-dark), -8px -8px 16px var(--shadow-light);
+  }
+  .bubble.me{ background: linear-gradient(180deg, #6b4b3a, #5a3f30); }
+  .bubble.sub{ margin-top:8px; color:var(--muted); background:transparent; border:1px dashed rgba(255,255,255,.12); }
 
-/* 相簿九宮格面板（只從DM右上角進入） */
-.grid-gallery{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.grid-gallery .shot{border-radius:14px;overflow:hidden;border:1px solid var(--border);box-shadow:var(--shadow)}
-.grid-gallery img{width:100%;height:100%;object-fit:cover;display:block}
+  /* 好友卡片（頭像 + 名稱 + 背景縮圖） */
+  .friend-card{
+    display:flex; align-items:center; gap:14px; padding:12px 14px;
+  }
+  .friend-card img{
+    width:56px; height:56px; border-radius:16px; object-fit:cover;
+    box-shadow: 6px 6px 14px var(--shadow-dark), -4px -4px 10px var(--shadow-light);
+  }
+  .friend-name{font-weight:800; letter-spacing:.3px;}
+  .friend-meta{color:var(--muted); font-size:12px;}
 
-/* 直播頁：上主播大框，下粉絲留言 */
-.live-stage{display:flex;flex-direction:column;gap:12px}
-.live-hero{height:240px;border-radius:16px;border:1px solid var(--border);background:linear-gradient(180deg,#1b1b20,#121216);
-  display:grid;place-items:center;color:#bbb;box-shadow:var(--shadow);font-weight:800}
-.live-feed{max-height:320px;overflow:auto;padding:10px;border:1px solid var(--border);border-radius:12px;background:#121216}
-.live-msg{padding:10px;border-bottom:1px dashed rgba(255,255,255,.06)}
-.live-msg .name{color:#ddd;font-weight:700}
-.live-input{margin-top:8px}
+  /* 浮動主題切換 */
+  .float-toggle{
+    position: fixed; top: 22px; right: 18px; z-index: 9999;
+    width:46px; height:46px; display:grid; place-items:center;
+  }
 
-/* 底部（若你還保留） */
-nav{position:fixed;left:0;right:0;bottom:0;background:#0f0f12;border-top:1px solid var(--border);
-  display:flex;justify-content:space-around;padding:12px 8px 16px;backdrop-filter:blur(8px)}
-nav.hidden{display:none}
-nav button{background:transparent;border:none;color:#e8e8ea;font-weight:800;padding:8px 10px;border-radius:12px}
-nav button:active{background:#1b1b21}
-
-/* 可讀性微調 */
-h2,h3,p{margin:0}
-p.muted{color:var(--sub)}
-.small{font-size:12px;color:var(--muted)}
-/* =========================================================== */
+  /* 頁內大區塊容器美化（Home / DM / Live 的主要卡片） */
+  .neo-wrap{ padding:16px; border-radius:24px; }
 </style>
+
+<!-- 浮動主題切換（點一下 Purple / Black 切換） -->
+<button id="themeBtn" class="neo-card float-toggle" aria-label="Toggle Theme">🟣</button>
+
+<script>
+  /* --- 主題切換（預設 Black；點按切 Purple） --- */
+  (function(){
+    const root = document.documentElement;
+    const saved = localStorage.getItem('neoTheme'); if(saved==='purple') root.classList.add('purple');
+    const btn = document.getElementById('themeBtn');
+    const setIcon = ()=> btn.textContent = root.classList.contains('purple') ? '⚫' : '🟣';
+    setIcon();
+    btn.onclick = ()=>{
+      root.classList.toggle('purple');
+      localStorage.setItem('neoTheme', root.classList.contains('purple') ? 'purple' : 'black');
+      setIcon();
+    };
+  })();
+
+  /* --- 自動把現有頁面元素套上新外觀（免改你的結構） --- */
+  (function applySkin(){
+    // 頂部區塊/主要容器
+    ['home','dm','live','wallet','gallery','profile','login'].forEach(id=>{
+      const el = document.getElementById(id);
+      if(el){ el.classList.add('neo-wrap'); }
+    });
+
+    // DM：訊息列表的每條訊息（你原本的 .msg / .msg.me / .msg.sub 會自動套樣）
+    document.querySelectorAll('.msg').forEach(m=> m.classList.add('bubble'));
+    document.querySelectorAll('.msg.me').forEach(m=> m.classList.add('me'));
+    document.querySelectorAll('.msg.sub').forEach(m=> m.classList.add('sub'));
+
+    // 送出 / 主要動作按鈕
+    document.querySelectorAll('button, .btn').forEach(b=>{
+      const label = (b.textContent||'').trim();
+      if(/送出|開始聊天|購買|發佈|Buy|Start/i.test(label)) b.classList.add('neo-btn');
+      else b.classList.add('neo-item','neo-ghost');
+    });
+
+    // 輸入框
+    document.querySelectorAll('input[type="text"], input[type="search"], textarea').forEach(i=> i.classList.add('neo-input'));
+
+    // 好友/藝人列表項（猜測列表容器 id）
+    const friendList = document.getElementById('friendList') || document.querySelector('.friendList');
+    if(friendList){
+      friendList.querySelectorAll('div').forEach(row=>{
+        // 若內含圖片就視為 friend-card
+        if(row.querySelector('img')){
+          row.classList.add('friend-card','neo-item');
+          const name = row.querySelector('strong, .name, span');
+          if(name) name.classList.add('friend-name');
+        }else{
+          row.classList.add('neo-item');
+        }
+      });
+    }
+
+    // 膠囊徽章（♡+N、日期膠囊）：依你原本結構附加 .neo-pill
+    document.querySelectorAll('.pill,.hearts,.date-pill,.badge').forEach(p=> p.classList.add('neo-pill'));
+
+    // 頂區大卡（首頁 banner / 區塊）加 .neo-card
+    document.querySelectorAll('.card,.panel,.section-card,.product,.live-host, .dm-header').forEach(c=> c.classList.add('neo-card'));
+  })();
+</script>
+<!-- === /INS-Neumorphism Theme Pack === -->
 </head>
 <body>
 
