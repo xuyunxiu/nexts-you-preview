@@ -593,5 +593,77 @@ window.addEventListener('load', ()=>{ if(localStorage.getItem('loggedIn')) showP
     setTimeout(()=> splash.remove(), 450);
   }, 2800);
 </script>
+  <!-- 🔻 Dark/Light Theme Pack（paste above </body>） -->
+<style>
+  /* 1) 預設走深色（你現有的變數不動） */
+  :root{
+    /* 只覆蓋會影響觀感的幾個 token；沒列到的沿用你現有 */
+    --bg:#0e0e10; --card:#141417; --hover:#1a1a1f; --border:rgba(0,0,0,.22);
+    --text:#0e0f12; --sub:#4b4c52; --muted:#666a73; --accent:#ff2d55; --accent-2:#ff335a;
+  }
+  /* 2) 淺色主題：掛在 <html class="theme-light"> 時生效 */
+  html.theme-light {
+    --bg:#fafafa; --card:#ffffff; --hover:#f4f5f7; --border:rgba(0,0,0,.08);
+    --text:#121317; --sub:#5b5e66; --muted:#7a7f87;
+    --accent:#ff2d55; --accent-2:#ff335a;
+  }
+  /* 3) 系統偏好：若使用者沒手動選，跟隨系統 */
+  @media (prefers-color-scheme: light){
+    html:not(.theme-dark):not(.theme-light){
+      --bg:#fafafa; --card:#ffffff; --hover:#f4f5f7; --border:rgba(0,0,0,.08);
+      --text:#121317; --sub:#5b5e66; --muted:#7a7f87;
+    }
+  }
+  /* 4) 小按鈕樣式（自動插到 #friendsHeader 右上角） */
+  .theme-toggle{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:36px; height:36px; border-radius:12px; border:1px solid var(--border);
+    background:var(--card); color:var(--text); font-size:16px;
+  }
+</style>
+
+<script>
+  (function(){
+    const KEY='nx_theme';
+    const root=document.documentElement;
+
+    // A) 套用已存偏好或跟隨系統
+    const saved=localStorage.getItem(KEY);
+    if(saved==='light'){ root.classList.add('theme-light'); }
+    if(saved==='dark'){  root.classList.add('theme-dark'); }
+
+    // B) 在 Friends Header 動態加按鈕（無需改 HTML）
+    function injectBtn(){
+      const header=document.getElementById('friendsHeader');
+      if(!header || header.querySelector('.theme-toggle')) return;
+      const btn=document.createElement('button');
+      btn.className='theme-toggle';
+      btn.title='切換深/淺色';
+      const syncIcon=()=>{ btn.textContent = root.classList.contains('theme-light') ? '🌙' : '☀️'; };
+      btn.onclick=()=>{
+        if(root.classList.contains('theme-light')){
+          root.classList.remove('theme-light'); root.classList.add('theme-dark');
+          localStorage.setItem(KEY,'dark');
+        }else if(root.classList.contains('theme-dark')){
+          root.classList.remove('theme-dark'); localStorage.removeItem(KEY); // 回到跟隨系統
+        }else{
+          root.classList.add('theme-light'); localStorage.setItem(KEY,'light');
+        }
+        syncIcon();
+      };
+      syncIcon();
+      // 放到 header 右側
+      header.appendChild(btn);
+    }
+
+    // C) 初次與每次切到首頁時都確保有按鈕
+    injectBtn();
+    const _showPage = window.showPage;
+    if(typeof _showPage === 'function'){
+      window.showPage = function(id){ _showPage(id); if(id==='home') injectBtn(); };
+    }
+  })();
+</script>
+<!-- 🔺 Theme Pack end -->
 </body>
 </html>
