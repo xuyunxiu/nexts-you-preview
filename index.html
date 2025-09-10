@@ -563,6 +563,54 @@ window.addEventListener('load', ()=>{ if(localStorage.getItem('loggedIn')) showP
     <span id="syou" class="syou">’S YOU</span>
   </div>
 </div>
+<!-- 🔧 CACHE BUSTER (paste just before </body>) -->
+<script>
+(function(){
+  // ➊ 每次你發新版本，把下面這個字串隨便改：日期/編號都行
+  const BUILD = 'b2025-09-11-01';
+  const KEY_BUILD = '_nx_build';
+  const KEY_JUST  = '_nx_just_refreshed';
 
+  try{
+    const prev = localStorage.getItem(KEY_BUILD);
+    const just = sessionStorage.getItem(KEY_JUST);
+
+    // ➋ 如果偵測到版本變了，而且還沒刷新過 → 立刻清快取並帶版本參數重新載入
+    if (prev !== BUILD && !just) {
+      sessionStorage.setItem(KEY_JUST, '1');
+      localStorage.setItem(KEY_BUILD, BUILD);
+
+      // a) 刪掉可能的 CacheStorage（GitHub Pages/瀏覽器層）
+      if ('caches' in window) {
+        caches.keys().then(keys => keys.forEach(k => caches.delete(k)));
+      }
+
+      // b) 註銷任何 Service Worker（如果不小心註冊過）
+      if (navigator.serviceWorker && navigator.serviceWorker.getRegistrations) {
+        navigator.serviceWorker.getRegistrations().then(list => list.forEach(r => r.unregister()));
+      }
+
+      // c) 改寫網址加上版本參數，確保 HTML 也重抓（避免中繼節點快取）
+      const u = new URL(location.href);
+      u.searchParams.set('v', BUILD);
+      location.replace(u.toString());
+      return; // 中止後續程式，等待重新載入
+    }
+  }catch(e){/* 靜默忽略 */ }
+
+  // ➌ iOS/Safari 返回上一頁會用 BFCache，這裡偵測並強制重整
+  window.addEventListener('pageshow', e => { if (e.persisted) location.reload(); });
+
+  // ➍ 提供一個手動指令：在瀏覽器 console 打 NX.refresh() 可手動清一次並刷新
+  window.NX = window.NX || {};
+  window.NX.refresh = function(){
+    try{
+      sessionStorage.removeItem('_nx_just_refreshed');
+      localStorage.removeItem('_nx_build');
+    }catch(_){}
+    location.reload();
+  };
+})();
+</script>
 </body>
 </html>
