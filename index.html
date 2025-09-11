@@ -335,62 +335,55 @@
     }
 
     /* ===== DM LIST & GATING ===== */
+
+/* 判斷群組 PASS 是否有效 */
 function passActive(){
   const start=localStorage.getItem('purchaseDate'); 
   const dur=parseInt(localStorage.getItem('duration')||'0',10);
   if(!start||dur<=0) return false;
-  const s=new Date(start), t=new Date(); 
+  const s=new Date(start), t=new Date();
   s.setHours(0,0,0,0); t.setHours(0,0,0,0);
   return Math.floor((t-s)/86400000) <= dur;
 }
 
+/* 判斷單一成員是否已購買 */
+function isPurchased(id){
+  const map=JSON.parse(localStorage.getItem('purchases')||'{}');
+  return !!map[id];
+}
+
+/* 判斷使用者是否能進入某個 DM */
+function hasAccess(id){
+  if(id==='group') return passActive();
+  return isPurchased(id);
+}
+
+/* 只顯示可進入的聊天室，沒有就顯示空狀態 */
 function renderDMList(){
   const box=document.getElementById('dmListWrap'); 
   const empty=document.getElementById('dmListEmpty');
-  
-  const active=passActive();
   const items=[...GROUPS, ...ARTISTS];
+  const openItems=items.filter(it=>hasAccess(it.id));
 
-  // 篩掉沒買的，只留下有效的聊天室
-  const available=items.filter(it=>{
-    return (it.id==='group'? active : isPurchased(it.id));
-  });
-
-  // 可選：依照開通順序（最新在最上面）
-  available.sort((a,b)=>{
-    const map=JSON.parse(localStorage.getItem('purchases')||'{}');
-    const ta = map[a.id]?.ts || 0;
-    const tb = map[b.id]?.ts || 0;
-    return tb - ta;
-  });
-
-  // 渲染已購買聊天室
-  box.innerHTML = available.map(it=>`
-    <div class="card" onclick="enterDMFromList('${it.id}')">
-      <div class="row">
-        <img src="${it.avatar}">
-        <div><b>${it.name}</b></div>
-      </div>
-    </div>`).join('');
-
-  // 空狀態
-  empty.style.display = available.length? 'none':'block';
+  if(openItems.length){
+    box.innerHTML=openItems.map(it=>`
+      <div class="card" onclick="enterDMFromList('${it.id}')">
+        <div class="row">
+          <img src="${it.avatar}">
+          <div><b>${it.name}</b></div>
+        </div>
+      </div>`).join('');
+    empty.style.display='none';
+  }else{
+    box.innerHTML='';
+    empty.style.display='block';
+  }
 }
 
+/* 點擊列表進入 DM */
 function enterDMFromList(id){
-  if(id==='group'){ if(!passActive()) return showPage('wallet'); }
-  else if(!isPurchased(id)) return showPage('wallet');
+  if(!hasAccess(id)) return showPage('wallet');
   openDM(id);
-}
-
-/* ===== 空狀態樣式（提示 + 呼吸閃閃按鈕） ===== */
-#dmListEmpty .btn-red {
-  animation: breathe 2s ease-in-out infinite;
-}
-@keyframes breathe {
-  0%   { transform: scale(1);   box-shadow:0 0 0 rgba(255,45,85,0); }
-  50%  { transform: scale(1.05); box-shadow:0 0 18px rgba(255,45,85,0.45); }
-  100% { transform: scale(1);   box-shadow:0 0 0 rgba(255,45,85,0); }
 }
 
     /* ===== Live ===== */
