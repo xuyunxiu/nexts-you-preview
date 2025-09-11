@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <title>NEXT’S YOU — Login</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <style>
+    :root{
+      --bg:#0f0f12; --card:#16181d; --hover:#1b1e24; --line:rgba(255,255,255,.06);
+      --text:#f6f7fb; --sub:#b5bac7;
+      --r:16px; --shadow:12px 18px 40px rgba(0,0,0,.45);
+    }
+    html,body{height:100%}
+    body{
+      margin:0; color:var(--text);
+      background:
+        radial-gradient(1200px 800px at 90% -10%, rgba(255,45,85,.08), transparent 50%),
+        radial-gradient(900px 700px at 10% 110%, rgba(109,40,217,.08), transparent 50%),
+        var(--bg);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      overflow:hidden;
+    }
+    /* Login center card */
+    #wrap{min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px 16px; box-sizing:border-box}
+    .card{width:100%; max-width:380px; background:var(--card); border:1px solid var(--line); border-radius:var(--r); box-shadow:var(--shadow); padding:24px}
+    .btn-full{width:100%; padding:14px; font-size:15px; font-weight:700; border:none; border-radius:12px; cursor:pointer}
+    .btn-line{background:#06C755; color:#fff; margin-bottom:12px}
+    .btn-white{background:#fff; color:#000}
+    .ipt{width:100%; padding:12px; font-size:15px; border:1px solid var(--line); border-radius:12px; background:var(--hover); color:var(--text); box-sizing:border-box}
+    .ipt + .err{display:none; color:#ff6b6b; font-size:13px; margin:6px 4px 0}
+    .ipt.input-error{border-color:#ff6b6b}
+    @keyframes shake {10%,90%{transform:translateX(-2px)} 20%,80%{transform:translateX(4px)} 30%,50%,70%{transform:translateX(-6px)} 40%,60%{transform:translateX(6px)}}
+    .shake{animation:shake .36s ease}
+    .hint{color:var(--sub); font-size:13px; margin:10px 2px 0}
+  </style>
+</head>
+<body>
+  <div id="wrap">
+    <div class="card">
+      <h2 style="margin:0 0 16px">登入</h2>
+      <button id="btnLine"  class="btn-full btn-line">用 LINE 登入（模擬）</button>
+      <input  id="invite" class="ipt" placeholder="輸入邀請碼，例如 NEXT2025" autocomplete="one-time-code" />
+      <div id="err" class="err">✗ 邀請碼錯誤！</div>
+      <div style="height:10px"></div>
+      <button id="btnCode" class="btn-full btn-white">使用邀請碼</button>
+      <div class="hint">提示：正確碼是 <b>NEXT2025</b>（不分大小寫）</div>
+    </div>
+  </div>
+
+  <script>
+    // 清舊狀態（避免被上一版快取害到）
+    try{ sessionStorage.removeItem('_nx_just_refreshed'); }catch(_){}
+
+    function succeed(){
+      localStorage.setItem('loggedIn','true');
+      if(!localStorage.getItem('fanId')){
+        localStorage.setItem('fanId','FAN'+Math.floor(Math.random()*100000));
+      }
+      // 跳到 app
+      location.href = './app.html';
+    }
+    function fail(){
+      const ipt = document.getElementById('invite');
+      const err = document.getElementById('err');
+      ipt.classList.add('input-error','shake');
+      err.style.display='block';
+      ipt.addEventListener('animationend', ()=>ipt.classList.remove('shake'), {once:true});
+      ipt.focus();
+    }
+
+    function tryLogin(method){
+      const code = (document.getElementById('invite').value || '').trim().toUpperCase();
+      const ok = (method==='line') || (method==='code' && code==='NEXT2025');
+      ok ? succeed() : fail();
+    }
+
+    document.getElementById('btnLine').addEventListener('click', ()=>tryLogin('line'));
+    document.getElementById('btnCode').addEventListener('click', ()=>tryLogin('code'));
+
+    // 若已登入，直接進 app
+    if(localStorage.getItem('loggedIn')) location.replace('./app.html');
+  </script>
+</body>
+</html>
