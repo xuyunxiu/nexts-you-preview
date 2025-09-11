@@ -2,14 +2,12 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8" />
-  <title>NEXT’S YOU — Clean Split Login / App</title>
+  <title>NEXT’S YOU — App</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-
   <style>
-    /* === Theme === */
     :root{
       --bg:#0f0f12; --card:#16181d; --hover:#1b1e24; --line:rgba(255,255,255,.06);
       --text:#f6f7fb; --sub:#b5bac7; --muted:#8c92a1;
@@ -23,11 +21,8 @@
         radial-gradient(1200px 800px at 90% -10%, rgba(255,45,85,.08), transparent 50%),
         radial-gradient(900px 700px at 10% 110%, rgba(109,40,217,.08), transparent 50%),
         var(--bg);
-      -webkit-font-smoothing:antialiased; font-smooth:always;
       font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
     }
-
-    /* === Global blocks === */
     .panel, .card, .product{ background:var(--card); border:1px solid var(--line); border-radius:var(--r); box-shadow:var(--shadow) }
     .panel.soft{ padding:16px }
     section{ display:none; padding:16px 16px 96px }
@@ -36,44 +31,6 @@
     .ghost{opacity:.75; color:var(--sub)}
     .list-col{display:grid; gap:12px}
 
-    /* ====== SPLIT: Login vs App ====== */
-    /* login 容器居中 */
-    #login{
-      min-height:100vh; display:none; align-items:center; justify-content:center; padding:24px 16px; box-sizing:border-box;
-    }
-    .login-card{
-      width:100%; max-width:380px; text-align:center; padding:24px; border-radius:16px; background:var(--card);
-      border:1px solid var(--line); box-shadow:var(--shadow);
-    }
-    .login-input{
-      width:100%; padding:12px; font-size:15px; margin:0 0 10px 0; display:block;
-      border:1px solid var(--line); border-radius:12px; background:var(--hover); color:var(--text);
-      box-sizing:border-box;
-    }
-    .btn{
-      border:1px solid var(--line); border-radius:12px; padding:10px 14px; background:var(--card); color:var(--text); cursor:pointer;
-    }
-    .btn-full{ width:100%; padding:14px; font-size:15px; font-weight:700; border:none; border-radius:12px; cursor:pointer }
-    .btn-line{ background:#06C755; color:#fff; margin-bottom:12px }
-    .btn-white{ background:#fff; color:#000 }
-    .error-txt{ display:none; text-align:left; font-size:13px; color:#ff6b6b; margin:4px 4px 0 }
-
-    .input-error{ border-color:#ff6b6b !important }
-    @keyframes shake { 10%,90%{transform:translateX(-2px)} 20%,80%{transform:translateX(4px)}
-      30%,50%,70%{transform:translateX(-6px)} 40%,60%{transform:translateX(6px)} }
-    .shake{ animation:shake .36s ease }
-
-    /* App 主容器（把所有內頁都包進來） */
-    #app{ display:none }
-    /* 未登入：只顯示 login，鎖捲動避免看到下面頁面 */
-    body[data-auth="out"]{ overflow:hidden; height:100vh }
-    body[data-auth="out"] #login{ display:flex }
-    body[data-auth="out"] #app{ display:none }
-    /* 已登入：顯示 app，隱藏 login */
-    body[data-auth="in"]  #login{ display:none }
-    body[data-auth="in"]  #app{ display:block }
-
-    /* ====== Home header / Tabs ====== */
     #friendsHeader{display:flex; justify-content:space-between; align-items:center; gap:12px}
     #friendsHeader .me{display:flex; align-items:center; gap:12px}
     #friendsHeader img{width:48px; height:48px; border-radius:50%; object-fit:cover; border:1px solid var(--line)}
@@ -90,7 +47,6 @@
     .badge.ok{background:rgba(46,204,113,.15); color:#aef7c6}
     .badge.ng{background:rgba(255,90,95,.15); color:#ffb3b5}
 
-    /* DM */
     .topbar{display:flex; align-items:center; gap:12px; margin-bottom:10px}
     .dm-title{font-weight:800}
     .menu-btn{width:40px; height:40px; border-radius:12px; border:1px solid var(--line); background:var(--card); color:var(--text); cursor:pointer}
@@ -106,166 +62,156 @@
     .dm-input input{flex:1; border:none; outline:none; border-radius:16px; padding:14px 16px; background:var(--hover); color:var(--text); box-shadow:inset 0 1px 0 rgba(255,255,255,.04); border:1px solid var(--line)}
     .dm-input button{width:52px; height:52px; border:none; border-radius:18px; font-weight:900; color:#fff; background:linear-gradient(180deg,var(--accent),var(--accent-2)); cursor:pointer}
 
-    /* Gallery */
     #galleryGrid{display:grid; grid-template-columns:1fr 1fr; gap:12px}
     #galleryGrid img{width:100%; height:100%; object-fit:cover; border-radius:14px; border:1px solid var(--line); box-shadow:var(--shadow)}
 
-    /* Live */
     .live-host{padding:16px}
     .live-host .title{font-weight:800; opacity:.9}
     .live-fans{display:grid; gap:10px; margin-top:12px}
     .fan-item{padding:12px; border-radius:12px; background:var(--card); border:1px solid var(--line)}
 
-    /* Nav */
     nav{position:fixed; left:0; right:0; bottom:0; background:#0f1116; border-top:1px solid var(--line); display:flex; justify-content:space-around; padding:12px 8px 16px; backdrop-filter:blur(8px)}
     nav.hidden{display:none}
     nav button{background:transparent; border:none; color:var(--text); font-weight:800; padding:8px 10px; border-radius:12px; cursor:pointer}
     nav button:active{background:var(--hover)}
   </style>
 </head>
+<body>
+  <!-- 若未登入，馬上踢回 login -->
+  <script>
+    if(!localStorage.getItem('loggedIn')) location.replace('./login.html');
+  </script>
 
-<body data-auth="out">
-  <!-- ===== LOGIN ONLY ===== -->
-  <section id="login">
-    <div class="login-card">
-      <h2 style="margin:0 0 16px">登入</h2>
-      <button id="lineLoginBtn" class="btn-full btn-line">用 LINE 登入（模擬）</button>
-      <input id="inviteCode" class="login-input" placeholder="輸入邀請碼，例如 NEXT2025" />
-      <div id="codeError" class="error-txt">✗ 邀請碼錯誤！</div>
-      <button id="codeLoginBtn" class="btn-full btn-white">使用邀請碼</button>
+  <!-- HOME -->
+  <section id="home" class="active">
+    <div id="friendsHeader" class="panel soft">
+      <div class="me">
+        <img id="userAvatar" src="https://picsum.photos/80?u=me" alt="頭貼" onclick="openProfile()">
+        <div class="nick" id="nickname" onclick="openProfile()">暱稱</div>
+      </div>
+      <button class="btn" onclick="showPage('wallet')">錢包</button>
+    </div>
+
+    <div class="tabs">
+      <button id="tab-artists" class="active" onclick="setHomeTab('artists')">藝人</button>
+      <button id="tab-groups" onclick="setHomeTab('groups')">團體</button>
+      <button id="tab-purchased" onclick="setHomeTab('purchased')">已購買</button>
+      <button id="tab-unpurchased" onclick="setHomeTab('unpurchased')">未購買</button>
+    </div>
+
+    <div id="homeList" class="list-col"></div>
+    <div id="homeEmpty" class="ghost" style="padding:12px;display:none">這一類目前是空的～</div>
+  </section>
+
+  <!-- PROFILE -->
+  <section id="profile">
+    <div class="topbar"><h2>我的個人頁</h2></div>
+    <div class="panel soft" style="text-align:center">
+      <img id="editAvatar" src="https://picsum.photos/160?u=me" style="width:96px;height:96px;border-radius:20px;object-fit:cover; border:1px solid var(--line)"><br/>
+      <div style="margin:10px 0">
+        <input type="file" id="avatarInput" accept="image/*" onchange="changeAvatar(event)">
+      </div>
+      <div style="display:flex; gap:8px; justify-content:center">
+        <input type="text" id="editNickname" placeholder="輸入暱稱" style="width:70%;max-width:320px; border:1px solid var(--line); border-radius:12px; padding:10px; background:var(--hover); color:var(--text)">
+        <button class="btn" style="background:linear-gradient(180deg,var(--accent),var(--accent-2)); color:#fff; border:none" onclick="saveProfile()">儲存</button>
+      </div>
+      <p class="ghost" style="margin:10px 0 0"><b>粉絲 ID：</b><span id="fanId"></span></p>
+      <div style="margin-top:10px"><button class="btn" onclick="showPage('home')">返回 Friends</button></div>
     </div>
   </section>
 
-  <!-- ===== APP (ALL PAGES INSIDE) ===== -->
-  <main id="app">
-    <!-- HOME -->
-    <section id="home">
-      <div id="friendsHeader" class="panel soft">
-        <div class="me">
-          <img id="userAvatar" src="https://picsum.photos/80?u=me" alt="頭貼" onclick="openProfile()">
-          <div class="nick" id="nickname" onclick="openProfile()">暱稱</div>
-        </div>
-        <button class="btn" onclick="showPage('wallet')">錢包</button>
+  <!-- DM LIST -->
+  <section id="dmList">
+    <div class="topbar"><h2>Messages</h2></div>
+    <div id="dmListWrap" class="list-col"></div>
+    <div id="dmListEmpty" class="ghost" style="margin-top:12px;display:none">
+      目前沒有已開通的 DM。<button class="btn" style="background:linear-gradient(180deg,var(--accent),var(--accent-2)); color:#fff; border:none" onclick="showPage('wallet')">去錢包開通</button>
+    </div>
+  </section>
+
+  <!-- DM CHAT -->
+  <section id="dm">
+    <div class="topbar">
+      <button class="btn" onclick="showPage('dmList')">‹</button>
+      <div class="dm-title" id="dmTitle" style="margin-left:4px">ALLDAY PROJECT — 團體 DM</div>
+      <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
+        <button class="menu-btn" onclick="openGallery()">▦</button>
+        <div class="pill"><b>♡</b><span id="heartDays">+0</span></div>
+      </div>
+    </div>
+
+    <div class="dm-wrap">
+      <div id="dm-messages" class="dm-messages"></div>
+      <div class="dm-input">
+        <input id="dmInput" placeholder="輸入訊息…">
+        <button onclick="sendMessage()">➤</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- GALLERY -->
+  <section id="gallery">
+    <div class="topbar">
+      <h2>相簿</h2>
+      <div style="margin-left:auto"><button class="btn" onclick="showPage('dm')">返回 DM</button></div>
+    </div>
+    <div id="galleryGrid"></div>
+  </section>
+
+  <!-- LIVE -->
+  <section id="live">
+    <div class="topbar"><h2>LIVE</h2></div>
+    <div class="panel soft live-host">
+      <div class="title">主播訊息</div>
+      <div id="liveHostMsg" style="font-size:18px;line-height:1.55;margin-top:6px;min-height:40px">等待開播…</div>
+      <div id="liveHostTime" class="ghost" style="margin-top:6px;font-size:12px"></div>
+    </div>
+    <div id="liveFans" class="live-fans"></div>
+    <div style="position:sticky;bottom:96px; display:flex; gap:10px; margin-top:10px">
+      <input id="liveInput" placeholder="發送留言…" style="flex:1; border:1px solid var(--line); border-radius:12px; padding:12px; background:var(--hover); color:var(--text)">
+      <button class="btn" style="background:linear-gradient(180deg,var(--accent),var(--accent-2)); color:#fff; border:none" onclick="fanSendLive()">送出</button>
+    </div>
+  </section>
+
+  <!-- WALLET -->
+  <section id="wallet">
+    <div class="topbar">
+      <h2>錢包</h2>
+      <div style="margin-left:auto"><button class="btn" onclick="logout()">登出</button></div>
+    </div>
+    <div class="panel soft">
+      <p><b>我的分數：</b><span id="points">0</span></p>
+      <div class="product" style="padding:12px; display:flex; align-items:center; justify-content:space-between; margin-top:10px">
+        <h4 style="margin:0">7 天 DM 權益 — 70 分</h4><button class="btn" style="background:linear-gradient(180deg,var(--accent),var(--accent-2)); color:#fff; border:none" onclick="buyProduct(70,7)">購買</button>
+      </div>
+      <div class="product" style="padding:12px; display:flex; align-items:center; justify-content:space-between; margin-top:10px">
+        <h4 style="margin:0">30 天 DM 權益 — 250 分</h4><button class="btn" style="background:linear-gradient(180deg,var(--accent),var(--accent-2)); color:#fff; border:none" onclick="buyProduct(250,30)">購買</button>
       </div>
 
-      <div class="tabs">
-        <button id="tab-artists" class="active" onclick="setHomeTab('artists')">藝人</button>
-        <button id="tab-groups" onclick="setHomeTab('groups')">團體</button>
-        <button id="tab-purchased" onclick="setHomeTab('purchased')">已購買</button>
-        <button id="tab-unpurchased" onclick="setHomeTab('unpurchased')">未購買</button>
+      <h3 style="margin:18px 0 6px">測試購買捷徑</h3>
+      <div class="product" style="padding:12px; display:flex; align-items:center; justify-content:space-between">
+        <p style="margin:0">購買「團體」pass</p><button class="btn" style="background:linear-gradient(180deg,var(--accent),var(--accent-2)); color:#fff; border:none" onclick="markPurchased('group',true)">標記已購買（團體）</button>
       </div>
-
-      <div id="homeList" class="list-col"></div>
-      <div id="homeEmpty" class="ghost" style="padding:12px;display:none">這一類目前是空的～</div>
-    </section>
-
-    <!-- PROFILE -->
-    <section id="profile">
-      <div class="topbar"><h2>我的個人頁</h2></div>
-      <div class="panel soft" style="text-align:center">
-        <img id="editAvatar" src="https://picsum.photos/160?u=me" style="width:96px;height:96px;border-radius:20px;object-fit:cover; border:1px solid var(--line)"><br/>
-        <div style="margin:10px 0">
-          <input type="file" id="avatarInput" accept="image/*" onchange="changeAvatar(event)">
-        </div>
-        <div style="display:flex; gap:8px; justify-content:center">
-          <input type="text" id="editNickname" placeholder="輸入暱稱" style="width:70%;max-width:320px; border:1px solid var(--line); border-radius:12px; padding:10px; background:var(--hover); color:var(--text)">
-          <button class="btn" style="background:linear-gradient(180deg,var(--accent),var(--accent-2)); color:#fff; border:none" onclick="saveProfile()">儲存</button>
-        </div>
-        <p class="ghost" style="margin:10px 0 0"><b>粉絲 ID：</b><span id="fanId"></span></p>
-        <div style="margin-top:10px"><button class="btn" onclick="showPage('home')">返回 Friends</button></div>
+      <div class="product" style="padding:12px; display:flex; align-items:center; justify-content:space-between; margin-top:10px">
+        <p style="margin:0">購買「WOOCHAN」</p><button class="btn" style="background:linear-gradient(180deg,var(--accent),var(--accent-2)); color:#fff; border:none" onclick="markPurchased('wc',true)">標記已購買（WOOCHAN）</button>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <!-- DM LIST -->
-    <section id="dmList">
-      <div class="topbar"><h2>Messages</h2></div>
-      <div id="dmListWrap" class="list-col"></div>
-      <div id="dmListEmpty" class="ghost" style="margin-top:12px;display:none">
-        目前沒有已開通的 DM。<button class="btn" style="background:linear-gradient(180deg,var(--accent),var(--accent-2)); color:#fff; border:none" onclick="showPage('wallet')">去錢包開通</button>
-      </div>
-    </section>
+  <!-- NAV -->
+  <nav id="nav">
+    <button onclick="showPage('home')">首頁</button>
+    <button onclick="showPage('dmList')">DM</button>
+    <button onclick="showPage('live')">直播</button>
+    <button onclick="showPage('wallet')">錢包</button>
+  </nav>
 
-    <!-- DM CHAT -->
-    <section id="dm">
-      <div class="topbar">
-        <button class="btn" onclick="showPage('dmList')">‹</button>
-        <div class="dm-title" id="dmTitle" style="margin-left:4px">ALLDAY PROJECT — 團體 DM</div>
-        <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
-          <button class="menu-btn" onclick="openGallery()">▦</button>
-          <div class="pill"><b>♡</b><span id="heartDays">+0</span></div>
-        </div>
-      </div>
-
-      <div class="dm-wrap">
-        <div id="dm-messages" class="dm-messages"></div>
-        <div class="dm-input">
-          <input id="dmInput" placeholder="輸入訊息…">
-          <button onclick="sendMessage()">➤</button>
-        </div>
-      </div>
-    </section>
-
-    <!-- GALLERY -->
-    <section id="gallery">
-      <div class="topbar">
-        <h2>相簿</h2>
-        <div style="margin-left:auto"><button class="btn" onclick="showPage('dm')">返回 DM</button></div>
-      </div>
-      <div id="galleryGrid"></div>
-    </section>
-
-    <!-- LIVE -->
-    <section id="live">
-      <div class="topbar"><h2>LIVE</h2></div>
-      <div class="panel soft live-host">
-        <div class="title">主播訊息</div>
-        <div id="liveHostMsg" style="font-size:18px;line-height:1.55;margin-top:6px;min-height:40px">等待開播…</div>
-        <div id="liveHostTime" class="ghost" style="margin-top:6px;font-size:12px"></div>
-      </div>
-      <div id="liveFans" class="live-fans"></div>
-      <div style="position:sticky;bottom:96px; display:flex; gap:10px; margin-top:10px">
-        <input id="liveInput" placeholder="發送留言…" style="flex:1; border:1px solid var(--line); border-radius:12px; padding:12px; background:var(--hover); color:var(--text)">
-        <button class="btn" style="background:linear-gradient(180deg,var(--accent),var(--accent-2)); color:#fff; border:none" onclick="fanSendLive()">送出</button>
-      </div>
-    </section>
-
-    <!-- WALLET -->
-    <section id="wallet">
-      <div class="topbar">
-        <h2>錢包</h2>
-        <div style="margin-left:auto"><button class="btn" onclick="logout()">登出</button></div>
-      </div>
-      <div class="panel soft">
-        <p><b>我的分數：</b><span id="points">0</span></p>
-        <div class="product" style="padding:12px; display:flex; align-items:center; justify-content:space-between; margin-top:10px">
-          <h4 style="margin:0">7 天 DM 權益 — 70 分</h4><button class="btn" style="background:linear-gradient(180deg,var(--accent),var(--accent-2)); color:#fff; border:none" onclick="buyProduct(70,7)">購買</button>
-        </div>
-        <div class="product" style="padding:12px; display:flex; align-items:center; justify-content:space-between; margin-top:10px">
-          <h4 style="margin:0">30 天 DM 權益 — 250 分</h4><button class="btn" style="background:linear-gradient(180deg,var(--accent),var(--accent-2)); color:#fff; border:none" onclick="buyProduct(250,30)">購買</button>
-        </div>
-
-        <h3 style="margin:18px 0 6px">測試購買捷徑</h3>
-        <div class="product" style="padding:12px; display:flex; align-items:center; justify-content:space-between">
-          <p style="margin:0">購買「團體」pass</p><button class="btn" style="background:linear-gradient(180deg,var(--accent),var(--accent-2)); color:#fff; border:none" onclick="markPurchased('group',true)">標記已購買（團體）</button>
-        </div>
-        <div class="product" style="padding:12px; display:flex; align-items:center; justify-content:space-between; margin-top:10px">
-          <p style="margin:0">購買「WOOCHAN」</p><button class="btn" style="background:linear-gradient(180deg,var(--accent),var(--accent-2)); color:#fff; border:none" onclick="markPurchased('wc',true)">標記已購買（WOOCHAN）</button>
-        </div>
-      </div>
-    </section>
-
-    <!-- NAV -->
-    <nav id="nav" class="hidden">
-      <button onclick="showPage('home')">首頁</button>
-      <button onclick="showPage('dmList')">DM</button>
-      <button onclick="showPage('live')">直播</button>
-      <button onclick="showPage('wallet')">錢包</button>
-    </nav>
-  </main>
-
-  <!-- ================== SCRIPTS ================== -->
   <script>
-  /* ---------- Data ---------- */
+  /* ---- Guard again on SPA navigation ---- */
+  function ensureAuth(){ if(!localStorage.getItem('loggedIn')) location.replace('./login.html'); }
+  ensureAuth();
+
+  /* ---- Data ---- */
   const ARTISTS = [
     {id:'wc', name:'WOOCHAN', avatar:'https://picsum.photos/120?u=wc', kind:'artist'},
     {id:'ys', name:'YOUNGSEO', avatar:'https://picsum.photos/120?u=ys', kind:'artist'},
@@ -273,61 +219,17 @@
     {id:'ba', name:'BAILEY',   avatar:'https://picsum.photos/120?u=ba', kind:'artist'},
   ];
   const GROUPS = [{id:'group', name:'ALLDAY PROJECT', avatar:'https://picsum.photos/120?u=grp', kind:'group'}];
-
   if(!localStorage.getItem('points')) localStorage.setItem('points', 200);
   if(!localStorage.getItem('userId')) localStorage.setItem('userId','u_'+Math.random().toString(36).slice(2,10));
 
-  /* ---------- Auth State helper ---------- */
-  function setAuthState(isIn){ document.body.setAttribute('data-auth', isIn ? 'in' : 'out'); }
-
-  /* ---------- Login flow ---------- */
-  function fakeLogin(method){
-    const ipt  = document.getElementById('inviteCode');
-    const err  = document.getElementById('codeError');
-    const code = (ipt?.value || '').trim().toUpperCase();
-    const ok   = (method==='line') || (method==='code' && code==='NEXT2025');
-
-    ipt.classList.remove('input-error','shake'); if (err) err.style.display='none';
-
-    if(ok){
-      localStorage.setItem('loggedIn','true');
-      if(!localStorage.getItem('fanId')) localStorage.setItem('fanId','FAN'+Math.floor(Math.random()*100000));
-      setAuthState(true);
-      showPage('home');
-    }else{
-      if(err){ err.textContent='✗ 邀請碼錯誤！'; err.style.display='block'; }
-      ipt.classList.add('input-error','shake');
-      ipt.addEventListener('animationend', ()=>ipt.classList.remove('shake'), {once:true});
-      ipt.focus();
-    }
-  }
-  document.getElementById('lineLoginBtn').addEventListener('click', ()=>fakeLogin('line'));
-  document.getElementById('codeLoginBtn').addEventListener('click', ()=>fakeLogin('code'));
-
-  function logout(){
-    localStorage.removeItem('loggedIn');
-    setAuthState(false);
-    // 回到 login，並保證 nav 隱藏
-    showPage('login');
-  }
-
-  /* ---------- Page switch (controls nav visibility) ---------- */
+  /* ---- Nav & page switch ---- */
   function showPage(id){
-    // 如果是 login（外層頁），不啟用 app 區塊的 section 切換
-    if(id==='login'){
-      document.querySelectorAll('#app section').forEach(s=>s.classList.remove('active'));
-      const nav = document.getElementById('nav'); if(nav) nav.classList.add('hidden');
-      return;
-    }
-
-    document.querySelectorAll('#app section').forEach(s=>s.classList.remove('active'));
-    const target = document.getElementById(id); if(target) target.classList.add('active');
-
-    const loggedIn = !!localStorage.getItem('loggedIn');
-    setAuthState(loggedIn);
-    const nav = document.getElementById('nav');
-    const shouldHideNav = (id==='dm' || id==='gallery' || !loggedIn);
-    if (nav) nav.classList.toggle('hidden', shouldHideNav);
+    ensureAuth();
+    document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));
+    document.getElementById(id)?.classList.add('active');
+    // 隱藏 nav 於 DM / Gallery（其餘顯示）
+    const hideNav = (id==='dm' || id==='gallery');
+    document.getElementById('nav').classList.toggle('hidden', hideNav);
 
     if(id==='home'){ renderProfile(); setHomeTab(HOME_TAB||'artists'); }
     if(id==='dmList'){ renderDMList(); }
@@ -337,7 +239,7 @@
     if(id==='profile'){ prepProfile(); }
   }
 
-  /* ---------- Profile ---------- */
+  /* ---- Profile ---- */
   function renderProfile(){
     document.getElementById('nickname').textContent = localStorage.getItem('nickname') || '暱稱';
     document.getElementById('userAvatar').src = localStorage.getItem('avatar') || 'https://picsum.photos/80?u=me';
@@ -359,7 +261,7 @@
     showPage('home');
   }
 
-  /* ---------- Home tabs & list ---------- */
+  /* ---- Home list ---- */
   let HOME_TAB='artists';
   function setHomeTab(tab){
     HOME_TAB=tab;
@@ -377,7 +279,6 @@
     if(HOME_TAB==='groups') dataset=GROUPS;
     if(HOME_TAB==='purchased') dataset=[...GROUPS,...ARTISTS].filter(i=>isPurchased(i.id));
     if(HOME_TAB==='unpurchased') dataset=[...GROUPS,...ARTISTS].filter(i=>!isPurchased(i.id));
-
     list.innerHTML = dataset.map(i=>`
       <div class="card" onclick="homeCardClick('${i.id}')">
         <div class="row">
@@ -392,7 +293,7 @@
   }
   function homeCardClick(id){ if(isPurchased(id)) openDM(id); else showPage('wallet'); }
 
-  /* ---------- Wallet ---------- */
+  /* ---- Wallet ---- */
   function renderPoints(){ document.getElementById('points').textContent = localStorage.getItem('points')||'0'; }
   function buyProduct(cost, days){
     let p=parseInt(localStorage.getItem('points')||'0',10);
@@ -408,7 +309,7 @@
     alert(`已標記 ${id} 為 ${yes?'已購買':'未購買'}`);
   }
 
-  /* ---------- DM gate & list ---------- */
+  /* ---- DM Gate & List ---- */
   function passActive(){
     const start=localStorage.getItem('purchaseDate'); const dur=parseInt(localStorage.getItem('duration')||'0',10);
     if(!start||dur<=0) return false;
@@ -437,7 +338,7 @@
     openDM(id);
   }
 
-  /* ---------- DM & Gallery ---------- */
+  /* ---- DM & Gallery ---- */
   function currentArtist(){ return localStorage.getItem('currentArtist') || 'group'; }
   function dmKey(){ return `dm_${localStorage.getItem('userId')}_${currentArtist()}`; }
   function galleryKey(){ return `gallery_${currentArtist()}`; }
@@ -502,7 +403,7 @@
     grid.innerHTML = list.length? list.slice().reverse().map(i=>`<img src="${i.url}" onerror="this.src='https://picsum.photos/400?ph'">`).join('') : '<div class="ghost">還沒有照片</div>';
   }
 
-  /* ---------- Live ---------- */
+  /* ---- Live ---- */
   function hostPushLive(text){
     document.getElementById('liveHostMsg').textContent = text;
     document.getElementById('liveHostTime').textContent = new Date().toLocaleString();
@@ -516,7 +417,7 @@
     box.appendChild(item); box.scrollTop=box.scrollHeight; inp.value='';
   }
 
-  /* ---------- Hearts ---------- */
+  /* ---- Hearts ---- */
   function renderHearts(){
     const el=document.getElementById('heartDays'); if(!el) return;
     const start=localStorage.getItem('purchaseDate'); const dur=parseInt(localStorage.getItem('duration')||'0',10);
@@ -525,11 +426,16 @@
     const n=Math.floor((t-s)/86400000); el.textContent = (n<=dur)?`+${n}`:'+0';
   }
 
-  /* ---------- Boot ---------- */
+  /* ---- Logout ---- */
+  function logout(){
+    localStorage.removeItem('loggedIn');
+    location.replace('./login.html');
+  }
+
+  // 初始
   window.addEventListener('load', ()=>{
-    const loggedIn = !!localStorage.getItem('loggedIn');
-    setAuthState(loggedIn);
-    if (loggedIn) showPage('home'); else showPage('login');
+    ensureAuth();
+    showPage('home');
   });
   </script>
 </body>
