@@ -2,31 +2,22 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8" />
-  <title>NEXT'S YOU — Preview (Polished UI)</title>
+  <title>NEXT’S YOU — Clean Split Login / App</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-
-  <!-- 防快取（HTTP 層） -->
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
 
   <style>
-    /* ===== 主題：僅作用於 body.nx（避免污染其它頁） ===== */
-    body.nx{
+    /* === Theme === */
+    :root{
       --bg:#0f0f12; --card:#16181d; --hover:#1b1e24; --line:rgba(255,255,255,.06);
       --text:#f6f7fb; --sub:#b5bac7; --muted:#8c92a1;
       --accent:#ff2d55; --accent-2:#ff3b63; --ok:#2ecc71; --ng:#ff5a5f;
-      --r:16px; --shadow: 12px 18px 40px rgba(0,0,0,.45);
+      --r:16px; --shadow:12px 18px 40px rgba(0,0,0,.45);
     }
-    body.nx.light{
-      --bg:#f7f8fb; --card:#ffffff; --hover:#f1f2f6; --line:rgba(0,0,0,.08);
-      --text:#121317; --sub:#4a4e59; --muted:#6b7280;
-      --accent:#ff2d55; --accent-2:#ff3b63; --ok:#16a34a; --ng:#ef4444;
-      --shadow: 8px 12px 26px rgba(0,0,0,.12);
-    }
-
     html,body{height:100%}
-    body.nx{
+    body{
       margin:0; color:var(--text);
       background:
         radial-gradient(1200px 800px at 90% -10%, rgba(255,45,85,.08), transparent 50%),
@@ -36,35 +27,63 @@
       font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
     }
 
-    /* 通用容器/卡片 */
-    .panel, .card, .product{
-      background:var(--card); border:1px solid var(--line); border-radius:var(--r); box-shadow:var(--shadow);
-    }
+    /* === Global blocks === */
+    .panel, .card, .product{ background:var(--card); border:1px solid var(--line); border-radius:var(--r); box-shadow:var(--shadow) }
     .panel.soft{ padding:16px }
-
-    /* 每個頁籤區塊 */
-    section{display:none; padding:16px 16px 96px; box-sizing: border-box;}
-    section.active{display:block; animation:fadeIn .24s ease}
+    section{ display:none; padding:16px 16px 96px }
+    section.active{ display:block; animation:fadeIn .24s ease }
     @keyframes fadeIn{from{opacity:0; transform:translateY(6px)} to{opacity:1; transform:none}}
-    h2,h3,p{margin:0}
     .ghost{opacity:.75; color:var(--sub)}
     .list-col{display:grid; gap:12px}
 
-    /* HOME 頁首 */
+    /* ====== SPLIT: Login vs App ====== */
+    /* login 容器居中 */
+    #login{
+      min-height:100vh; display:none; align-items:center; justify-content:center; padding:24px 16px; box-sizing:border-box;
+    }
+    .login-card{
+      width:100%; max-width:380px; text-align:center; padding:24px; border-radius:16px; background:var(--card);
+      border:1px solid var(--line); box-shadow:var(--shadow);
+    }
+    .login-input{
+      width:100%; padding:12px; font-size:15px; margin:0 0 10px 0; display:block;
+      border:1px solid var(--line); border-radius:12px; background:var(--hover); color:var(--text);
+      box-sizing:border-box;
+    }
+    .btn{
+      border:1px solid var(--line); border-radius:12px; padding:10px 14px; background:var(--card); color:var(--text); cursor:pointer;
+    }
+    .btn-full{ width:100%; padding:14px; font-size:15px; font-weight:700; border:none; border-radius:12px; cursor:pointer }
+    .btn-line{ background:#06C755; color:#fff; margin-bottom:12px }
+    .btn-white{ background:#fff; color:#000 }
+    .error-txt{ display:none; text-align:left; font-size:13px; color:#ff6b6b; margin:4px 4px 0 }
+
+    .input-error{ border-color:#ff6b6b !important }
+    @keyframes shake { 10%,90%{transform:translateX(-2px)} 20%,80%{transform:translateX(4px)}
+      30%,50%,70%{transform:translateX(-6px)} 40%,60%{transform:translateX(6px)} }
+    .shake{ animation:shake .36s ease }
+
+    /* App 主容器（把所有內頁都包進來） */
+    #app{ display:none }
+    /* 未登入：只顯示 login，鎖捲動避免看到下面頁面 */
+    body[data-auth="out"]{ overflow:hidden; height:100vh }
+    body[data-auth="out"] #login{ display:flex }
+    body[data-auth="out"] #app{ display:none }
+    /* 已登入：顯示 app，隱藏 login */
+    body[data-auth="in"]  #login{ display:none }
+    body[data-auth="in"]  #app{ display:block }
+
+    /* ====== Home header / Tabs ====== */
     #friendsHeader{display:flex; justify-content:space-between; align-items:center; gap:12px}
     #friendsHeader .me{display:flex; align-items:center; gap:12px}
     #friendsHeader img{width:48px; height:48px; border-radius:50%; object-fit:cover; border:1px solid var(--line)}
     #friendsHeader .nick{font-weight:800}
 
-    /* Tabs */
     .tabs{display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin:14px 0}
-    .tabs button{
-      border:none; border-radius:999px; padding:10px 0; font-weight:800; color:var(--sub);
-      background:var(--card); border:1px solid var(--line); box-shadow:var(--shadow); cursor:pointer;
-    }
+    .tabs button{ border:none; border-radius:999px; padding:10px 0; font-weight:800; color:var(--sub);
+      background:var(--card); border:1px solid var(--line); box-shadow:var(--shadow); cursor:pointer }
     .tabs button.active{ color:var(--text); background:linear-gradient(180deg, var(--hover), var(--card)); border-color:transparent }
 
-    /* List 卡片 */
     .card .row{display:flex; align-items:center; gap:12px}
     .card .row img{width:52px; height:52px; border-radius:50%; object-fit:cover; border:1px solid var(--line)}
     .badge{display:inline-block; margin-top:6px; padding:4px 8px; border-radius:999px; font-size:12px; font-weight:800; border:1px solid var(--line)}
@@ -73,7 +92,6 @@
 
     /* DM */
     .topbar{display:flex; align-items:center; gap:12px; margin-bottom:10px}
-    .topbar .dm-top{display:flex; align-items:center; gap:10px}
     .dm-title{font-weight:800}
     .menu-btn{width:40px; height:40px; border-radius:12px; border:1px solid var(--line); background:var(--card); color:var(--text); cursor:pointer}
     .pill{display:flex; align-items:center; gap:6px; padding:8px 12px; border-radius:999px; border:1px solid var(--line); background:linear-gradient(180deg,var(--hover),var(--card)); font-weight:800}
@@ -98,593 +116,421 @@
     .live-fans{display:grid; gap:10px; margin-top:12px}
     .fan-item{padding:12px; border-radius:12px; background:var(--card); border:1px solid var(--line)}
 
-    /* 底部 Nav */
-    nav{position:fixed; left:0; right:0; bottom:0; background:#0f1116; border-top:1px solid var(--line); display:flex; justify-content:space-around; padding:12px 8px 16px; backdrop-filter:blur(8px); z-index:9990}
+    /* Nav */
+    nav{position:fixed; left:0; right:0; bottom:0; background:#0f1116; border-top:1px solid var(--line); display:flex; justify-content:space-around; padding:12px 8px 16px; backdrop-filter:blur(8px)}
     nav.hidden{display:none}
     nav button{background:transparent; border:none; color:var(--text); font-weight:800; padding:8px 10px; border-radius:12px; cursor:pointer}
     nav button:active{background:var(--hover)}
-
-    /* ===== 登入卡片（置中 + 防偏移） ===== */
-    #login.center{
-      min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px 16px;
-    }
-    .login-card{
-      width:100%; max-width:360px; text-align:center; padding:24px; border-radius:16px; background:var(--card);
-      border:1px solid var(--line); box-shadow:var(--shadow);
-    }
-    .login-input{
-      width:100%; padding:12px; font-size:15px; margin:0 0 12px 0; display:block;
-      border:1px solid var(--line); border-radius:12px; background:var(--hover); color:var(--text);
-      box-sizing:border-box;
-    }
-    .btn-full{ width:100%; padding:14px; font-size:15px; font-weight:600; border:none; border-radius:12px; cursor:pointer; }
-    .btn-line{ background:#06C755; color:#fff; margin-bottom:12px; }
-    .btn-white{ background:#fff; color:#000; }
-
-    /* 截圖警告 */
-    #shotModal{display:none; position:fixed; inset:0; place-items:center; background:rgba(0,0,0,.4); z-index:9998}
-    #shotModal .box{max-width:560px; width:90%; background:var(--card); border:1px solid var(--line); border-radius:var(--r); box-shadow:var(--shadow); padding:16px}
-    #shotModal .warn{margin-top:6px; padding:12px; border-radius:12px; background:rgba(255,45,85,.12); border:1px dashed rgba(255,45,85,.35)}
-
-    /* Splash */
-    #splash{position:fixed; inset:0; background:#000; display:flex; justify-content:center; align-items:center; z-index:9999; pointer-events:none}
-    #splash .stage{display:flex; gap:20px; align-items:center; justify-content:center; font-weight:800; font-size:44px; color:#fff; transform:translateZ(0); will-change:opacity,transform}
-    #splash .next{color:#fff}
-    #splash .one{opacity:0}
-    #splash .syou{opacity:0; color:#e42323; transform:rotateY(90deg); transform-origin:left center}
-    @keyframes sp-fade-in  { from{opacity:0} to{opacity:1} }
-    @keyframes sp-fade-out { from{opacity:1} to{opacity:0} }
-    @keyframes sp-flip-in  { from{opacity:0; transform:rotateY(90deg)} to{opacity:1; transform:rotateY(0)} }
-    #splash .one.play   { animation: sp-fade-in .6s ease forwards; }
-    #splash .one.hide   { animation: sp-fade-out .4s ease forwards; }
-    #splash .syou.play  { animation: sp-flip-in .6s ease forwards; }
-    #splash.hide        { transition: opacity .4s ease; opacity:0; }
-
-    /* 登入頁時，一律隱藏底部 nav（雙保險） */
-    #login.active ~ nav { display: none !important; }
   </style>
 </head>
 
-<body class="nx">
-
-<!-- ===== LOGIN ===== -->
-<section id="login" class="active center">
-  <div class="login-card panel soft">
-    <h2 style="margin-bottom:20px">登入</h2>
-    <button id="lineLoginBtn" class="btn-full btn-line">用 LINE 登入（模擬）</button>
-    <input id="inviteCode" class="login-input" placeholder="輸入邀請碼，例如 NEXT2025" />
-    <button id="codeLoginBtn" class="btn-full btn-white">使用邀請碼</button>
-  </div>
-</section>
-
-<!-- ===== HOME ===== -->
-<section id="home">
-  <div id="friendsHeader" class="panel soft">
-    <div class="me">
-      <img id="userAvatar" src="https://picsum.photos/80?u=me" alt="頭貼" onclick="openProfile()">
-      <div class="nick" id="nickname" onclick="openProfile()">暱稱</div>
+<body data-auth="out">
+  <!-- ===== LOGIN ONLY ===== -->
+  <section id="login">
+    <div class="login-card">
+      <h2 style="margin:0 0 16px">登入</h2>
+      <button id="lineLoginBtn" class="btn-full btn-line">用 LINE 登入（模擬）</button>
+      <input id="inviteCode" class="login-input" placeholder="輸入邀請碼，例如 NEXT2025" />
+      <div id="codeError" class="error-txt">✗ 邀請碼錯誤！</div>
+      <button id="codeLoginBtn" class="btn-full btn-white">使用邀請碼</button>
     </div>
-    <button class="btn" onclick="showPage('wallet')" style="border:1px solid var(--line); border-radius:12px; padding:10px 14px; background:var(--card); color:var(--text)">錢包</button>
-  </div>
+  </section>
 
-  <div class="tabs">
-    <button id="tab-artists"   class="active" onclick="setHomeTab('artists')">藝人</button>
-    <button id="tab-groups"    onclick="setHomeTab('groups')">團體</button>
-    <button id="tab-purchased" onclick="setHomeTab('purchased')">已購買</button>
-    <button id="tab-unpurchased" onclick="setHomeTab('unpurchased')">未購買</button>
-  </div>
+  <!-- ===== APP (ALL PAGES INSIDE) ===== -->
+  <main id="app">
+    <!-- HOME -->
+    <section id="home">
+      <div id="friendsHeader" class="panel soft">
+        <div class="me">
+          <img id="userAvatar" src="https://picsum.photos/80?u=me" alt="頭貼" onclick="openProfile()">
+          <div class="nick" id="nickname" onclick="openProfile()">暱稱</div>
+        </div>
+        <button class="btn" onclick="showPage('wallet')">錢包</button>
+      </div>
 
-  <div id="homeList" class="list-col"></div>
-  <div id="homeEmpty" class="ghost" style="padding:12px;display:none">這一類目前是空的～</div>
-</section>
+      <div class="tabs">
+        <button id="tab-artists" class="active" onclick="setHomeTab('artists')">藝人</button>
+        <button id="tab-groups" onclick="setHomeTab('groups')">團體</button>
+        <button id="tab-purchased" onclick="setHomeTab('purchased')">已購買</button>
+        <button id="tab-unpurchased" onclick="setHomeTab('unpurchased')">未購買</button>
+      </div>
 
-<!-- ===== PROFILE ===== -->
-<section id="profile">
-  <div class="topbar"><h2>我的個人頁</h2></div>
-  <div class="panel soft" style="text-align:center">
-    <img id="editAvatar" src="https://picsum.photos/160?u=me" style="width:96px;height:96px;border-radius:20px;object-fit:cover; border:1px solid var(--line)"><br/>
-    <div style="margin:10px 0">
-      <input type="file" id="avatarInput" accept="image/*" onchange="changeAvatar(event)">
-    </div>
-    <div style="display:flex; gap:8px; justify-content:center">
-      <input type="text" id="editNickname" placeholder="輸入暱稱" style="width:70%;max-width:320px; border:1px solid var(--line); border-radius:12px; padding:10px; background:var(--hover); color:var(--text)">
-      <button class="btn btn-red" onclick="saveProfile()" style="border:none; border-radius:12px; padding:10px 14px; background:linear-gradient(180deg,var(--accent),var(--accent-2)); color:#fff">儲存</button>
-    </div>
-    <p class="ghost" style="margin:10px 0 0"><b>粉絲 ID：</b><span id="fanId"></span></p>
-    <div style="margin-top:10px"><button class="btn" onclick="showPage('home')" style="border:1px solid var(--line); border-radius:12px; padding:10px 14px; background:var(--card); color:var(--text)">返回 Friends</button></div>
-  </div>
-</section>
+      <div id="homeList" class="list-col"></div>
+      <div id="homeEmpty" class="ghost" style="padding:12px;display:none">這一類目前是空的～</div>
+    </section>
 
-<!-- ===== DM LIST ===== -->
-<section id="dmList">
-  <div class="topbar"><h2>Messages</h2></div>
-  <div id="dmListWrap" class="list-col"></div>
-  <div id="dmListEmpty" class="ghost" style="margin-top:12px;display:none">
-    目前沒有已開通的 DM。<button class="btn btn-red" onclick="showPage('wallet')" style="margin-left:6px; border:none; border-radius:12px; padding:8px 12px; background:linear-gradient(180deg,var(--accent),var(--accent-2)); color:#fff">去錢包開通</button>
-  </div>
-</section>
+    <!-- PROFILE -->
+    <section id="profile">
+      <div class="topbar"><h2>我的個人頁</h2></div>
+      <div class="panel soft" style="text-align:center">
+        <img id="editAvatar" src="https://picsum.photos/160?u=me" style="width:96px;height:96px;border-radius:20px;object-fit:cover; border:1px solid var(--line)"><br/>
+        <div style="margin:10px 0">
+          <input type="file" id="avatarInput" accept="image/*" onchange="changeAvatar(event)">
+        </div>
+        <div style="display:flex; gap:8px; justify-content:center">
+          <input type="text" id="editNickname" placeholder="輸入暱稱" style="width:70%;max-width:320px; border:1px solid var(--line); border-radius:12px; padding:10px; background:var(--hover); color:var(--text)">
+          <button class="btn" style="background:linear-gradient(180deg,var(--accent),var(--accent-2)); color:#fff; border:none" onclick="saveProfile()">儲存</button>
+        </div>
+        <p class="ghost" style="margin:10px 0 0"><b>粉絲 ID：</b><span id="fanId"></span></p>
+        <div style="margin-top:10px"><button class="btn" onclick="showPage('home')">返回 Friends</button></div>
+      </div>
+    </section>
 
-<!-- ===== DM CHAT ===== -->
-<section id="dm">
-  <div class="topbar">
-    <div class="dm-top">
-      <button class="btn" onclick="showPage('dmList')" style="border:1px solid var(--line); border-radius:12px; padding:8px 12px; background:var(--card); color:var(--text)">‹</button>
-      <div class="dm-title" id="dmTitle">ALLDAY PROJECT — 團體 DM</div>
-    </div>
-    <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
-      <button class="menu-btn" onclick="openGallery()">▦</button>
-      <div class="pill"><b>♡</b><span id="heartDays">+0</span></div>
-    </div>
-  </div>
+    <!-- DM LIST -->
+    <section id="dmList">
+      <div class="topbar"><h2>Messages</h2></div>
+      <div id="dmListWrap" class="list-col"></div>
+      <div id="dmListEmpty" class="ghost" style="margin-top:12px;display:none">
+        目前沒有已開通的 DM。<button class="btn" style="background:linear-gradient(180deg,var(--accent),var(--accent-2)); color:#fff; border:none" onclick="showPage('wallet')">去錢包開通</button>
+      </div>
+    </section>
 
-  <div class="dm-wrap">
-    <div id="dm-messages" class="dm-messages"></div>
-    <div class="dm-input">
-      <input id="dmInput" placeholder="輸入訊息…">
-      <button onclick="sendMessage()">➤</button>
-    </div>
-  </div>
-</section>
-
-<!-- ===== GALLERY ===== -->
-<section id="gallery">
-  <div class="topbar">
-    <h2>相簿</h2>
-    <div style="margin-left:auto"><button class="btn" onclick="showPage('dm')" style="border:1px solid var(--line); border-radius:12px; padding:8px 12px; background:var(--card); color:var(--text)">返回 DM</button></div>
-  </div>
-  <div id="galleryGrid"></div>
-</section>
-
-<!-- ===== LIVE ===== -->
-<section id="live">
-  <div class="topbar"><h2>LIVE</h2></div>
-  <div class="panel soft live-host">
-    <div class="title">主播訊息</div>
-    <div id="liveHostMsg" style="font-size:18px;line-height:1.55;margin-top:6px;min-height:40px">等待開播…</div>
-    <div id="liveHostTime" class="ghost" style="margin-top:6px;font-size:12px"></div>
-  </div>
-  <div id="liveFans" class="live-fans"></div>
-  <div style="position:sticky;bottom:96px; display:flex; gap:10px; margin-top:10px">
-    <input id="liveInput" placeholder="發送留言…" style="flex:1; border:1px solid var(--line); border-radius:12px; padding:12px; background:var(--hover); color:var(--text)">
-    <button class="btn btn-red" onclick="fanSendLive()" style="border:none; border-radius:12px; padding:10px 14px; background:linear-gradient(180deg,var(--accent),var(--accent-2)); color:#fff">送出</button>
-  </div>
-</section>
-
-<!-- ===== WALLET ===== -->
-<section id="wallet">
-  <div class="topbar">
-    <h2>錢包</h2>
-    <div style="margin-left:auto"><button class="btn" onclick="logout()" style="border:1px solid var(--line); border-radius:12px; padding:8px 12px; background:var(--card); color:var(--text)">登出</button></div>
-  </div>
-  <div class="panel soft">
-    <p><b>我的分數：</b><span id="points">0</span></p>
-    <div class="product" style="padding:12px; display:flex; align-items:center; justify-content:space-between; margin-top:10px">
-      <h4 style="margin:0">7 天 DM 權益 — 70 分</h4><button class="btn btn-red" onclick="buyProduct(70,7)" style="border:none; border-radius:12px; padding:8px 12px; background:linear-gradient(180deg,var(--accent),var(--accent-2)); color:#fff">購買</button>
-    </div>
-    <div class="product" style="padding:12px; display:flex; align-items:center; justify-content:space-between; margin-top:10px">
-      <h4 style="margin:0">30 天 DM 權益 — 250 分</h4><button class="btn btn-red" onclick="buyProduct(250,30)" style="border:none; border-radius:12px; padding:8px 12px; background:linear-gradient(180deg,var(--accent),var(--accent-2)); color:#fff">購買</button>
-    </div>
-
-    <h3 style="margin:18px 0 6px">測試購買捷徑</h3>
-    <div class="product" style="padding:12px; display:flex; align-items:center; justify-content:space-between">
-      <p style="margin:0">購買「團體」pass</p><button class="btn btn-red" onclick="markPurchased('group',true)" style="border:none; border-radius:12px; padding:8px 12px; background:linear-gradient(180deg,var(--accent),var(--accent-2)); color:#fff">標記已購買（團體）</button>
-    </div>
-    <div class="product" style="padding:12px; display:flex; align-items:center; justify-content:space-between; margin-top:10px">
-      <p style="margin:0">購買「WOOCHAN」</p><button class="btn btn-red" onclick="markPurchased('wc',true)" style="border:none; border-radius:12px; padding:8px 12px; background:linear-gradient(180deg,var(--accent),var(--accent-2)); color:#fff">標記已購買（WOOCHAN）</button>
-    </div>
-  </div>
-</section>
-
-<!-- ===== 截圖警告 Modal ===== -->
-<div id="shotModal">
-  <div class="box">
-    <h3>截圖提醒</h3>
-    <div class="warn">
-      未經授權擷取、轉傳或外流藝人之文字、照片或影片，可能違反平台規範並影響他人權益。<br/>
-      因此產生的任何後果與責任，將由您自行承擔。若持續違規，帳號與相關權益可能被停用。
-    </div>
-    <div style="margin-top:12px; text-align:right">
-      <button onclick="dismissShot()" class="btn" style="border:1px solid var(--line); border-radius:12px; padding:8px 12px; background:var(--card); color:var(--text)">我知道了</button>
-    </div>
-  </div>
-</div>
-
-<!-- ===== NAV（底部） ===== -->
-<nav id="nav" class="hidden">
-  <button onclick="showPage('home')">首頁</button>
-  <button onclick="showPage('dmList')">DM</button>
-  <button onclick="showPage('live')">直播</button>
-  <button onclick="showPage('wallet')">錢包</button>
-</nav>
-
-<!-- ===== SPLASH ===== -->
-<div id="splash" aria-hidden="true">
-  <div class="stage">
-    <span class="next">NEXT</span>
-    <span class="one"  id="spOne">ONE</span>
-    <span class="syou" id="spYou">’S YOU</span>
-  </div>
-</div>
-
-<!-- ================= SCRIPTS ================= -->
-<script>
-/* ===== DATA ===== */
-const ARTISTS = [
-  {id:'wc', name:'WOOCHAN', avatar:'https://picsum.photos/120?u=wc', kind:'artist'},
-  {id:'ys', name:'YOUNGSEO', avatar:'https://picsum.photos/120?u=ys', kind:'artist'},
-  {id:'an', name:'ANNIE',    avatar:'https://picsum.photos/120?u=an', kind:'artist'},
-  {id:'ba', name:'BAILEY',   avatar:'https://picsum.photos/120?u=ba', kind:'artist'},
-];
-const GROUPS = [{id:'group', name:'ALLDAY PROJECT', avatar:'https://picsum.photos/120?u=grp', kind:'group'}];
-
-/* ===== STATE 初始 ===== */
-if(!localStorage.getItem('points')) localStorage.setItem('points', 200);
-if(!localStorage.getItem('userId')) localStorage.setItem('userId','u_'+Math.random().toString(36).slice(2,10));
-
-/* ===== LOGIN（LINE / 邀請碼） ===== */
-function fakeLogin(method){
-  const code = (document.getElementById('inviteCode')?.value || '').trim();
-  if(method==='line' || (method==='code' && code==='NEXT2025')){
-    localStorage.setItem('loggedIn','true');
-    if(!localStorage.getItem('fanId')) localStorage.setItem('fanId','FAN'+Math.floor(Math.random()*100000));
-    showPage('home');
-  }else{
-    alert('❌ 邀請碼錯誤！');
-  }
-}
-document.getElementById('lineLoginBtn').addEventListener('click', ()=>fakeLogin('line'));
-document.getElementById('codeLoginBtn').addEventListener('click', ()=>fakeLogin('code'));
-
-/* ===== NAV 顯示/隱藏 ===== */
-function showPage(id){
-  document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));
-  const target = document.getElementById(id);
-  if (target) target.classList.add('active');
-
-  const nav = document.getElementById('nav');
-  const hideNav = (id==='login' || id==='dm' || id==='gallery');
-  if (localStorage.getItem('loggedIn') && !hideNav) nav.classList.remove('hidden');
-  else nav.classList.add('hidden');
-
-  if(id==='home'){ renderProfile(); setHomeTab(HOME_TAB||'artists'); }
-  if(id==='dmList'){ renderDMList(); }
-  if(id==='dm'){ renderHearts(); renderDM(); }
-  if(id==='gallery'){ renderGallery(); }
-  if(id==='wallet'){ renderPoints(); }
-  if(id==='profile'){ prepProfile(); }
-}
-
-/* ===== PROFILE ===== */
-function renderProfile(){
-  document.getElementById('nickname').textContent = localStorage.getItem('nickname') || '暱稱';
-  document.getElementById('userAvatar').src = localStorage.getItem('avatar') || 'https://picsum.photos/80?u=me';
-}
-function openProfile(){ showPage('profile'); }
-function prepProfile(){
-  document.getElementById('editNickname').value = localStorage.getItem('nickname') || '暱稱';
-  document.getElementById('editAvatar').src = localStorage.getItem('avatar') || 'https://picsum.photos/160?u=me';
-  document.getElementById('fanId').textContent = localStorage.getItem('fanId') || '';
-}
-function changeAvatar(e){
-  const f=e.target.files[0]; if(!f) return;
-  const r=new FileReader(); r.onload = ev => { document.getElementById('editAvatar').src = ev.target.result; }; r.readAsDataURL(f);
-}
-function saveProfile(){
-  const name=document.getElementById('editNickname').value.trim();
-  if(name) localStorage.setItem('nickname', name);
-  localStorage.setItem('avatar', document.getElementById('editAvatar').src);
-  showPage('home');
-}
-
-/* ===== HOME & FILTER ===== */
-let HOME_TAB='artists';
-function setHomeTab(tab){
-  HOME_TAB=tab;
-  ['artists','groups','purchased','unpurchased'].forEach(t=>document.getElementById('tab-'+t).classList.toggle('active', t===tab));
-  renderHome();
-}
-function isPurchased(id){
-  if(id==='group') return passActive();
-  const p=JSON.parse(localStorage.getItem('purchases')||'{}'); return !!p[id];
-}
-function renderHome(){
-  const list=document.getElementById('homeList'); const empty=document.getElementById('homeEmpty');
-  let dataset=[];
-  if(HOME_TAB==='artists') dataset=ARTISTS;
-  if(HOME_TAB==='groups') dataset=GROUPS;
-  if(HOME_TAB==='purchased') dataset=[...GROUPS,...ARTISTS].filter(i=>isPurchased(i.id));
-  if(HOME_TAB==='unpurchased') dataset=[...GROUPS,...ARTISTS].filter(i=>!isPurchased(i.id));
-
-  list.innerHTML = dataset.map(i=>`
-    <div class="card" onclick="homeCardClick('${i.id}')">
-      <div class="row">
-        <img src="${i.avatar}" onerror="this.src='https://picsum.photos/120?u=${i.id}'">
-        <div>
-          <div><b>${i.name}</b></div>
-          <div class="badge ${isPurchased(i.id)?'ok':'ng'}">${isPurchased(i.id)?'已購買':'未購買'}</div>
+    <!-- DM CHAT -->
+    <section id="dm">
+      <div class="topbar">
+        <button class="btn" onclick="showPage('dmList')">‹</button>
+        <div class="dm-title" id="dmTitle" style="margin-left:4px">ALLDAY PROJECT — 團體 DM</div>
+        <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
+          <button class="menu-btn" onclick="openGallery()">▦</button>
+          <div class="pill"><b>♡</b><span id="heartDays">+0</span></div>
         </div>
       </div>
-    </div>`).join('');
-  empty.style.display = dataset.length ? 'none' : 'block';
-}
-function homeCardClick(id){ if(isPurchased(id)) openDM(id); else showPage('wallet'); }
 
-/* ===== WALLET ===== */
-function renderPoints(){ document.getElementById('points').textContent = localStorage.getItem('points')||'0'; }
-function buyProduct(cost, days){
-  let p=parseInt(localStorage.getItem('points')||'0',10);
-  if(p<cost) return alert('分數不足！');
-  p-=cost; localStorage.setItem('points',p);
-  localStorage.setItem('purchaseDate', new Date().toISOString().split('T')[0]);
-  localStorage.setItem('duration', days);
-  alert(`✅ 已購買 ${days} 天 DM 權益！`); renderPoints(); renderHearts();
-}
-function markPurchased(id, yes=true){
-  const map=JSON.parse(localStorage.getItem('purchases')||'{}'); map[id]=!!yes;
-  localStorage.setItem('purchases', JSON.stringify(map));
-  alert(`已標記 ${id} 為 ${yes?'已購買':'未購買'}`);
-}
-function logout(){
-  localStorage.removeItem('loggedIn');
-  showPage('login');
-}
-
-/* ===== DM 清單 & 權益判斷 ===== */
-function passActive(){
-  const start=localStorage.getItem('purchaseDate'); const dur=parseInt(localStorage.getItem('duration')||'0',10);
-  if(!start||dur<=0) return false;
-  const s=new Date(start), t=new Date(); s.setHours(0,0,0,0); t.setHours(0,0,0,0);
-  return Math.floor((t-s)/86400000) <= dur;
-}
-function renderDMList(){
-  const box=document.getElementById('dmListWrap'); const empty=document.getElementById('dmListEmpty');
-  const active=passActive();
-  const items=[...GROUPS, ...ARTISTS];
-  box.innerHTML = items.map(it=>`
-    <div class="card" onclick="enterDMFromList('${it.id}')">
-      <div class="row">
-        <img src="${it.avatar}">
-        <div>
-          <div><b>${it.name}</b></div>
-          <div class="badge ${(it.id==='group'?active:isPurchased(it.id))?'ok':'ng'}">${(it.id==='group'?active:isPurchased(it.id))?'可進入':'未開通'}</div>
+      <div class="dm-wrap">
+        <div id="dm-messages" class="dm-messages"></div>
+        <div class="dm-input">
+          <input id="dmInput" placeholder="輸入訊息…">
+          <button onclick="sendMessage()">➤</button>
         </div>
       </div>
-    </div>`).join('');
-  empty.style.display = (active || Object.values(JSON.parse(localStorage.getItem('purchases')||'{}')).some(Boolean)) ? 'none' : 'block';
-}
-function enterDMFromList(id){
-  if(id==='group'){ if(!passActive()) return showPage('wallet'); }
-  else if(!isPurchased(id)) return showPage('wallet');
-  openDM(id);
-}
+    </section>
 
-/* ===== DM / GALLERY ===== */
-function currentArtist(){ return localStorage.getItem('currentArtist') || 'group'; }
-function dmKey(){ return `dm_${localStorage.getItem('userId')}_${currentArtist()}`; }
-function galleryKey(){ return `gallery_${currentArtist()}`; }
+    <!-- GALLERY -->
+    <section id="gallery">
+      <div class="topbar">
+        <h2>相簿</h2>
+        <div style="margin-left:auto"><button class="btn" onclick="showPage('dm')">返回 DM</button></div>
+      </div>
+      <div id="galleryGrid"></div>
+    </section>
 
-function openDM(id){
-  localStorage.setItem('currentArtist', id||'group');
-  const title = id==='group' ? 'ALLDAY PROJECT — 團體 DM' : (ARTISTS.find(a=>a.id===id)?.name + ' — DM');
-  document.getElementById('dmTitle').textContent = title || 'DM';
-  showPage('dm');
-}
-function passStartTS(){ const d=localStorage.getItem('purchaseDate'); if(!d) return null; const s=new Date(d); s.setHours(0,0,0,0); return s.getTime(); }
+    <!-- LIVE -->
+    <section id="live">
+      <div class="topbar"><h2>LIVE</h2></div>
+      <div class="panel soft live-host">
+        <div class="title">主播訊息</div>
+        <div id="liveHostMsg" style="font-size:18px;line-height:1.55;margin-top:6px;min-height:40px">等待開播…</div>
+        <div id="liveHostTime" class="ghost" style="margin-top:6px;font-size:12px"></div>
+      </div>
+      <div id="liveFans" class="live-fans"></div>
+      <div style="position:sticky;bottom:96px; display:flex; gap:10px; margin-top:10px">
+        <input id="liveInput" placeholder="發送留言…" style="flex:1; border:1px solid var(--line); border-radius:12px; padding:12px; background:var(--hover); color:var(--text)">
+        <button class="btn" style="background:linear-gradient(180deg,var(--accent),var(--accent-2)); color:#fff; border:none" onclick="fanSendLive()">送出</button>
+      </div>
+    </section>
 
-function renderDM(){
-  if(!localStorage.getItem(dmKey())){
-    localStorage.setItem(dmKey(), JSON.stringify([{role:'artist',type:'text',text:'歡迎來到 DM！',trans:'Welcome to DM!',ts:Date.now()}]));
-  }
-  const list=JSON.parse(localStorage.getItem(dmKey())||'[]');
-  const showFrom = currentArtist()==='group' ? passStartTS() : (isPurchased(currentArtist())?0:Infinity);
-  const box=document.getElementById('dm-messages'); box.innerHTML='';
+    <!-- WALLET -->
+    <section id="wallet">
+      <div class="topbar">
+        <h2>錢包</h2>
+        <div style="margin-left:auto"><button class="btn" onclick="logout()">登出</button></div>
+      </div>
+      <div class="panel soft">
+        <p><b>我的分數：</b><span id="points">0</span></p>
+        <div class="product" style="padding:12px; display:flex; align-items:center; justify-content:space-between; margin-top:10px">
+          <h4 style="margin:0">7 天 DM 權益 — 70 分</h4><button class="btn" style="background:linear-gradient(180deg,var(--accent),var(--accent-2)); color:#fff; border:none" onclick="buyProduct(70,7)">購買</button>
+        </div>
+        <div class="product" style="padding:12px; display:flex; align-items:center; justify-content:space-between; margin-top:10px">
+          <h4 style="margin:0">30 天 DM 權益 — 250 分</h4><button class="btn" style="background:linear-gradient(180deg,var(--accent),var(--accent-2)); color:#fff; border:none" onclick="buyProduct(250,30)">購買</button>
+        </div>
 
-  let lastDate='';
-  list.filter(m=>!showFrom || (m.ts||0)>=showFrom).forEach(m=>{
-    const d=new Date(m.ts||Date.now());
-    const D=`${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日`;
-    const hh=d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
-    if(D!==lastDate){ const chip=document.createElement('div'); chip.className='date-chip'; chip.textContent=D; box.appendChild(chip); lastDate=D; }
+        <h3 style="margin:18px 0 6px">測試購買捷徑</h3>
+        <div class="product" style="padding:12px; display:flex; align-items:center; justify-content:space-between">
+          <p style="margin:0">購買「團體」pass</p><button class="btn" style="background:linear-gradient(180deg,var(--accent),var(--accent-2)); color:#fff; border:none" onclick="markPurchased('group',true)">標記已購買（團體）</button>
+        </div>
+        <div class="product" style="padding:12px; display:flex; align-items:center; justify-content:space-between; margin-top:10px">
+          <p style="margin:0">購買「WOOCHAN」</p><button class="btn" style="background:linear-gradient(180deg,var(--accent),var(--accent-2)); color:#fff; border:none" onclick="markPurchased('wc',true)">標記已購買（WOOCHAN）</button>
+        </div>
+      </div>
+    </section>
 
-    const wrap=document.createElement('div'); wrap.className='msg '+(m.role==='fan'?'me':'artist');
-    if(m.type==='image'){
-      const img=new Image(); img.src=m.url; img.style="max-width:100%;border-radius:12px;border:1px solid var(--line)";
-      wrap.appendChild(img);
-      if(m.caption){ const c=document.createElement('div'); c.className='sub-balloon'; c.textContent=m.caption; wrap.appendChild(c); }
+    <!-- NAV -->
+    <nav id="nav" class="hidden">
+      <button onclick="showPage('home')">首頁</button>
+      <button onclick="showPage('dmList')">DM</button>
+      <button onclick="showPage('live')">直播</button>
+      <button onclick="showPage('wallet')">錢包</button>
+    </nav>
+  </main>
+
+  <!-- ================== SCRIPTS ================== -->
+  <script>
+  /* ---------- Data ---------- */
+  const ARTISTS = [
+    {id:'wc', name:'WOOCHAN', avatar:'https://picsum.photos/120?u=wc', kind:'artist'},
+    {id:'ys', name:'YOUNGSEO', avatar:'https://picsum.photos/120?u=ys', kind:'artist'},
+    {id:'an', name:'ANNIE',    avatar:'https://picsum.photos/120?u=an', kind:'artist'},
+    {id:'ba', name:'BAILEY',   avatar:'https://picsum.photos/120?u=ba', kind:'artist'},
+  ];
+  const GROUPS = [{id:'group', name:'ALLDAY PROJECT', avatar:'https://picsum.photos/120?u=grp', kind:'group'}];
+
+  if(!localStorage.getItem('points')) localStorage.setItem('points', 200);
+  if(!localStorage.getItem('userId')) localStorage.setItem('userId','u_'+Math.random().toString(36).slice(2,10));
+
+  /* ---------- Auth State helper ---------- */
+  function setAuthState(isIn){ document.body.setAttribute('data-auth', isIn ? 'in' : 'out'); }
+
+  /* ---------- Login flow ---------- */
+  function fakeLogin(method){
+    const ipt  = document.getElementById('inviteCode');
+    const err  = document.getElementById('codeError');
+    const code = (ipt?.value || '').trim().toUpperCase();
+    const ok   = (method==='line') || (method==='code' && code==='NEXT2025');
+
+    ipt.classList.remove('input-error','shake'); if (err) err.style.display='none';
+
+    if(ok){
+      localStorage.setItem('loggedIn','true');
+      if(!localStorage.getItem('fanId')) localStorage.setItem('fanId','FAN'+Math.floor(Math.random()*100000));
+      setAuthState(true);
+      showPage('home');
     }else{
-      const main=document.createElement('div'); main.textContent=m.text||''; wrap.appendChild(main);
-      if(m.role==='artist' && m.trans){ const sub=document.createElement('div'); sub.className='sub-balloon'; sub.textContent=m.trans; wrap.appendChild(sub); }
+      if(err){ err.textContent='✗ 邀請碼錯誤！'; err.style.display='block'; }
+      ipt.classList.add('input-error','shake');
+      ipt.addEventListener('animationend', ()=>ipt.classList.remove('shake'), {once:true});
+      ipt.focus();
     }
-    const t=document.createElement('time'); t.textContent=hh; wrap.appendChild(t);
-    box.appendChild(wrap);
-  });
-  requestAnimationFrame(()=>{ box.scrollTop = box.scrollHeight; });
-}
-function sendMessage(){
-  const inp=document.getElementById('dmInput'); const t=(inp.value||'').trim(); if(!t) return;
-  const list=JSON.parse(localStorage.getItem(dmKey())||'[]');
-  list.push({role:'fan',type:'text',text:t,ts:Date.now()});
-  localStorage.setItem(dmKey(), JSON.stringify(list)); inp.value=''; renderDM();
-}
-function addArtistMessage(text,translation){
-  const dm=JSON.parse(localStorage.getItem(dmKey())||'[]'); dm.push({role:'artist',type:'text',text,trans:translation||'',ts:Date.now()});
-  localStorage.setItem(dmKey(), JSON.stringify(dm)); renderDM();
-}
-function addArtistImage(url,caption){
-  const dm=JSON.parse(localStorage.getItem(dmKey())||'[]'); dm.push({role:'artist',type:'image',url,caption:caption||'',ts:Date.now()});
-  localStorage.setItem(dmKey(), JSON.stringify(dm));
-  const gal=JSON.parse(localStorage.getItem(galleryKey())||'[]'); gal.push({url,caption:caption||'',ts:Date.now()});
-  localStorage.setItem(galleryKey(), JSON.stringify(gal)); renderDM();
-}
-
-function openGallery(){ showPage('gallery'); renderGallery(); }
-function renderGallery(){
-  const grid=document.getElementById('galleryGrid');
-  const list=JSON.parse(localStorage.getItem(galleryKey())||'[]');
-  grid.innerHTML = list.length? list.slice().reverse().map(i=>`<img src="${i.url}" onerror="this.src='https://picsum.photos/400?ph'">`).join('') : '<div class="ghost">還沒有照片</div>';
-}
-
-/* ===== LIVE ===== */
-function hostPushLive(text){
-  document.getElementById('liveHostMsg').textContent = text;
-  document.getElementById('liveHostTime').textContent = new Date().toLocaleString();
-}
-function fanSendLive(){
-  const inp=document.getElementById('liveInput'); const t=(inp.value||'').trim(); if(!t) return;
-  const box=document.getElementById('liveFans');
-  const item=document.createElement('div'); item.className='fan-item';
-  item.innerHTML=`<b>${localStorage.getItem('nickname')||'粉絲'}</b><div style="opacity:.9">${t}</div>
-                  <div style="font-size:12px;opacity:.6;margin-top:4px">${new Date().toLocaleTimeString()}</div>`;
-  box.appendChild(item); box.scrollTop=box.scrollHeight; inp.value='';
-}
-
-/* ===== HEARTS ===== */
-function renderHearts(){
-  const el=document.getElementById('heartDays'); if(!el) return;
-  const start=localStorage.getItem('purchaseDate'); const dur=parseInt(localStorage.getItem('duration')||'0',10);
-  if(!start||dur<=0){ el.textContent='+0'; return; }
-  const s=new Date(start), t=new Date(); s.setHours(0,0,0,0); t.setHours(0,0,0,0);
-  const n=Math.floor((t-s)/86400000); el.textContent = (n<=dur)?`+${n}`:'+0';
-}
-
-/* ===== 截圖警告（桌機模擬） ===== */
-function showScreenshotWarning(){ const m=document.getElementById('shotModal'); if(m) m.style.display='grid'; }
-function dismissShot(){ const m=document.getElementById('shotModal'); if(m) m.style.display='none'; }
-window.addEventListener('keyup', e=>{ if(e.key === 'PrintScreen'){ showScreenshotWarning(); }});
-document.addEventListener('copy', showScreenshotWarning);
-
-/* ===== THEME ===== */
-(function(){
-  window.NX = window.NX || {};
-  NX.setTheme = mode => {
-    const b=document.body; if(!b.classList.contains('nx')) b.classList.add('nx');
-    b.classList.remove('light','dark'); b.classList.add(mode==='light'?'light':'dark');
-    localStorage.setItem('nx-theme', mode==='light'?'light':'dark');
-  };
-  const saved=localStorage.getItem('nx-theme');
-  if(saved){ NX.setTheme(saved); }
-  else{
-    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-    NX.setTheme(prefersDark ? 'dark' : 'light');
   }
-})();
+  document.getElementById('lineLoginBtn').addEventListener('click', ()=>fakeLogin('line'));
+  document.getElementById('codeLoginBtn').addEventListener('click', ()=>fakeLogin('code'));
 
-/* ===== BOOT（含 Splash） ===== */
-window.addEventListener('load', ()=>{
-  // Splash：兩次 RAF 確保進畫面
-  (function(){
-    const splash = document.getElementById('splash');
-    const one    = document.getElementById('spOne');
-    const you    = document.getElementById('spYou');
-    const raf = window.requestAnimationFrame || (fn=>setTimeout(fn,16));
-    const safeHide = () => { if (!splash) return; splash.classList.add('hide'); setTimeout(()=>splash.remove(), 460); };
-    const killer = setTimeout(safeHide, 4500);
-    function start(){
-      one.classList.add('play');
-      setTimeout(()=>{ one.classList.remove('play'); one.classList.add('hide'); setTimeout(()=>{ you.classList.add('play'); }, 400); }, 900);
-      setTimeout(()=>{ clearTimeout(killer); safeHide(); }, 2600);
-    }
-    window.addEventListener('pageshow', (e)=>{ if (e.persisted) start(); }, {once:true});
-    raf(()=> raf(start));
-  })();
+  function logout(){
+    localStorage.removeItem('loggedIn');
+    setAuthState(false);
+    // 回到 login，並保證 nav 隱藏
+    showPage('login');
+  }
 
-  if(localStorage.getItem('loggedIn')) showPage('home'); else showPage('login');
-});
-
-/* ===== CACHE BUSTER（前端側安全刷新） ===== */
-(function(){
-  const BUILD = 'b2025-09-11-03';
-  const KEY_BUILD = '_nx_build';
-  const KEY_JUST  = '_nx_just_refreshed';
-  try{
-    const prev = localStorage.getItem(KEY_BUILD);
-    const just = sessionStorage.getItem(KEY_JUST);
-    if (prev !== BUILD && !just) {
-      sessionStorage.setItem(KEY_JUST, '1');
-      localStorage.setItem(KEY_BUILD, BUILD);
-      if ('caches' in window) caches.keys().then(keys => keys.forEach(k => caches.delete(k)));
-      if (navigator.serviceWorker && navigator.serviceWorker.getRegistrations) {
-        navigator.serviceWorker.getRegistrations().then(list => list.forEach(r => r.unregister()));
-      }
-      const u = new URL(location.href); u.searchParams.set('v', BUILD); location.replace(u.toString());
+  /* ---------- Page switch (controls nav visibility) ---------- */
+  function showPage(id){
+    // 如果是 login（外層頁），不啟用 app 區塊的 section 切換
+    if(id==='login'){
+      document.querySelectorAll('#app section').forEach(s=>s.classList.remove('active'));
+      const nav = document.getElementById('nav'); if(nav) nav.classList.add('hidden');
       return;
     }
-  }catch(e){}
-  window.addEventListener('pageshow', e => { if (e.persisted) location.reload(); });
-  window.NX = window.NX || {};
-  window.NX.refresh = function(){
-    try{ sessionStorage.removeItem('_nx_just_refreshed'); localStorage.removeItem('_nx_build'); }catch(_){}
-    location.reload();
-  };
-})();
-</script>
-  <script>
-/* -------- 登入狀態：用 body data-auth 管理 -------- */
-function setAuthState(isIn){
-  document.body.setAttribute('data-auth', isIn ? 'in' : 'out');
-}
 
-/* -------- 登入流程（移除 alert，改為內嵌紅字 + 搖晃） -------- */
-function fakeLogin(method){
-  const ipt   = document.getElementById('inviteCode');
-  const err   = document.getElementById('codeError');
-  const raw   = (ipt?.value || '');
-  const code  = raw.trim().toUpperCase();   // 正規化大小寫與空白
-  const ok    = (method==='line') || (method==='code' && code==='NEXT2025');
+    document.querySelectorAll('#app section').forEach(s=>s.classList.remove('active'));
+    const target = document.getElementById(id); if(target) target.classList.add('active');
 
-  // 清除上次錯誤樣式
-  ipt.classList.remove('input-error','shake');
-  if (err) err.style.display = 'none';
+    const loggedIn = !!localStorage.getItem('loggedIn');
+    setAuthState(loggedIn);
+    const nav = document.getElementById('nav');
+    const shouldHideNav = (id==='dm' || id==='gallery' || !loggedIn);
+    if (nav) nav.classList.toggle('hidden', shouldHideNav);
 
-  if(ok){
-    localStorage.setItem('loggedIn','true');
-    if(!localStorage.getItem('fanId')){
-      localStorage.setItem('fanId','FAN'+Math.floor(Math.random()*100000));
-    }
-    setAuthState(true);
-    showPage('home');
-  }else{
-    // 顯示「邀請碼錯誤」在 input 下方，並搖晃 input
-    if (err) { err.textContent = '✗ 邀請碼錯誤！'; err.style.display = 'block'; }
-    ipt.classList.add('input-error','shake');
-    ipt.addEventListener('animationend', ()=> ipt.classList.remove('shake'), {once:true});
-    ipt.focus();
+    if(id==='home'){ renderProfile(); setHomeTab(HOME_TAB||'artists'); }
+    if(id==='dmList'){ renderDMList(); }
+    if(id==='dm'){ renderHearts(); renderDM(); }
+    if(id==='gallery'){ renderGallery(); }
+    if(id==='wallet'){ renderPoints(); }
+    if(id==='profile'){ prepProfile(); }
   }
-}
 
-/* 綁定按鈕（保留就好） */
-document.getElementById('lineLoginBtn').addEventListener('click', ()=>fakeLogin('line'));
-document.getElementById('codeLoginBtn').addEventListener('click', ()=>fakeLogin('code'));
+  /* ---------- Profile ---------- */
+  function renderProfile(){
+    document.getElementById('nickname').textContent = localStorage.getItem('nickname') || '暱稱';
+    document.getElementById('userAvatar').src = localStorage.getItem('avatar') || 'https://picsum.photos/80?u=me';
+  }
+  function openProfile(){ showPage('profile'); }
+  function prepProfile(){
+    document.getElementById('editNickname').value = localStorage.getItem('nickname') || '暱稱';
+    document.getElementById('editAvatar').src = localStorage.getItem('avatar') || 'https://picsum.photos/160?u=me';
+    document.getElementById('fanId').textContent = localStorage.getItem('fanId') || '';
+  }
+  function changeAvatar(e){
+    const f=e.target.files[0]; if(!f) return;
+    const r=new FileReader(); r.onload = ev => { document.getElementById('editAvatar').src = ev.target.result; }; r.readAsDataURL(f);
+  }
+  function saveProfile(){
+    const name=document.getElementById('editNickname').value.trim();
+    if(name) localStorage.setItem('nickname', name);
+    localStorage.setItem('avatar', document.getElementById('editAvatar').src);
+    showPage('home');
+  }
 
-/* -------- 切頁：同時控 nav 顯示 -------- */
-function showPage(id){
-  // 切換 section.active
-  document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));
-  const target = document.getElementById(id);
-  if (target) target.classList.add('active');
+  /* ---------- Home tabs & list ---------- */
+  let HOME_TAB='artists';
+  function setHomeTab(tab){
+    HOME_TAB=tab;
+    ['artists','groups','purchased','unpurchased'].forEach(t=>document.getElementById('tab-'+t).classList.toggle('active', t===tab));
+    renderHome();
+  }
+  function isPurchased(id){
+    if(id==='group') return passActive();
+    const p=JSON.parse(localStorage.getItem('purchases')||'{}'); return !!p[id];
+  }
+  function renderHome(){
+    const list=document.getElementById('homeList'); const empty=document.getElementById('homeEmpty');
+    let dataset=[];
+    if(HOME_TAB==='artists') dataset=ARTISTS;
+    if(HOME_TAB==='groups') dataset=GROUPS;
+    if(HOME_TAB==='purchased') dataset=[...GROUPS,...ARTISTS].filter(i=>isPurchased(i.id));
+    if(HOME_TAB==='unpurchased') dataset=[...GROUPS,...ARTISTS].filter(i=>!isPurchased(i.id));
 
-  // nav：只有「已登入 + 非 login/dm/gallery」才顯示
-  const loggedIn = !!localStorage.getItem('loggedIn');
-  setAuthState(loggedIn);
-  const shouldHideNav = (id==='login' || id==='dm' || id==='gallery' || !loggedIn);
-  const nav = document.getElementById('nav');
-  if (nav) nav.classList.toggle('hidden', shouldHideNav);
+    list.innerHTML = dataset.map(i=>`
+      <div class="card" onclick="homeCardClick('${i.id}')">
+        <div class="row">
+          <img src="${i.avatar}" onerror="this.src='https://picsum.photos/120?u=${i.id}'">
+          <div>
+            <div><b>${i.name}</b></div>
+            <div class="badge ${isPurchased(i.id)?'ok':'ng'}">${isPurchased(i.id)?'已購買':'未購買'}</div>
+          </div>
+        </div>
+      </div>`).join('');
+    empty.style.display = dataset.length ? 'none' : 'block';
+  }
+  function homeCardClick(id){ if(isPurchased(id)) openDM(id); else showPage('wallet'); }
 
-  // 每頁渲染
-  if(id==='home'){ renderProfile(); setHomeTab(HOME_TAB||'artists'); }
-  if(id==='dmList'){ renderDMList(); }
-  if(id==='dm'){ renderHearts(); renderDM(); }
-  if(id==='gallery'){ renderGallery(); }
-  if(id==='wallet'){ renderPoints(); }
-  if(id==='profile'){ prepProfile(); }
-}
+  /* ---------- Wallet ---------- */
+  function renderPoints(){ document.getElementById('points').textContent = localStorage.getItem('points')||'0'; }
+  function buyProduct(cost, days){
+    let p=parseInt(localStorage.getItem('points')||'0',10);
+    if(p<cost) return alert('分數不足！');
+    p-=cost; localStorage.setItem('points',p);
+    localStorage.setItem('purchaseDate', new Date().toISOString().split('T')[0]);
+    localStorage.setItem('duration', days);
+    alert(`✅ 已購買 ${days} 天 DM 權益！`); renderPoints(); renderHearts();
+  }
+  function markPurchased(id, yes=true){
+    const map=JSON.parse(localStorage.getItem('purchases')||'{}'); map[id]=!!yes;
+    localStorage.setItem('purchases', JSON.stringify(map));
+    alert(`已標記 ${id} 為 ${yes?'已購買':'未購買'}`);
+  }
 
-/* -------- 首次載入：把 body 標記成 in/out 並進到對應頁 -------- */
-window.addEventListener('load', ()=>{
-  const loggedIn = !!localStorage.getItem('loggedIn');
-  setAuthState(loggedIn);
-  showPage(loggedIn ? 'home' : 'login');
-});
-</script>
+  /* ---------- DM gate & list ---------- */
+  function passActive(){
+    const start=localStorage.getItem('purchaseDate'); const dur=parseInt(localStorage.getItem('duration')||'0',10);
+    if(!start||dur<=0) return false;
+    const s=new Date(start), t=new Date(); s.setHours(0,0,0,0); t.setHours(0,0,0,0);
+    return Math.floor((t-s)/86400000) <= dur;
+  }
+  function renderDMList(){
+    const box=document.getElementById('dmListWrap'); const empty=document.getElementById('dmListEmpty');
+    const active=passActive();
+    const items=[...GROUPS, ...ARTISTS];
+    box.innerHTML = items.map(it=>`
+      <div class="card" onclick="enterDMFromList('${it.id}')">
+        <div class="row">
+          <img src="${it.avatar}">
+          <div>
+            <div><b>${it.name}</b></div>
+            <div class="badge ${(it.id==='group'?active:isPurchased(it.id))?'ok':'ng'}">${(it.id==='group'?active:isPurchased(it.id))?'可進入':'未開通'}</div>
+          </div>
+        </div>
+      </div>`).join('');
+    empty.style.display = (active || Object.values(JSON.parse(localStorage.getItem('purchases')||'{}')).some(Boolean)) ? 'none' : 'block';
+  }
+  function enterDMFromList(id){
+    if(id==='group'){ if(!passActive()) return showPage('wallet'); }
+    else if(!isPurchased(id)) return showPage('wallet');
+    openDM(id);
+  }
+
+  /* ---------- DM & Gallery ---------- */
+  function currentArtist(){ return localStorage.getItem('currentArtist') || 'group'; }
+  function dmKey(){ return `dm_${localStorage.getItem('userId')}_${currentArtist()}`; }
+  function galleryKey(){ return `gallery_${currentArtist()}`; }
+
+  function openDM(id){
+    localStorage.setItem('currentArtist', id||'group');
+    const title = id==='group' ? 'ALLDAY PROJECT — 團體 DM' : (ARTISTS.find(a=>a.id===id)?.name + ' — DM');
+    document.getElementById('dmTitle').textContent = title || 'DM';
+    showPage('dm');
+  }
+  function passStartTS(){ const d=localStorage.getItem('purchaseDate'); if(!d) return null; const s=new Date(d); s.setHours(0,0,0,0); return s.getTime(); }
+
+  function renderDM(){
+    if(!localStorage.getItem(dmKey())){
+      localStorage.setItem(dmKey(), JSON.stringify([{role:'artist',type:'text',text:'歡迎來到 DM！',trans:'Welcome to DM!',ts:Date.now()}]));
+    }
+    const list=JSON.parse(localStorage.getItem(dmKey())||'[]');
+    const showFrom = currentArtist()==='group' ? passStartTS() : (isPurchased(currentArtist())?0:Infinity);
+    const box=document.getElementById('dm-messages'); box.innerHTML='';
+
+    let lastDate='';
+    list.filter(m=>!showFrom || (m.ts||0)>=showFrom).forEach(m=>{
+      const d=new Date(m.ts||Date.now());
+      const D=`${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日`;
+      const hh=d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+      if(D!==lastDate){ const chip=document.createElement('div'); chip.className='date-chip'; chip.textContent=D; box.appendChild(chip); lastDate=D; }
+
+      const wrap=document.createElement('div'); wrap.className='msg '+(m.role==='fan'?'me':'artist');
+      if(m.type==='image'){
+        const img=new Image(); img.src=m.url; img.style="max-width:100%;border-radius:12px;border:1px solid var(--line)";
+        wrap.appendChild(img);
+        if(m.caption){ const c=document.createElement('div'); c.className='sub-balloon'; c.textContent=m.caption; wrap.appendChild(c); }
+      }else{
+        const main=document.createElement('div'); main.textContent=m.text||''; wrap.appendChild(main);
+        if(m.role==='artist' && m.trans){ const sub=document.createElement('div'); sub.className='sub-balloon'; sub.textContent=m.trans; wrap.appendChild(sub); }
+      }
+      const t=document.createElement('time'); t.textContent=hh; wrap.appendChild(t);
+      box.appendChild(wrap);
+    });
+    requestAnimationFrame(()=>{ box.scrollTop = box.scrollHeight; });
+  }
+  function sendMessage(){
+    const inp=document.getElementById('dmInput'); const t=(inp.value||'').trim(); if(!t) return;
+    const list=JSON.parse(localStorage.getItem(dmKey())||'[]');
+    list.push({role:'fan',type:'text',text:t,ts:Date.now()});
+    localStorage.setItem(dmKey(), JSON.stringify(list)); inp.value=''; renderDM();
+  }
+  function addArtistMessage(text,translation){
+    const dm=JSON.parse(localStorage.getItem(dmKey())||'[]'); dm.push({role:'artist',type:'text',text,trans:translation||'',ts:Date.now()});
+    localStorage.setItem(dmKey(), JSON.stringify(dm)); renderDM();
+  }
+  function addArtistImage(url,caption){
+    const dm=JSON.parse(localStorage.getItem(dmKey())||'[]'); dm.push({role:'artist',type:'image',url,caption:caption||'',ts:Date.now()});
+    localStorage.setItem(dmKey(), JSON.stringify(dm));
+    const gal=JSON.parse(localStorage.getItem(galleryKey())||'[]'); gal.push({url,caption:caption||'',ts:Date.now()});
+    localStorage.setItem(galleryKey(), JSON.stringify(gal)); renderDM();
+  }
+  function openGallery(){ showPage('gallery'); renderGallery(); }
+  function renderGallery(){
+    const grid=document.getElementById('galleryGrid');
+    const list=JSON.parse(localStorage.getItem(galleryKey())||'[]');
+    grid.innerHTML = list.length? list.slice().reverse().map(i=>`<img src="${i.url}" onerror="this.src='https://picsum.photos/400?ph'">`).join('') : '<div class="ghost">還沒有照片</div>';
+  }
+
+  /* ---------- Live ---------- */
+  function hostPushLive(text){
+    document.getElementById('liveHostMsg').textContent = text;
+    document.getElementById('liveHostTime').textContent = new Date().toLocaleString();
+  }
+  function fanSendLive(){
+    const inp=document.getElementById('liveInput'); const t=(inp.value||'').trim(); if(!t) return;
+    const box=document.getElementById('liveFans');
+    const item=document.createElement('div'); item.className='fan-item';
+    item.innerHTML=`<b>${localStorage.getItem('nickname')||'粉絲'}</b><div style="opacity:.9">${t}</div>
+                    <div style="font-size:12px;opacity:.6;margin-top:4px">${new Date().toLocaleTimeString()}</div>`;
+    box.appendChild(item); box.scrollTop=box.scrollHeight; inp.value='';
+  }
+
+  /* ---------- Hearts ---------- */
+  function renderHearts(){
+    const el=document.getElementById('heartDays'); if(!el) return;
+    const start=localStorage.getItem('purchaseDate'); const dur=parseInt(localStorage.getItem('duration')||'0',10);
+    if(!start||dur<=0){ el.textContent='+0'; return; }
+    const s=new Date(start), t=new Date(); s.setHours(0,0,0,0); t.setHours(0,0,0,0);
+    const n=Math.floor((t-s)/86400000); el.textContent = (n<=dur)?`+${n}`:'+0';
+  }
+
+  /* ---------- Boot ---------- */
+  window.addEventListener('load', ()=>{
+    const loggedIn = !!localStorage.getItem('loggedIn');
+    setAuthState(loggedIn);
+    if (loggedIn) showPage('home'); else showPage('login');
+  });
+  </script>
 </body>
 </html>
