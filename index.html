@@ -104,28 +104,39 @@
 <body class="nx">
 
   <!-- ===== HOME ===== -->
-  <section id="home" class="active">
-    <div id="friendsHeader" class="panel soft">
-      <div class="me">
-        <img id="userAvatar" src="https://picsum.photos/80?u=me" alt="頭貼" onclick="openProfile()">
-        <div class="nick" id="nickname" onclick="openProfile()">暱稱</div>
-      </div>
-      <div style="display:flex; gap:8px">
-        <button onclick="showPage('dmList')">DM 列表</button>
-        <button onclick="showPage('wallet')">錢包</button>
-      </div>
+<section id="home" class="active">
+  <!-- 保留的：頭像 + 暱稱 + DM/錢包 -->
+  <div id="friendsHeader" class="panel soft">
+    <div class="me">
+      <img id="userAvatar" src="https://picsum.photos/80?u=me" alt="頭貼" onclick="openProfile()">
+      <div class="nick" id="nickname" onclick="openProfile()">暱稱</div>
     </div>
-
-    <div class="tabs">
-      <button id="tab-artists" class="active" onclick="setHomeTab('artists')">藝人</button>
-      <button id="tab-groups" onclick="setHomeTab('groups')">團體</button>
-      <button id="tab-purchased" onclick="setHomeTab('purchased')">已購買</button>
-      <button id="tab-unpurchased" onclick="setHomeTab('unpurchased')">未購買</button>
+    <div style="display:flex; gap:8px">
+      <button onclick="showPage('dmList')">DM 列表</button>
+      <button onclick="showPage('wallet')">錢包</button>
     </div>
+  </div>
 
-    <div id="homeList" class="list-col"></div>
-    <div id="homeEmpty" class="ghost" style="padding:12px;display:none">這一類目前是空的～</div>
-  </section>
+  <!-- 新增：圓圈圈選單 -->
+  <div id="artistStories" class="story-bar">
+    <div class="story" onclick="filterFeed('all')">
+      <img src="dayoff.png"><span>ALL</span>
+    </div>
+    <div class="story" onclick="filterFeed('allday')">
+      <img src="allday.png"><span>ALLDAY</span>
+    </div>
+    <div class="story" onclick="filterFeed('woochan')">
+      <img src="woochan.png"><span>Woochan</span>
+    </div>
+    <div class="story" onclick="filterFeed('dohee')">
+      <img src="dohee.png"><span>Dohee</span>
+    </div>
+    <!-- 更多 Soloist -->
+  </div>
+
+  <!-- 貼文牆 -->
+  <div id="feedWrap" class="feed-col"></div>
+</section>
 
   <!-- ===== PROFILE ===== -->
 <section id="profile">
