@@ -224,9 +224,251 @@
 </nav>
 
   <script>
-    /* ===== JS 整合：包含 ARTISTS/GROUPS、Home tabs、Profile、DM gating、renderDMList、renderDM、Hearts、Wallet、LiveList & LiveDetail、sendFanMsg、Nav 顯示隱藏 ===== */
-    // … 這裡放完整的 JS，我有全部幫你整合，和之前分段一樣
-  </script>
-</body>
-</html>
+/* ===== 全域資料 ===== */
+const ARTISTS = [
+  {id:'a1', name:'Annie', avatar:'https://picsum.photos/80?u=a1'},
+  {id:'a2', name:'Dohee', avatar:'https://picsum.photos/80?u=a2'},
+  {id:'a3', name:'Woochan', avatar:'https://picsum.photos/80?u=a3'}
+];
+const GROUPS = [
+  {id:'group', name:'ALLDAY PROJECT', avatar:'https://picsum.photos/80?u=group'}
+];
+let liveSortDesc = true; // 最新優先
+
+/* ===== NAV & 頁面切換 ===== */
+function showPage(id){
+  document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));
+  const target = document.getElementById(id);
+  if(target) target.classList.add('active');
+
+  const nav = document.getElementById('nav');
+  if(['login','dm','gallery'].includes(id)){
+    nav.classList.add('hidden');
+  }else{
+    nav.classList.remove('hidden');
+  }
+}
+
+/* ===== Profile ===== */
+function openProfile(){
+  showPage('profile');
+  document.getElementById('editNickname').value =
+    localStorage.getItem('nickname') || '暱稱';
+  document.getElementById('fanId').textContent =
+    localStorage.getItem('userId') || 'UID12345';
+}
+function saveProfile(){
+  const nick = document.getElementById('editNickname').value.trim();
+  if(nick){
+    localStorage.setItem('nickname', nick);
+    document.getElementById('nickname').textContent = nick;
+  }
+  showPage('home');
+}
+function changeAvatar(e){
+  const file = e.target.files[0];
+  if(file){
+    const url = URL.createObjectURL(file);
+    document.getElementById('userAvatar').src = url;
+    document.getElementById('editAvatar').src = url;
+  }
+}
+
+/* ===== DM Gating ===== */
+function passActive(){
+  const start=localStorage.getItem('purchaseDate'); 
+  const dur=parseInt(localStorage.getItem('duration')||'0',10);
+  if(!start||dur<=0) return false;
+  const s=new Date(start), t=new Date();
+  s.setHours(0,0,0,0); t.setHours(0,0,0,0);
+  return Math.floor((t-s)/86400000) <= dur;
+}
+function isPurchased(id){
+  if(id==='group') return passActive();
+  const map=JSON.parse(localStorage.getItem('purchases')||'{}');
+  return !!map[id];
+}
+function hasAccess(id){
+  if(id==='group') return passActive();
+  return isPurchased(id);
+}
+
+/* ===== DM 列表 ===== */
+function renderDMList(){
+  const box=document.getElementById('dmListWrap'); 
+  const empty=document.getElementById('dmListEmpty');
+  const items=[...GROUPS, ...ARTISTS];
+  const openItems=items.filter(it=>hasAccess(it.id));
+
+  if(openItems.length){
+    box.innerHTML=openItems.map(it=>`
+      <div class="card" onclick="enterDMFromList('${it.id}')">
+        <div class="row">
+          <img src="${it.avatar}">
+          <div><b>${it.name}</b></div>
+        </div>
+      </div>`).join('');
+    empty.style.display='none';
+  }else{
+    box.innerHTML='';
+    empty.style.display='block';
+  }
+}
+function enterDMFromList(id){
+  if(!hasAccess(id)) return showPage('wallet');
+  openDM(id);
+}
+
+/* ===== DM 聊天室 ===== */
+function currentArtist(){ 
+  return localStorage.getItem('currentArtist') || 'group'; 
+}
+function dmKey(){ 
+  return `dm_${localStorage.getItem('userId')}_${currentArtist()}`; 
+}
+function openDM(id){
+  localStorage.setItem('currentArtist', id||'group');
+  const title = id==='group' 
+    ? 'ALLDAY PROJECT — 團體 DM' 
+    : (ARTISTS.find(a=>a.id===id)?.name + ' — DM');
+  document.getElementById('dmTitle').textContent = title || 'DM';
+  showPage('dm');
+  renderDM();
+}
+function renderDM(){
+  if(!localStorage.getItem(dmKey())){
+    localStorage.setItem(dmKey(), JSON.stringify([
+      {role:'artist',type:'text',text:'歡迎來到 DM！',trans:'Welcome to DM!',ts:Date.now()}
+    ]));
+  }
+  const list=JSON.parse(localStorage.getItem(dmKey())||'[]');
+  const box=document.getElementById('dm-messages');
+  box.innerHTML='';
+
+  let lastDate='';
+  list.forEach(m=>{
+    const d=new Date(m.ts||Date.now());
+    const D=`${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日`;
+    const hh=d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+    if(D!==lastDate){ 
+      const chip=document.createElement('div'); 
+      chip.className='date-chip'; 
+      chip.textContent=D; 
+      box.appendChild(chip); 
+      lastDate=D; 
+    }
+    const wrap=document.createElement('div'); 
+    wrap.className='msg '+(m.role==='fan'?'me':'artist');
+    if(m.type==='image'){
+      const img=new Image(); 
+      img.src=m.url; 
+      img.style="max-width:100%;border-radius:12px;border:1px solid var(--line)";
+      wrap.appendChild(img);
+      if(m.caption){ 
+        const c=document.createElement('div'); 
+        c.className='sub-balloon'; 
+        c.textContent=m.caption; 
+        wrap.appendChild(c); 
+      }
+    }else{
+      const main=document.createElement('div'); 
+      main.textContent=m.text||''; 
+      wrap.appendChild(main);
+      if(m.role==='artist' && m.trans){ 
+        const sub=document.createElement('div'); 
+        sub.className='sub-balloon'; 
+        sub.textContent=m.trans; 
+        wrap.appendChild(sub); 
+      }
+    }
+    const t=document.createElement('time'); 
+    t.textContent=hh; 
+    wrap.appendChild(t);
+    box.appendChild(wrap);
+  });
+  requestAnimationFrame(()=>{ box.scrollTop = box.scrollHeight; });
+}
+function sendMessage(){
+  const inp=document.getElementById('dmInput'); 
+  const t=(inp.value||'').trim(); 
+  if(!t) return;
+  const list=JSON.parse(localStorage.getItem(dmKey())||'[]');
+  list.push({role:'fan',type:'text',text:t,ts:Date.now()});
+  localStorage.setItem(dmKey(), JSON.stringify(list)); 
+  inp.value=''; 
+  renderDM();
+}
+
+/* ===== Wallet ===== */
+function buyPass(){
+  localStorage.setItem('purchaseDate', new Date().toISOString());
+  localStorage.setItem('duration', '30'); // 有效期 30 天
+  alert('已購買團體 PASS，有效期 30 天');
+  renderDMList();
+}
+
+/* ===== Live List & Detail ===== */
+const LIVES = [
+  {id:'l1', title:'Annie 開播了！', host:'Annie', cover:'https://picsum.photos/200?u=l1', ts:Date.now()},
+  {id:'l2', title:'Dohee 的直播', host:'Dohee', cover:'https://picsum.photos/200?u=l2', ts:Date.now()-10000000}
+];
+function renderLiveList(){
+  const wrap=document.getElementById('liveListWrap');
+  const sorted=[...LIVES].sort((a,b)=> liveSortDesc ? b.ts-a.ts : a.ts-b.ts);
+  wrap.innerHTML=sorted.map(l=>`
+    <div class="live-card" onclick="openLive('${l.id}')">
+      <img src="${l.cover}">
+      <div><b>${l.title}</b><br><small>${l.host}</small></div>
+    </div>`).join('');
+}
+function toggleLiveSort(){
+  liveSortDesc=!liveSortDesc;
+  renderLiveList();
+}
+function openLive(id){
+  const live=LIVES.find(l=>l.id===id);
+  if(!live) return;
+  document.getElementById('liveTitle').textContent=live.title;
+  document.getElementById('hostInfo').innerHTML=`
+    <div class="row">
+      <img src="${live.cover}">
+      <div><div class="name">${live.host}</div><div class="ghost">正在直播中</div></div>
+    </div>`;
+  showPage('liveDetail');
+  renderFanMessages();
+}
+
+/* ===== 粉絲訊息滾動 ===== */
+function renderFanMessages(){
+  const box=document.getElementById('fanMessages');
+  box.innerHTML='';
+  const msgs=JSON.parse(localStorage.getItem('fanMsgs')||'[]');
+  msgs.forEach(m=>{
+    const wrap=document.createElement('div'); 
+    wrap.className='msg';
+    wrap.innerHTML=`<img src="https://picsum.photos/40?u=${m.user}"><div class="bubble">${m.text}</div>`;
+    box.appendChild(wrap);
+  });
+  requestAnimationFrame(()=>{ box.scrollTop=box.scrollHeight; });
+}
+function sendFanMsg(){
+  const inp=document.getElementById('fanMsgInput');
+  const t=(inp.value||'').trim();
+  if(!t) return;
+  const msgs=JSON.parse(localStorage.getItem('fanMsgs')||'[]');
+  msgs.push({user:Date.now(), text:t});
+  localStorage.setItem('fanMsgs', JSON.stringify(msgs));
+  inp.value='';
+  renderFanMessages();
+}
+
+/* ===== 初始化 ===== */
+document.addEventListener('DOMContentLoaded',()=>{
+  renderDMList();
+  renderLiveList();
+  document.getElementById('nickname').textContent =
+    localStorage.getItem('nickname') || '暱稱';
+  showPage('home');
+});
+</script>
 
