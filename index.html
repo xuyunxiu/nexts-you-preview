@@ -475,19 +475,200 @@ function sendMessage(){
   inp.value=''; 
   renderDM();
 }
-    /* ===== Live ===== */
-    function hostPushLive(text){
-      document.getElementById('liveHostMsg').textContent = text;
-      document.getElementById('liveHostTime').textContent = new Date().toLocaleString();
-    }
-    function fanSendLive(){
-      const inp=document.getElementById('liveInput'); const t=(inp.value||'').trim(); if(!t) return;
-      const box=document.getElementById('liveFans');
-      const item=document.createElement('div'); item.className='fan-item';
-      item.innerHTML=`<b>${localStorage.getItem('nickname')||'粉絲'}</b><div style="opacity:.9">${t}</div>
-                      <div style="font-size:12px;opacity:.6;margin-top:4px">${new Date().toLocaleTimeString()}</div>`;
-      box.appendChild(item); box.scrollTop=box.scrollHeight; inp.value='';
-    }
+    <style>
+/* ===== LIVE 區塊通用 ===== */
+.live-card {
+  display: flex; 
+  align-items: center; 
+  padding: 10px; 
+  border-bottom: 1px solid var(--line, #ddd);
+  cursor: pointer;
+}
+.live-card img {
+  width: 100px; 
+  height: 60px; 
+  border-radius: 8px; 
+  object-fit: cover; 
+  margin-right: 10px;
+}
+.live-card div b {
+  font-size: 16px;
+  color: var(--text, #111);
+}
+.live-card div small {
+  font-size: 13px; 
+  color: var(--subtext, #666);
+}
+
+/* ===== 詳情頁 Host 卡片 ===== */
+.host-card {
+  padding: 12px; 
+  border-bottom: 1px solid var(--line, #ddd);
+  background: var(--card, #fafafa);
+}
+.host-card .row {
+  display: flex; 
+  align-items: center; 
+  gap: 10px;
+}
+.host-card img {
+  width: 48px; 
+  height: 48px; 
+  border-radius: 50%;
+}
+.host-card .name {
+  font-size: 17px; 
+  font-weight: bold; 
+  margin-bottom: 4px;
+}
+
+/* ===== 粉絲訊息滾動區 ===== */
+#fanMessages {
+  height: 50vh; 
+  overflow-y: auto; 
+  padding: 10px; 
+  background: var(--bg, #fff);
+}
+.msg {
+  display: flex; 
+  align-items: flex-start; 
+  margin-bottom: 10px;
+}
+.msg img {
+  width: 32px; 
+  height: 32px; 
+  border-radius: 50%; 
+  margin-right: 8px;
+}
+.bubble {
+  background: var(--hover, #f1f1f1);
+  padding: 8px 12px; 
+  border-radius: 12px; 
+  max-width: 70%;
+  font-size: 14px;
+}
+
+/* ===== 粉絲輸入框 ===== */
+#fanInput {
+  display: flex; 
+  border-top: 1px solid var(--line, #ddd); 
+  padding: 8px; 
+  background: var(--bg, #fff);
+}
+#fanMsgInput {
+  flex: 1; 
+  border: 1px solid var(--line, #ccc); 
+  border-radius: 12px; 
+  padding: 8px 12px;
+}
+#fanInput button {
+  margin-left: 8px; 
+  padding: 8px 14px; 
+  border: none; 
+  border-radius: 12px; 
+  background: linear-gradient(180deg, var(--accent,#ff4d6d), var(--accent-2,#ff1f4b));
+  color: #fff; 
+  cursor: pointer;
+}
+</style>
+
+<!-- ===== LIVE LIST (直播列表頁) ===== -->
+<section id="liveList">
+  <h2 style="display:flex;justify-content:space-between;align-items:center">
+    <span>LIVE 重播</span>
+    <select id="sortSelect" onchange="renderLiveList()">
+      <option value="new">最新優先</option>
+      <option value="old">最舊優先</option>
+    </select>
+  </h2>
+  <div id="liveListWrap"></div>
+</section>
+
+<!-- ===== LIVE DETAIL (直播詳情頁) ===== -->
+<section id="liveDetail" style="display:none">
+  <div class="host-card">
+    <div class="row">
+      <img id="hostAvatar" src="">
+      <div>
+        <div class="name" id="hostName"></div>
+        <div id="hostContent"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 粉絲訊息滾動 -->
+  <div id="fanMessages"></div>
+
+  <!-- 下方輸入框 -->
+  <div id="fanInput">
+    <input type="text" id="fanMsgInput" placeholder="發送留言..." />
+    <button onclick="sendFanMsg()">送出</button>
+  </div>
+</section>
+
+<script>
+/* ===== 假資料：直播紀錄 ===== */
+const LIVES = [
+  {id:1, name:"Zero", content:"안녕", date:"2025-09-09", avatar:"https://picsum.photos/200/120?random=1"},
+  {id:2, name:"Woochan", content:"BLANK", date:"2025-09-07", avatar:"https://picsum.photos/200/120?random=2"},
+  {id:3, name:"Dohee", content:"LIVE TEST", date:"2025-09-05", avatar:"https://picsum.photos/200/120?random=3"}
+];
+
+/* ===== 渲染直播列表 ===== */
+function renderLiveList(){
+  const wrap=document.getElementById('liveListWrap');
+  const sort=document.getElementById('sortSelect').value;
+  let items=[...LIVES];
+
+  items.sort((a,b)=>{
+    return sort==='new'
+      ? new Date(b.date)-new Date(a.date)
+      : new Date(a.date)-new Date(b.date);
+  });
+
+  wrap.innerHTML=items.map(l=>`
+    <div class="live-card" onclick="enterLive('${l.name}','${l.content}','${l.avatar}')">
+      <img src="${l.avatar}">
+      <div>
+        <b>${l.name}</b>
+        <small>${l.content} · ${l.date}</small>
+      </div>
+    </div>`).join('');
+}
+
+/* ===== 切換頁面 ===== */
+function showPage(id){
+  document.querySelectorAll('section').forEach(s=>s.style.display='none');
+  document.getElementById(id).style.display='block';
+}
+
+/* ===== 進入直播詳情 ===== */
+function enterLive(name, content, avatar){
+  document.getElementById('hostName').textContent=name;
+  document.getElementById('hostContent').textContent=content;
+  document.getElementById('hostAvatar').src=avatar || "https://picsum.photos/40";
+  document.getElementById('fanMessages').innerHTML=""; // 清空歷史留言
+  showPage('liveDetail');
+}
+
+/* ===== 發送粉絲訊息 ===== */
+function sendFanMsg(){
+  const input=document.getElementById('fanMsgInput');
+  const text=input.value.trim();
+  if(!text) return;
+  const fanMessages=document.getElementById('fanMessages');
+  const div=document.createElement('div');
+  div.className='msg';
+  div.innerHTML=`
+    <img src="https://picsum.photos/32?random=${Math.floor(Math.random()*100)}">
+    <div class="bubble">${text}</div>`;
+  fanMessages.appendChild(div);
+  input.value='';
+  fanMessages.scrollTop=fanMessages.scrollHeight;
+}
+
+/* ===== 初始 ===== */
+window.addEventListener('load',renderLiveList);
 
     /* ===== Hearts ===== */
     function renderHearts(){
