@@ -129,51 +129,38 @@
 
   <!-- ===== PROFILE ===== -->
 <section id="profile">
-  <div class="topbar"><h2>我的個人頁</h2></div>
-  <div class="panel soft" style="text-align:center">
-    <img id="editAvatar" src="https://picsum.photos/160?u=me" 
-         style="width:96px;height:96px;border-radius:20px;object-fit:cover; border:1px solid var(--line)">
-    <br/>
-    <div style="margin:10px 0">
-      <input type="file" id="avatarInput" accept="image/*" onchange="changeAvatar(event)">
+  <!-- 背景大圖 -->
+  <div id="profileBgWrap" style="position:relative; height:180px; overflow:hidden; border-radius:0 0 20px 20px">
+    <img id="profileBg" src="https://picsum.photos/600/200?blur" 
+         style="width:100%; height:100%; object-fit:cover; cursor:pointer" 
+         onclick="document.getElementById('bgInput').click()">
+    <input type="file" id="bgInput" accept="image/*" style="display:none" onchange="changeBg(event)">
+    
+    <!-- 頭像 -->
+    <div style="position:absolute; left:50%; bottom:-48px; transform:translateX(-50%);">
+      <img id="editAvatar" src="https://picsum.photos/160?u=me" 
+           style="width:96px;height:96px;border-radius:50%;object-fit:cover; border:3px solid #fff; cursor:pointer"
+           onclick="document.getElementById('avatarInput').click()">
+      <input type="file" id="avatarInput" accept="image/*" style="display:none" onchange="changeAvatar(event)">
     </div>
-    <div style="display:flex; gap:8px; justify-content:center">
-      <input type="text" id="editNickname" placeholder="輸入暱稱" 
-             style="width:70%;max-width:320px; border:1px solid var(--line); border-radius:12px; padding:10px; background:var(--hover); color:var(--text)">
-      <button class="btn btn-red" onclick="saveProfile()" 
-              style="border:none; border-radius:12px; padding:10px 14px; background:linear-gradient(180deg,var(--accent),var(--accent-2)); color:#fff">
-        儲存
-      </button>
-    </div>
+  </div>
+
+  <!-- 名字 + ID -->
+  <div style="margin-top:60px; text-align:center">
+    <input type="text" id="editNickname" placeholder="輸入暱稱"
+           style="width:70%;max-width:320px; border:1px solid var(--line); border-radius:12px; padding:10px; background:var(--hover); color:var(--text)">
+    <button class="btn btn-red" onclick="saveProfile()" 
+            style="border:none; border-radius:12px; padding:10px 14px; background:linear-gradient(180deg,var(--accent),var(--accent-2)); color:#fff">
+      儲存
+    </button>
     <p class="ghost" style="margin:10px 0 0"><b>粉絲 ID：</b><span id="fanId"></span></p>
-    <div style="margin-top:10px">
-      <button class="btn" onclick="showPage('home')" 
-              style="border:1px solid var(--line); border-radius:12px; padding:10px 14px; background:var(--card); color:var(--text)">
-        返回 Friends
-      </button>
-    </div>
   </div>
-</section>
 
-<!-- ===== DM LIST ===== -->
-<section id="dmList">
-  <div class="topbar"><h2>Messages</h2></div>
-  <div id="dmListWrap" class="list-col"></div>
-  <div id="dmListEmpty" class="ghost">目前沒有已開通的 DM</div>
-</section>
-
-<!-- ===== DM CHAT ===== -->
-<section id="dm">
-  <div class="topbar">
-    <button class="menu-btn" onclick="showPage('dmList')">←</button>
-    <div class="dm-top"><h2 id="dmTitle" class="dm-title">DM</h2></div>
-  </div>
-  <div class="dm-wrap">
-    <div id="dm-messages" class="dm-messages"></div>
-    <div class="dm-input">
-      <input id="dmInput" placeholder="輸入訊息…">
-      <button onclick="sendMessage()">➤</button>
-    </div>
+  <!-- ===== 錢包合併在這裡 ===== -->
+  <div id="walletWrap" class="panel soft" style="margin-top:20px">
+    <h3>錢包</h3>
+    <p>目前點數：<b id="points">0</b></p>
+    <button class="btn btn-red" onclick="buyPass()">購買團體 PASS</button>
   </div>
 </section>
 
@@ -249,48 +236,28 @@ function showPage(id){
   }
 }
 
-/* ===== Profile ===== */
-function openProfile(){
-  showPage('profile');
-  document.getElementById('editNickname').value =
-    localStorage.getItem('nickname') || '暱稱';
-  document.getElementById('fanId').textContent =
-    localStorage.getItem('userId') || 'UID12345';
-}
-function saveProfile(){
-  const nick = document.getElementById('editNickname').value.trim();
-  if(nick){
-    localStorage.setItem('nickname', nick);
-    document.getElementById('nickname').textContent = nick;
-  }
-  showPage('home');
-}
+<!-- ===== PROFILE ===== -->
 function changeAvatar(e){
   const file = e.target.files[0];
   if(file){
     const url = URL.createObjectURL(file);
-    document.getElementById('userAvatar').src = url;
     document.getElementById('editAvatar').src = url;
+    localStorage.setItem('avatar', url);
   }
 }
-
-/* ===== DM Gating ===== */
-function passActive(){
-  const start=localStorage.getItem('purchaseDate'); 
-  const dur=parseInt(localStorage.getItem('duration')||'0',10);
-  if(!start||dur<=0) return false;
-  const s=new Date(start), t=new Date();
-  s.setHours(0,0,0,0); t.setHours(0,0,0,0);
-  return Math.floor((t-s)/86400000) <= dur;
+function changeBg(e){
+  const file = e.target.files[0];
+  if(file){
+    const url = URL.createObjectURL(file);
+    document.getElementById('profileBg').src = url;
+    localStorage.setItem('profileBg', url);
+  }
 }
-function isPurchased(id){
-  if(id==='group') return passActive();
-  const map=JSON.parse(localStorage.getItem('purchases')||'{}');
-  return !!map[id];
-}
-function hasAccess(id){
-  if(id==='group') return passActive();
-  return isPurchased(id);
+function loadProfile(){
+  const avatar = localStorage.getItem('avatar');
+  const bg = localStorage.getItem('profileBg');
+  if(avatar) document.getElementById('editAvatar').src = avatar;
+  if(bg) document.getElementById('profileBg').src = bg;
 }
 
 /* ===== DM 列表 ===== */
