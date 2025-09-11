@@ -128,28 +128,61 @@
   </section>
 
   <!-- ===== PROFILE ===== -->
-  <section id="profile">…</section>
+<section id="profile">
+  <div class="topbar"><h2>我的個人頁</h2></div>
+  <div class="panel soft" style="text-align:center">
+    ...
+  </div>
+</section>
 
-  <!-- ===== DM LIST ===== -->
-  <section id="dmList">…</section>
+<!-- ===== DM LIST ===== -->
+<section id="dmList">
+  <div class="topbar"><h2>Messages</h2></div>
+  <div id="dmListWrap" class="list-col"></div>
+  <div id="dmListEmpty" class="ghost">目前沒有已開通的 DM</div>
+</section>
 
-  <!-- ===== DM CHAT ===== -->
-  <section id="dm">…</section>
+<!-- ===== DM CHAT ===== -->
+<section id="dm">
+  <div class="topbar">
+    ...
+  </div>
+  <div class="dm-wrap">
+    <div id="dm-messages" class="dm-messages"></div>
+    <div class="dm-input">
+      <input id="dmInput" placeholder="輸入訊息…">
+      <button onclick="sendMessage()">➤</button>
+    </div>
+  </div>
+</section>
 
-  <!-- ===== GALLERY ===== -->
-  <section id="gallery">…</section>
+<!-- ===== GALLERY ===== -->
+<section id="gallery">
+  ...
+</section>
 
-  <!-- ===== LIVE LIST ===== -->
-  <section id="liveList">…</section>
+<!-- ===== LIVE LIST ===== -->
+<section id="liveList">
+  ...
+</section>
 
-  <!-- ===== LIVE DETAIL ===== -->
-  <section id="liveDetail">…</section>
+<!-- ===== LIVE DETAIL ===== -->
+<section id="liveDetail">
+  ...
+</section>
 
-  <!-- ===== WALLET ===== -->
-  <section id="wallet">…</section>
+<!-- ===== WALLET ===== -->
+<section id="wallet">
+  ...
+</section>
 
   <!-- ===== NAV ===== -->
-  <nav id="nav">…</nav>
+<nav id="nav" class="hidden">
+  <button onclick="showPage('home')">首頁</button>
+  <button onclick="showPage('dmList')">DM</button>
+  <button onclick="showPage('liveList')">直播</button>
+  <button onclick="showPage('wallet')">錢包</button>
+</nav>
 
   <script>
     /* ===== JS 整合：包含 ARTISTS/GROUPS、Home tabs、Profile、DM gating、renderDMList、renderDM、Hearts、Wallet、LiveList & LiveDetail、sendFanMsg、Nav 顯示隱藏 ===== */
