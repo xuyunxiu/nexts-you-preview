@@ -243,21 +243,25 @@
     }
 
     /* ===== Routing ===== */
-    function showPage(id){
-      document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));
-      const sec = document.getElementById(id); if(sec) sec.classList.add('active');
+function showPage(id){
+  // 切換 section 顯示
+  document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));
+  const sec=document.getElementById(id);
+  if(sec) sec.classList.add('active');
 
-      toggleNavByPage(id);
+  toggleNavByPage(id);
 
-      if(id==='home'){ renderProfile(); setHomeTab(HOME_TAB||'artists'); }
-      if(id==='dmList'){ renderDMList(); }
-      if(id==='dm'){ renderHearts(); renderDM(); }
-      if(id==='gallery'){ renderGallery(); }
-      if(id==='wallet'){ renderPoints(); }
-      if(id==='profile'){ prepProfile(); }
-      // 確保滾回頂端
-      window.scrollTo({top:0, behavior:'instant'});
-    }
+  if(id==='home'){ renderProfile(); setHomeTab(HOME_TAB||'artists'); }
+  if(id==='dmList'){ renderDMList(); }
+  if(id==='dm'){ renderHearts(); renderDM(); }
+  if(id==='gallery'){ renderGallery(); }
+  if(id==='wallet'){ renderPoints(); }
+  if(id==='profile'){ prepProfile(); }
+  if(id==='liveList'){ renderLiveList(); } // ← 新增直播列表
+  if(id==='liveDetail'){ /* 直播詳情頁不需要額外 render */ }
+
+  window.scrollTo({top:0, behavior:'instant'});
+}
 
     /* ===== Profile ===== */
     function renderProfile(){
@@ -348,6 +352,7 @@ function passActive(){
 
 /* 判斷單一成員是否已購買 */
 function isPurchased(id){
+  if(id==='group') return passActive(); // ← 群組走 passActive
   const map=JSON.parse(localStorage.getItem('purchases')||'{}');
   return !!map[id];
 }
@@ -474,8 +479,8 @@ function sendMessage(){
   localStorage.setItem(dmKey(), JSON.stringify(list)); 
   inp.value=''; 
   renderDM();
-}
-    <style>
+</script> 
+  <style>
 /* ===== LIVE 區塊通用 ===== */
 .live-card {
   display: flex; 
