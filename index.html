@@ -131,7 +131,27 @@
 <section id="profile">
   <div class="topbar"><h2>我的個人頁</h2></div>
   <div class="panel soft" style="text-align:center">
-    ...
+    <img id="editAvatar" src="https://picsum.photos/160?u=me" 
+         style="width:96px;height:96px;border-radius:20px;object-fit:cover; border:1px solid var(--line)">
+    <br/>
+    <div style="margin:10px 0">
+      <input type="file" id="avatarInput" accept="image/*" onchange="changeAvatar(event)">
+    </div>
+    <div style="display:flex; gap:8px; justify-content:center">
+      <input type="text" id="editNickname" placeholder="輸入暱稱" 
+             style="width:70%;max-width:320px; border:1px solid var(--line); border-radius:12px; padding:10px; background:var(--hover); color:var(--text)">
+      <button class="btn btn-red" onclick="saveProfile()" 
+              style="border:none; border-radius:12px; padding:10px 14px; background:linear-gradient(180deg,var(--accent),var(--accent-2)); color:#fff">
+        儲存
+      </button>
+    </div>
+    <p class="ghost" style="margin:10px 0 0"><b>粉絲 ID：</b><span id="fanId"></span></p>
+    <div style="margin-top:10px">
+      <button class="btn" onclick="showPage('home')" 
+              style="border:1px solid var(--line); border-radius:12px; padding:10px 14px; background:var(--card); color:var(--text)">
+        返回 Friends
+      </button>
+    </div>
   </div>
 </section>
 
@@ -145,7 +165,8 @@
 <!-- ===== DM CHAT ===== -->
 <section id="dm">
   <div class="topbar">
-    ...
+    <button class="menu-btn" onclick="showPage('dmList')">←</button>
+    <div class="dm-top"><h2 id="dmTitle" class="dm-title">DM</h2></div>
   </div>
   <div class="dm-wrap">
     <div id="dm-messages" class="dm-messages"></div>
@@ -158,22 +179,40 @@
 
 <!-- ===== GALLERY ===== -->
 <section id="gallery">
-  ...
+  <div class="topbar"><h2>相簿</h2></div>
+  <div id="galleryGrid"></div>
 </section>
 
 <!-- ===== LIVE LIST ===== -->
 <section id="liveList">
-  ...
+  <div class="topbar">
+    <h2>直播列表</h2>
+    <button class="btn" onclick="toggleLiveSort()">排序</button>
+  </div>
+  <div id="liveListWrap"></div>
 </section>
 
 <!-- ===== LIVE DETAIL ===== -->
 <section id="liveDetail">
-  ...
+  <div class="topbar">
+    <button class="menu-btn" onclick="showPage('liveList')">←</button>
+    <h2 id="liveTitle">直播中</h2>
+  </div>
+  <div id="hostInfo" class="host-card"></div>
+  <div id="fanMessages"></div>
+  <div id="fanInput">
+    <input id="fanMsgInput" placeholder="輸入留言…">
+    <button onclick="sendFanMsg()">送出</button>
+  </div>
 </section>
 
 <!-- ===== WALLET ===== -->
 <section id="wallet">
-  ...
+  <div class="topbar"><h2>錢包</h2></div>
+  <div id="walletWrap" class="panel soft">
+    <p>目前點數：<b id="points">0</b></p>
+    <button class="btn btn-red" onclick="buyPass()">購買團體 PASS</button>
+  </div>
 </section>
 
   <!-- ===== NAV ===== -->
