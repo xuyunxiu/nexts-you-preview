@@ -31,6 +31,10 @@
     #friendsHeader img{width:48px; height:48px; border-radius:50%; object-fit:cover; border:1px solid var(--line)}
     #friendsHeader .nick{font-weight:800}
 
+#nav, #storyBar {
+  transition: transform 0.3s ease;
+}
+    
    /* ===== Story bar ===== */
 .story-bar {
   display: flex;
@@ -658,6 +662,26 @@ document.addEventListener('DOMContentLoaded', ()=>{
   renderStoryBar();
   renderFeed();
   showPage('home');
+});
+
+  /* ===== 首頁滾動時隱藏/顯示 nav + story bar ===== */
+let lastScroll = 0;
+window.addEventListener('scroll', ()=>{
+  const nav = document.getElementById('nav');
+  const story = document.getElementById('storyBar');
+  const current = window.scrollY;
+
+  if(current > lastScroll + 5){ 
+    // 往下滑 → 隱藏
+    nav.style.transform = 'translateY(100%)';
+    story.style.transform = 'translateY(-100%)';
+  } else if(current < lastScroll - 5){
+    // 往上滑 → 顯示
+    nav.style.transform = 'translateY(0)';
+    story.style.transform = 'translateY(0)';
+  }
+
+  lastScroll = current;
 });
 </script>
 </body>
