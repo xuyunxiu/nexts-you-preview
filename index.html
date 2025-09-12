@@ -1,272 +1,300 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8" />
-  <title>NEXT'S YOU — App</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <style>
-    /* ===== Theme ===== */
-    body.nx{
-      --bg:#0f0f12; --card:#16181d; --hover:#1b1e24; --line:rgba(255,255,255,.06);
-      --text:#f6f7fb; --sub:#b5bac7; --muted:#8c92a1;
-      --accent:#ff2d55; --accent-2:#ff3b63; --ok:#2ecc71; --ng:#ff5a5f;
-      --r:16px; --shadow: 12px 18px 40px rgba(0,0,0,.45);
-      margin:0; color:var(--text); background:var(--bg);
-      -webkit-font-smoothing:antialiased; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
-    }
-    .panel,.card,.product{background:var(--card); border:1px solid var(--line); border-radius:var(--r); box-shadow:var(--shadow)}
-    .panel.soft{padding:16px}
+<meta charset="UTF-8" />
+<title>NEXT'S YOU — App</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 
-    /* ===== Sections ===== */
-    section{display:none; padding:16px 16px 96px}
-    section.active{display:block; animation:fadeIn .24s ease}
-    @keyframes fadeIn{from{opacity:0; transform:translateY(6px)} to{opacity:1; transform:none}}
-    h2,h3,p{margin:0}
-    .ghost{opacity:.75; color:var(--sub)}
-    .list-col{display:grid; gap:12px}
+<!-- =========================
+=  CSS：主題與共用基礎樣式  =
+========================== -->
+<style>
+  /* ===== Theme ===== */
+  body.nx{
+    --bg:#0f0f12; --card:#16181d; --hover:#1b1e24; --line:rgba(255,255,255,.06);
+    --text:#f6f7fb; --sub:#b5bac7; --muted:#8c92a1;
+    --accent:#ff2d55; --accent-2:#ff3b63; --ok:#2ecc71; --ng:#ff5a5f;
+    --r:16px; --shadow: 12px 18px 40px rgba(0,0,0,.45);
+    margin:0; color:var(--text); background:var(--bg);
+    -webkit-font-smoothing:antialiased; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+  }
+  .panel,.card{background:var(--card); border:1px solid var(--line); border-radius:var(--r); box-shadow:var(--shadow)}
+  .panel.soft,.card.soft{padding:16px}
+  section{display:none; padding:16px 16px 96px}
+  section.active{display:block; animation:fadeIn .24s ease}
+  @keyframes fadeIn{from{opacity:0; transform:translateY(6px)} to{opacity:1; transform:none}}
+  h2,h3,p{margin:0}
+  .ghost{opacity:.75; color:var(--sub)}
+  .row{display:flex; align-items:center; gap:12px}
+  .topbar{display:flex; align-items:center; gap:12px; margin-bottom:10px}
+  .menu-btn{width:40px; height:40px; border-radius:12px; border:1px solid var(--line); background:var(--card); color:var(--text); cursor:pointer}
 
-    /* ===== Home header ===== */
-    #friendsHeader{display:flex; justify-content:space-between; align-items:center; gap:12px}
-    #friendsHeader .me{display:flex; align-items:center; gap:12px}
-    #friendsHeader img{width:48px; height:48px; border-radius:50%; object-fit:cover; border:1px solid var(--line)}
-    #friendsHeader .nick{font-weight:800}
+  /* ===== Nav & StoryBar 動畫 ===== */
+  #nav, #storyBar { transition: transform .3s ease; }
 
-#nav, #storyBar {
-  transition: transform 0.3s ease;
+  /* ===== Home header ===== */
+  #friendsHeader{display:flex; justify-content:space-between; align-items:center; gap:12px}
+  #friendsHeader .me{display:flex; align-items:center; gap:12px; cursor:pointer}
+  #friendsHeader img{width:48px; height:48px; border-radius:50%; object-fit:cover; border:1px solid var(--line)}
+  #friendsHeader .nick{font-weight:800}
+
+  /* ===== Story bar ===== */
+  .story-bar{display:flex; gap:14px; padding:12px; overflow-x:auto}
+  .story-item{flex:0 0 auto; text-align:center; cursor:pointer}
+  .story-avatar{width:60px; height:60px; border-radius:50%; border:2px solid orange; object-fit:cover}
+  .story-name{margin-top:4px; font-size:12px; color:var(--sub)}
+
+  /* ===== 文章卡片 ===== */
+  .post-card img.hero{width:100%; border-radius:12px; margin-top:8px}
+  .translate-chip{margin-left:auto; border:1px solid var(--line); background:var(--hover); border-radius:12px; padding:6px 10px; font-size:12px; cursor:pointer}
+
+  /* ===== Reaction 列 ===== */
+  .reactions{display:flex; flex-wrap:wrap; gap:10px; margin-top:10px}
+  .reaction{display:flex; align-items:center; gap:6px; padding:6px 10px; border:1px solid var(--line); border-radius:999px; background:var(--hover); cursor:pointer}
+  .reaction .count{font-weight:700}
+.reaction.active {
+  background: var(--accent);
+  color: #fff;
+  transform: scale(1.05);
+  transition: .15s;
 }
-    
-   /* ===== Story bar ===== */
-.story-bar {
-  display: flex;
-  gap: 14px;   /* 間距 */
-  padding: 12px;
-  overflow-x: auto;
-}
 
-.story-item {
-  flex: 0 0 auto;
-  text-align: center;
-  cursor: pointer;
-}
+  /* ===== 留言區 ===== */
+  .comments-head{display:flex; align-items:center; justify-content:space-between; margin:8px 0 12px}
+  .comments-left{display:flex; align-items:center; gap:10px}
+  .refresh-btn{width:22px; height:22px; border-radius:50%; border:1px solid var(--line); display:flex; align-items:center; justify-content:center; cursor:pointer}
+  .switch{position:relative; width:44px; height:24px}
+  .switch input{opacity:0; width:0; height:0}
+  .slider{position:absolute; cursor:pointer; inset:0; background:#333; border-radius:999px; transition:.2s}
+  .slider:before{content:""; position:absolute; height:18px; width:18px; left:3px; top:3px; background:#fff; border-radius:50%; transition:.2s}
+  .switch input:checked + .slider{background:var(--accent)}
+  .switch input:checked + .slider:before{transform:translateX(20px)}
+  .citem{border:1px solid var(--line); border-radius:12px; padding:10px; background:linear-gradient(180deg, var(--card), var(--hover)); margin-bottom:10px}
+  .citem.artist{background:linear-gradient(180deg, #2a1a1f, #3b1f29); border-color:#ff8aa2} /* 藝人回覆：不同顏色 */
+  .citem .u{display:flex; align-items:center; gap:10px}
+  .citem .u img{width:36px; height:36px; border-radius:50%; border:1px solid var(--line); object-fit:cover}
+  .citem .name{font-weight:800}
+  .comment-input{position:fixed; left:0; right:0; bottom:0; padding:12px 14px; background:linear-gradient(180deg,rgba(0,0,0,0),rgba(0,0,0,.55)); backdrop-filter:blur(10px); display:flex; gap:10px}
+  .comment-input input{flex:1; border:none; outline:none; border-radius:16px; padding:14px 16px; background:var(--hover); color:var(--text); border:1px solid var(--line)}
+  .comment-input button{width:52px; height:52px; border:none; border-radius:18px; font-weight:900; color:#fff; background:linear-gradient(180deg,var(--accent),var(--accent-2)); cursor:pointer}
 
-.story-avatar {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  border: 2px solid orange;
-  object-fit: cover;
-}
-
-.story-name {
-  margin-top: 4px;
-  font-size: 12px;
-  color: var(--sub);
-}
-   
-    /* ===== Tabs ===== */
-    .tabs{display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin:14px 0}
-    .tabs button{
-      border:none; border-radius:999px; padding:10px 0; font-weight:800; color:var(--sub);
-      background:var(--card); border:1px solid var(--line); box-shadow:var(--shadow); cursor:pointer;
-    }
-    .tabs button.active{ color:var(--text); background:linear-gradient(180deg, var(--hover), var(--card)); border-color:transparent }
-
-    /* ===== Cards ===== */
-    .card .row{display:flex; align-items:center; gap:12px}
-    .card .row img{width:52px; height:52px; border-radius:50%; object-fit:cover; border:1px solid var(--line)}
-
-    /* ===== DM ===== */
-    .topbar{display:flex; align-items:center; gap:12px; margin-bottom:10px}
-    .dm-title{font-weight:800}
-    .menu-btn{width:40px; height:40px; border-radius:12px; border:1px solid var(--line); background:var(--card); color:var(--text); cursor:pointer}
-    .dm-messages{display:flex; flex-direction:column; gap:14px; max-height:62vh; overflow:auto; padding-bottom:6px}
-    .msg{max-width:78%; position:relative; padding:12px 14px; border-radius:18px; border:1px solid var(--line); background:linear-gradient(180deg,#fff,#f2f3f5); color:#17181c}
-    .msg.me{margin-left:auto; background:linear-gradient(180deg, var(--hover), #121317); color:#e8eaf0}
-    .date-chip{align-self:center; border:1px solid var(--line); border-radius:999px; padding:6px 12px; color:var(--sub); background:var(--hover); font-weight:800; font-size:12px}
-    .msg time{position:absolute; right:14px; bottom:-18px; font-size:11px; color:var(--muted)}
-    .dm-input{position:fixed; left:0; right:0; bottom:0; padding:12px 14px; background:linear-gradient(180deg,rgba(0,0,0,0),rgba(0,0,0,.55)); backdrop-filter:blur(10px); display:flex; gap:10px}
-    .dm-input input{flex:1; border:none; outline:none; border-radius:16px; padding:14px 16px; background:var(--hover); color:var(--text); border:1px solid var(--line)}
-    .dm-input button{width:52px; height:52px; border:none; border-radius:18px; font-weight:900; color:#fff; background:linear-gradient(180deg,var(--accent),var(--accent-2)); cursor:pointer}
-
-    /* ===== GALLERY ===== */
-    #galleryGrid{display:grid; grid-template-columns:1fr 1fr; gap:12px}
-    #galleryGrid img{width:100%; height:100%; object-fit:cover; border-radius:14px; border:1px solid var(--line); box-shadow:var(--shadow)}
-
-    /* ===== LIVE ===== */
-    .live-card {display:flex; align-items:center; padding:10px; border-bottom:1px solid var(--line); cursor:pointer;}
-    .live-card img {width:100px; height:60px; border-radius:8px; object-fit:cover; margin-right:10px;}
-    .host-card {padding:12px; border-bottom:1px solid var(--line); background:var(--card);}
-    .host-card .row {display:flex; align-items:center; gap:10px;}
-    .host-card img {width:48px; height:48px; border-radius:50%;}
-    #fanMessages {height:50vh; overflow-y:auto; padding:10px; background:var(--bg);}
-    #fanInput {display:flex; border-top:1px solid var(--line); padding:8px; background:var(--bg);}
-    #fanMsgInput {flex:1; border:1px solid var(--line); border-radius:12px; padding:8px 12px;}
-    #fanInput button {margin-left:8px; padding:8px 14px; border:none; border-radius:12px; background:linear-gradient(180deg, var(--accent), var(--accent-2)); color:#fff; cursor:pointer;}
-
-    /* ===== NAV ===== */
-    nav{position:fixed; left:0; right:0; bottom:0; background:#0f1116; border-top:1px solid var(--line);
+  /* ===== NAV ===== */
+  nav{position:fixed; left:0; right:0; bottom:0; background:#0f1116; border-top:1px solid var(--line);
       display:flex; justify-content:space-around; padding:12px 8px 16px; backdrop-filter:blur(8px)}
-    nav.hidden{display:none}
-    nav button{background:transparent; border:none; color:var(--text); font-weight:800; padding:8px 10px; border-radius:12px; cursor:pointer}
-    nav button:active{background:var(--hover)}
+  nav.hidden{display:none}
+  nav button{background:transparent; border:none; color:var(--text); font-weight:800; padding:8px 10px; border-radius:12px; cursor:pointer}
+  nav button:active{background:var(--hover)}
 
-/* Profile */
-#profileBgWrap {
-  position: relative;
-  width: 100%;
-  height: 100vh; /* 滿版背景 */
-  overflow: hidden;
+  /* =========================
+  =  Profile（單一頁：自己/他人共用）=
+  ========================== */
+  #profile .topbar{position:sticky; top:0; z-index:5; padding-top:8px; background:linear-gradient(180deg, rgba(15,15,18,.85), rgba(15,15,18,0))}
+  #profileHeader{position:relative; height:46vh; border-radius:0 0 24px 24px; overflow:hidden}
+  #profileBg{width:100%; height:100%; object-fit:cover}
+  #profileHeader::after{content:""; position:absolute; left:0; right:0; bottom:0; height:40%; background:linear-gradient(180deg, rgba(0,0,0,0), rgba(0,0,0,.5))}
+  #avatarWrap{position:absolute; left:50%; transform:translateX(-50%); bottom:-48px; text-align:center}
+  #editAvatar{width:96px; height:96px; border-radius:50%; border:3px solid #fff; object-fit:cover; cursor:pointer; background:#666}
+  .profile-actions{position:absolute; left:50%; transform:translateX(-50%); bottom:62px; display:flex; gap:16px}
+  .round-btn{width:40px; height:40px; border-radius:50%; border:1px solid var(--line); background:var(--card); display:flex; align-items:center; justify-content:center; cursor:pointer}
+  #profileInfo{margin-top:72px; display:flex; flex-direction:column; gap:12px}
+  .pitem{display:flex; align-items:center; justify-content:space-between; padding:16px; border:1px solid var(--line); background:var(--card); border-radius:16px}
+  .pitem .label{color:var(--sub); font-size:13px}
+  .pitem .value{font-weight:800}
+  .edit-btn{border:none; background:transparent; cursor:pointer; font-size:14px}
+  .onlyMe{display:none} /* 預設隱藏，進入自己頁面時再開 */
+
+:root { --profileHeaderH: 50vh; }  /* 你可以改 46vh/60vh/100vh */
+#profileHeader{ position:relative; height:var(--profileHeaderH); border-radius:0 0 24px 24px; overflow:hidden; }
+
+#profile{padding:0}
+
+/* Profile 狀態訊息處理 */
+#p_status {
+  max-width: 100%;
+  overflow-wrap: break-word;  /* 遇到長字換行 */
+  white-space: pre-wrap;      /* 保留換行 */
+  word-break: break-word;     /* 強制切斷太長的字串 */
 }
-#profileBg {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  cursor: pointer;
+
+/* DM 列表 */
+#dmListWrap { display:flex; flex-direction:column; }
+.dmCard {
+  display:flex; align-items:center; gap:12px;
+  padding:14px; border-bottom:1px solid var(--line);
+  cursor:pointer;
 }
-#profileAvatarWrap {
-  position: absolute;
-  bottom: -48px;
-  left: 50%;
-  transform: translateX(-50%);
+.dmCard img { width:48px; height:48px; border-radius:50%; object-fit:cover; }
+.dmMeta { flex:1; }
+.dmMeta b { display:block; }
+.dmMeta small { color:var(--sub); display:block; margin-top:2px; font-size:12px; }
+.dmSub { text-align:right; font-size:13px; color:var(--sub); position:relative; }
+.dmUnread {
+  background:var(--accent); color:#fff; font-size:11px; font-weight:700;
+  border-radius:999px; padding:2px 6px; position:absolute; top:-4px; right:-6px;
 }
-#editAvatar {
-  width: 96px;
-  height: 96px;
-  border-radius: 50%;
-  border: 3px solid #fff;
-  object-fit: cover;
-  cursor: pointer;
+
+/* DM 聊天室 */
+.dmBox { padding:12px; height:calc(100vh - 120px); overflow-y:auto; }
+.dmMsg { display:flex; margin-bottom:12px; }
+.dmMsg.me { justify-content:flex-end; }
+.dmMsg .bubble {
+  max-width:70%; padding:10px 14px; border-radius:16px;
+  background:var(--card); position:relative;
+  word-break:break-word; white-space:pre-wrap;
 }
-#profileInfo {
-  margin-top: 60px;
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-.profile-item {
-  background: var(--card);
-  border-radius: 12px;
-  padding: 14px 16px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.profile-item .label {
-  color: var(--sub);
-  font-size: 13px;
-}
-.profile-item .value {
-  font-weight: 600;
-  color: var(--text);
-}
-.edit-btn {
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  font-size: 14px;
+.dmMsg.me .bubble { background:var(--accent); color:#fff; }
+
+.dmMeta { flex:1; display:flex; flex-direction:column; }
+.dmMeta .topline { display:flex; justify-content:space-between; align-items:center; }
+.dmMeta .topline b { font-weight:700; }
+.dmMeta .topline .heart { margin-left:6px; }
+.dmMeta .bottomline { display:flex; justify-content:space-between; color:var(--sub); font-size:12px; margin-top:2px; }
+
+/* 翻譯 chip（合併用一份即可） */
+
+.translate-chip {
+  margin-top:4px;
+  margin-left:8px; /* ⬅ 原本 auto 改成 8px，避免太貼邊 */
+  border:1px solid var(--line);
+  background:var(--hover);
+  border-radius:12px;
+  padding:4px 8px;
+  font-size:11px;
+  cursor:pointer;
+  text-align:right;
+  display:inline-block;
+  color:var(--sub);
 }
 </style>
 </head>
+
 <body class="nx">
 
-<!-- ===== HOME ===== -->
+<!-- =========================
+=  HTML：首頁（Home）       =
+========================== -->
 <section id="home" class="active">
   <div id="friendsHeader">
     <div class="me" onclick="openProfile()">
       <img id="avatar" src="https://picsum.photos/80?u=me">
-      <div class="nick" id="nickname">暱稱</div>
+      <div class="nick" id="nickHome">暱稱</div>
     </div>
-    <!-- 右邊可放通知 / 設定按鈕 -->
   </div>
-
   <div id="storyBar" class="story-bar"></div>
   <div id="feedWrap" class="feed-col"></div>
 </section>
 
-<!-- ===== POST DETAIL（留言區頁面） ===== -->
+<!-- =========================
+=  HTML：貼文詳情（留言區） =
+========================== -->
 <section id="postDetail">
   <div class="topbar">
-    <button class="menu-btn" onclick="showPage('home')">←</button>
-    <h2>留言區</h2>
-    <button id="translateBtn" class="menu-btn" onclick="translatePost()">翻譯</button>
+    <button class="menu-btn" onclick="goBack()">←</button>
+    <h2 style="font-weight:900">留言區</h2>
   </div>
 
-  <!-- 貼文內容 -->
+  <!-- 文章內容（含右上翻譯鍵 & Reaction 列） -->
   <div id="postDetailContent"></div>
 
-  <!-- 只看藝人回覆 -->
-  <div style="padding:12px">
-    <label>
-      <input type="checkbox" id="filterArtist" onchange="renderComments()"> 只看藝人回覆
-    </label>
+  <!-- 留言控制列：左側「全部N則 + 刷新」、右側「只看{藝人}回覆」開關 -->
+  <div class="comments-head">
+    <div class="comments-left">
+      <div id="commentsCount" class="ghost">全部 0 則</div>
+      <div class="refresh-btn" title="重新整理" onclick="renderComments()">⟳</div>
+    </div>
+    <div style="display:flex; align-items:center; gap:8px">
+      <div id="filterLabel" class="ghost">只看 的回覆</div>
+      <label class="switch">
+        <input id="filterArtistSwitch" type="checkbox" onchange="renderComments()">
+        <span class="slider"></span>
+      </label>
+    </div>
   </div>
 
   <!-- 留言列表 -->
-  <div id="commentList" style="padding:12px"></div>
+  <div id="commentList"></div>
 
-  <!-- 留言輸入 -->
-  <div class="dm-input">
+  <!-- 輸入 -->
+  <div class="comment-input">
     <input id="commentInput" placeholder="輸入評論…" />
     <button onclick="sendComment()">送出</button>
   </div>
 </section>
-  
-<!-- ===== DM 列表 ===== -->
-<section id="dmList">
-  <div class="topbar"><h2>DM 列表</h2></div>
-  <div id="dmListWrap"></div>
-  <div id="dmListEmpty" class="ghost">尚未購買 PASS</div>
-</section>
 
-<!-- ===== DM 聊天室 ===== -->
-<section id="dm">
-  <div class="topbar">
-    <button class="menu-btn" onclick="showPage('dmList')">←</button>
-    <h2 id="dmTitle">DM</h2>
-  </div>
-  <div id="dm-messages" class="dm-messages"></div>
-  <div class="dm-input">
-    <input id="dmInput" placeholder="輸入訊息…" />
-    <button onclick="sendMessage()">送出</button>
-  </div>
-</section>
-
-<!-- ===== PROFILE ===== -->
+<!-- =========================
+=  HTML：個人資料（自己/他人）
+========================== -->
 <section id="profile">
   <div class="topbar">
     <button class="menu-btn" onclick="goBack()">←</button>
-    <h2>個人資料</h2>
+    <h2 style="font-weight:900">個人資料</h2>
   </div>
 
-  <div id="profileBgWrap">
-    <img id="profileBg" src="https://picsum.photos/600/400?blur" onclick="document.getElementById('bgInput').click()">
-    <input type="file" id="bgInput" accept="image/*" class="onlyMe" style="display:none" onchange="changeBg(event)">
-    <div id="profileAvatarWrap">
-      <img id="editAvatar" src="https://picsum.photos/160?u=me" onclick="document.getElementById('avatarInput').click()">
+  <div id="profileHeader">
+    <img id="profileBg" src="https://picsum.photos/1000/800?blur" alt="">
+    <!-- 兩顆圓形按鈕：換頭貼 / 換背景（只有自己可見） -->
+    <div class="profile-actions onlyMe">
+      <button class="round-btn" title="My photo settings" onclick="document.getElementById('avatarInput').click()">📷</button>
+      <button class="round-btn" title="Background settings" onclick="document.getElementById('bgInput').click()">🖼️</button>
+    </div>
+    <div id="avatarWrap">
+      <img id="editAvatar" src="https://picsum.photos/160?u=me" alt="" onclick="document.getElementById('avatarInput').click()">
       <input type="file" id="avatarInput" accept="image/*" class="onlyMe" style="display:none" onchange="changeAvatar(event)">
+      <input type="file" id="bgInput"     accept="image/*" class="onlyMe" style="display:none" onchange="changeBg(event)">
     </div>
   </div>
 
   <div id="profileInfo">
-    <div class="profile-item">
-      <span class="label">暱稱</span>
-      <span class="value" id="nickname">暱稱</span>
+    <div class="pitem">
+      <div>
+        <div class="label">Chat name</div>
+        <div class="value" id="p_nickname">暱稱</div>
+      </div>
       <button class="edit-btn onlyMe" onclick="editNickname()">✏️</button>
     </div>
-    <div class="profile-item">
-      <span class="label">狀態訊息</span>
-      <span class="value" id="statusMsg">尚未設定</span>
+    <div class="pitem">
+      <div>
+        <div class="label">Status message</div>
+        <div class="value" id="p_status">尚未設定</div>
+      </div>
       <button class="edit-btn onlyMe" onclick="editStatus()">✏️</button>
     </div>
-    <div class="profile-item">
-      <span class="label">粉絲 ID</span>
-      <span class="value" id="fanId"></span>
+    <div class="pitem">
+      <div class="label">粉絲 ID</div>
+      <div class="value" id="p_fanId">NEXT00000</div>
     </div>
-    <div class="profile-item">
-      <span class="label">加入日期</span>
-      <span class="value" id="joinDate"></span>
+    <div class="pitem">
+      <div class="label">加入日期</div>
+      <div class="value" id="p_joinDate">—</div>
     </div>
+  </div>
+</section>
+
+<!-- ===== DM 列表 ===== -->
+<section id="dm">
+  <div class="topbar">
+    <button class="menu-btn" onclick="goBack()">←</button>
+    <h2>DM</h2>
+  </div>
+
+  <div id="dmListWrap"></div>
+  <div id="dmEmpty" class="ghost" style="text-align:center;margin-top:30vh;display:none">
+    尚未與任何藝人開啟聊天 ❤️
+  </div>
+</section>
+
+<!-- ===== DM 聊天室 ===== -->
+<section id="dmDetail">
+  <div class="topbar">
+    <button class="menu-btn" onclick="goBack()">←</button>
+    <h2 id="dmTitle">聊天室</h2>
+  </div>
+
+  <div id="dmBox" class="dmBox"></div>
+
+  <div class="dmInputBar">
+    <input id="dmInput" placeholder="輸入訊息...">
+    <button onclick="sendDm(currentChat)">發送</button>
   </div>
 </section>
 
@@ -293,427 +321,472 @@
 <!-- ===== WALLET ===== -->
 <section id="wallet">
   <div class="topbar"><h2>錢包</h2></div>
-  <div class="panel soft"><p>目前點數：<b id="points2">0</b></p><button onclick="buyPass()">購買團體 PASS</button></div>
+  <div class="panel soft">
+    <p>目前點數：<b id="points2">0</b></p>
+    <button onclick="buyNexx()">購買 NEXX</button>
+  </div>
 </section>
 
-<!-- ===== NAV ===== -->
+<!-- =========================
+=  HTML：底部 NAV           =
+========================== -->
 <nav id="nav">
   <button onclick="showPage('home')">首頁</button>
-  <button onclick="showPage('dmList')">DM</button>
+  <button onclick="showPage('dm')">DM</button>
   <button onclick="showPage('liveList')">直播</button>
   <button onclick="showPage('wallet')">錢包</button>
 </nav>
 
+<!-- =========================
+=  JS：資料、工具、功能區   =
+========================== -->
 <script>
-/* ===== 全域資料 ===== */
+/* -------------------------------------
+ *  JS：常數與假資料（Feed + Story）
+ * -----------------------------------*/
 const ARTISTS = [
-  {id:'a1', name:'Annie', avatar:'https://picsum.photos/80?u=a1'},
-  {id:'a2', name:'Dohee', avatar:'https://picsum.photos/80?u=a2'},
-  {id:'a3', name:'Woochan', avatar:'https://picsum.photos/80?u=a3'}
+  {id:'annie',  name:'Annie',   avatar:'https://picsum.photos/60?u=an'},
+  {id:'dohee',  name:'Dohee',   avatar:'https://picsum.photos/60?u=dh'},
+  {id:'woo',    name:'Woochan', avatar:'https://picsum.photos/60?u=wc'},
+  {id:'group',  name:'ALLDAY PROJECT', avatar:'https://picsum.photos/60?u=group'}
 ];
-const GROUPS = [{id:'group', name:'ALLDAY PROJECT', avatar:'https://picsum.photos/80?u=group'}];
-let liveSortDesc = true;
 
-/* ===== NAV & 頁面切換 ===== */
-function showPage(id){
-  document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));
-  const target = document.getElementById(id);
-  if (target) target.classList.add('active');
+const POSTS = [
+  { id:'p1', artistId:'woo',   artistName:'Woochan', avatar:'https://picsum.photos/60?u=wc', text:'今天吃拉麵 🍜', img:'https://picsum.photos/1000?u=wc1', ts:'13小時前' },
+  { id:'p2', artistId:'dohee', artistName:'Dohee',   avatar:'https://picsum.photos/60?u=dh', text:'練舞練到爆汗 💃', img:'https://picsum.photos/1000?u=dh1', ts:'10小時前' },
+  { id:'p3', artistId:'annie', artistName:'Annie',   avatar:'https://picsum.photos/60?u=an', text:'傳了一張自拍 📸', img:'https://picsum.photos/1000?u=an1', ts:'8小時前' }
+];
 
-  const nav = document.getElementById('nav');
-  // 這幾頁要隱藏底部 nav
-  if (['login','dm','gallery','postDetail','profile'].includes(id)) {
-    nav.classList.add('hidden');
-  } else {
-    nav.classList.remove('hidden');
-  }
-} // ←←← 這個結尾括號你之前少了
+const STORY_USERS = [
+  {id:'all', name:'ALL', avatar:'https://picsum.photos/60?u=all'},
+  ...ARTISTS
+];
 
-function openProfile(){
-  showPage('profile');
-  loadProfile();
+/* -------------------------------------
+ *  JS：Reaction 設定
+ * -----------------------------------*/
+const REACTION_TYPES = [
+  {key:'clap', icon:'👏'},
+  {key:'heart', icon:'😍'},
+  {key:'laugh', icon:'🤣'},
+  {key:'panda', icon:'🐼'},
+  {key:'tears', icon:'🥲'},
+  {key:'cheer', icon:'🥳'}
+];
+function getReactions(postId){
+  return JSON.parse(localStorage.getItem(`reactions:${postId}`) || '{}');
+}
+function setReactions(postId, data){
+  localStorage.setItem(`reactions:${postId}`, JSON.stringify(data));
+}
+function getMyReactions(postId){
+  return JSON.parse(localStorage.getItem(`myReacts:${postId}`) || '{}');
+}
+function setMyReactions(postId, data){
+  localStorage.setItem(`myReacts:${postId}`, JSON.stringify(data));
 }
 
-// ===== Profile 功能 =====
+/* -------------------------------------
+ *  JS：Profile（身分、上傳）
+ * -----------------------------------*/
+function ensureMyIdentity(){
+  if(!localStorage.getItem('fanId')){
+    const id = 'NEXT' + Math.floor(10000 + Math.random()*90000);
+    localStorage.setItem('fanId', id);
+  }
+  if(!localStorage.getItem('joinDate')){
+    localStorage.setItem('joinDate', new Date().toLocaleDateString());
+  }
+}
+function openProfile(){
+  ensureMyIdentity();
+  showFanProfile({
+    fanId: localStorage.getItem('fanId'),
+    joinDate: localStorage.getItem('joinDate'),
+    nickname: localStorage.getItem('nickname') || '暱稱',
+    status:   localStorage.getItem('statusMsg') || '尚未設定',
+    avatar:   localStorage.getItem('avatar') || 'https://picsum.photos/160?u=me',
+    bg:       localStorage.getItem('profileBg') || 'https://picsum.photos/1000/800?blur',
+    isMe:     true
+  });
+}
+function showFanProfile(fan){
+  showPage('profile');
+  document.getElementById('profileBg').src = fan.bg;
+  document.getElementById('editAvatar').src = fan.avatar;
+  document.getElementById('p_nickname').textContent = fan.nickname;
+  document.getElementById('p_status').textContent   = fan.status;
+  document.getElementById('p_fanId').textContent    = fan.fanId;
+  document.getElementById('p_joinDate').textContent = fan.joinDate;
+  document.querySelectorAll('.onlyMe').forEach(el=>{
+    el.style.display = fan.isMe ? '' : 'none';
+  });
+}
+function compressImage(file, maxSize = 600, callback){
+  const img = new Image();
+  const reader = new FileReader();
+  reader.onload = e=>{
+    img.onload = ()=>{
+      const canvas = document.createElement('canvas');
+      let w = img.width, h = img.height;
+      if(w > h){
+        if(w > maxSize){ h *= maxSize / w; w = maxSize; }
+      }else{
+        if(h > maxSize){ w *= maxSize / h; h = maxSize; }
+      }
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img,0,0,w,h);
+      canvas.toBlob(blob=>{
+        callback(URL.createObjectURL(blob));
+      }, 'image/jpeg', 0.85);
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
 function changeAvatar(e){
   const f = e.target.files[0];
   if(f){
-    const u = URL.createObjectURL(f);
-    document.getElementById('editAvatar').src = u;
-    localStorage.setItem('avatar', u);
+    compressImage(f, 600, u=>{
+      document.getElementById('editAvatar').src = u;
+      localStorage.setItem('avatar', u);
+    });
   }
 }
 function changeBg(e){
   const f = e.target.files[0];
   if(f){
-    const u = URL.createObjectURL(f);
-    document.getElementById('profileBg').src = u;
-    localStorage.setItem('profileBg', u);
+    compressImage(f, 1200, u=>{
+      document.getElementById('profileBg').src = u;
+      localStorage.setItem('profileBg', u);
+    });
   }
 }
 function editNickname(){
   const current = localStorage.getItem('nickname') || '暱稱';
-  const n = prompt("輸入新暱稱", current);
+  const n = prompt('輸入新暱稱', current);
   if(n){
     localStorage.setItem('nickname', n);
-    document.getElementById('nickname').textContent = n;
-  }
-}
-function editStatus(){
-  const current = localStorage.getItem('statusMsg') || '尚未設定';
-  const s = prompt("輸入狀態訊息", current);
-  if(s){
-    localStorage.setItem('statusMsg', s);
-    document.getElementById('statusMsg').textContent = s;
+    document.getElementById('nickHome').textContent = n;
+    document.getElementById('p_nickname').textContent = n;
   }
 }
 
-// 自動產生粉絲 ID & 加入日期
-function getFanId(){
-  let id = localStorage.getItem('fanId');
-  if(!id){
-    let counter = parseInt(localStorage.getItem('fanCounter')||'0',10) + 1;
-    localStorage.setItem('fanCounter', counter);
-    id = `NEXT${counter}`;
-    localStorage.setItem('fanId', id);
-    localStorage.setItem('joinDate', new Date().toLocaleDateString());
-  }
-  return id;
-}
-function getMyFanId(){ return localStorage.getItem('fanId') || getFanId(); }
-
-// 載入自己 Profile
-function loadProfile(){
-  document.getElementById('editAvatar').src = localStorage.getItem('avatar') || "default-avatar.png";
-  document.getElementById('profileBg').src = localStorage.getItem('profileBg') || "default-bg.jpg";
-  document.getElementById('nickname').textContent = localStorage.getItem('nickname') || "暱稱";
-  document.getElementById('statusMsg').textContent = localStorage.getItem('statusMsg') || "尚未設定";
-  document.getElementById('fanId').textContent = getMyFanId();
-  document.getElementById('joinDate').textContent = localStorage.getItem('joinDate') || new Date().toLocaleDateString();
-}
-
-// 顯示粉絲 Profile（自己 or 別人）
-function showFanProfile(fan){
-  showPage('profile'); // 共用一個 profile 頁面
-
-  document.getElementById('profileBg').src = fan.bg || 'default-bg.jpg';
-  document.getElementById('editAvatar').src = fan.avatar || 'default-avatar.png';
-  document.getElementById('nickname').textContent = fan.nickname || '暱稱';
-  document.getElementById('statusMsg').textContent = fan.status || '尚未設定';
-  document.getElementById('fanId').textContent = fan.fanId;
-  document.getElementById('joinDate').textContent = fan.joinDate || '未知';
-
-  if(fan.fanId === getMyFanId()){
-    document.querySelectorAll('.onlyMe').forEach(el=>el.style.display = 'flex');
-  }else{
-    document.querySelectorAll('.onlyMe').forEach(el=>el.style.display = 'none');
-  }
-}
-
-/* ===== DM 列表（補齊缺的函式，避免報錯） ===== */
-// PASS：預設 30 天有效
-function hasAccess(){
-  const d = localStorage.getItem('purchaseDate');
-  if (!d) return false;
-  const exp = new Date(d);
-  exp.setDate(exp.getDate() + 30);
-  return Date.now() < exp.getTime();
-}
-
-function renderDMList(){
-  const box = document.getElementById('dmListWrap');
-  const items = [...GROUPS, ...ARTISTS];
-  const openItems = items.filter(() => hasAccess());
-
-  if (openItems.length){
-    box.innerHTML = openItems.map(it=>`
-      <div class="card" onclick="enterDMFromList('${it.id}')">
-        <div class="row">
-          <img src="${it.avatar}">
-          <div><b>${it.name}</b></div>
-        </div>
-      </div>`).join('');
-  } else {
-    box.innerHTML = `<p style="text-align:center; margin-top:40px; color:var(--sub)">
-      尚未擁有藝人的 DM
-    </p>`;
-  }
-}
-
-function enterDMFromList(whoId){
-  const who = ARTISTS.find(a=>a.id===whoId) || GROUPS.find(g=>g.id===whoId);
-  document.getElementById('dmTitle').textContent = who?.name || 'DM';
-  showPage('dm');
-}
-
-function buyPass(){
-  localStorage.setItem('purchaseDate', new Date().toISOString());
-  alert('已購買團體 PASS，有效期 30 天');
-  renderDMList();
-}
-
-// DM 發送
-function sendMessage(){
-  const inp = document.getElementById('dmInput');
-  const text = (inp.value || '').trim();
-  if (!text) return;
-  const box = document.getElementById('dm-messages');
-  const msg = document.createElement('div');
-  msg.className = 'msg me';
-  msg.innerHTML = `${text}<time>${new Date().toLocaleTimeString().slice(0,5)}</time>`;
-  box.appendChild(msg);
-  box.scrollTop = box.scrollHeight;
-  inp.value = '';
-}
-
-/* ===== Live ===== */
-const LIVES = [
-  {id:'l1', title:'Annie 開播了！', host:'Annie', cover:'https://picsum.photos/200?u=l1', ts:Date.now()},
-  {id:'l2', title:'Dohee 的直播', host:'Dohee', cover:'https://picsum.photos/200?u=l2', ts:Date.now()-10000000}
-];
-function renderLiveList(){
-  const wrap = document.getElementById('liveListWrap');
-  const sorted = [...LIVES].sort((a,b)=> liveSortDesc ? b.ts - a.ts : a.ts - b.ts);
-  wrap.innerHTML = sorted.map(l=>`
-    <div class="live-card" onclick="openLive('${l.id}')">
-      <img src="${l.cover}">
-      <div><b>${l.title}</b><br><small>${l.host}</small></div>
-    </div>`).join('');
-}
-function toggleLiveSort(){ liveSortDesc = !liveSortDesc; renderLiveList(); }
-function openLive(id){
-  const live = LIVES.find(l=>l.id===id);
-  document.getElementById('liveTitle').textContent = live.title;
-  document.getElementById('hostInfo').innerHTML =
-    `<div class="row"><img src="${live.cover}"><div><div class="name">${live.host}</div><div class="ghost">正在直播中</div></div></div>`;
-  showPage('liveDetail');
-  renderFanMessages();
-}
-function renderFanMessages(){
-  const box = document.getElementById('fanMessages');
-  box.innerHTML = '';
-  const msgs = JSON.parse(localStorage.getItem('fanMsgs') || '[]');
-  msgs.forEach(m=>{
-    const wrap = document.createElement('div');
-    wrap.className = 'msg';
-    wrap.innerHTML = `<img src="https://picsum.photos/40?u=${m.user}"><div class="bubble">${m.text}</div>`;
-    box.appendChild(wrap);
-  });
-}
-function sendFanMsg(){
-  const inp = document.getElementById('fanMsgInput');
-  const t = (inp.value||'').trim();
-  if(!t) return;
-  const msgs = JSON.parse(localStorage.getItem('fanMsgs')||'[]');
-  msgs.push({user:Date.now(),text:t});
-  localStorage.setItem('fanMsgs', JSON.stringify(msgs));
-  inp.value='';
-  renderFanMessages();
-}
-
-/* ===== Story Bar + Feed ===== */
-const POSTS = [
-  {id:1, user:'Woochan', tag:'woo',    avatar:'https://picsum.photos/60?u=wc',    text:'今天吃拉麵 🍜', img:'https://picsum.photos/500?u=wc1',   ts:'13小時前'},
-  {id:2, user:'Dohee',   tag:'dohee',  avatar:'https://picsum.photos/60?u=dh',    text:'練舞練到爆汗 💃', img:'https://picsum.photos/500?u=dh1',  ts:'10小時前'},
-  {id:3, user:'Annie',   tag:'annie',  avatar:'https://picsum.photos/60?u=an',    text:'傳了一張自拍 📸', img:'https://picsum.photos/500?u=an1',  ts:'8小時前'},
-  {id:4, user:'ALLDAY PROJECT', tag:'allday', avatar:'https://picsum.photos/60?u=group', text:'新單曲快要公開！🔥', img:'https://picsum.photos/500?u=group1', ts:'6小時前'}
-];
-const STORY_USERS = [
-  {id:'all',    name:'ALL',             avatar:'https://picsum.photos/60?u=all'},
-  {id:'allday', name:'ALLDAY PROJECT',  avatar:'https://picsum.photos/60?u=group'},
-  {id:'woo',    name:'Woochan',         avatar:'https://picsum.photos/60?u=wc'},
-  {id:'dohee',  name:'Dohee',           avatar:'https://picsum.photos/60?u=dh'},
-  {id:'annie',  name:'Annie',           avatar:'https://picsum.photos/60?u=an'}
-];
-
+/* -------------------------------------
+ *  JS：Feed 與 Story
+ * -----------------------------------*/
 function renderStoryBar(){
   const bar = document.getElementById('storyBar');
   bar.innerHTML = STORY_USERS.map(u=>`
     <div class="story-item" onclick="renderFeed('${u.id}')">
-      <img src="${u.avatar}" class="story-avatar">
+      <img class="story-avatar" src="${u.avatar}">
       <div class="story-name">${u.name}</div>
     </div>
   `).join('');
 }
-
 function renderFeed(filter='all'){
   const wrap = document.getElementById('feedWrap');
   let list = POSTS;
-  if (filter!=='all') list = list.filter(p => p.tag === filter);
+  if (filter!=='all') {
+    list = POSTS.filter(p => p.artistId === filter);
+  }
   wrap.innerHTML = list.map(p=>`
-    <div class="card soft" style="margin-bottom:16px; padding:12px" onclick="openPostDetail(${p.id})">
+    <div class="card soft post-card" style="margin-bottom:16px">
       <div class="row">
-        <img src="${p.avatar}">
-        <div><b>${p.user}</b><br><small class="ghost">${p.ts}</small></div>
+        <img src="${p.avatar}" style="width:52px;height:52px;border-radius:50%;object-fit:cover;border:1px solid var(--line)">
+        <div><b>${p.artistName}</b><br><small class="ghost">${p.ts}</small></div>
+        <div class="translate-chip" onclick="event.stopPropagation(); toggleTranslate('${p.id}')">翻譯</div>
       </div>
-      <p style="margin-top:8px">${p.text}</p>
-      ${p.img ? `<img src="${p.img}" style="width:100%; border-radius:12px; margin-top:8px">` : ''}
+      <p id="postText-${p.id}" style="margin-top:8px">${p.text}</p>
+      ${p.img ? `<img class="hero" src="${p.img}">` : ''}
+      ${renderReactionsBar(p.id)}
+      <div style="margin-top:10px"><button class="menu-btn" onclick="openPost('${p.id}')">打開留言</button></div>
     </div>
   `).join('');
 }
+const _translateState = {};
+function toggleTranslate(postId){
+  const pEl = document.getElementById(`postText-${postId}`);
+  if(!pEl) return;
+  _translateState[postId] = !_translateState[postId];
+  if(_translateState[postId]){
+    pEl.dataset.origin = pEl.textContent;
+    pEl.textContent = `（已翻譯）${pEl.dataset.origin} [中文翻譯版]`;
+  }else{
+    pEl.textContent = pEl.dataset.origin || pEl.textContent;
+  }
+}
+function renderReactionsBar(postId){
+  const data = getReactions(postId);
+  const myData = getMyReactions(postId);
+  return `<div class="reactions" id="reactions-${postId}">
+    ${REACTION_TYPES.map(r=>{
+      const cnt = data[r.key] || 0;
+      const active = myData[r.key] ? 'active' : '';
+      return `<div class="reaction ${active}" onclick="toggleReaction('${postId}','${r.key}')">
+        <span>${r.icon}</span><span class="count" id="rc-${postId}-${r.key}">${cnt}</span>
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+function toggleReaction(postId, key){
+  const data = getReactions(postId);
+  const myData = getMyReactions(postId);
+  if(myData[key]){
+    data[key] = Math.max((data[key]||1) - 1, 0);
+    myData[key] = false;
+  }else{
+    data[key] = (data[key]||0) + 1;
+    myData[key] = true;
+  }
+  setReactions(postId, data);
+  setMyReactions(postId, myData);
+  const el = document.getElementById(`rc-${postId}-${key}`);
+  if(el) el.textContent = data[key];
+  const btn = el?.closest('.reaction');
+  if(btn){
+    if(myData[key]) btn.classList.add('active');
+    else btn.classList.remove('active');
+  }
+}
 
-function openPostDetail(postId){
-  const post = POSTS.find(p => p.id === postId);
+/* -------------------------------------
+ *  JS：留言
+ * -----------------------------------*/
+let CURRENT_POST_ID = null;
+let CURRENT_ARTIST_NAME = '';
+function seedCommentsIfEmpty(postId){
+  const k = `comments:${postId}`;
+  if(!localStorage.getItem(k)){
+    let defaults = [];
+    if(postId==='p1'){
+      defaults = [
+        {id:1, name:'粉絲A', avatar:'https://picsum.photos/40?u=f1', isArtist:false, text:'好好吃的樣子！'},
+        {id:2, name:'Woochan', avatar:'https://picsum.photos/40?u=wc', isArtist:true,  text:'真的超好吃 😋'}
+      ];
+    }else if(postId==='p2'){
+      defaults = [
+        {id:1, name:'粉絲C', avatar:'https://picsum.photos/40?u=f3', isArtist:false, text:'努力的樣子最美！'},
+        {id:2, name:'Dohee', avatar:'https://picsum.photos/40?u=dh', isArtist:true,  text:'謝謝大家 💖'},
+      ];
+    }else{
+      defaults = [
+        {id:1, name:'粉絲D', avatar:'https://picsum.photos/40?u=f4', isArtist:false, text:'自拍好漂亮！'},
+        {id:2, name:'Annie', avatar:'https://picsum.photos/40?u=an', isArtist:true,  text:'謝謝你們 🥰'}
+      ];
+    }
+    localStorage.setItem(k, JSON.stringify(defaults));
+  }
+}
+function getComments(postId){
+  seedCommentsIfEmpty(postId);
+  return JSON.parse(localStorage.getItem(`comments:${postId}`) || '[]');
+}
+function setComments(postId, list){
+  localStorage.setItem(`comments:${postId}`, JSON.stringify(list));
+}
+
+function openPost(postId){
+  const post = POSTS.find(p=>p.id===postId);
   if(!post) return;
-  document.getElementById('postDetailContent').innerHTML = `
-    <div class="card soft" style="margin-bottom:16px; padding:12px">
+  CURRENT_POST_ID = postId;
+  CURRENT_ARTIST_NAME = post.artistName;
+
+  // 🟢 更新 filterLabel
+  document.getElementById('filterLabel').textContent = `只看 ${post.artistName} 的回覆`;
+
+  const content = `
+    <div class="card soft post-card" style="margin-bottom:16px">
       <div class="row">
-        <img src="${post.avatar}">
-        <div><b>${post.user}</b><br><small class="ghost">${post.ts}</small></div>
+        <img src="${post.avatar}" style="width:52px;height:52px;border-radius:50%;object-fit:cover;border:1px solid var(--line)">
+        <div><b>${post.artistName}</b><br><small class="ghost">${post.ts}</small></div>
+        <div class="translate-chip" onclick="toggleTranslate('${post.id}')">翻譯</div>
       </div>
-      <p style="margin-top:8px">${post.text}</p>
-      ${post.img ? `<img src="${post.img}" style="width:100%; border-radius:12px; margin-top:8px">` : ''}
+      <p id="postText-${post.id}" style="margin-top:8px">${post.text}</p>
+      ${post.img ? `<img class="hero" src="${post.img}">` : ''}
+      ${renderReactionsBar(post.id)}
     </div>
   `;
+  document.getElementById('postDetailContent').innerHTML = content;
   renderComments();
   showPage('postDetail');
 }
-
-/* ===== Comments ===== */
-let COMMENTS = [
-  {id:1, user:'粉絲A', isArtist:false, text:'好好聽！'},
-  {id:2, user:'Dohee', isArtist:true,  text:'謝謝大家 💖'},
-  {id:3, user:'粉絲B', isArtist:false, text:'期待下一首！'},
-  {id:4, user:'Annie', isArtist:true,  text:'大家小心身體～'}
-];
-
 function renderComments(){
+  if(!CURRENT_POST_ID) return;
+  let list = getComments(CURRENT_POST_ID);
   const box = document.getElementById('commentList');
-  const onlyArtist = document.getElementById('filterArtist').checked;
-  let list = COMMENTS;
-  if (onlyArtist) list = list.filter(c => c.isArtist);
   box.innerHTML = list.map(c=>`
-    <div class="card soft" style="margin-bottom:10px; padding:10px">
-      <b style="color:${c.isArtist ? 'var(--accent)' : 'var(--text)'}">${c.user}</b>
-      <p style="margin:6px 0 0">${c.text}</p>
+    <div class="citem ${c.isArtist ? 'artist':''}" data-id="${c.id}">
+      <div class="u">
+        <img src="${c.avatar}">
+        <div style="flex:1">
+          <div class="name" style="color:${c.isArtist ? '#ff8aa2':'var(--text)'}">${c.name}</div>
+          <div>${c.text}</div>
+        </div>
+      </div>
     </div>
   `).join('');
+  box.scrollTop = box.scrollHeight;
 }
-
 function sendComment(){
+  if(!CURRENT_POST_ID) return;
   const inp = document.getElementById('commentInput');
-  const text = inp.value.trim();
-  if(!text) return;
-  COMMENTS.push({id: Date.now(), user:'我', isArtist:false, text});
+  const t = (inp.value||'').trim();
+  if(!t) return;
+  const meName = localStorage.getItem('nickname') || '我';
+  const meAvatar = localStorage.getItem('avatar') || 'https://picsum.photos/40?u=me';
+  const list = getComments(CURRENT_POST_ID);
+  list.push({id: Date.now(), name: meName, avatar: meAvatar, isArtist: false, text: t});
+  setComments(CURRENT_POST_ID, list);
   inp.value='';
   renderComments();
 }
 
-/* ===== 翻譯功能（示意） ===== */
-let isTranslated = false;
-let originalText = '';
-function translatePost(){
-  const contentBox = document.querySelector('#postDetailContent p');
-  if(!contentBox) return;
-  if(!isTranslated){
-    originalText = contentBox.textContent;
-    contentBox.textContent = `（已翻譯）${originalText} [中文翻譯版]`;
-    document.getElementById('translateBtn').textContent = '還原原文';
-    isTranslated = true;
-  } else {
-    contentBox.textContent = originalText;
-    document.getElementById('translateBtn').textContent = '翻譯';
-    isTranslated = false;
+/* -------------------------------------
+ *  JS：切頁
+ * -----------------------------------*/
+let pageStack = [];
+function showPage(id){
+  const current = document.querySelector('section.active');
+  if(current && current.id !== id){
+    // 🔑 避免重複 push
+    if(pageStack[pageStack.length-1] !== current.id){
+      pageStack.push(current.id);
+    }
+  }
+  document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));
+  const target = document.getElementById(id);
+  if(target) target.classList.add('active');
+  const nav = document.getElementById('nav');
+  if(['postDetail','profile','dm','dmDetail'].includes(id)){
+    nav.classList.add('hidden');
+  }else{
+    nav.classList.remove('hidden');
   }
 }
 
-// 自動產生粉絲 ID
-function getFanId(){
-  let id = localStorage.getItem('fanId');
-  if(!id){
-    let counter = parseInt(localStorage.getItem('fanCounter')||'0',10) + 1;
-    localStorage.setItem('fanCounter', counter);
-    id = `NEXT${counter}`;
-    localStorage.setItem('fanId', id);
+/* -------------------------------------
+ *  JS：DM 模組
+ * -----------------------------------*/
+let currentChat = null;
+let dmMessages = {};
+// 假資料：DM 艺人列表
+
+const DM_ARTISTS = [
+  {id:'dohee',   name:'Dohee',   avatar:'https://picsum.photos/50?1', subscribed:true,  days:120, lastMsg:'還想再聊一下 🥺', unread:2},
+  {id:'woo',     name:'Woochan', avatar:'https://picsum.photos/50?2', subscribed:false, days:0,   lastMsg:'（無訊息）', unread:0},
+  {id:'annie',   name:'Annie',   avatar:'https://picsum.photos/50?3', subscribed:true,  days:45,  lastMsg:'剛剛傳了自拍，你有看到嗎？', unread:1}
+];
+function getDmTranslateState(msgId){ return localStorage.getItem(`dmTranslate:${msgId}`) === 'true'; }
+function setDmTranslateState(msgId, state){ localStorage.setItem(`dmTranslate:${msgId}`, state); }
+
+function renderDMList(){
+  const wrap = document.getElementById('dmListWrap');
+  const empty = document.getElementById('dmEmpty');
+  const subscribed = DM_ARTISTS.filter(a=>a.subscribed);
+
+  if(subscribed.length === 0){
+    wrap.innerHTML = '';
+    empty.style.display = 'block';
+    return;
   }
-  return id;
+  empty.style.display = 'none';
+
+  // 🟢 新版 (名字+❤️、lastMsg+訂閱天數)
+  wrap.innerHTML = subscribed.map(a=>`
+    <div class="dmCard" onclick="openDm('${a.id}')">
+      <img src="${a.avatar}">
+      <div class="dmMeta">
+        <div class="topline">
+          <b>${a.name}</b>
+          <span class="heart">❤️</span>
+        </div>
+        <div class="bottomline">
+          <span class="ghost">${a.lastMsg || ''}</span>
+          <span>${a.days} 天訂閱中</span>
+        </div>
+      </div>
+      ${a.unread > 0 ? `<div class="dmSub"><span class="dmUnread">${a.unread}</span></div>` : ''}
+    </div>
+  `).join('');
 }
 
-// 修改暱稱
-function editNickname(){
-  const current = localStorage.getItem('nickname') || '暱稱';
-  const n = prompt("輸入新暱稱", current);
-  if(n){
-    localStorage.setItem('nickname', n);
-    document.getElementById('nickname').textContent = n;
+function openDm(chatId){
+  currentChat = chatId;
+  const artist = DM_ARTISTS.find(a=>a.id===chatId);
+
+  // 🟢 防呆：找不到就 return
+  if(!artist) return;
+
+  document.getElementById('dmTitle').textContent = artist.name;
+  artist.unread = 0; // 清除未讀
+  renderDMList();    // 重新刷新列表
+  showPage('dmDetail');
+  renderDm(chatId);
+}
+function renderDm(chatId){
+  const box = document.getElementById('dmBox');
+  const list = dmMessages[chatId] || [];
+  box.innerHTML = list.map(m=>{
+    const translated = getDmTranslateState(m.id);
+    const text = translated ? (FAKE_DM_TRANSLATIONS[m.id] || `（翻譯）${m.text}`) : m.text;
+    return `
+      <div class="dmMsg ${m.from}">
+        <div class="bubble">
+          <p id="dmText-${m.id}">${text}</p>
+          <div class="translate-chip" onclick="toggleDmTranslate('${m.id}','${m.text}')">翻譯</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+  const nearBottom = box.scrollTop + box.clientHeight >= box.scrollHeight - 50;
+  if(nearBottom){ box.scrollTop = box.scrollHeight; }
+}
+function toggleDmTranslate(msgId, origin){
+  const el = document.getElementById(`dmText-${msgId}`);
+  if(!el) return;
+  const newState = !getDmTranslateState(msgId);
+  setDmTranslateState(msgId, newState);
+  if(newState){
+    el.dataset.origin = origin;
+    el.textContent = FAKE_DM_TRANSLATIONS[msgId] || `（翻譯）${origin}`;
+  }else{
+    el.textContent = el.dataset.origin || el.textContent;
   }
 }
-
-// 修改狀態訊息
-function editStatus(){
-  const current = localStorage.getItem('statusMsg') || '尚未設定';
-  const s = prompt("輸入狀態訊息", current);
-  if(s){
-    localStorage.setItem('statusMsg', s);
-    document.getElementById('statusMsg').textContent = s;
-  }
+function sendDm(chatId){
+  const input = document.getElementById('dmInput');
+  const val = input.value.trim();
+  if(!val) return;
+  const msgId = `msg-${Date.now()}`;
+  const msg = {id:msgId, from:'me', text:val};
+  if(!dmMessages[chatId]) dmMessages[chatId] = [];
+  dmMessages[chatId].push(msg);
+  renderDm(chatId);
+  input.value = '';
+  input.focus();
 }
 
-// 載入 Profile
-function loadProfile(){
-  const a = localStorage.getItem('avatar');
-  const b = localStorage.getItem('profileBg');
-  if(a) document.getElementById('editAvatar').src = a;
-  if(b) document.getElementById('profileBg').src = b;
-
-  document.getElementById('nickname').textContent = localStorage.getItem('nickname') || '暱稱';
-  document.getElementById('statusMsg').textContent = localStorage.getItem('statusMsg') || '尚未設定';
-  document.getElementById('fanId').textContent = getFanId();
+/* -------------------------------------
+ *  JS：購買 NEXX
+ * -----------------------------------*/
+function buyNexx(){
+  alert("這裡會導到 NEXX 購買流程！");
 }
 
-// 換頭像
-function changeAvatar(e){
-  const f=e.target.files[0];
-  if(f){
-    const u=URL.createObjectURL(f);
-    document.getElementById('editAvatar').src=u;
-    localStorage.setItem('avatar',u);
-  }
-}
-
-// 換背景
-function changeBg(e){
-  const f=e.target.files[0];
-  if(f){
-    const u=URL.createObjectURL(f);
-    document.getElementById('profileBg').src=u;
-    localStorage.setItem('profileBg',u);
-  }
-}
-
-// 返回上一頁
-function goBack(){
-  history.back();
-}
-
-/* ===== Init ===== */
+/* -------------------------------------
+ *  JS：初始化
+ * -----------------------------------*/
 document.addEventListener('DOMContentLoaded', ()=>{
-  loadProfile();
-  renderDMList();   // 這裡不會再報 hasAccess 未定義
-  renderLiveList();
+  ensureMyIdentity();
+  const a = localStorage.getItem('avatar'); 
+  if(a) document.getElementById('avatar').src = a;
+  const n = localStorage.getItem('nickname') || '暱稱';
+  document.getElementById('nickHome').textContent = n;
   renderStoryBar();
   renderFeed();
+  renderDMList();
   showPage('home');
-});
-
-  /* ===== 首頁滾動時隱藏/顯示 nav + story bar ===== */
-let lastScroll = 0;
-window.addEventListener('scroll', ()=>{
-  const nav = document.getElementById('nav');
-  const story = document.getElementById('storyBar');
-  const current = window.scrollY;
-
-  if(current > lastScroll + 5){ 
-    // 往下滑 → 隱藏
-    nav.style.transform = 'translateY(100%)';
-    story.style.transform = 'translateY(-100%)';
-  } else if(current < lastScroll - 5){
-    // 往上滑 → 顯示
-    nav.style.transform = 'translateY(0)';
-    story.style.transform = 'translateY(0)';
-  }
-
-  lastScroll = current;
 });
 </script>
 </body>
