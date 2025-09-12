@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
@@ -124,13 +125,27 @@
   cursor:pointer;
 }
 .dmCard img { width:48px; height:48px; border-radius:50%; object-fit:cover; }
+
 .dmMeta { flex:1; }
-.dmMeta b { display:block; }
-.dmMeta small { color:var(--sub); display:block; margin-top:2px; font-size:12px; }
-.dmSub { text-align:right; font-size:13px; color:var(--sub); position:relative; }
+.dmMeta b { display:block; margin-bottom:2px; }
+.dmMeta small { color:var(--sub); font-size:12px; }
+
+.dmRight {
+  display:flex;
+  flex-direction:column;
+  align-items:flex-end;
+  font-size:12px;
+  color:var(--sub);
+  min-width:50px;
+}
 .dmUnread {
-  background:var(--accent); color:#fff; font-size:11px; font-weight:700;
-  border-radius:999px; padding:2px 6px; position:absolute; top:-4px; right:-6px;
+  background:var(--accent);
+  color:#fff;
+  font-size:11px;
+  font-weight:700;
+  border-radius:999px;
+  padding:2px 6px;
+  margin-top:4px;
 }
 
 /* DM 聊天室 */
@@ -143,6 +158,62 @@
   word-break:break-word; white-space:pre-wrap;
 }
 .dmMsg.me .bubble { background:var(--accent); color:#fff; }
+
+/* 聊天訊息區 */
+.dmBox {
+  padding: 12px;
+  height: calc(100vh - 120px); /* 扣掉上方標題列 & 下方輸入框 */
+  overflow-y: auto;
+}
+.dmMsg {
+  display: flex;
+  margin-bottom: 12px;
+}
+.dmMsg.me { justify-content: flex-end; }
+.dmMsg .bubble {
+  max-width: 70%;
+  padding: 10px 14px;
+  border-radius: 16px;
+  background: var(--card);
+  position: relative;
+  word-break: break-word;
+  white-space: pre-wrap;
+}
+.dmMsg.me .bubble {
+  background: var(--accent);
+  color: #fff;
+}
+
+/* 輸入框 */
+.dmInputBar {
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  padding: 12px 14px;
+  background: linear-gradient(180deg, rgba(0,0,0,0), rgba(0,0,0,.55));
+  backdrop-filter: blur(10px);
+  display: flex;
+  gap: 10px;
+}
+.dmInputBar input {
+  flex: 1;
+  border: none;
+  outline: none;
+  border-radius: 16px;
+  padding: 14px 16px;
+  background: var(--hover);
+  color: var(--text);
+  border: 1px solid var(--line);
+}
+.dmInputBar button {
+  width: 52px;
+  height: 52px;
+  border: none;
+  border-radius: 18px;
+  font-weight: 900;
+  color: #fff;
+  background: linear-gradient(180deg,var(--accent),var(--accent-2));
+  cursor: pointer;
+}
 
 .dmMeta { flex:1; display:flex; flex-direction:column; }
 .dmMeta .topline { display:flex; justify-content:space-between; align-items:center; }
@@ -290,11 +361,13 @@
     <h2 id="dmTitle">聊天室</h2>
   </div>
 
+  <!-- DM 訊息容器 -->
   <div id="dmBox" class="dmBox"></div>
 
+  <!-- 輸入框 -->
   <div class="dmInputBar">
-    <input id="dmInput" placeholder="輸入訊息...">
-    <button onclick="sendDm(currentChat)">發送</button>
+    <input id="dmInput" type="text" placeholder="輸入訊息…" />
+    <button onclick="sendDm(currentChat)">送出</button>
   </div>
 </section>
 
@@ -646,6 +719,7 @@ function sendComment(){
  *  JS：切頁
  * -----------------------------------*/
 let pageStack = [];
+
 function showPage(id){
   const current = document.querySelector('section.active');
   if(current && current.id !== id){
@@ -665,20 +739,38 @@ function showPage(id){
   }
 }
 
+// 🔙 返回上一頁
+function goBack(){
+  if(pageStack.length > 0){
+    const prev = pageStack.pop();
+    showPage(prev);
+  }else{
+    showPage('home'); // 如果沒有上一頁 → 回首頁
+  }
+}
+
 /* -------------------------------------
  *  JS：DM 模組
  * -----------------------------------*/
 let currentChat = null;
 let dmMessages = {};
-// 假資料：DM 艺人列表
 
+// 假翻譯資料（避免報錯，可後續補充）
+const FAKE_DM_TRANSLATIONS = {};
+
+// 假資料：DM 藝人列表
 const DM_ARTISTS = [
   {id:'dohee',   name:'Dohee',   avatar:'https://picsum.photos/50?1', subscribed:true,  days:120, lastMsg:'還想再聊一下 🥺', unread:2},
   {id:'woo',     name:'Woochan', avatar:'https://picsum.photos/50?2', subscribed:false, days:0,   lastMsg:'（無訊息）', unread:0},
   {id:'annie',   name:'Annie',   avatar:'https://picsum.photos/50?3', subscribed:true,  days:45,  lastMsg:'剛剛傳了自拍，你有看到嗎？', unread:1}
 ];
-function getDmTranslateState(msgId){ return localStorage.getItem(`dmTranslate:${msgId}`) === 'true'; }
-function setDmTranslateState(msgId, state){ localStorage.setItem(`dmTranslate:${msgId}`, state); }
+
+function getDmTranslateState(msgId){ 
+  return localStorage.getItem(`dmTranslate:${msgId}`) === 'true'; 
+}
+function setDmTranslateState(msgId, state){ 
+  localStorage.setItem(`dmTranslate:${msgId}`, state); 
+}
 
 function renderDMList(){
   const wrap = document.getElementById('dmListWrap');
@@ -692,21 +784,17 @@ function renderDMList(){
   }
   empty.style.display = 'none';
 
-  // 🟢 新版 (名字+❤️、lastMsg+訂閱天數)
   wrap.innerHTML = subscribed.map(a=>`
     <div class="dmCard" onclick="openDm('${a.id}')">
       <img src="${a.avatar}">
       <div class="dmMeta">
-        <div class="topline">
-          <b>${a.name}</b>
-          <span class="heart">❤️</span>
-        </div>
-        <div class="bottomline">
-          <span class="ghost">${a.lastMsg || ''}</span>
-          <span>${a.days} 天訂閱中</span>
-        </div>
+        <b>${a.name}</b>
+        <small class="ghost">${a.lastMsg || ''}</small>
       </div>
-      ${a.unread > 0 ? `<div class="dmSub"><span class="dmUnread">${a.unread}</span></div>` : ''}
+      <div class="dmRight">
+        <span class="days">❤️ ${a.days}</span>
+        ${a.unread > 0 ? `<span class="dmUnread">${a.unread}</span>` : ''}
+      </div>
     </div>
   `).join('');
 }
@@ -714,16 +802,15 @@ function renderDMList(){
 function openDm(chatId){
   currentChat = chatId;
   const artist = DM_ARTISTS.find(a=>a.id===chatId);
-
-  // 🟢 防呆：找不到就 return
   if(!artist) return;
 
   document.getElementById('dmTitle').textContent = artist.name;
   artist.unread = 0; // 清除未讀
-  renderDMList();    // 重新刷新列表
+  renderDMList();
   showPage('dmDetail');
   renderDm(chatId);
 }
+
 function renderDm(chatId){
   const box = document.getElementById('dmBox');
   const list = dmMessages[chatId] || [];
@@ -739,9 +826,9 @@ function renderDm(chatId){
       </div>
     `;
   }).join('');
-  const nearBottom = box.scrollTop + box.clientHeight >= box.scrollHeight - 50;
-  if(nearBottom){ box.scrollTop = box.scrollHeight; }
+  box.scrollTop = box.scrollHeight;
 }
+
 function toggleDmTranslate(msgId, origin){
   const el = document.getElementById(`dmText-${msgId}`);
   if(!el) return;
@@ -754,14 +841,17 @@ function toggleDmTranslate(msgId, origin){
     el.textContent = el.dataset.origin || el.textContent;
   }
 }
+
 function sendDm(chatId){
   const input = document.getElementById('dmInput');
   const val = input.value.trim();
   if(!val) return;
+
   const msgId = `msg-${Date.now()}`;
   const msg = {id:msgId, from:'me', text:val};
   if(!dmMessages[chatId]) dmMessages[chatId] = [];
   dmMessages[chatId].push(msg);
+
   renderDm(chatId);
   input.value = '';
   input.focus();
