@@ -224,9 +224,45 @@ function changeBg(e){const f=e.target.files[0]; if(f){const u=URL.createObjectUR
 function saveProfile(){const n=document.getElementById('editNickname').value||'暱稱'; localStorage.setItem('nickname',n); document.getElementById('nickname').textContent=n;}
 function loadProfile(){const a=localStorage.getItem('avatar');const b=localStorage.getItem('profileBg');if(a)document.getElementById('editAvatar').src=a;if(b)document.getElementById('profileBg').src=b;document.getElementById('nickname').textContent=localStorage.getItem('nickname')||'暱稱';}
 
-/* ===== Feed 篩選 ===== */
-function filterFeed(id){document.getElementById('feedWrap').textContent="顯示篩選："+id;}
+/* ===== 貼文牆篩選 ===== */
+const POSTS = [
+  {id:1, author:'Woochan', group:'allday', text:'Woochan 今天吃拉麵 🍜'},
+  {id:2, author:'Dohee', group:'allday', text:'Dohee 練舞練到爆汗 💃'},
+  {id:3, author:'Annie', group:'allday', text:'Annie 傳了一張自拍 📸'},
+  {id:4, author:'ALLDAY PROJECT', group:'group', text:'ALLDAY 的新單曲快要公開了！🔥'},
+  {id:5, author:'Woochan', group:'allday', text:'Woochan 練唱中 🎤'},
+  {id:6, author:'Dohee', group:'allday', text:'Dohee 在錄音室 🎧'},
+];
 
+function filterFeed(type){
+  const wrap = document.getElementById('feedWrap');
+  wrap.innerHTML = '';
+
+  let filtered = [];
+  if(type === 'all'){
+    filtered = POSTS; // 全部貼文
+  }else if(type === 'allday'){
+    filtered = POSTS.filter(p=>p.group === 'allday' || p.group === 'group');
+  }else{
+    filtered = POSTS.filter(p=>p.author.toLowerCase() === type.toLowerCase());
+  }
+
+  if(!filtered.length){
+    wrap.innerHTML = `<p class="ghost">目前沒有貼文</p>`;
+    return;
+  }
+
+  filtered.forEach(p=>{
+    const card = document.createElement('div');
+    card.className = 'card soft';
+    card.innerHTML = `
+      <b>${p.author}</b>
+      <p>${p.text}</p>
+    `;
+    wrap.appendChild(card);
+  });
+}
+  
 /* ===== DM ===== */
 function hasAccess(){return !!localStorage.getItem('purchaseDate');}
 function renderDMList(){const box=document.getElementById('dmListWrap'); const items=[...GROUPS,...ARTISTS]; if(hasAccess()){box.innerHTML=items.map(it=>`<div class="card" onclick="openDM('${it.id}')"><div class="row"><img src="${it.avatar}"><div><b>${it.name}</b></div></div></div>`).join('');} else {box.innerHTML=''; document.getElementById('dmListEmpty').style.display='block';}}
