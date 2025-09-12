@@ -105,6 +105,63 @@
     nav.hidden{display:none}
     nav button{background:transparent; border:none; color:var(--text); font-weight:800; padding:8px 10px; border-radius:12px; cursor:pointer}
     nav button:active{background:var(--hover)}
+
+/* Profile */
+#profileBgWrap {
+  position: relative;
+  width: 100%;
+  height: 40vh; /* 上半螢幕滿版 */
+  overflow: hidden;
+}
+#profileBg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  cursor: pointer;
+}
+#profileAvatarWrap {
+  position: absolute;
+  bottom: -48px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+#editAvatar {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  border: 3px solid #fff;
+  object-fit: cover;
+  cursor: pointer;
+}
+#profileInfo {
+  margin-top: 60px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.profile-item {
+  background: var(--card);
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.profile-item .label {
+  color: var(--sub);
+  font-size: 13px;
+}
+.profile-item .value {
+  font-weight: 600;
+  color: var(--text);
+}
+.edit-btn {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 14px;
+}
   </style>
 </head>
 <body class="nx">
