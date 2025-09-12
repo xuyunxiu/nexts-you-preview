@@ -173,47 +173,48 @@
 
 <!-- ===== PROFILE ===== -->
 <section id="profile">
-  <!-- 背景 + 頭像 -->
-  <div id="profileBgWrap" style="position:relative; height:200px; overflow:hidden;">
+  <div id="profileBgWrap" style="position:relative; height:220px; overflow:hidden;">
     <img id="profileBg" src="https://picsum.photos/600/200?blur"
          style="width:100%; height:100%; object-fit:cover; cursor:pointer"
          onclick="document.getElementById('bgInput').click()">
     <input type="file" id="bgInput" accept="image/*" style="display:none" onchange="changeBg(event)">
+    
+    <!-- 返回鍵 -->
+    <button class="menu-btn" onclick="goBack()" 
+      style="position:absolute; top:12px; left:12px; z-index:2; background:rgba(0,0,0,0.4); border:none; color:white; font-size:18px; padding:6px 10px; border-radius:8px;">←</button>
+
+    <!-- 頭像 -->
     <div style="position:absolute; left:50%; bottom:-48px; transform:translateX(-50%);">
       <img id="editAvatar" src="https://picsum.photos/160?u=me"
-           style="width:100px;height:100px;border-radius:50%;object-fit:cover; border:3px solid #fff; cursor:pointer"
+           style="width:96px;height:96px;border-radius:50%;object-fit:cover; border:3px solid #fff; cursor:pointer"
            onclick="document.getElementById('avatarInput').click()">
       <input type="file" id="avatarInput" accept="image/*" style="display:none" onchange="changeAvatar(event)">
     </div>
   </div>
 
-  <!-- 下方卡片 -->
-  <div style="margin-top:70px; padding:16px;">
-    <!-- 暱稱 -->
-    <div class="panel soft" style="margin-bottom:14px; display:flex; justify-content:space-between; align-items:center;">
+  <!-- 內容卡片 -->
+  <div style="margin-top:60px; display:flex; flex-direction:column; gap:14px; padding:0 16px">
+    <div class="panel soft" style="display:flex; justify-content:space-between; align-items:center;">
       <div>
         <div class="ghost">暱稱</div>
         <div id="nickname">暱稱</div>
       </div>
-      <button onclick="editNickname()" style="border:none;background:transparent;color:var(--accent)">✏️</button>
+      <button onclick="editField('nickname')" style="background:none;border:none;cursor:pointer;">✏️</button>
     </div>
 
-    <!-- 狀態訊息 -->
-    <div class="panel soft" style="margin-bottom:14px; display:flex; justify-content:space-between; align-items:center;">
+    <div class="panel soft" style="display:flex; justify-content:space-between; align-items:center;">
       <div>
         <div class="ghost">狀態訊息</div>
         <div id="statusMsg">尚未設定</div>
       </div>
-      <button onclick="editStatus()" style="border:none;background:transparent;color:var(--accent)">✏️</button>
+      <button onclick="editField('statusMsg')" style="background:none;border:none;cursor:pointer;">✏️</button>
     </div>
 
-    <!-- 粉絲 ID -->
-    <div class="panel soft" style="margin-bottom:14px;">
+    <div class="panel soft">
       <div class="ghost">粉絲 ID</div>
-      <div id="fanId">NEXT?</div>
+      <div id="fanId"></div>
     </div>
 
-    <!-- 錢包 -->
     <div class="panel soft">
       <h3>錢包</h3>
       <p>目前點數：<b id="points">0</b></p>
@@ -523,7 +524,7 @@ function translatePost(){
   }
 }
 
-  // 自動產生粉絲 ID
+// 自動產生粉絲 ID
 function getFanId(){
   let id = localStorage.getItem('fanId');
   if(!id){
@@ -565,6 +566,31 @@ function loadProfile(){
   document.getElementById('nickname').textContent = localStorage.getItem('nickname') || '暱稱';
   document.getElementById('statusMsg').textContent = localStorage.getItem('statusMsg') || '尚未設定';
   document.getElementById('fanId').textContent = getFanId();
+}
+
+// 換頭像
+function changeAvatar(e){
+  const f=e.target.files[0];
+  if(f){
+    const u=URL.createObjectURL(f);
+    document.getElementById('editAvatar').src=u;
+    localStorage.setItem('avatar',u);
+  }
+}
+
+// 換背景
+function changeBg(e){
+  const f=e.target.files[0];
+  if(f){
+    const u=URL.createObjectURL(f);
+    document.getElementById('profileBg').src=u;
+    localStorage.setItem('profileBg',u);
+  }
+}
+
+// 返回上一頁
+function goBack(){
+  history.back();
 }
 
 /* ===== Init ===== */
