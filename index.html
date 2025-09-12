@@ -263,15 +263,26 @@ function filterFeed(type){
   });
 }
   
-/* ===== DM ===== */
-function hasAccess(){return !!localStorage.getItem('purchaseDate');}
-function renderDMList(){const box=document.getElementById('dmListWrap'); const items=[...GROUPS,...ARTISTS]; if(hasAccess()){box.innerHTML=items.map(it=>`<div class="card" onclick="openDM('${it.id}')"><div class="row"><img src="${it.avatar}"><div><b>${it.name}</b></div></div></div>`).join('');} else {box.innerHTML=''; document.getElementById('dmListEmpty').style.display='block';}}
-function openDM(id){localStorage.setItem('currentArtist',id||'group'); document.getElementById('dmTitle').textContent=(id==='group'?'ALLDAY PROJECT — 團體 DM':(ARTISTS.find(a=>a.id===id)?.name+" — DM")); showPage('dm'); renderDM();}
-function dmKey(){return `dm_${currentArtist()}`;}
-function currentArtist(){return localStorage.getItem('currentArtist')||'group';}
-function renderDM(){if(!localStorage.getItem(dmKey())){localStorage.setItem(dmKey(),JSON.stringify([{role:'artist',type:'text',text:'歡迎來到 DM！',ts:Date.now()}]));}const list=JSON.parse(localStorage.getItem(dmKey())||'[]');const box=document.getElementById('dm-messages');box.innerHTML='';list.forEach(m=>{const wrap=document.createElement('div');wrap.className='msg '+(m.role==='fan'?'me':'artist');wrap.textContent=m.text;box.appendChild(wrap);});}
-function sendMessage(){const inp=document.getElementById('dmInput');const t=(inp.value||'').trim();if(!t)return;const list=JSON.parse(localStorage.getItem(dmKey())||'[]');list.push({role:'fan',type:'text',text:t,ts:Date.now()});localStorage.setItem(dmKey(),JSON.stringify(list));inp.value='';renderDM();}
+/* ===== DM 列表 ===== */
+function renderDMList(){
+  const box = document.getElementById('dmListWrap');
+  const items = [...GROUPS, ...ARTISTS];
+  const openItems = items.filter(it => hasAccess(it.id)); // 只挑有 PASS 的
 
+  if(openItems.length){
+    box.innerHTML = openItems.map(it=>`
+      <div class="card" onclick="enterDMFromList('${it.id}')">
+        <div class="row">
+          <img src="${it.avatar}">
+          <div><b>${it.name}</b></div>
+        </div>
+      </div>`).join('');
+  }else{
+    box.innerHTML = `<p style="text-align:center; margin-top:40px; color:var(--sub)">
+      尚未擁有藝人的 DM
+    </p>`;
+  }
+}
 /* ===== Wallet ===== */
 function buyPass(){localStorage.setItem('purchaseDate',new Date().toISOString());alert('已購買團體 PASS，有效期 30 天');renderDMList();}
 
