@@ -202,6 +202,9 @@ let liveSortDesc = true;
 function showPage(id){
   document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));
   const target=document.getElementById(id); if(target) target.classList.add('active');
+function openProfile(){
+  showPage('profile');
+  loadProfile();
 }
 
 /* ===== Profile ===== */
