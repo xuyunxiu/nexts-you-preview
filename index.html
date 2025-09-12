@@ -173,23 +173,52 @@
 
 <!-- ===== PROFILE ===== -->
 <section id="profile">
-  <div id="profileBgWrap" style="position:relative; height:180px; overflow:hidden; border-radius:0 0 20px 20px">
-    <img id="profileBg" src="https://picsum.photos/600/200?blur" style="width:100%; height:100%; object-fit:cover; cursor:pointer" onclick="document.getElementById('bgInput').click()">
+  <!-- 背景 + 頭像 -->
+  <div id="profileBgWrap" style="position:relative; height:200px; overflow:hidden;">
+    <img id="profileBg" src="https://picsum.photos/600/200?blur"
+         style="width:100%; height:100%; object-fit:cover; cursor:pointer"
+         onclick="document.getElementById('bgInput').click()">
     <input type="file" id="bgInput" accept="image/*" style="display:none" onchange="changeBg(event)">
     <div style="position:absolute; left:50%; bottom:-48px; transform:translateX(-50%);">
-      <img id="editAvatar" src="https://picsum.photos/160?u=me" style="width:96px;height:96px;border-radius:50%;object-fit:cover; border:3px solid #fff; cursor:pointer" onclick="document.getElementById('avatarInput').click()">
+      <img id="editAvatar" src="https://picsum.photos/160?u=me"
+           style="width:100px;height:100px;border-radius:50%;object-fit:cover; border:3px solid #fff; cursor:pointer"
+           onclick="document.getElementById('avatarInput').click()">
       <input type="file" id="avatarInput" accept="image/*" style="display:none" onchange="changeAvatar(event)">
     </div>
   </div>
-  <div style="margin-top:60px; text-align:center">
-    <input type="text" id="editNickname" placeholder="輸入暱稱" style="width:70%;max-width:320px; border:1px solid var(--line); border-radius:12px; padding:10px; background:var(--hover); color:var(--text)">
-    <button onclick="saveProfile()" style="border:none; border-radius:12px; padding:10px 14px; background:linear-gradient(180deg,var(--accent),var(--accent-2)); color:#fff">儲存</button>
-    <p class="ghost"><b>粉絲 ID：</b><span id="fanId"></span></p>
-  </div>
-  <div id="walletWrap" class="panel soft" style="margin-top:20px">
-    <h3>錢包</h3>
-    <p>目前點數：<b id="points">0</b></p>
-    <button onclick="buyPass()">購買團體 PASS</button>
+
+  <!-- 下方卡片 -->
+  <div style="margin-top:70px; padding:16px;">
+    <!-- 暱稱 -->
+    <div class="panel soft" style="margin-bottom:14px; display:flex; justify-content:space-between; align-items:center;">
+      <div>
+        <div class="ghost">暱稱</div>
+        <div id="nickname">暱稱</div>
+      </div>
+      <button onclick="editNickname()" style="border:none;background:transparent;color:var(--accent)">✏️</button>
+    </div>
+
+    <!-- 狀態訊息 -->
+    <div class="panel soft" style="margin-bottom:14px; display:flex; justify-content:space-between; align-items:center;">
+      <div>
+        <div class="ghost">狀態訊息</div>
+        <div id="statusMsg">尚未設定</div>
+      </div>
+      <button onclick="editStatus()" style="border:none;background:transparent;color:var(--accent)">✏️</button>
+    </div>
+
+    <!-- 粉絲 ID -->
+    <div class="panel soft" style="margin-bottom:14px;">
+      <div class="ghost">粉絲 ID</div>
+      <div id="fanId">NEXT?</div>
+    </div>
+
+    <!-- 錢包 -->
+    <div class="panel soft">
+      <h3>錢包</h3>
+      <p>目前點數：<b id="points">0</b></p>
+      <button onclick="buyPass()">購買團體 PASS</button>
+    </div>
   </div>
 </section>
 
@@ -492,6 +521,50 @@ function translatePost(){
     document.getElementById('translateBtn').textContent = '翻譯';
     isTranslated = false;
   }
+}
+
+  // 自動產生粉絲 ID
+function getFanId(){
+  let id = localStorage.getItem('fanId');
+  if(!id){
+    let counter = parseInt(localStorage.getItem('fanCounter')||'0',10) + 1;
+    localStorage.setItem('fanCounter', counter);
+    id = `NEXT${counter}`;
+    localStorage.setItem('fanId', id);
+  }
+  return id;
+}
+
+// 修改暱稱
+function editNickname(){
+  const current = localStorage.getItem('nickname') || '暱稱';
+  const n = prompt("輸入新暱稱", current);
+  if(n){
+    localStorage.setItem('nickname', n);
+    document.getElementById('nickname').textContent = n;
+  }
+}
+
+// 修改狀態訊息
+function editStatus(){
+  const current = localStorage.getItem('statusMsg') || '尚未設定';
+  const s = prompt("輸入狀態訊息", current);
+  if(s){
+    localStorage.setItem('statusMsg', s);
+    document.getElementById('statusMsg').textContent = s;
+  }
+}
+
+// 載入 Profile
+function loadProfile(){
+  const a = localStorage.getItem('avatar');
+  const b = localStorage.getItem('profileBg');
+  if(a) document.getElementById('editAvatar').src = a;
+  if(b) document.getElementById('profileBg').src = b;
+
+  document.getElementById('nickname').textContent = localStorage.getItem('nickname') || '暱稱';
+  document.getElementById('statusMsg').textContent = localStorage.getItem('statusMsg') || '尚未設定';
+  document.getElementById('fanId').textContent = getFanId();
 }
 
 /* ===== Init ===== */
