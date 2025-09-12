@@ -100,18 +100,15 @@
     </div>
   </div>
 
-  <!-- Story Bar -->
-  <div id="artistStories" class="story-bar">
-    <div class="story" onclick="filterFeed('all')"><img src="dayoff.png"><span>ALL</span></div>
-    <div class="story" onclick="filterFeed('group')"><img src="allday.png"><span>ALLDAY</span></div>
-    <div class="story" onclick="filterFeed('a3')"><img src="woochan.png"><span>Woochan</span></div>
-    <div class="story" onclick="filterFeed('a2')"><img src="dohee.png"><span>Dohee</span></div>
-  </div>
+  <!-- ===== HOME ===== -->
+<section id="home" class="active">
 
-  <!-- 貼文牆 -->
+  <!-- Story bar + Feed -->
+  <div id="storyBar" class="story-bar"></div>
   <div id="feedWrap" class="feed-col"></div>
-</section>
 
+</section>
+  
 <!-- ===== DM 列表 ===== -->
 <section id="dmList">
   <div class="topbar"><h2>DM 列表</h2></div>
@@ -296,6 +293,71 @@ function sendFanMsg(){const inp=document.getElementById('fanMsgInput');const t=(
 
 /* ===== Init ===== */
 document.addEventListener('DOMContentLoaded',()=>{loadProfile();renderDMList();renderLiveList();showPage('home');});
+</script>
+  <script>
+  /* ===== Story Bar + Feed ===== */
+  // 假資料
+  const POSTS = [
+    {id:1, user:'Woochan', avatar:'https://picsum.photos/60?u=wc', text:'今天吃拉麵 🍜', img:'https://picsum.photos/500?u=wc1', ts:'13小時前'},
+    {id:2, user:'Dohee', avatar:'https://picsum.photos/60?u=dh', text:'練舞練到爆汗 💃', img:'https://picsum.photos/500?u=dh1', ts:'10小時前'},
+    {id:3, user:'Annie', avatar:'https://picsum.photos/60?u=an', text:'傳了一張自拍 📸', img:'https://picsum.photos/500?u=an1', ts:'8小時前'},
+    {id:4, user:'ALLDAY PROJECT', avatar:'https://picsum.photos/60?u=group', text:'新單曲快要公開！🔥', img:'https://picsum.photos/500?u=group1', ts:'6小時前'}
+  ];
+
+  // StoryBar 要顯示的藝人/團體
+  const STORY_USERS = [
+    {id:'all', name:'ALL', avatar:'https://picsum.photos/60?u=all'},
+    {id:'allday', name:'ALLDAY PROJECT', avatar:'https://picsum.photos/60?u=group'},
+    {id:'woo', name:'Woochan', avatar:'https://picsum.photos/60?u=wc'},
+    {id:'dohee', name:'Dohee', avatar:'https://picsum.photos/60?u=dh'},
+    {id:'annie', name:'Annie', avatar:'https://picsum.photos/60?u=an'}
+  ];
+
+  // 渲染 Story Bar
+  function renderStoryBar(){
+    const bar = document.getElementById('storyBar');
+    bar.innerHTML = STORY_USERS.map(u=>`
+      <div class="story-item" onclick="renderFeed('${u.id}')">
+        <img src="${u.avatar}" class="story-avatar">
+        <div class="story-name">${u.name}</div>
+      </div>
+    `).join('');
+  }
+
+  // 渲染 Feed
+  function renderFeed(filter='all'){
+    const wrap=document.getElementById('feedWrap');
+    let list = POSTS;
+
+    if(filter!=='all'){
+      list = list.filter(p=>{
+        if(filter==='allday') return p.user.toLowerCase().includes('allday');
+        if(filter==='woo') return p.user.toLowerCase().includes('woo');
+        if(filter==='dohee') return p.user.toLowerCase().includes('dohee');
+        if(filter==='annie') return p.user.toLowerCase().includes('annie');
+        return true;
+      });
+    }
+
+    wrap.innerHTML=list.map(p=>`
+      <div class="card" style="padding:12px; margin-bottom:16px">
+        <div style="display:flex; gap:10px; align-items:center; margin-bottom:10px">
+          <img src="${p.avatar}" style="width:44px; height:44px; border-radius:50%">
+          <div>
+            <b>${p.user}</b><br><small class="ghost">${p.ts}</small>
+          </div>
+        </div>
+        <p style="margin:8px 0">${p.text}</p>
+        ${p.img ? `<img src="${p.img}" style="width:100%; border-radius:12px; margin-top:8px">` : ''}
+      </div>
+    `).join('');
+  }
+
+  // 頁面載入時執行
+  document.addEventListener('DOMContentLoaded', ()=>{
+    renderStoryBar();
+    renderFeed();
+  });
 </script>
 </body>
 </html>
