@@ -249,7 +249,11 @@ function showPage(id){
     nav.classList.remove('hidden');
   }
 }
-function openProfile(){ showPage('profile'); loadProfile(); }
+
+function openProfile(){
+  showPage('profile');
+  loadProfile();
+}
 
 /* ===== Profile ===== */
 function changeAvatar(e){const f=e.target.files[0]; if(f){const u=URL.createObjectURL(f); document.getElementById('editAvatar').src=u; localStorage.setItem('avatar',u);}}
@@ -261,7 +265,7 @@ function loadProfile(){const a=localStorage.getItem('avatar');const b=localStora
 function renderDMList(){
   const box = document.getElementById('dmListWrap');
   const items = [...GROUPS, ...ARTISTS];
-  const openItems = items.filter(it => hasAccess(it.id)); // 只挑有 PASS 的
+  const openItems = items.filter(it => hasAccess(it.id));
 
   if(openItems.length){
     box.innerHTML = openItems.map(it=>`
@@ -278,7 +282,6 @@ function renderDMList(){
   }
 }
 
-/* ===== Wallet ===== */
 function buyPass(){localStorage.setItem('purchaseDate',new Date().toISOString());alert('已購買團體 PASS，有效期 30 天');renderDMList();}
 
 /* ===== Live ===== */
@@ -303,6 +306,7 @@ const STORY_USERS = [
   {id:'dohee', name:'Dohee', avatar:'https://picsum.photos/60?u=dh'},
   {id:'annie', name:'Annie', avatar:'https://picsum.photos/60?u=an'}
 ];
+
 function renderStoryBar(){
   const bar = document.getElementById('storyBar');
   bar.innerHTML = STORY_USERS.map(u=>`
@@ -312,6 +316,7 @@ function renderStoryBar(){
     </div>
   `).join('');
 }
+
 function renderFeed(filter='all'){
   const wrap=document.getElementById('feedWrap');
   let list = POSTS;
@@ -327,6 +332,7 @@ function renderFeed(filter='all'){
     </div>
   `).join('');
 }
+
 function openPostDetail(postId){
   const post = POSTS.find(p => p.id === postId);
   if(!post) return;
@@ -352,6 +358,7 @@ let COMMENTS = [
   {id:3, user:'粉絲B', isArtist:false, text:'期待下一首！'},
   {id:4, user:'Annie', isArtist:true, text:'大家小心身體～'},
 ];
+
 function renderComments(){
   const box = document.getElementById('commentList');
   const onlyArtist = document.getElementById('filterArtist').checked;
@@ -364,11 +371,12 @@ function renderComments(){
     </div>
   `).join('');
 }
+
 function sendComment(){
   const inp = document.getElementById('commentInput');
   const text = inp.value.trim();
   if(!text) return;
-  COMMENTS.push({ id: Date.now(), user:'我', isArtist:false, text });
+  COMMENTS.push({id: Date.now(), user:'我', isArtist:false, text});
   inp.value = '';
   renderComments();
 }
@@ -376,6 +384,7 @@ function sendComment(){
 /* ===== 翻譯功能 ===== */
 let isTranslated = false;
 let originalText = '';
+
 function translatePost(){
   const contentBox = document.querySelector('#postDetailContent p');
   if(!contentBox) return;
