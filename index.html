@@ -201,7 +201,18 @@ let liveSortDesc = true;
 /* ===== NAV & 頁面切換 ===== */
 function showPage(id){
   document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));
-  const target=document.getElementById(id); if(target) target.classList.add('active');
+  const target=document.getElementById(id);
+  if(target) target.classList.add('active');
+
+  const nav=document.getElementById('nav');
+  if(['login','dm','gallery'].includes(id)){
+    nav.classList.add('hidden');
+  }else{
+    nav.classList.remove('hidden');
+  }
+}
+
+// 🔹 這裡才是 openProfile，獨立函式
 function openProfile(){
   showPage('profile');
   loadProfile();
