@@ -31,12 +31,34 @@
     #friendsHeader img{width:48px; height:48px; border-radius:50%; object-fit:cover; border:1px solid var(--line)}
     #friendsHeader .nick{font-weight:800}
 
-    /* ===== Story bar ===== */
-    .story-bar{display:flex; gap:12px; overflow-x:auto; padding:10px 0}
-    .story{display:flex; flex-direction:column; align-items:center; cursor:pointer}
-    .story img{width:56px; height:56px; border-radius:50%; object-fit:cover; border:2px solid var(--accent)}
-    .story span{font-size:12px; margin-top:4px; color:var(--sub)}
+   /* ===== Story bar ===== */
+.story-bar {
+  display: flex;
+  gap: 14px;   /* 間距 */
+  padding: 12px;
+  overflow-x: auto;
+}
 
+.story-item {
+  flex: 0 0 auto;
+  text-align: center;
+  cursor: pointer;
+}
+
+.story-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: 2px solid orange;
+  object-fit: cover;
+}
+
+.story-name {
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--sub);
+}
+   
     /* ===== Tabs ===== */
     .tabs{display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin:14px 0}
     .tabs button{
@@ -237,13 +259,16 @@ function renderFanMessages(){const box=document.getElementById('fanMessages');bo
 function sendFanMsg(){const inp=document.getElementById('fanMsgInput');const t=(inp.value||'').trim();if(!t)return;const msgs=JSON.parse(localStorage.getItem('fanMsgs')||'[]');msgs.push({user:Date.now(),text:t});localStorage.setItem('fanMsgs',JSON.stringify(msgs));inp.value='';renderFanMessages();}
 
 /* ===== Story Bar + Feed ===== */
+
+// 假資料：貼文
 const POSTS = [
-  {id:1, user:'Woochan', avatar:'https://picsum.photos/60?u=wc', text:'今天吃拉麵 🍜', img:'https://picsum.photos/500?u=wc1', ts:'13小時前'},
-  {id:2, user:'Dohee', avatar:'https://picsum.photos/60?u=dh', text:'練舞練到爆汗 💃', img:'https://picsum.photos/500?u=dh1', ts:'10小時前'},
-  {id:3, user:'Annie', avatar:'https://picsum.photos/60?u=an', text:'傳了一張自拍 📸', img:'https://picsum.photos/500?u=an1', ts:'8小時前'},
-  {id:4, user:'ALLDAY PROJECT', avatar:'https://picsum.photos/60?u=group', text:'新單曲快要公開！🔥', img:'https://picsum.photos/500?u=group1', ts:'6小時前'}
+  {id:1, user:'Woochan', tag:'woo', avatar:'https://picsum.photos/60?u=wc', text:'今天吃拉麵 🍜', img:'https://picsum.photos/500?u=wc1', ts:'13小時前'},
+  {id:2, user:'Dohee', tag:'dohee', avatar:'https://picsum.photos/60?u=dh', text:'練舞練到爆汗 💃', img:'https://picsum.photos/500?u=dh1', ts:'10小時前'},
+  {id:3, user:'Annie', tag:'annie', avatar:'https://picsum.photos/60?u=an', text:'傳了一張自拍 📸', img:'https://picsum.photos/500?u=an1', ts:'8小時前'},
+  {id:4, user:'ALLDAY PROJECT', tag:'allday', avatar:'https://picsum.photos/60?u=group', text:'新單曲快要公開！🔥', img:'https://picsum.photos/500?u=group1', ts:'6小時前'}
 ];
 
+// 假資料：分類圓圈
 const STORY_USERS = [
   {id:'all', name:'ALL', avatar:'https://picsum.photos/60?u=all'},
   {id:'allday', name:'ALLDAY PROJECT', avatar:'https://picsum.photos/60?u=group'},
@@ -252,31 +277,27 @@ const STORY_USERS = [
   {id:'annie', name:'Annie', avatar:'https://picsum.photos/60?u=an'}
 ];
 
+// 渲染分類圓圈
 function renderStoryBar(){
   const bar = document.getElementById('storyBar');
   bar.innerHTML = STORY_USERS.map(u=>`
-    <div class="story" onclick="renderFeed('${u.id}')">
-      <img src="${u.avatar}">
-      <span>${u.name}</span>
+    <div class="story-item" onclick="renderFeed('${u.id}')">
+      <img src="${u.avatar}" class="story-avatar">
+      <div class="story-name">${u.name}</div>
     </div>
   `).join('');
 }
 
+// 渲染貼文牆（依照分類篩選）
 function renderFeed(filter='all'){
   const wrap=document.getElementById('feedWrap');
   let list = POSTS;
 
   if(filter!=='all'){
-    list = list.filter(p=>{
-      if(filter==='allday') return p.user.toLowerCase().includes('allday');
-      if(filter==='woo') return p.user.toLowerCase().includes('woo');
-      if(filter==='dohee') return p.user.toLowerCase().includes('dohee');
-      if(filter==='annie') return p.user.toLowerCase().includes('annie');
-      return true;
-    });
+    list = list.filter(p=> p.tag === filter);
   }
 
-  wrap.innerHTML=list.map(p=>`
+  wrap.innerHTML = list.map(p=>`
     <div class="card soft" style="margin-bottom:16px; padding:12px">
       <div class="row">
         <img src="${p.avatar}">
@@ -288,6 +309,7 @@ function renderFeed(filter='all'){
   `).join('');
 }
 
+// 初始化
 document.addEventListener('DOMContentLoaded', ()=>{
   renderStoryBar();
   renderFeed();
