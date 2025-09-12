@@ -114,7 +114,7 @@
 #profileBgWrap {
   position: relative;
   width: 100%;
-  height: 40vh; /* 上半螢幕滿版 */
+  height: 100vh; /* 滿版背景 */
   overflow: hidden;
 }
 #profileBg {
@@ -166,7 +166,7 @@
   cursor: pointer;
   font-size: 14px;
 }
-  </style>
+</style>
 </head>
 <body class="nx">
 
@@ -234,52 +234,38 @@
 
 <!-- ===== PROFILE ===== -->
 <section id="profile">
-  <div id="profileBgWrap" style="position:relative; height:220px; overflow:hidden;">
-    <img id="profileBg" src="https://picsum.photos/600/200?blur"
-         style="width:100%; height:100%; object-fit:cover; cursor:pointer"
-         onclick="document.getElementById('bgInput').click()">
-    <input type="file" id="bgInput" accept="image/*" style="display:none" onchange="changeBg(event)">
-    
-    <!-- 返回鍵 -->
-    <button class="menu-btn" onclick="goBack()" 
-      style="position:absolute; top:12px; left:12px; z-index:2; background:rgba(0,0,0,0.4); border:none; color:white; font-size:18px; padding:6px 10px; border-radius:8px;">←</button>
+  <div class="topbar">
+    <button class="menu-btn" onclick="goBack()">←</button>
+    <h2>個人資料</h2>
+  </div>
 
-    <!-- 頭像 -->
-    <div style="position:absolute; left:50%; bottom:-48px; transform:translateX(-50%);">
-      <img id="editAvatar" src="https://picsum.photos/160?u=me"
-           style="width:96px;height:96px;border-radius:50%;object-fit:cover; border:3px solid #fff; cursor:pointer"
-           onclick="document.getElementById('avatarInput').click()">
-      <input type="file" id="avatarInput" accept="image/*" style="display:none" onchange="changeAvatar(event)">
+  <div id="profileBgWrap">
+    <img id="profileBg" src="https://picsum.photos/600/400?blur" onclick="document.getElementById('bgInput').click()">
+    <input type="file" id="bgInput" accept="image/*" class="onlyMe" style="display:none" onchange="changeBg(event)">
+    <div id="profileAvatarWrap">
+      <img id="editAvatar" src="https://picsum.photos/160?u=me" onclick="document.getElementById('avatarInput').click()">
+      <input type="file" id="avatarInput" accept="image/*" class="onlyMe" style="display:none" onchange="changeAvatar(event)">
     </div>
   </div>
 
-  <!-- 內容卡片 -->
-  <div style="margin-top:60px; display:flex; flex-direction:column; gap:14px; padding:0 16px">
-    <div class="panel soft" style="display:flex; justify-content:space-between; align-items:center;">
-      <div>
-        <div class="ghost">暱稱</div>
-        <div id="nickname">暱稱</div>
-      </div>
-      <button onclick="editField('nickname')" style="background:none;border:none;cursor:pointer;">✏️</button>
+  <div id="profileInfo">
+    <div class="profile-item">
+      <span class="label">暱稱</span>
+      <span class="value" id="nickname">暱稱</span>
+      <button class="edit-btn onlyMe" onclick="editNickname()">✏️</button>
     </div>
-
-    <div class="panel soft" style="display:flex; justify-content:space-between; align-items:center;">
-      <div>
-        <div class="ghost">狀態訊息</div>
-        <div id="statusMsg">尚未設定</div>
-      </div>
-      <button onclick="editField('statusMsg')" style="background:none;border:none;cursor:pointer;">✏️</button>
+    <div class="profile-item">
+      <span class="label">狀態訊息</span>
+      <span class="value" id="statusMsg">尚未設定</span>
+      <button class="edit-btn onlyMe" onclick="editStatus()">✏️</button>
     </div>
-
-    <div class="panel soft">
-      <div class="ghost">粉絲 ID</div>
-      <div id="fanId"></div>
+    <div class="profile-item">
+      <span class="label">粉絲 ID</span>
+      <span class="value" id="fanId"></span>
     </div>
-
-    <div class="panel soft">
-      <h3>錢包</h3>
-      <p>目前點數：<b id="points">0</b></p>
-      <button onclick="buyPass()">購買團體 PASS</button>
+    <div class="profile-item">
+      <span class="label">加入日期</span>
+      <span class="value" id="joinDate"></span>
     </div>
   </div>
 </section>
@@ -348,10 +334,10 @@ function openProfile(){
   loadProfile();
 }
 
-/* ===== Profile ===== */
+// ===== Profile 功能 =====
 function changeAvatar(e){
   const f = e.target.files[0];
-  if (f){
+  if(f){
     const u = URL.createObjectURL(f);
     document.getElementById('editAvatar').src = u;
     localStorage.setItem('avatar', u);
@@ -359,23 +345,69 @@ function changeAvatar(e){
 }
 function changeBg(e){
   const f = e.target.files[0];
-  if (f){
+  if(f){
     const u = URL.createObjectURL(f);
     document.getElementById('profileBg').src = u;
     localStorage.setItem('profileBg', u);
   }
 }
-function saveProfile(){
-  const n = document.getElementById('editNickname').value || '暱稱';
-  localStorage.setItem('nickname', n);
-  document.getElementById('nickname').textContent = n;
+function editNickname(){
+  const current = localStorage.getItem('nickname') || '暱稱';
+  const n = prompt("輸入新暱稱", current);
+  if(n){
+    localStorage.setItem('nickname', n);
+    document.getElementById('nickname').textContent = n;
+  }
 }
+function editStatus(){
+  const current = localStorage.getItem('statusMsg') || '尚未設定';
+  const s = prompt("輸入狀態訊息", current);
+  if(s){
+    localStorage.setItem('statusMsg', s);
+    document.getElementById('statusMsg').textContent = s;
+  }
+}
+
+// 自動產生粉絲 ID & 加入日期
+function getFanId(){
+  let id = localStorage.getItem('fanId');
+  if(!id){
+    let counter = parseInt(localStorage.getItem('fanCounter')||'0',10) + 1;
+    localStorage.setItem('fanCounter', counter);
+    id = `NEXT${counter}`;
+    localStorage.setItem('fanId', id);
+    localStorage.setItem('joinDate', new Date().toLocaleDateString());
+  }
+  return id;
+}
+function getMyFanId(){ return localStorage.getItem('fanId') || getFanId(); }
+
+// 載入自己 Profile
 function loadProfile(){
-  const a = localStorage.getItem('avatar');
-  const b = localStorage.getItem('profileBg');
-  if (a) document.getElementById('editAvatar').src = a;
-  if (b) document.getElementById('profileBg').src = b;
-  document.getElementById('nickname').textContent = localStorage.getItem('nickname') || '暱稱';
+  document.getElementById('editAvatar').src = localStorage.getItem('avatar') || "default-avatar.png";
+  document.getElementById('profileBg').src = localStorage.getItem('profileBg') || "default-bg.jpg";
+  document.getElementById('nickname').textContent = localStorage.getItem('nickname') || "暱稱";
+  document.getElementById('statusMsg').textContent = localStorage.getItem('statusMsg') || "尚未設定";
+  document.getElementById('fanId').textContent = getMyFanId();
+  document.getElementById('joinDate').textContent = localStorage.getItem('joinDate') || new Date().toLocaleDateString();
+}
+
+// 顯示粉絲 Profile（自己 or 別人）
+function showFanProfile(fan){
+  showPage('profile'); // 共用一個 profile 頁面
+
+  document.getElementById('profileBg').src = fan.bg || 'default-bg.jpg';
+  document.getElementById('editAvatar').src = fan.avatar || 'default-avatar.png';
+  document.getElementById('nickname').textContent = fan.nickname || '暱稱';
+  document.getElementById('statusMsg').textContent = fan.status || '尚未設定';
+  document.getElementById('fanId').textContent = fan.fanId;
+  document.getElementById('joinDate').textContent = fan.joinDate || '未知';
+
+  if(fan.fanId === getMyFanId()){
+    document.querySelectorAll('.onlyMe').forEach(el=>el.style.display = 'flex');
+  }else{
+    document.querySelectorAll('.onlyMe').forEach(el=>el.style.display = 'none');
+  }
 }
 
 /* ===== DM 列表（補齊缺的函式，避免報錯） ===== */
