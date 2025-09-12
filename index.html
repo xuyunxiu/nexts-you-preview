@@ -121,6 +121,34 @@
   <div id="storyBar" class="story-bar"></div>
   <div id="feedWrap" class="feed-col"></div>
 </section>
+
+<!-- ===== POST DETAIL（留言區頁面） ===== -->
+<section id="postDetail">
+  <div class="topbar">
+    <button class="menu-btn" onclick="showPage('home')">←</button>
+    <h2>留言區</h2>
+    <button id="translateBtn" class="menu-btn" onclick="translatePost()">翻譯</button>
+  </div>
+
+  <!-- 貼文內容 -->
+  <div id="postDetailContent"></div>
+
+  <!-- 只看藝人回覆 -->
+  <div style="padding:12px">
+    <label>
+      <input type="checkbox" id="filterArtist" onchange="renderComments()"> 只看藝人回覆
+    </label>
+  </div>
+
+  <!-- 留言列表 -->
+  <div id="commentList" style="padding:12px"></div>
+
+  <!-- 留言輸入 -->
+  <div class="dm-input">
+    <input id="commentInput" placeholder="輸入評論…" />
+    <button onclick="sendComment()">送出</button>
+  </div>
+</section>
   
 <!-- ===== DM 列表 ===== -->
 <section id="dmList">
@@ -215,18 +243,13 @@ function showPage(id){
   if(target) target.classList.add('active');
 
   const nav=document.getElementById('nav');
-  if(['login','dm','gallery'].includes(id)){
+  if(['login','dm','gallery','postDetail'].includes(id)){
     nav.classList.add('hidden');
   }else{
     nav.classList.remove('hidden');
   }
 }
-
-// 🔹 這裡才是 openProfile，獨立函式
-function openProfile(){
-  showPage('profile');
-  loadProfile();
-}
+function openProfile(){ showPage('profile'); loadProfile(); }
 
 /* ===== Profile ===== */
 function changeAvatar(e){const f=e.target.files[0]; if(f){const u=URL.createObjectURL(f); document.getElementById('editAvatar').src=u; localStorage.setItem('avatar',u);}}
@@ -254,6 +277,7 @@ function renderDMList(){
     </p>`;
   }
 }
+
 /* ===== Wallet ===== */
 function buyPass(){localStorage.setItem('purchaseDate',new Date().toISOString());alert('已購買團體 PASS，有效期 30 天');renderDMList();}
 
@@ -266,16 +290,12 @@ function renderFanMessages(){const box=document.getElementById('fanMessages');bo
 function sendFanMsg(){const inp=document.getElementById('fanMsgInput');const t=(inp.value||'').trim();if(!t)return;const msgs=JSON.parse(localStorage.getItem('fanMsgs')||'[]');msgs.push({user:Date.now(),text:t});localStorage.setItem('fanMsgs',JSON.stringify(msgs));inp.value='';renderFanMessages();}
 
 /* ===== Story Bar + Feed ===== */
-
-// 假資料：貼文
 const POSTS = [
   {id:1, user:'Woochan', tag:'woo', avatar:'https://picsum.photos/60?u=wc', text:'今天吃拉麵 🍜', img:'https://picsum.photos/500?u=wc1', ts:'13小時前'},
   {id:2, user:'Dohee', tag:'dohee', avatar:'https://picsum.photos/60?u=dh', text:'練舞練到爆汗 💃', img:'https://picsum.photos/500?u=dh1', ts:'10小時前'},
   {id:3, user:'Annie', tag:'annie', avatar:'https://picsum.photos/60?u=an', text:'傳了一張自拍 📸', img:'https://picsum.photos/500?u=an1', ts:'8小時前'},
   {id:4, user:'ALLDAY PROJECT', tag:'allday', avatar:'https://picsum.photos/60?u=group', text:'新單曲快要公開！🔥', img:'https://picsum.photos/500?u=group1', ts:'6小時前'}
 ];
-
-// 假資料：分類圓圈
 const STORY_USERS = [
   {id:'all', name:'ALL', avatar:'https://picsum.photos/60?u=all'},
   {id:'allday', name:'ALLDAY PROJECT', avatar:'https://picsum.photos/60?u=group'},
@@ -283,8 +303,6 @@ const STORY_USERS = [
   {id:'dohee', name:'Dohee', avatar:'https://picsum.photos/60?u=dh'},
   {id:'annie', name:'Annie', avatar:'https://picsum.photos/60?u=an'}
 ];
-
-// 渲染分類圓圈
 function renderStoryBar(){
   const bar = document.getElementById('storyBar');
   bar.innerHTML = STORY_USERS.map(u=>`
@@ -294,18 +312,12 @@ function renderStoryBar(){
     </div>
   `).join('');
 }
-
-// 渲染貼文牆（依照分類篩選）
 function renderFeed(filter='all'){
   const wrap=document.getElementById('feedWrap');
   let list = POSTS;
-
-  if(filter!=='all'){
-    list = list.filter(p=> p.tag === filter);
-  }
-
+  if(filter!=='all'){ list = list.filter(p=> p.tag === filter); }
   wrap.innerHTML = list.map(p=>`
-    <div class="card soft" style="margin-bottom:16px; padding:12px">
+    <div class="card soft" style="margin-bottom:16px; padding:12px" onclick="openPostDetail(${p.id})">
       <div class="row">
         <img src="${p.avatar}">
         <div><b>${p.user}</b><br><small class="ghost">${p.ts}</small></div>
@@ -315,15 +327,79 @@ function renderFeed(filter='all'){
     </div>
   `).join('');
 }
+function openPostDetail(postId){
+  const post = POSTS.find(p => p.id === postId);
+  if(!post) return;
+  document.getElementById('postDetailContent').innerHTML = `
+    <div class="card soft" style="margin-bottom:16px; padding:12px">
+      <div class="row">
+        <img src="${post.avatar}">
+        <div><b>${post.user}</b><br><small class="ghost">${post.ts}</small></div>
+      </div>
+      <p style="margin-top:8px">${post.text}</p>
+      ${post.img ? `<img src="${post.img}" style="width:100%; border-radius:12px; margin-top:8px">` : ''}
+    </div>
+  `;
+  renderComments();
+  showPage('postDetail');
+  document.getElementById('nav').classList.add('hidden');
+}
 
-// 初始化
+/* ===== Comments ===== */
+let COMMENTS = [
+  {id:1, user:'粉絲A', isArtist:false, text:'好好聽！'},
+  {id:2, user:'Dohee', isArtist:true, text:'謝謝大家 💖'},
+  {id:3, user:'粉絲B', isArtist:false, text:'期待下一首！'},
+  {id:4, user:'Annie', isArtist:true, text:'大家小心身體～'},
+];
+function renderComments(){
+  const box = document.getElementById('commentList');
+  const onlyArtist = document.getElementById('filterArtist').checked;
+  let list = COMMENTS;
+  if(onlyArtist){ list = list.filter(c => c.isArtist); }
+  box.innerHTML = list.map(c=>`
+    <div class="card soft" style="margin-bottom:10px; padding:10px">
+      <b style="color:${c.isArtist ? 'var(--accent)' : 'var(--text)'}">${c.user}</b>
+      <p style="margin:6px 0 0">${c.text}</p>
+    </div>
+  `).join('');
+}
+function sendComment(){
+  const inp = document.getElementById('commentInput');
+  const text = inp.value.trim();
+  if(!text) return;
+  COMMENTS.push({ id: Date.now(), user:'我', isArtist:false, text });
+  inp.value = '';
+  renderComments();
+}
+
+/* ===== 翻譯功能 ===== */
+let isTranslated = false;
+let originalText = '';
+function translatePost(){
+  const contentBox = document.querySelector('#postDetailContent p');
+  if(!contentBox) return;
+  if(!isTranslated){
+    originalText = contentBox.textContent;
+    contentBox.textContent = `（已翻譯）${originalText} [中文翻譯版]`;
+    document.getElementById('translateBtn').textContent = '還原原文';
+    isTranslated = true;
+  }else{
+    contentBox.textContent = originalText;
+    document.getElementById('translateBtn').textContent = '翻譯';
+    isTranslated = false;
+  }
+}
+
+/* ===== Init ===== */
 document.addEventListener('DOMContentLoaded', ()=>{
+  loadProfile();
+  renderDMList();
+  renderLiveList();
   renderStoryBar();
   renderFeed();
+  showPage('home');
 });
-
-  /* ===== Init ===== */
-document.addEventListener('DOMContentLoaded',()=>{loadProfile();renderDMList();renderLiveList();showPage('home');});
 </script>
 </body>
 </html>
