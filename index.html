@@ -1317,363 +1317,492 @@
 </div>
 
 <script>
-/* =========================== State / 保底資料（沿用你現有的） =========================== */
-window.ARTISTS = window.ARTISTS || [
-  {id:'all', name:'ALL'},
-  {id:'woochan', name:'Woochan', verified:true},
-  {id:'dohee', name:'Dohee', verified:true},
-  {id:'annie', name:'Annie', verified:true},
-  {id:'allday', name:'ALLDAY PROJECT', verified:true},
-];
+<!-- ================== ONE-SHOT HOTFIX BUNDLE (paste before </body>) ================== -->
+<style>
+  :root{
+    --accent:#6a5acd;      /* 主紫 */
+    --accent-2:#7c6cff;    /* 次紫 */
+    --text:#222;
+    --muted:#9aa1ad;
+    --chip:#eef1ff;
+    --line:#e6e7ee;
+    --card:#fff;
+    --bg:#f5f7ff;
+  }
 
-(function ensureProfileBarClick(){
-  const bar = document.getElementById('profileHeaderBar') || document.querySelector('.profileBar');
-  if(bar){ bar.onclick = ()=> showPage && showPage('profilePage'); }
-})();
+  /* -------- 共用 -------- */
+  .hidden{display:none!important;}
+  .verify-badge{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:16px; height:16px; border-radius:50%;
+    font-size:11px; line-height:1; margin-left:6px;
+    background:var(--chip); color:var(--accent);
+    box-shadow: inset 0 0 0 1px var(--accent);
+  }
 
-/* =========================== 1) StoryBar：選取高亮 + 篩選貼文 + 回頂 =========================== */
+  /* -------- 首頁：StoryBar 只在選中才紫圈與紫名 -------- */
+  #storyBar{ background:var(--card); padding:10px 8px; }
+  #storyBar .story-item, #storyBar .storyItem{
+    display:flex; flex-direction:column; align-items:center; gap:6px;
+    width:84px; user-select:none; cursor:pointer;
+  }
+  #storyBar .story-item img, #storyBar .storyItem img{
+    width:66px; height:66px; border-radius:50%; object-fit:cover;
+    border:2px solid #cfcfe9; box-shadow:none; transition:.15s;
+  }
+  #storyBar .story-item span, #storyBar .storyItem span{
+    font-size:14px; color:#9aa1ad; font-weight:600;
+    text-align:center; width:100%; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  #storyBar .story-item.active img, #storyBar .storyItem.active img{
+    border-color:var(--accent);
+    box-shadow:0 0 0 2px rgba(106,90,205,.18);
+  }
+  #storyBar .story-item.active span, #storyBar .storyItem.active span{
+    color:var(--accent);
+  }
+
+  /* -------- 首頁：貼文卡片 -------- */
+  .postCard{ position:relative; background:var(--card); border-radius:16px; padding:14px; margin:12px 0; box-shadow:0 1px 0 var(--line); cursor:pointer; }
+  .postCard .post-head{ display:flex; gap:10px; align-items:center; }
+  .postCard .post-name{ font-weight:800; color:var(--text); display:flex; align-items:center; }
+  .postCard .post-name .verify-badge{ margin-left:6px; }
+  .postCard .post-time{ font-size:12px; color:var(--muted); }
+  .postCard .post-img{ width:100%; border-radius:16px; margin:10px 0; display:block; }
+  .postCard .translate-btn{ position:absolute; top:10px; right:10px; background:var(--chip); color:#333; border:1px solid var(--line); border-radius:999px; padding:6px 10px; font-weight:700; cursor:pointer; }
+
+  /* 讓內部可交互元素不觸發整卡點擊 */
+  .postCard .translate-btn, .postCard .reaction-pill, .postCard .comment-link{ pointer-events:auto; }
+  .postCard .translate-btn *,.postCard .reaction-pill *,.postCard .comment-link *{ pointer-events:none; }
+
+  /* -------- Reaction Bar：膠囊化、數字在右、尺寸精緻 -------- */
+  .reactions{ display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin:10px 0 6px; }
+  .reaction-pill{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding:10px 14px; border:1.2px solid var(--line); border-radius:14px;
+    background:#f7f8ff; cursor:pointer; font-weight:800; user-select:none;
+    height:44px;
+  }
+  .reaction-pill .emoji{ font-size:20px; line-height:1; }
+  .reaction-pill .count{ margin-left:auto; min-width:2em; text-align:right; font-size:12px; }
+  .reaction-pill.active{ background:var(--accent); color:#fff; border-color:transparent; }
+
+  /* -------- 留言列（如你示意） -------- */
+  .comment-row{ display:flex; align-items:center; justify-content:space-between; padding:8px 4px 2px; }
+  .comment-chip{
+    display:inline-flex; align-items:center; gap:8px; border:1.2px solid var(--line); border-radius:14px;
+    padding:8px 12px; background:#fff; font-weight:700; color:#333;
+  }
+  .comment-link{ font-weight:900; color:var(--accent); text-decoration:none; }
+
+  /* -------- DM：泡泡與時間/未讀 1 在泡泡外 -------- */
+  .dmThread{ display:flex; flex-direction:column; gap:12px; padding-bottom:120px; }
+  .dmMsg{ max-width:78%; display:flex; flex-direction:column; }
+  .dmMsg.left { align-self:flex-start; }
+  .dmMsg.right{ align-self:flex-end; }
+  .dmMsg .bubble{
+    position:relative; padding:12px 14px; border-radius:16px; color:#212121;
+    background:#f3eaff; /* 左右顏色不同在 render 裡處理 class */
+  }
+  .dmMsg.left  .bubble{ background:#eedfff; }       /* 藝人：淡紫 */
+  .dmMsg.right .bubble{ background:#6a5acd; color:#fff; } /* 粉絲：主紫 */
+  .dmMsg .meta{
+    display:flex; align-items:center; gap:8px; margin-top:6px; font-size:12px; color:var(--muted);
+  }
+  .dmMsg.left .meta{ justify-content:flex-start; }
+  .dmMsg.right .meta{ justify-content:flex-end; }
+  .dmMsg .readFlag{ font-weight:900; color:var(--accent); }
+  .dmMsg.right .readFlag{ color:var(--accent); }
+  .dmMsg .t-chip{
+    display:inline-block; margin-top:8px; padding:6px 10px; border-radius:999px;
+    background:#edf0ff; color:#333; font-weight:800; font-size:12px;
+  }
+  .dmMsg.right .t-chip{ background:#fff; color:#333; }
+
+  /* -------- 直播列表：去掉「即將開始」與右上角字、排序 Chips -------- */
+  .live-subtitle,.live-upcoming{ display:none !important; } /* 直接隱藏現有區塊（若有） */
+  .live-sort{
+    display:flex; gap:8px; justify-content:flex-end; margin:8px 12px 4px;
+  }
+  .sort-chip{
+    padding:6px 12px; border-radius:999px; border:1.2px solid var(--line); background:#fff; cursor:pointer; font-weight:800;
+  }
+  .sort-chip.active{ background:var(--accent); color:#fff; border-color:transparent; }
+
+  .live-card{ display:flex; gap:14px; align-items:center; background:#fff; border-radius:18px; padding:12px; box-shadow:0 1px 0 var(--line); cursor:pointer; }
+  .live-card .cover{ width:96px; height:56px; border-radius:12px; object-fit:cover; }
+  .live-card .title{ font-weight:900; display:flex; align-items:center; gap:6px; }
+  .live-card .title .verify-badge{ margin-left:6px; }
+  .live-card .status{ font-size:13px; color:#29a38f; font-weight:800; }
+
+  /* -------- Profile：拿掉大背景、底部安全距 -------- */
+  #profileHeader{ display:none !important; }
+  #profilePage, #profile{ padding-bottom: calc(120px + env(safe-area-inset-bottom,16px)) !important; }
+  .profile-actions-row{ display:flex; gap:12px; flex-wrap:wrap; margin-top:12px; }
+  .profile-actions-row button{ border:1.2px solid var(--line); background:var(--chip); border-radius:999px; padding:10px 14px; font-weight:800; cursor:pointer; }
+
+  /* -------- Nav：把「我的」改成「商店」 -------- */
+  .tab-store .icon::after{ content:"🛍️"; }
+</style>
+
+<script>
 (function(){
+  /* ----------------------- 資料快取（示例） ----------------------- */
+  window.postsData = window.postsData || window.posts || [];  // 每筆需含 {id, artistId, artistName, title, img, time, comments:[...]}
+  window.artists   = window.artists   || [
+    {id:'all', name:'ALL', avatar:''},
+    {id:'woochan', name:'Woochan'},
+    {id:'dohee', name:'Dohee'},
+    {id:'annie', name:'Annie'},
+    {id:'allday', name:'ALLDAY PROJECT'}
+  ];
+  window.REACTION_TYPES = window.REACTION_TYPES || [
+    {key:'thumb',icon:'👍'},{key:'love',icon:'😍'},{key:'laugh',icon:'🤣'},
+    {key:'clap',icon:'👏'},{key:'panda',icon:'🐼'},{key:'tears',icon:'🥲'}
+  ];
+  const g = k => JSON.parse(localStorage.getItem(k)||'{}');
+  const s = (k,v) => localStorage.setItem(k,JSON.stringify(v));
+
+  /* ----------------------- StoryBar 高亮 + 正確篩選 ----------------------- */
   window.currentFilter = window.currentFilter || 'all';
-  const _origRenderStoryBar = window.renderStoryBar;
   window.renderStoryBar = function(){
-    if(_origRenderStoryBar) _origRenderStoryBar();
-
     const bar = document.getElementById('storyBar'); if(!bar) return;
-    // 建立/補齊資料-id
-    [...bar.children].forEach(el=>{
-      const name = (el.querySelector('span')?.textContent||'').trim();
-      const id   = (el.dataset.id || name || '').toLowerCase();
-      el.dataset.id = id;
-      el.classList.add('storyItem');
-      el.classList.toggle('active', id===currentFilter);
-      el.onclick = (e)=>{
-        e.stopPropagation();
-        currentFilter = id;
-        if (typeof window.renderFeed==='function') window.renderFeed(id);
-        // 高亮
-        [...bar.children].forEach(n=>n.classList.toggle('active', n.dataset.id===id));
-        // 回頂
-        window.scrollTo({top:0,behavior:'smooth'});
-      };
+    bar.innerHTML = '';
+    artists.forEach(a=>{
+      const item = document.createElement('div');
+      item.className = 'story-item'+(a.id===currentFilter?' active':'');
+      item.dataset.id = a.id;
+      item.innerHTML = `
+        <img src="${a.avatar||'https://picsum.photos/seed/'+a.id+'/120/120'}" loading="lazy">
+        <span>${a.name}</span>`;
+      item.addEventListener('click', (e)=>{
+        e.stopPropagation(); renderFeed(a.id);
+        bar.querySelectorAll('.story-item').forEach(x=>x.classList.toggle('active', x.dataset.id===a.id));
+        window.scrollTo({top:0, behavior:'smooth'});
+      });
+      bar.appendChild(item);
     });
   };
 
-  // Feed：套篩選
-  const _origRenderFeed = window.renderFeed;
-  window.renderFeed = function(filter='all'){
-    currentFilter = filter;
-    if(_origRenderFeed) _origRenderFeed(filter);
-    // 如果你沒做篩選，這邊提供保底（假設每張卡有 data-artist）
-    document.querySelectorAll('.postCard').forEach(card=>{
-      const a = (card.dataset.artist||'all').toLowerCase();
-      card.style.display = (filter==='all'||filter===a)?'block':'none';
-    });
-    // 高亮
-    const bar = document.getElementById('storyBar');
-    if(bar){ [...bar.children].forEach(el=>el.classList.toggle('active', el.dataset.id===filter)); }
-  };
-})();
-
-/* =========================== 2) Post Card：點任意處進詳情（排除 reaction / 翻譯） =========================== */
-(function(){
-  function hookCards(){
-    document.querySelectorAll('.postCard').forEach(card=>{
-      // 避免重複綁定
-      if(card.__bound) return; card.__bound = true;
-      card.addEventListener('click', (e)=>{
-        const t = e.target;
-        if (t.closest('.rx') || t.closest('.translate-chip')) return; // 排除
-        if (typeof window.openPost==='function'){
-          window.openPost(card.dataset.pid || card.id || '');
-        }else{
-          // 保底：開 postDetail 並塞入內容
-          const d = document.getElementById('postDetail'); if(!d) return;
-          const host = d.querySelector('#postDetailContent') || d.querySelector('.detailBody') || d;
-          host.innerHTML = card.outerHTML.replace('postCard','postCard detailBody');
-          showPage && showPage('postDetail');
-          // 讓詳情內的反應列可點
-          rehydrateReactions(host);
-        }
-      }, false);
-    });
+  /* ----------------------- 首頁貼文：整卡可點進詳情（排除翻譯/反應/留言） ----------------------- */
+  function cardOpenHandler(postId){
+    if (window.openPostDetail) return openPostDetail(postId);
+    alert('打開貼文詳情：'+postId);
   }
-  document.addEventListener('click', (e)=>{}); // 觸發瀏覽器委派初始化
-  const ro = new MutationObserver(hookCards);
-  ro.observe(document.body,{subtree:true,childList:true});
-  hookCards();
 
-  function rehydrateReactions(scope){
-    scope.querySelectorAll('.rx').forEach(el=>{
-      el.addEventListener('click', (ev)=>{ ev.stopPropagation(); });
-    });
-  }
-})();
-
-/* =========================== 3) Reaction：樣式＆數字靠右 + 留言列 =========================== */
-window.REACTION_TYPES = window.REACTION_TYPES || [
-  {key:'thumb', icon:'👍'}, {key:'love', icon:'😍'}, {key:'lol', icon:'🤣'},
-  {key:'clap', icon:'👏'},  {key:'panda',icon:'🐼'}, {key:'sad', icon:'🥲'}
-];
-(function(){
-  const g = (k)=>JSON.parse(localStorage.getItem(k)||'{}');
-  const s = (k,v)=>localStorage.setItem(k,JSON.stringify(v));
-
-  window.renderReactionsBar = function(postId){
-    const data   = g(`reactions:${postId}`);
-    const myData = g(`myReacts:${postId}`);
-
-    return `<div class="reactions" id="rx-${postId}" onclick="event.stopPropagation()">
-      ${window.REACTION_TYPES.map(r=>{
-        const cnt=(data[r.key]||0), on=!!myData[r.key];
-        return `<div class="rx ${on?'active':''}" data-type="${r.key}" onclick="event.stopPropagation();toggleRx('${postId}','${r.key}')">
-                  <span class="emoji">${r.icon}</span>
-                  <span class="count">${cnt||''}</span>
-                </div>`;
-      }).join('')}
-    </div>
-    <div class="postMeta">
-      <div class="metaLeft">
-        <span class="c-bubble">💬 <span id="c-count-${postId}">${(g('comments:'+postId).list||[]).length||0}</span></span>
-      </div>
-      <div class="metaRight"><a href="javascript:void(0)" onclick="openComment('${postId}')">發表評論</a></div>
-    </div>`;
-  };
-
-  window.toggleRx = function(postId,type){
-    const data = g(`reactions:${postId}`), my = g(`myReacts:${postId}`);
-    if(my[type]){ delete my[type]; data[type]=Math.max((data[type]||0)-1,0); }
-    else{ for(const k in my){ if(my[k]) data[k]=Math.max((data[k]||0)-1,0); } for(const k in my){delete my[k]} my[type]=true; data[type]=(data[type]||0)+1; }
-    s(`reactions:${postId}`,data); s(`myReacts:${postId}`,my);
-    const holder=document.getElementById('rx-'+postId); if(holder) holder.outerHTML=renderReactionsBar(postId);
-  };
-
-  window.openComment = function(postId){
-    // 若有你的詳情頁留言輸入框就聚焦；否則跳到詳情
-    if(document.getElementById('commentInput')){ document.getElementById('commentInput').focus(); return;}
-    if(typeof window.openPost==='function') window.openPost(postId);
-  };
-})();
-
-/* =========================== 4) DM：時間/1在氣泡外；只有「藝人讀」才消失；翻譯樣式 =========================== */
-(function(){
-  window.dmMessages = window.dmMessages || {}; // {chatId:[{id,from:'left'|'right',text,ts,readByArtist:false,translatedText}]}
-
-  // 不要在進入聊天時把 readByArtist 改掉
-  const _origRenderDm = window.renderDm || null;
-  window.renderDm = function(chatId){
-    const box = document.getElementById('dmBox') || document.getElementById('dmThread');
-    if(!box) return;
-    const list = (window.dmMessages[chatId]||[]).slice();
-    box.classList.add('dmThread');
-    box.innerHTML = list.map(m=>{
-      const time = new Date(m.ts||Date.now()).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
-      const rf   = (m.from==='right' && !m.readByArtist) ? `<span class="readFlag" id="rf-${m.id}">1</span>` : '';
-      const tr   = m.translatedText ? `<div class="tr">${m.translatedText}</div>` : '';
-      return `<div class="dmMsg ${m.from}" data-mid="${m.id}">
-                <div class="bubble">
-                  <div class="txt">${m.text}</div>
-                  <div class="translate-chip" onclick="toggleDmTranslate('${chatId}','${m.id}')">翻譯</div>
-                </div>
-                ${tr}
-                <div class="dmMeta">${m.from==='right'? rf : ''}<span class="tm">${time}</span></div>
+  function renderReactionsBar(postId){
+    const data   = g('reactions:'+postId);
+    const myData = g('myReacts:'+postId);
+    const pills = (window.REACTION_TYPES).map(r=>{
+      const cnt = data[r.key]||0, active = myData[r.key]?'active':'';
+      const n = cnt>0?cnt:'';
+      return `<div class="reaction-pill ${active}" data-type="${r.key}">
+                <span class="emoji">${r.icon}</span>
+                <span class="count">${n}</span>
               </div>`;
     }).join('');
+    return `<div class="reactions" data-post="${postId}">${pills}</div>`;
+  }
+
+  function renderCommentRow(post){
+    const c = (post.comments||[]).length||0;
+    return `<div class="comment-row">
+      <div class="comment-chip"><span>💬</span><span>${c}</span></div>
+      <a class="comment-link" href="javascript:void(0)">發表評論</a>
+    </div>`;
+  }
+
+  window.renderFeed = function(filter='all'){
+    window.currentFilter = filter;
+    const feed = document.getElementById('feed'); if(!feed) return;
+
+    const list = (filter==='all')? postsData : postsData.filter(p=> (p.artistId||'').toLowerCase()===filter);
+    feed.innerHTML = list.map(p=>{
+      const nameHtml = `${p.artistName||'Artist'} <span class="verify-badge">✓</span>`;
+      return `<article class="postCard" data-id="${p.id}">
+        <div class="post-head">
+          <img src="${p.artistAvatar||'https://picsum.photos/seed/a'+p.id+'/64/64'}" width="40" height="40" style="border-radius:50%">
+          <div>
+            <div class="post-name">${nameHtml}</div>
+            <div class="post-time">${p.time||''}</div>
+          </div>
+          <button class="translate-btn" data-id="${p.id}">翻譯</button>
+        </div>
+        <img class="post-img" src="${p.img||'https://picsum.photos/seed/p'+p.id+'/900/600'}" alt="">
+        ${renderReactionsBar(p.id)}
+        ${renderCommentRow(p)}
+      </article>`;
+    }).join('');
+
+    // 綁定整卡點擊（排除交互元件）
+    feed.querySelectorAll('.postCard').forEach(card=>{
+      const postId = card.dataset.id;
+      card.addEventListener('click', e=>{
+        const t = e.target;
+        if (t.closest('.reaction-pill') || t.closest('.translate-btn') || t.closest('.comment-link')) return;
+        cardOpenHandler(postId);
+      });
+      // Reaction 點擊
+      card.querySelectorAll('.reaction-pill').forEach(pill=>{
+        pill.addEventListener('click', e=>{
+          e.stopPropagation();
+          const type = pill.dataset.type;
+          const data   = g('reactions:'+postId);
+          const myData = g('myReacts:'+postId);
+          if (myData[type]){ // 取消
+            delete myData[type];
+            data[type]=Math.max((data[type]||0)-1,0);
+            pill.classList.remove('active');
+          }else{ // 單選
+            for (const k in myData){ if(myData[k]){ delete myData[k]; const n = g('reactions:'+postId); n[k]=Math.max((n[k]||0)-1,0); s('reactions:'+postId,n); } }
+            myData[type]=true;
+            const n2 = g('reactions:'+postId); n2[type]=(n2[type]||0)+1; s('reactions:'+postId,n2);
+            card.querySelectorAll('.reaction-pill').forEach(x=>x.classList.remove('active'));
+            pill.classList.add('active');
+          }
+          s('myReacts:'+postId,myData);
+          const final = g('reactions:'+postId); pill.querySelector('.count').textContent = final[type]||'';
+        });
+      });
+      // 翻譯（示例：僅切換文案顯示）
+      card.querySelector('.translate-btn').addEventListener('click', e=>{
+        e.stopPropagation();
+        alert('（示意）已翻譯主文 / 評論翻譯同樣可用 chip 觸發');
+      });
+      // 發表評論
+      card.querySelector('.comment-link').addEventListener('click', e=>{
+        e.stopPropagation();
+        cardOpenHandler(postId);
+      });
+    });
+  };
+
+  /* ----------------------- DM：時間與 1 在泡泡外；只有「藝人已讀」才消失 ----------------------- */
+  window.renderDm = function(chatId){
+    const box = document.getElementById('dmThread') || document.getElementById('dmBox');
+    if(!box) return;
+
+    const list = (window.dmMessages && window.dmMessages[chatId]) || [];
+    box.innerHTML = list.map(m=>{
+      const isRight = m.from==='right';
+      const showFlag = isRight && !m.readByArtist;
+      const timeStr = new Date(m.ts||Date.now()).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+      const nameHtml = (m.role==='artist')
+        ? `${m.name||'Artist'} <span class="verify-badge">✓</span>`
+        : (m.name ? `${m.name}` : '');
+      const bubbleInner = `
+        ${m.text ? `<div>${m.text}</div>`:''}
+        ${m.translated ? `<div style="margin-top:6px; padding-top:6px; border-top:1px dashed rgba(0,0,0,.1); opacity:.9"><small>${m.translated}</small></div>`:''}
+        <span class="t-chip">翻譯</span>`;
+      return `
+        <div class="dmMsg ${isRight?'right':'left'}" data-id="${m.id}">
+          <div class="bubble">${bubbleInner}</div>
+          <div class="meta">
+            ${isRight?`<span class="readFlag ${showFlag?'':'hidden'}" id="rf-${m.id}">1</span>`:''}
+            <span class="time">${timeStr}</span>
+          </div>
+        </div>`;
+    }).join('');
+
+    // 點「翻譯」chip：原文在上、翻譯在下（切換）
+    box.querySelectorAll('.dmMsg .t-chip').forEach(ch=>{
+      ch.addEventListener('click', e=>{
+        e.stopPropagation();
+        const parent = ch.closest('.dmMsg');
+        const id = parent.dataset.id;
+        const chat = window.dmMessages[chatId];
+        const msg = chat.find(x=>x.id===id);
+        if (!msg) return;
+        if (msg.translated){ delete msg.translated; }
+        else { msg.translated = '（翻譯）'+ (msg.text || ''); }
+        renderDm(chatId);
+      });
+    });
+
+    // 長按右側泡泡 → 模擬「藝人已讀」（開發測試）
+    box.querySelectorAll('.dmMsg.right .bubble').forEach(b=>{
+      const id = b.closest('.dmMsg').dataset.id;
+      let t=null;
+      const start=()=>{ t=setTimeout(()=>{ markArtistRead(chatId, id); },650); };
+      const end=()=>{ if(t){clearTimeout(t);t=null;} };
+      b.addEventListener('mousedown', start); b.addEventListener('mouseup', end); b.addEventListener('mouseleave', end);
+      b.addEventListener('touchstart', start, {passive:true}); b.addEventListener('touchend', end); b.addEventListener('touchcancel', end);
+    });
+
     box.scrollTop = box.scrollHeight;
   };
 
-  // 切換翻譯（示範：簡單加前綴）
-  window.toggleDmTranslate = function(chatId, mid){
-    const list = window.dmMessages[chatId]||[];
-    const m = list.find(x=>x.id===mid); if(!m) return;
-    m.translatedText = m.translatedText ? '' : `（翻譯）${m.text}`;
-    window.renderDm(chatId);
-  };
-
-  // 送出訊息：預設 readByArtist=false
-  const _origSend = window.sendDm || null;
   window.sendDm = function(){
     const input = document.getElementById('dmInput') || document.getElementById('dmMessageInput');
+    if(!input) return;
+    const val = (input.value||'').trim(); if(!val) return;
     const chatId = window.currentChat || 'default';
-    const val = (input?.value||'').trim(); if(!val) return;
-    if(!_origSend){
-      window.dmMessages[chatId] = window.dmMessages[chatId]||[];
-      window.dmMessages[chatId].push({id:'m'+Date.now(),from:'right',text:val,ts:Date.now(),readByArtist:false});
-      input.value=''; window.renderDm(chatId);
-    }else{ _origSend(); }
+    if (!window.dmMessages) window.dmMessages = {};
+    if (!window.dmMessages[chatId]) window.dmMessages[chatId] = [];
+    window.dmMessages[chatId].push({
+      id:'m'+Date.now(), from:'right', text:val, ts:Date.now(),
+      readByArtist:false, role:'fan', name: (window.profileName || 'Me')
+    });
+    input.value=''; renderDm(chatId);
   };
 
-  // 只有藝人讀才消失
-  window.markArtistRead = function(chatId, mid){
-    const list = window.dmMessages[chatId]||[]; const m = list.find(x=>x.id===mid && x.from==='right');
-    if(!m) return; m.readByArtist = true;
-    const flag = document.getElementById('rf-'+mid); if(flag) flag.classList.add('hidden');
-  };
-})();
-
-/* =========================== 5) Live：列表樣式、點擊、排序 / Live 與回放訊位規則 =========================== */
-(function(){
-  // 砍「即將開始」區塊（若存在）
-  const soonSec = document.querySelector('#liveList .soon, #liveListSoon, .liveSoon, [data-section="soon"]');
-  if(soonSec) soonSec.remove();
-
-  // 列表卡片：補勾勾與名稱顏色
-  document.querySelectorAll('.liveCard .liveTitle, .liveCard h3').forEach(t=>{
-    if(!t.querySelector('.v-badge')) t.insertAdjacentHTML('beforeend','<span class="v-badge">✓</span>');
-    const card = t.closest('.liveCard');
-    if(card?.dataset.state==='live') t.style.color = 'var(--accent)'; else t.style.color='';
-  });
-
-  // 回放頁：加排序 chips
-  const rp = document.getElementById('liveReplayList') || document.getElementById('liveListEnded');
-  if(rp && !document.getElementById('replaySortBar')){
-    const wrap = document.createElement('div'); wrap.className='toolbar'; wrap.id='replaySortBar';
-    wrap.innerHTML = `<span class="chip active" id="sort-new" onclick="sortReplay('new')">最新優先</span>
-                      <span class="chip" id="sort-old" onclick="sortReplay('old')">最舊優先</span>`;
-    rp.parentNode.insertBefore(wrap, rp);
-  }
-  window.sortReplay = function(mode){
-    const a=document.getElementById('sort-new'), b=document.getElementById('sort-old');
-    if(a&&b){ a.classList.toggle('active',mode==='new'); b.classList.toggle('active',mode==='old'); }
-    const list = (window.REPLAY_LIST||[]).slice().sort((x,y)=> mode==='new' ? (y.ts-x.ts) : (x.ts-y.ts));
-    if(rp){ rp.innerHTML = list.map(renderReplayItem).join(''); }
-  };
-  window.renderReplayItem = function(it){
-    return `<div class="liveCard" onclick="openReplay('${it.id}')">
-              <img src="${it.cover||''}" alt="">
-              <div><div class="liveTitle">${it.title}<span class="v-badge">✓</span></div>
-              <div class="liveState ghost">${new Date(it.ts).toLocaleDateString()}</div></div></div>`;
+  window.markArtistRead = function(chatId, msgId){
+    const list = window.dmMessages?.[chatId]; if(!list) return;
+    const m = list.find(x=>x.id===msgId); if(!m) return;
+    if (m.from==='right'){
+      m.readByArtist = true;
+      const flag = document.getElementById('rf-'+msgId);
+      if (flag) flag.classList.add('hidden');
+    }
   };
 
-  // 直播 / 回放訊位
-  const liveThread = document.getElementById('liveThread');
-  if(liveThread){
-    // 自己送出的在右，其餘左
-    const _send = window.sendLiveMsg || null;
-    window.sendLiveMsg = function(){
-      const input = document.getElementById('liveInput'); const val=(input?.value||'').trim(); if(!val) return;
-      const div=document.createElement('div'); div.className='liveMsg fanSelf'; div.textContent=val;
-      liveThread.appendChild(div); input.value=''; liveThread.scrollTop=liveThread.scrollHeight;
-      if(_send) _send();
-    };
-    const style = document.createElement('style');
-    style.textContent = `.liveMsg{max-width:72%;margin:8px 0;padding:10px 12px;border-radius:16px;background:#fff}
-                         .liveMsg.host,.liveMsg.artist{background:var(--chip)}
-                         .liveMsg.fanSelf{background:#fff;margin-left:auto}
-                         .liveMsg.fan{background:#fff}`;
-    document.head.appendChild(style);
-  }
-  // 回放：粉絲全右、藝人左
-  const rpThread = document.getElementById('replayThread');
-  if(rpThread){
-    const style2 = document.createElement('style');
-    style2.textContent = `.replayMsg{max-width:72%;margin:8px 0;padding:10px 12px;border-radius:16px}
-                          .replayMsg.host,.replayMsg.artist{background:var(--chip);margin-right:auto}
-                          .replayMsg.fan{background:#fff;margin-left:auto}`;
-    document.head.appendChild(style2);
-  }
-})();
+  /* ----------------------- 直播列表：刪「即將開始」/加排序/可點詳情/名稱帶勾 ----------------------- */
+  function renderLiveList(){
+    const root = document.getElementById('liveList') || document.getElementById('liveEnded')?.parentElement;
+    if(!root) return;
 
-/* =========================== 6) 個人頁：去大背景 / 補頭貼 / 底部不被蓋住 =========================== */
-(function(){
-  const p = document.getElementById('profilePage');
-  if(p){
-    // 去背景區塊（若有）
-    const hdr = p.querySelector('#profileHeader'); if(hdr) hdr.remove();
-    // 放一張頭貼＋基本卡
-    if(!p.querySelector('.avatar')){
-      const top = document.createElement('div'); top.className='card';
-      top.innerHTML = `<div class="kv">
-          <div style="display:flex;align-items:center;gap:12px">
-            <img class="avatar" id="profileAvatar" src="${localStorage.getItem('profileAvatar')||'https://i.imgur.com/2WZtOD6.png'}">
-            <div>
-              <div style="font-weight:900" id="profileName">${localStorage.getItem('profileName')||'粉絲暱稱'}</div>
-              <div class="ghost" id="fanId">${localStorage.getItem('fanId')||('NEXT-'+Math.floor(10000+Math.random()*90000))}</div>
-            </div>
+    // 假資料來源
+    const lives = (window.livesData || []).map(x=>({...x}));
+    // 如果頁面已經有卡片且沒有 livesData，就從 DOM 讀（盡量兼容）
+    if (!lives.length){
+      document.querySelectorAll('.live-card[data-id]').forEach(card=>{
+        lives.push({
+          id: card.dataset.id,
+          title: card.querySelector('.title')?.textContent?.trim() || 'Live',
+          cover: card.querySelector('img')?.src,
+          ts: +card.dataset.ts || Date.now()-Math.random()*1e7,
+          status: card.dataset.status || 'ended',
+          artist: card.dataset.artist || 'ALLEY'
+        });
+      });
+    }
+
+    // 工具條（排序）
+    const holder = document.getElementById('liveEnded') || root;
+    const toolbar = document.createElement('div');
+    toolbar.className='live-sort';
+    toolbar.innerHTML = `
+      <button class="sort-chip active" data-sort="desc">最新優先</button>
+      <button class="sort-chip" data-sort="asc">最舊優先</button>`;
+    holder.before(toolbar);
+
+    function draw(sort='desc'){
+      const endedList = lives.filter(l=>l.status!=='live'); // 只畫回放
+      endedList.sort((a,b)=> sort==='asc' ? (a.ts-b.ts) : (b.ts-a.ts));
+      holder.innerHTML = endedList.map(l=>`
+        <div class="live-card" data-id="${l.id}" data-ts="${l.ts}">
+          <img class="cover" src="${l.cover||'https://picsum.photos/seed/l'+l.id+'/240/140'}" alt="">
+          <div class="info">
+            <div class="title">${l.title} <span class="verify-badge">✓</span></div>
+            <div class="time" style="color:#9aa1ad">${new Date(l.ts).toLocaleDateString()}</div>
           </div>
-          <div class="actions">
-            <button onclick="pickAvatar()">更換頭貼</button>
-          </div>
-        </div>`;
-      p.prepend(top);
+        </div>
+      `).join('');
+      holder.querySelectorAll('.live-card').forEach(c=>{
+        c.addEventListener('click', ()=>{
+          if (window.openLiveDetail) return openLiveDetail(c.dataset.id);
+          location.hash = '#live-'+c.dataset.id; // 兼容：沒有函式就用 hash
+        });
+      });
+    }
+    draw('desc');
+
+    toolbar.querySelectorAll('.sort-chip').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        toolbar.querySelectorAll('.sort-chip').forEach(x=>x.classList.remove('active'));
+        btn.classList.add('active');
+        draw(btn.dataset.sort);
+      });
+    });
+
+    // 進行中區塊名字顯示為紫色 + 勾
+    document.querySelectorAll('.live-card[data-status="live"] .title').forEach(t=>{
+      t.style.color = 'var(--accent)';
+      if (!t.querySelector('.verify-badge')) t.insertAdjacentHTML('beforeend',' <span class="verify-badge">✓</span>');
+    });
+
+    // 移除右上角那行字（若存在）
+    const sub = Array.from(document.querySelectorAll('*')).find(x=>x.textContent?.trim()==='粉絲限定聊天室');
+    if (sub) sub.remove();
+    // 移除「即將開始」區塊（若存在）
+    const upcoming = document.querySelector('.live-upcoming') || document.getElementById('liveUpcoming');
+    if (upcoming) upcoming.remove();
+  }
+
+  /* ----------------------- Profile：首頁進入；nav 改「商店」 ----------------------- */
+  function patchNavToStore(){
+    const nav = document.getElementById('bottomNav') || document.querySelector('.bottom-nav');
+    if(!nav) return;
+    // 把最後一個 tab 改名為「商店」
+    const tabs = nav.querySelectorAll('[data-tab]');
+    const last = tabs[tabs.length-1];
+    if (last){
+      last.dataset.tab = 'store';
+      last.classList.add('tab-store');
+      last.querySelector('.label').textContent = '商店';
+      last.addEventListener('click', ()=> openStore());
     }
   }
-  window.pickAvatar = function(){
-    const url = prompt('輸入頭貼圖片 URL'); if(!url) return;
-    localStorage.setItem('profileAvatar', url);
-    const img = document.getElementById('profileAvatar'); if(img) img.src=url;
-  };
-})();
-
-/* =========================== 7) Nav：把「我的」改成商店；首頁 Profile bar 仍可進個人頁 =========================== */
-(function(){
-  const nav = document.getElementById('navbar') || document.getElementById('navBar');
-  if(!nav) return;
-  // 找到原「我的」按鈕並改成商店；點擊打開 storePage
-  const btns = [...nav.querySelectorAll('div,button,span')];
-  const mine = btns.find(b=>/我的|個人|Profile/i.test(b.textContent||''));
-  if(mine){
-    mine.innerHTML = '🛍️<br>商店';
-    mine.onclick = ()=> showPage && showPage('storePage');
+  function openStore(){
+    const p = document.getElementById('storePage');
+    if (!p){
+      const container = document.getElementById('pages') || document.body;
+      const el = document.createElement('section');
+      el.id='storePage';
+      el.innerHTML = `
+        <h2 style="margin:16px 12px 8px">商店</h2>
+        <div style="padding:0 12px 120px">
+          <div style="margin:12px 0; font-weight:900">購買愛心（個人）</div>
+          <div class="profile-actions-row">
+            <button data-artist="woochan" data-days="30" data-cost="1000">Woochan 30天（1000點）</button>
+            <button data-artist="dohee"   data-days="30" data-cost="1000">Dohee 30天（1000點）</button>
+            <button data-artist="annie"   data-days="30" data-cost="1000">Annie 30天（1000點）</button>
+          </div>
+          <div style="margin:16px 0; font-weight:900">購買愛心（團體）</div>
+          <div class="profile-actions-row">
+            <button data-artist="group"   data-days="30" data-cost="2400">ALlday 30天（2400點）</button>
+          </div>
+          <p style="margin-top:16px; color:#666">＊後台點數為人工同步；若點數不足會提示，不會自動扣。</p>
+        </div>`;
+      container.appendChild(el);
+      el.querySelectorAll('button[data-cost]').forEach(btn=>{
+        btn.addEventListener('click', ()=>{
+          const cost = +btn.dataset.cost, days=+btn.dataset.days, who=btn.dataset.artist;
+          const wallet = +(localStorage.getItem('wallet')||'0');
+          if (wallet >= cost){
+            localStorage.setItem('wallet', wallet - cost);
+            const key = who==='group' ? 'heartGroupDays' : `heart:${who}`;
+            const left = +(localStorage.getItem(key)||'0');
+            localStorage.setItem(key, left + days);
+            alert('購買成功！已加天數，並扣除點數。');
+          }else{
+            alert('點數不足。將由管理員於後台加值後再購買。');
+          }
+        });
+      });
+    }
+    // 顯示 storePage（你原本的切頁機制可自行接）
+    document.querySelectorAll('section[id$="Page"]').forEach(x=>x.style.display='none');
+    document.getElementById('storePage').style.display='block';
   }
-})();
 
-/* =========================== 8) 商店：點數檢查＋個人/全團購買 =========================== */
-(function(){
-  window.walletBalance = parseInt(localStorage.getItem('walletBalance')||'0',10);
-  window.heartDays = JSON.parse(localStorage.getItem('heartDays')||'{"group":0,"perArtist":{}}');
+  /* ----------------------- 啟動：按你頁面現況盡量自動貼合 ----------------------- */
+  document.addEventListener('DOMContentLoaded', ()=>{
+    try{ renderStoryBar(); }catch(e){}
+    try{ renderFeed(currentFilter); }catch(e){}
 
-  function saveWallet(){ localStorage.setItem('walletBalance', String(walletBalance)); }
-  function saveHearts(){ localStorage.setItem('heartDays', JSON.stringify(heartDays)); }
+    // 直播頁修補
+    try{ renderLiveList(); }catch(e){}
 
-  // 商店清單：每位藝人一列
-  const box = document.getElementById('storeArtistGoods');
-  if(box){
-    const items = ARTISTS.filter(a=>a.id!=='all');
-    box.innerHTML = items.map(a=>`
-      <div class="good">
-        <div>
-          <h4>${a.name} 愛心 30 天 ${a.verified?'<span class="v-badge">✓</span>':''}</h4>
-          <small>（個人）只對 ${a.name} 有效</small>
-        </div>
-        <button onclick="buyHeartsStore('${a.id}',30,150)">150 點</button>
-      </div>
-    `).join('');
-  }
+    // Nav 改商店
+    try{ patchNavToStore(); }catch(e){}
 
-  window.buyHeartsStore = function(target, days, cost){
-    if(walletBalance < cost){ alert('點數不足，無法購買'); return; }
-    walletBalance -= cost; saveWallet();
-    if(target==='group'){ heartDays.group = (heartDays.group||0)+days; }
-    else{ heartDays.perArtist[target] = (heartDays.perArtist[target]||0)+days; }
-    saveHearts();
-    alert('購買成功');
-    // 刷新 profile 顯示（若有）
-    const bal = document.getElementById('walletBalance'); if(bal) bal.textContent = walletBalance;
-    const hd  = document.getElementById('fanHeartDays'); if(hd) hd.textContent = (heartDays.group||0);
-  };
-})();
-
-/* =========================== 9) 首次套用：重繪 StoryBar / Feed / Reaction =========================== */
-document.addEventListener('DOMContentLoaded', ()=>{
-  if(typeof renderStoryBar==='function') renderStoryBar();
-  if(typeof renderFeed==='function') renderFeed(window.currentFilter||'all');
-
-  // 把現有卡片替換反應列（若你已有，會以這版的樣式輸出）
-  document.querySelectorAll('.postCard').forEach(card=>{
-    const pid = card.dataset.pid || card.id || ('p'+Math.random()).replace('.','');
-    card.dataset.pid = pid;
-    // 如果卡片內已有 reaction 容器，替換掉
-    const old = card.querySelector('.reactions, .reaction-bar'); 
-    const ins = document.createElement('div'); ins.innerHTML = renderReactionsBar(pid);
-    if(old) old.replaceWith(ins); else card.appendChild(ins);
+    // 若一開始就在 DM
+    const dmBox = document.getElementById('dmThread')||document.getElementById('dmBox');
+    if (dmBox && window.currentChat){ renderDm(window.currentChat); }
   });
-
-  // 把所有藝人名稱旁加勾勾
-  document.querySelectorAll('.postHead .name, .dmTitle .name, .liveTitle').forEach(n=>{
-    if(!n.querySelector('.v-badge')) n.insertAdjacentHTML('beforeend','<span class="v-badge">✓</span>');
-  });
-});
+})();
 </script>
-<!-- =========================== /INTEGRATED HOTFIX END =========================== -->
+<!-- ================== /ONE-SHOT HOTFIX BUNDLE ================== -->
 </body>
 </html>
