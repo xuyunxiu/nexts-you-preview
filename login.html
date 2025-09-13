@@ -1,124 +1,1216 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8">
-  <title>登入 - NEXT’S YOU</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: sans-serif;
-      background: #000;
-      color: #fff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-    }
-    .loginBox {
-      background: #111;
-      padding: 32px;
-      border-radius: 12px;
-      text-align: center;
-      box-shadow: 0 0 20px rgba(255,255,255,0.1);
-    }
-    input {
-      padding: 10px;
-      margin: 8px 0;
-      border: none;
-      border-radius: 6px;
-      width: 220px;
-    }
-    button {
-      margin-top: 12px;
-      padding: 10px 20px;
-      background: #ff5fa2;
-      border: none;
-      border-radius: 6px;
-      color: #fff;
-      font-weight: bold;
-      cursor: pointer;
-    }
-    button:hover { background: #ff2e88; }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>NEXT’S YOU — Fan App (單頁版)</title>
 
-    /* Loading Animation */
-    .hidden { display: none; }
-    .loadingScreen {
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: black;
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 32px;
-      font-weight: bold;
-      z-index: 9999;
+  <!-- ===============================
+       ==========  GLOBAL CSS  =========
+       =============================== -->
+  <style>
+    /* ---------- Theme ---------- */
+    :root{
+      --bg:#f5f7ff;
+      --card:#fff;
+      --text:#1a1a1a;
+      --sub:#666;
+      --line:#e6e8ef;
+      --ghost:#9aa0b4;
+      --accent:#6a5acd;     /* 藍紫 */
+      --accent2:#836fff;
+      --danger:#ff4d4f;
+      --ok:#1abc9c;
+      --hover:#eef1ff;
+      --fan:#ffffff;        /* 粉絲留言背景 */
+      --artist:#efe7ff;     /* 藝人留言背景（淡紫） */
+      --radius:16px;
+      --shadow:0 10px 35px rgba(26,26,26,.08);
     }
-    .loadingText {
-      opacity: 0;
-      transition: opacity 1s ease;
+
+    /* ---------- Reset ---------- */
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      overflow-x:hidden;
     }
-    .loadingText.show {
-      opacity: 1;
+    img{display:block; max-width:100%}
+    button{font:inherit}
+    a{color:inherit; text-decoration:none}
+
+    /* ---------- Utilities ---------- */
+    .ghost{color:var(--ghost)}
+    .sub{color:var(--sub)}
+    .row{display:flex; align-items:center; gap:12px}
+    .wrap{padding:12px}
+    .hidden{display:none !important}
+    .soft{padding:16px}
+    .card{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow)}
+    .chip{display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:999px; background:var(--hover); border:1px solid var(--line); font-size:12px}
+    .divider{height:1px; background:var(--line); margin:12px 0}
+
+    /* ---------- Page & Nav ---------- */
+    section.page{display:none; padding:12px 12px 88px}
+    section.page.active{display:block; animation:fadeIn .24s ease}
+    @keyframes fadeIn{from{opacity:0; transform:translateY(6px)} to{opacity:1; transform:none}}
+
+    nav#nav{
+      position:fixed; left:0; right:0; bottom:0;
+      background:var(--card); border-top:1px solid var(--line);
+      display:flex; justify-content:space-around; padding:10px 8px 14px; gap:6px;
+      backdrop-filter:saturate(140%) blur(10px);
+      transition:transform .28s ease;
+      z-index:40;
     }
+    nav#nav.hidden{transform:translateY(120%)}
+    nav#nav button{
+      flex:1; border:none; background:transparent; padding:8px 0 6px; border-radius:12px; cursor:pointer;
+      color:var(--sub); font-weight:800; font-size:13px;
+    }
+    nav#nav button.active{color:var(--accent); background:var(--hover); border:1px solid var(--line)}
+
+    /* ---------- Home Header (Me bar) ---------- */
+    #homeHeader{display:flex; align-items:center; justify-content:space-between; gap:12px; margin:6px 6px 8px}
+    #homeHeader .me{display:flex; align-items:center; gap:10px}
+    #homeHeader .me img{width:44px; height:44px; border-radius:50%; object-fit:cover; border:1px solid var(--line)}
+    #homeHeader .me .id{font-size:12px; color:var(--ghost)}
+    #homeHeader .right{display:flex; align-items:center; gap:8px}
+
+    /* ---------- StoryBar / 分類圈圈 ---------- */
+    #storyWrap{position:sticky; top:0; z-index:30; background:linear-gradient(180deg,rgba(245,247,255,.98),rgba(245,247,255,.92)); backdrop-filter:blur(6px)}
+    #storyBar{
+      display:flex; gap:12px; overflow-x:auto; padding:10px 8px 12px; scroll-snap-type:x proximity;
+      -webkit-overflow-scrolling:touch;
+      border-bottom:1px solid var(--line);
+      /* 隱藏水平捲軸的灰條（各瀏覽器） */
+      scrollbar-width:none; /* Firefox */
+    }
+    #storyBar::-webkit-scrollbar{display:none} /* WebKit */
+    .story-item{flex:0 0 auto; width:64px; text-align:center; cursor:pointer; scroll-snap-align:center}
+    .story-item img{width:56px; height:56px; border-radius:50%; object-fit:cover; border:2px solid var(--accent)}
+    .story-item .name{font-size:12px; margin-top:4px; color:var(--sub)}
+    .story-item.all img{border-color:#111}
+
+    /* ---------- Feed / 貼文卡片 ---------- */
+    .postCard{margin:12px 6px; cursor:pointer}
+    .postCard .hdr{display:flex; align-items:center; gap:10px; position:relative}
+    .postCard .avatar{width:48px; height:48px; border-radius:50%; object-fit:cover; border:1px solid var(--line)}
+    .postCard .meta b{font-weight:900}
+    .postCard .meta small{display:block; color:var(--ghost)}
+    .translate-btn{
+      position:absolute; right:0; top:0; transform:translateY(2px);
+      font-size:12px; border:1px solid var(--line); background:var(--hover); border-radius:12px; padding:4px 8px; cursor:pointer;
+    }
+    .postCard .body{margin-top:8px}
+    .postCard .body p{margin:8px 0 0}
+    .postCard .hero{width:100%; height:400px; object-fit:cover; border-radius:12px; border:1px solid var(--line)}
+    .reaction-bar{display:flex; gap:10px; flex-wrap:wrap; margin-top:10px}
+    .reaction{
+      display:flex; flex-direction:column; align-items:center; gap:4px; min-width:54px;
+      padding:6px 10px; border:1px solid var(--line); background:var(--hover); border-radius:12px; cursor:pointer;
+      user-select:none;
+    }
+    .reaction.active{background:linear-gradient(180deg,var(--accent),var(--accent2)); color:#fff}
+    .reaction .count{font-weight:800; font-size:12px}
+
+    /* ---------- Post Detail ---------- */
+    #postDetail .topbar{display:flex; align-items:center; gap:10px; margin:2px 0 10px}
+    #postDetail .topbar .back{width:40px; height:40px; border-radius:12px; border:1px solid var(--line); background:var(--card); cursor:pointer}
+    .comments-head{display:flex; align-items:center; justify-content:space-between; margin:10px 0 12px}
+    .switch{position:relative; width:46px; height:26px}
+    .switch input{opacity:0; width:0; height:0}
+    .slider{position:absolute; inset:0; background:#cfd3e1; border-radius:999px; transition:.2s}
+    .slider:before{content:""; position:absolute; width:20px; height:20px; left:3px; top:3px; background:#fff; border-radius:50%; transition:.2s}
+    .switch input:checked + .slider{background:var(--accent)}
+    .switch input:checked + .slider:before{transform:translateX(20px)}
+    .citem{border:1px solid var(--line); border-radius:12px; padding:10px; background:linear-gradient(180deg,var(--card),var(--hover)); margin-bottom:10px}
+    .citem.artist{background:linear-gradient(180deg,#ece6ff,#f6f3ff); border-color:#c4b6ff}
+    .citem .u{display:flex; align-items:center; gap:10px; margin-bottom:6px}
+    .citem .u img{width:36px; height:36px; border-radius:50%; border:1px solid var(--line); object-fit:cover}
+    .citem .name{font-weight:800}
+    .citem .c-actions{display:flex; align-items:center; gap:8px; margin-top:6px}
+    .comment-input{position:sticky; bottom:0; left:0; right:0; padding:12px; background:linear-gradient(180deg,rgba(255,255,255,.3),rgba(255,255,255,.95)); backdrop-filter:blur(10px); border-top:1px solid var(--line); display:flex; gap:8px}
+    .comment-input input{flex:1; border:1px solid var(--line); background:var(--hover); padding:12px 14px; border-radius:16px}
+    .comment-input button{min-width:64px; border:none; border-radius:12px; background:linear-gradient(180deg,var(--accent),var(--accent2)); color:#fff; font-weight:900; cursor:pointer}
+
+    /* ---------- DM List ---------- */
+    #dm .dmCard{
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      padding:12px; border:1px solid var(--line); border-radius:14px; background:var(--card); margin:10px 0; cursor:pointer;
+    }
+    #dm .dmCard .left{display:flex; align-items:center; gap:12px}
+    #dm .dmCard img{width:52px; height:52px; border-radius:50%; object-fit:cover; border:1px solid var(--line)}
+    #dm .dmCard .meta b{display:block}
+    #dm .dmCard .meta small{color:var(--ghost)}
+    #dm .dmRight{display:flex; align-items:center; gap:10px}
+    .badge{background:#ff3b30; color:#fff; font-size:12px; padding:2px 7px; border-radius:999px; min-width:22px; text-align:center}
+    .heartDays{color:var(--danger); font-weight:800}
+    .heartDays::before{content:"❤️ ";}
+
+    /* ---------- DM Detail ---------- */
+    #dmDetail .topbar{display:flex; align-items:center; gap:10px; margin:2px 0 10px}
+    #dmDetail .back{width:40px; height:40px; border-radius:12px; border:1px solid var(--line); background:var(--card); cursor:pointer}
+    .dmThread{padding:8px 2px 8px; display:flex; flex-direction:column; gap:8px; height:calc(100vh - 180px); overflow-y:auto}
+    .dmMsg{display:flex}
+    .dmMsg .bubble{max-width:72%; padding:10px 12px; border-radius:14px; position:relative}
+    .dmMsg.left .bubble{background:var(--artist); margin-right:auto}
+    .dmMsg.right .bubble{background:var(--accent); color:#fff; margin-left:auto}
+    .dmMsg .meta{font-size:11px; color:var(--ghost); margin-top:4px}
+    .dmMsg .translate-chip{font-size:10px; opacity:.9; margin-top:4px; cursor:pointer}
+    .read1{display:inline-flex; align-items:center; justify-content:center; min-width:16px; height:16px; font-size:11px; background:#fff; color:var(--accent); border-radius:999px; padding:0 4px; margin-left:6px}
+
+    .dmInputBar{display:flex; gap:8px; padding:10px 0; border-top:1px solid var(--line); position:sticky; bottom:0; background:linear-gradient(180deg,rgba(255,255,255,.3),rgba(255,255,255,.95)); backdrop-filter:blur(10px)}
+    .dmInputBar input{flex:1; border:1px solid var(--line); padding:12px; border-radius:14px; background:var(--hover)}
+    .dmInputBar button{min-width:60px; border:none; background:linear-gradient(180deg,var(--accent),var(--accent2)); color:#fff; border-radius:12px; font-weight:900; cursor:pointer}
+
+    /* ---------- Live List ---------- */
+    #liveList .group{margin:10px 0}
+    .liveCard{
+      display:flex; align-items:center; gap:12px; padding:12px; border:1px solid var(--line); border-radius:14px; background:var(--card); margin:8px 0; cursor:pointer;
+    }
+    .liveCard img{width:100px; height:64px; border-radius:10px; object-fit:cover; border:1px solid var(--line)}
+    .liveMeta b{display:block}
+    .status{font-size:12px; color:var(--ghost)}
+    .status.on{color:var(--ok)}
+    .status.soon{color:#ff9800}
+    .status.end{color:var(--ghost)}
+
+    /* ---------- Live Room ---------- */
+    #liveRoom .topbar{display:flex; align-items:center; gap:10px; margin:2px 0 10px}
+    #liveRoom .back{width:40px; height:40px; border-radius:12px; border:1px solid var(--line); background:var(--card); cursor:pointer}
+    .liveThread{display:flex; flex-direction:column; gap:8px; height:calc(100vh - 180px); overflow-y:auto; padding:4px 2px}
+    .liveMsg{max-width:72%; padding:10px 12px; border-radius:14px}
+    .liveMsg.host{background:var(--artist); align-self:flex-start}
+    .liveMsg.fan{background:var(--fan); align-self:flex-end}
+    .liveMsg.welcome{background:#ffeaa7; align-self:center; font-size:12px}
+    .liveInputBar{display:flex; gap:8px; padding:10px 0; border-top:1px solid var(--line); position:sticky; bottom:0; background:linear-gradient(180deg,rgba(255,255,255,.3),rgba(255,255,255,.95)); backdrop-filter:blur(10px)}
+    .liveInputBar input{flex:1; border:1px solid var(--line); padding:12px; border-radius:14px; background:var(--hover)}
+    .liveInputBar button{min-width:60px; border:none; background:linear-gradient(180deg,var(--accent),var(--accent2)); color:#fff; border-radius:12px; font-weight:900; cursor:pointer}
+
+    /* ---------- Live Replay ---------- */
+    #liveReplay .topbar{display:flex; align-items:center; gap:10px; margin:2px 0 10px}
+    #liveReplay .back{width:40px; height:40px; border-radius:12px; border:1px solid var(--line); background:var(--card); cursor:pointer}
+    .replayThread{display:flex; flex-direction:column; gap:8px; height:calc(100vh - 200px); overflow-y:auto; padding:4px 2px}
+    .replayMsg{max-width:72%; padding:10px 12px; border-radius:14px}
+    .replayMsg.host{background:var(--artist); align-self:flex-start}
+    .replayMsg.fan{background:var(--fan); align-self:flex-end}
+    .replayCtrl{display:flex; align-items:center; gap:8px; padding:10px 0}
+
+    /* ---------- Profile ---------- */
+    #profile{padding:0}
+    #profile .topbar{position:sticky; top:0; z-index:5; padding:8px 12px; background:linear-gradient(180deg,rgba(245,247,255,.95),rgba(245,247,255,.6))}
+    #profileHeader{position:relative; height:46vh; border-radius:0 0 22px 22px; overflow:hidden}
+    #profileBg{width:100%; height:100%; object-fit:cover}
+    #profileHeader::after{content:""; position:absolute; inset:auto 0 0 0; height:36%; background:linear-gradient(180deg, rgba(0,0,0,0), rgba(0,0,0,.55))}
+    #avatarWrap{position:absolute; left:50%; transform:translateX(-50%); bottom:-46px; text-align:center}
+    #editAvatar{width:96px; height:96px; border-radius:50%; border:3px solid #fff; object-fit:cover; background:#888; cursor:pointer}
+    .profile-actions{position:absolute; left:50%; transform:translateX(-50%); bottom:64px; display:flex; gap:14px}
+    .round-btn{width:40px; height:40px; border-radius:50%; border:1px solid var(--line); background:var(--card); display:flex; align-items:center; justify-content:center; cursor:pointer}
+
+    #profileInfo{margin-top:68px; padding:12px; display:flex; flex-direction:column; gap:12px}
+    .pitem{display:flex; align-items:center; justify-content:space-between; padding:14px; border:1px solid var(--line); background:var(--card); border-radius:14px}
+    .pitem .label{color:var(--sub); font-size:13px}
+    .pitem .value{font-weight:900}
+    .edit-btn{border:none; background:transparent; cursor:pointer; font-size:14px; color:var(--accent)}
+
+    /* ---------- Popup: mini profile ---------- */
+    #miniProfile{
+      position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
+      width:300px; max-width:86vw; background:var(--card); border:1px solid var(--line); border-radius:16px; box-shadow:var(--shadow);
+      padding:14px; z-index:60; display:none;
+    }
+    #miniProfile .hdr{display:flex; align-items:center; gap:10px; margin-bottom:8px}
+    #miniProfile .hdr img{width:56px; height:56px; border-radius:50%; border:1px solid var(--line); object-fit:cover}
+    #miniProfile .actions{display:flex; justify-content:flex-end; gap:8px; margin-top:12px}
+    #miniProfile .actions button{border:none; background:var(--hover); border:1px solid var(--line); padding:8px 12px; border-radius:10px; cursor:pointer}
   </style>
 </head>
-<body>
-  <div class="loginBox">
-    <h2>輸入邀請碼</h2>
-    <input type="text" id="inviteCode" placeholder="邀請碼">
-    <br>
-    <button onclick="verifyCode()">登入</button>
+
+<body class="nx">
+
+  <!-- ===============================
+         HOME
+       =============================== -->
+  <section id="home" class="page active">
+    <div id="homeHeader">
+      <div class="me" onclick="openProfile()">
+        <img id="meAvatar" src="https://picsum.photos/80?u=me" onerror="imgFallback(this)">
+        <div>
+          <div id="meNickname" style="font-weight:900">暱稱</div>
+          <div class="id" id="meFanId">NEXT-00000</div>
+        </div>
+      </div>
+      <div class="right">
+        <span class="chip">粉絲端</span>
+      </div>
+    </div>
+
+    <div id="storyWrap">
+      <div id="storyBar"></div>
+    </div>
+
+    <div id="feedWrap"></div>
+  </section>
+
+  <!-- ===============================
+         POST DETAIL
+       =============================== -->
+  <section id="postDetail" class="page">
+    <div class="topbar">
+      <button class="back" onclick="goBack()">←</button>
+      <b style="font-weight:900">留言區</b>
+    </div>
+    <div id="postDetailContent"></div>
+
+    <div class="comments-head">
+      <div class="row">
+        <div id="commentsCount" class="ghost">全部 0 則</div>
+        <div class="chip" style="cursor:pointer" onclick="renderComments()">⟳ 重新整理</div>
+      </div>
+      <div class="row">
+        <div id="filterLabel" class="ghost">只看 的回覆</div>
+        <label class="switch">
+          <input id="filterArtistSwitch" type="checkbox" onchange="renderComments()" />
+          <span class="slider"></span>
+        </label>
+      </div>
+    </div>
+
+    <div id="commentList"></div>
+
+    <div class="comment-input">
+      <input id="commentInput" placeholder="輸入評論…" />
+      <button onclick="sendComment()">送出</button>
+    </div>
+  </section>
+
+  <!-- ===============================
+         DM LIST
+       =============================== -->
+  <section id="dm" class="page">
+    <div class="row" style="justify-content:space-between; margin:2px 0 10px">
+      <b style="font-weight:900">訊息</b>
+      <span class="ghost" id="dmTips">向右滑返回首頁</span>
+    </div>
+    <div id="dmListWrap"></div>
+    <div id="dmEmpty" class="ghost" style="text-align:center; margin-top:30vh; display:none">尚未與任何藝人開啟聊天 ❤️</div>
+  </section>
+
+  <!-- ===============================
+         DM DETAIL
+       =============================== -->
+  <section id="dmDetail" class="page">
+    <div class="topbar">
+      <button class="back" onclick="goBack()">←</button>
+      <b id="dmTitle">DOHEE</b>
+    </div>
+    <div id="dmThread" class="dmThread"></div>
+    <div class="dmInputBar">
+      <input id="dmMessageInput" placeholder="輸入訊息…" />
+      <button id="dmSendBtn">➤</button>
+    </div>
+  </section>
+
+  <!-- ===============================
+         LIVE LIST
+       =============================== -->
+  <section id="liveList" class="page">
+    <div class="row" style="justify-content:space-between; margin:2px 0 10px">
+      <b style="font-weight:900">直播</b>
+      <span class="ghost">粉絲限定聊天室</span>
+    </div>
+
+    <div class="group">
+      <h3 class="sub">進行中</h3>
+      <div id="liveOngoingList"></div>
+    </div>
+    <div class="group">
+      <h3 class="sub">即將開始</h3>
+      <div id="liveUpcomingList"></div>
+    </div>
+    <div class="group">
+      <h3 class="sub">已結束</h3>
+      <div id="liveEndedList"></div>
+    </div>
+  </section>
+
+  <!-- ===============================
+         LIVE ROOM
+       =============================== -->
+  <section id="liveRoom" class="page">
+    <div class="topbar">
+      <button class="back" onclick="showPage('liveList')">←</button>
+      <b id="liveTitle">直播中</b>
+    </div>
+
+    <div class="row" style="gap:12px; margin-bottom:6px">
+      <img id="liveHostAvatar" src="https://picsum.photos/60?u=host" onerror="imgFallback(this)" style="width:44px;height:44px;border-radius:50%;border:1px solid var(--line);object-fit:cover">
+      <div>
+        <b id="liveHostName">Host</b><br>
+        <small class="ghost">粉絲限定聊天室</small>
+      </div>
+    </div>
+
+    <div id="liveThread" class="liveThread"></div>
+
+    <div class="liveInputBar">
+      <input id="liveInput" placeholder="輸入留言…" />
+      <button onclick="sendLiveMsg()">送出</button>
+    </div>
+  </section>
+
+  <!-- ===============================
+         LIVE REPLAY
+       =============================== -->
+  <section id="liveReplay" class="page">
+    <div class="topbar">
+      <button class="back" onclick="showPage('liveList')">←</button>
+      <b>直播回放</b>
+      <div class="row" style="margin-left:auto">
+        <span class="ghost">速度</span>
+        <select id="replaySpeed" onchange="changeReplaySpeed(this.value)">
+          <option value="0.5">0.5x</option>
+          <option value="1" selected>1.0x</option>
+          <option value="2">2.0x</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="row" style="gap:12px; margin-bottom:6px">
+      <img id="replayHostAvatar" src="https://picsum.photos/60?u=replay" onerror="imgFallback(this)" style="width:44px;height:44px;border-radius:50%;border:1px solid var(--line);object-fit:cover">
+      <div>
+        <b id="replayHostName">Host</b><br>
+        <small id="replayTitle" class="ghost">回放標題</small>
+      </div>
+    </div>
+
+    <div id="replayThread" class="replayThread"></div>
+  </section>
+
+  <!-- ===============================
+         PROFILE
+       =============================== -->
+  <section id="profile" class="page">
+    <div class="topbar">
+      <b style="font-weight:900">我的</b>
+    </div>
+
+    <div id="profileHeader">
+      <img id="profileBg" src="https://picsum.photos/1200/800?blur" onerror="imgFallback(this)">
+      <div class="profile-actions">
+        <button class="round-btn onlyMe" title="換頭貼" onclick="document.getElementById('avatarInput').click()">📷</button>
+        <button class="round-btn onlyMe" title="換背景" onclick="document.getElementById('bgInput').click()">🖼️</button>
+      </div>
+      <div id="avatarWrap">
+        <img id="editAvatar" src="https://picsum.photos/160?u=me" onclick="document.getElementById('avatarInput').click()">
+        <input type="file" id="avatarInput" accept="image/*" class="onlyMe hidden" onchange="changeAvatar(event)">
+        <input type="file" id="bgInput" accept="image/*" class="onlyMe hidden" onchange="changeBg(event)">
+      </div>
+    </div>
+
+    <div id="profileInfo">
+      <div class="pitem">
+        <div>
+          <div class="label">Chat name</div>
+          <div class="value" id="p_nickname">暱稱</div>
+        </div>
+        <button class="edit-btn onlyMe" onclick="editNickname()">✏️</button>
+      </div>
+
+      <div class="pitem">
+        <div>
+          <div class="label">Status message</div>
+          <div class="value" id="p_status">尚未設定</div>
+        </div>
+        <button class="edit-btn onlyMe" onclick="editStatus()">✏️</button>
+      </div>
+
+      <div class="pitem">
+        <div class="label">粉絲 ID</div>
+        <div class="value" id="p_fanId">NEXT-00000</div>
+      </div>
+
+      <div class="pitem">
+        <div class="label">加入日期</div>
+        <div class="value" id="p_joinDate">—</div>
+      </div>
+
+      <div class="pitem">
+        <div class="label">生日</div>
+        <div class="value">
+          <input type="date" id="birthdayInput" onchange="saveBirthday(this.value)">
+        </div>
+      </div>
+
+      <div class="pitem">
+        <div class="label">💜 我的愛心（剩餘天數）</div>
+        <div class="value"><span id="heartDays">0</span> 天</div>
+      </div>
+
+      <div class="pitem">
+        <div class="label">錢包餘額</div>
+        <div class="value"><span id="walletBalance">0</span> 點</div>
+      </div>
+
+      <div class="row" style="gap:10px; margin-top:4px">
+        <button class="chip" onclick="buyHearts(30)">購買 30 天</button>
+        <button class="chip" onclick="chargeWallet()">充值 +100</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===============================
+         MINI PROFILE POPUP
+       =============================== -->
+  <div id="miniProfile">
+    <div class="hdr">
+      <img id="mpAvatar" src="" onerror="imgFallback(this)">
+      <div>
+        <div id="mpName" style="font-weight:900">名稱</div>
+        <div id="mpId" class="ghost" style="font-size:12px">NEXT-00000</div>
+      </div>
+    </div>
+    <div id="mpBio" class="sub" style="font-size:13px">—</div>
+    <div class="actions">
+      <button onclick="closeMiniProfile()">關閉</button>
+    </div>
   </div>
 
-  <!-- Loading Animation (NEXT ONE → NEXT’S YOU) -->
-  <div id="loadingScreen" class="loadingScreen hidden">
-    <div class="loadingText" id="loadingText">NEXT ONE</div>
-  </div>
+  <!-- ===============================
+         BOTTOM NAV
+       =============================== -->
+  <nav id="nav">
+    <button id="tabHome" class="active" onclick="showPage('home')">首頁</button>
+    <button id="tabDM" onclick="showPage('dm')">DM</button>
+    <button id="tabLive" onclick="showPage('liveList')">直播</button>
+    <button id="tabProfile" onclick="showPage('profile')">我的</button>
+  </nav>
 
+  <!-- ===============================
+         SCRIPTS (DATA + LOGIC)
+       =============================== -->
   <script>
-    const VALID_CODES = ["ADP2025", "NEXT01", "VIPPASS"]; // 可換成你要的邀請碼清單
+    /* -------------------------------------
+     * 工具：fallback avatar / image
+     * -----------------------------------*/
+    function imgFallback(img){
+      const svg = encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><rect width='100%' height='100%' fill='#eaeef8'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='#9aa0b4' font-family='sans-serif' font-size='20'>NO IMG</text></svg>`);
+      img.src = 'data:image/svg+xml;charset=UTF-8,' + svg;
+      img.onerror = null;
+    }
 
-    function verifyCode() {
-      const code = document.getElementById("inviteCode").value.trim();
-      if (VALID_CODES.includes(code)) {
-        // 生成粉絲ID
-        const fanId = "NEXT-" + Math.floor(10000 + Math.random() * 90000);
-        localStorage.setItem("fanId", fanId);
+    /* -------------------------------------
+     * 假資料
+     * -----------------------------------*/
+    const ARTISTS = [
+      {id:'annie',  name:'Annie',   avatar:'https://picsum.photos/80?u=an'},
+      {id:'dohee',  name:'Dohee',   avatar:'https://picsum.photos/80?u=dh'},
+      {id:'woo',    name:'Woochan', avatar:'https://picsum.photos/80?u=wc'},
+      {id:'group',  name:'ALLDAY PROJECT', avatar:'https://picsum.photos/80?u=group'}
+    ];
 
-        playLoadingAnimation(() => {
-          window.location = "index.html";
-        });
-      } else {
-        alert("邀請碼錯誤，請再試一次！");
+    // Feed posts
+    const POSTS = [
+      { id:'p1', artistId:'woo',   artistName:'Woochan', avatar:'https://picsum.photos/80?u=wc', text:'今天吃拉麵 🍜', img:'https://picsum.photos/1200?u=wc1', ts:'13小時前' },
+      { id:'p2', artistId:'dohee', artistName:'Dohee',   avatar:'https://picsum.photos/80?u=dh', text:'練舞練到爆汗 💃', img:'https://picsum.photos/1200?u=dh1', ts:'10小時前' },
+      { id:'p3', artistId:'annie', artistName:'Annie',   avatar:'https://picsum.photos/80?u=an', text:'傳了一張自拍 📸', img:'https://picsum.photos/1200?u=an1', ts:'8小時前' }
+    ];
+
+    // Reaction 種類
+    const REACTION_TYPES = [
+      {key:'heart', icon:'💜'},
+      {key:'clap',  icon:'👏'},
+      {key:'laugh', icon:'🤣'},
+      {key:'panda', icon:'🐼'},
+      {key:'tear',  icon:'🥲'},
+      {key:'cheer', icon:'🥳'}
+    ];
+
+    // DM 假資料
+    const DM_ARTISTS = [
+      {id:'dohee',   name:'Dohee',   avatar:'https://picsum.photos/100?2', subscribed:true,  heartDays:120, lastMsg:'還想再聊一下 🥺', unread:2, lastTs:Date.now()-1000*60*4 },
+      {id:'woo',     name:'Woochan', avatar:'https://picsum.photos/100?1', subscribed:false, heartDays:0,   lastMsg:'（無訊息）', unread:0, lastTs:Date.now()-1000*60*60 },
+      {id:'annie',   name:'Annie',   avatar:'https://picsum.photos/100?3', subscribed:true,  heartDays:45,  lastMsg:'剛剛傳了自拍，你有看到嗎？', unread:1, lastTs:Date.now()-1000*60*2 }
+    ];
+    let dmMessages = {
+      dohee: [
+        {id:'d1', from:'left',  text:'嗨～粉絲你好！', ts:Date.now()-1000*60*60, translated:false, read:true},
+        {id:'d2', from:'right', text:'哈囉！最近好嗎？', ts:Date.now()-1000*60*45, translated:false, read:false}
+      ],
+      woo: [
+        {id:'w1', from:'left',  text:'今天午餐吃什麼？', ts:Date.now()-1000*60*70, translated:false, read:true}
+      ],
+      annie: [
+        {id:'a1', from:'left',  text:'我剛傳了一張自拍 📸', ts:Date.now()-1000*60*8, translated:false, read:true}
+      ]
+    };
+
+    // Live 假資料
+    const LIVE_DATA = {
+      active: [{id:'L1', host:'Annie',  title:'Annie Live',  thumb:'https://picsum.photos/300/180?live1'}],
+      upcoming: [{id:'L2', host:'Dohee', title:'Dance Practice', thumb:'https://picsum.photos/300/180?live2', startTime: Date.now()+1000*60*3 }],
+      ended: [{id:'L3', host:'ALLDAY', title:'Full Group Replay', thumb:'https://picsum.photos/300/180?live3'}]
+    };
+
+    /* -------------------------------------
+     * LocalStorage Helpers
+     * -----------------------------------*/
+    const LS = {
+      get(k, def=null){ try{ const v=localStorage.getItem(k); return v? JSON.parse(v): def }catch(e){ return def } },
+      set(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)) }catch(e){} },
+      getStr(k, def=''){ const v=localStorage.getItem(k); return v ?? def },
+      setStr(k, v){ localStorage.setItem(k, v) }
+    };
+
+    /* -------------------------------------
+     * Profile（身分、上傳）
+     * -----------------------------------*/
+    function ensureMyIdentity(){
+      if(!LS.getStr('fanId')){
+        const id = 'NEXT-' + Math.floor(10000 + Math.random()*90000);
+        LS.setStr('fanId', id);
+      }
+      if(!LS.getStr('joinDate')){
+        LS.setStr('joinDate', new Date().toLocaleDateString());
       }
     }
-
-    function playLoadingAnimation(callback) {
-      const screen = document.getElementById("loadingScreen");
-      const text = document.getElementById("loadingText");
-      screen.classList.remove("hidden");
-
-      // Step 1: NEXT ONE
-      text.textContent = "NEXT ONE";
-      text.classList.add("show");
-
-      setTimeout(() => {
-        // Step 2: NEXT’S YOU
-        text.classList.remove("show");
-        setTimeout(() => {
-          text.textContent = "NEXT’S YOU";
-          text.classList.add("show");
-
-          // Step 3: 結束動畫
-          setTimeout(() => {
-            screen.classList.add("hidden");
-            if (callback) callback();
-          }, 1500);
-
-        }, 1000);
-      }, 1500);
+    function openProfile(){
+      showPage('profile');
     }
+    function showMyBar(){
+      document.getElementById('meNickname').textContent = LS.getStr('nickname','暱稱');
+      document.getElementById('meFanId').textContent = LS.getStr('fanId','NEXT-00000');
+      const a = LS.getStr('avatar');
+      if(a) document.getElementById('meAvatar').src = a;
+    }
+    function showFanProfile(){
+      document.getElementById('p_nickname').textContent = LS.getStr('nickname','暱稱');
+      document.getElementById('p_status').textContent   = LS.getStr('statusMsg','尚未設定');
+      document.getElementById('p_fanId').textContent    = LS.getStr('fanId','NEXT-00000');
+      document.getElementById('p_joinDate').textContent = LS.getStr('joinDate','—');
+      const a = LS.getStr('avatar'); if(a) document.getElementById('editAvatar').src = a;
+      const bg= LS.getStr('profileBg'); if(bg) document.getElementById('profileBg').src = bg;
+
+      // 生日 & 錢包 & 愛心
+      const bd = LS.getStr('birthday'); if(bd) document.getElementById('birthdayInput').value = bd;
+      document.getElementById('walletBalance').textContent = LS.getStr('walletBalance','0');
+      document.getElementById('heartDays').textContent = LS.getStr('heartDays','0');
+    }
+    function compressImage(file, maxSize = 900, callback){
+      const img = new Image();
+      const reader = new FileReader();
+      reader.onload = e=>{
+        img.onload = ()=>{
+          let w = img.width, h = img.height;
+          if(w > h){ if(w > maxSize){ h *= maxSize / w; w = maxSize; } }
+          else{ if(h > maxSize){ w *= maxSize / h; h = maxSize; } }
+          const canvas = document.createElement('canvas');
+          canvas.width = w; canvas.height = h;
+          canvas.getContext('2d').drawImage(img,0,0,w,h);
+          canvas.toBlob(b=>{
+            callback(URL.createObjectURL(b));
+          }, 'image/jpeg', 0.9);
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+    function changeAvatar(e){
+      const f = e.target.files[0];
+      if(f){
+        compressImage(f, 900, u=>{
+          document.getElementById('editAvatar').src = u;
+          LS.setStr('avatar', u);
+          document.getElementById('meAvatar').src = u;
+        });
+      }
+    }
+    function changeBg(e){
+      const f = e.target.files[0];
+      if(f){
+        compressImage(f, 1400, u=>{
+          document.getElementById('profileBg').src = u;
+          LS.setStr('profileBg', u);
+        });
+      }
+    }
+    function editNickname(){
+      const current = LS.getStr('nickname','暱稱');
+      const n = prompt('輸入新暱稱', current);
+      if(n){
+        LS.setStr('nickname', n);
+        document.getElementById('meNickname').textContent = n;
+        document.getElementById('p_nickname').textContent = n;
+      }
+    }
+    function editStatus(){
+      const current = LS.getStr('statusMsg','尚未設定');
+      const s = prompt('輸入狀態訊息', current);
+      if(s!==null){
+        LS.setStr('statusMsg', s);
+        document.getElementById('p_status').textContent = s;
+      }
+    }
+    function saveBirthday(val){
+      LS.setStr('birthday', val);
+      checkBirthday();
+    }
+    function checkBirthday(){
+      const bd = LS.getStr('birthday');
+      if(!bd) return;
+      const today = new Date();
+      const [yyyy,mm,dd] = bd.split('-').map(Number);
+      if( (today.getMonth()+1)===mm && today.getDate()===dd ){
+        alert('🎉 生日快樂！祝你有美好的一天！');
+      }
+    }
+    function buyHearts(days){
+      let h = parseInt(LS.getStr('heartDays','0'),10);
+      h += days;
+      LS.setStr('heartDays', String(h));
+      document.getElementById('heartDays').textContent = h;
+      // DM 列表需同步顯示
+      DM_ARTISTS.forEach(a=>{ if(a.subscribed) a.heartDays = h; });
+      renderDMList(); // 更新愛心天數
+      alert(`成功購買 ${days} 天 💜`);
+    }
+    function chargeWallet(){
+      let b = parseInt(LS.getStr('walletBalance','0'),10);
+      b += 100;
+      LS.setStr('walletBalance', String(b));
+      document.getElementById('walletBalance').textContent = b;
+    }
+
+    /* -------------------------------------
+     * StoryBar / 分類圓圈
+     * -----------------------------------*/
+    function buildStorySet(){
+      const set = new Map();
+      set.set('all', {id:'all', name:'ALL', avatar:'https://picsum.photos/60?u=all'});
+      ARTISTS.forEach(a=> set.set(a.id, {id:a.id, name:a.name, avatar:a.avatar}) );
+      // 根據 POST 動態排序（最新互動的藝人靠前，但 ALL 永遠第一）
+      const recentByArtist = {};
+      POSTS.forEach((p,i)=>{ recentByArtist[p.artistId] = Date.now() - (i*1000) });
+      const sorted = [...set.values()].filter(x=>x.id!=='all').sort((a,b)=>(recentByArtist[b.id]||0)-(recentByArtist[a.id]||0));
+      return [ set.get('all'), ...sorted ];
+    }
+    function renderStoryBar(){
+      const bar = document.getElementById('storyBar');
+      const items = buildStorySet();
+      bar.innerHTML = items.map(u=>`
+        <div class="story-item ${u.id==='all'?'all':''}" onclick="renderFeed('${u.id}')">
+          <img src="${u.avatar}" onerror="imgFallback(this)">
+          <div class="name">${u.name}</div>
+        </div>
+      `).join('');
+    }
+    function rebuildStoryFromNewPost(newPost){
+      POSTS.unshift(newPost);
+      renderStoryBar(); // ALL 固定最前；新的 artist 圈圈會排到 ALL 後第一
+    }
+
+    /* -------------------------------------
+     * Feed & Translation & Reactions
+     * -----------------------------------*/
+    const _translateState = {}; // postId => bool
+    function getReactions(postId){ return LS.get(`reactions:${postId}`, {}); }
+    function setReactions(postId, data){ LS.set(`reactions:${postId}`, data); }
+    function getMyReactions(postId){ return LS.get(`myReacts:${postId}`, {}); }
+    function setMyReactions(postId, data){ LS.set(`myReacts:${postId}`, data); }
+
+    function renderFeed(filter='all'){
+      const wrap = document.getElementById('feedWrap');
+      let list = POSTS;
+      if(filter!=='all'){ list = POSTS.filter(p=> p.artistId===filter); }
+      wrap.innerHTML = list.map(p=>`
+        <div class="card soft postCard" onclick="onPostCardClick(event,'${p.id}')">
+          <div class="hdr">
+            <img src="${p.avatar}" class="avatar" onerror="imgFallback(this)">
+            <div class="meta"><b>${p.artistName}</b><small class="ghost">${p.ts}</small></div>
+            <div class="translate-btn" onclick="event.stopPropagation(); togglePostTranslate('${p.id}')">翻譯</div>
+          </div>
+          <div class="body">
+            <p id="postText-${p.id}">${escapeHtml(p.text)}</p>
+            ${p.img ? `<img class="hero" src="${p.img}" onerror="imgFallback(this)">` : ''}
+            ${renderReactionsBar(p.id)}
+          </div>
+        </div>
+      `).join('');
+      restoreHomeScroll();
+    }
+    function onPostCardClick(e, postId){
+      const path = e.composedPath ? e.composedPath(): [];
+      // 阻擋：reaction btn / translate-btn
+      if( path.some(el=> el && el.classList && (el.classList.contains('reaction') || el.classList.contains('translate-btn')) ) ){
+        return;
+      }
+      openPost(postId);
+    }
+    function togglePostTranslate(postId){
+      const el = document.getElementById(`postText-${postId}`);
+      if(!el) return;
+      _translateState[postId] = !_translateState[postId];
+      if(_translateState[postId]){
+        el.dataset.origin = el.textContent;
+        el.textContent = `（已翻譯）${el.dataset.origin}`;
+      }else{
+        el.textContent = el.dataset.origin || el.textContent;
+      }
+      // 持久化
+      const key = `postTranslated:${postId}`;
+      LS.setStr(key, _translateState[postId] ? '1' : '0');
+    }
+    function renderReactionsBar(postId){
+      const data = getReactions(postId);
+      const myData = getMyReactions(postId);
+      return `<div class="reaction-bar" id="reactions-${postId}">
+        ${REACTION_TYPES.map(r=>{
+          const cnt = data[r.key] || 0;
+          const active = myData[r.key] ? 'active' : '';
+          const countHtml = cnt>0 ? `<span class="count" id="rc-${postId}-${r.key}">${cnt}</span>` : `<span class="count" id="rc-${postId}-${r.key}"></span>`;
+          return `<div class="reaction ${active}" onclick="event.stopPropagation(); toggleReaction('${postId}','${r.key}')">
+            <span>${r.icon}</span>${countHtml}
+          </div>`;
+        }).join('')}
+      </div>`;
+    }
+    function toggleReaction(postId, type){
+      let data = getReactions(postId);
+      let myData = getMyReactions(postId);
+      if(myData[type]){
+        delete myData[type];
+        data[type] = Math.max((data[type]||0)-1, 0);
+      }else{
+        // 單選：清掉舊的
+        for(const k in myData){ if(myData[k]){ data[k] = Math.max((data[k]||0)-1, 0); } }
+        myData = {};
+        myData[type] = true;
+        data[type] = (data[type]||0)+1;
+      }
+      setMyReactions(postId, myData);
+      setReactions(postId, data);
+      const area = document.getElementById(`reactions-${postId}`);
+      if(area) area.outerHTML = renderReactionsBar(postId);
+    }
+
+    /* -------------------------------------
+     * 留言（Post Detail）
+     * -----------------------------------*/
+    let CURRENT_POST_ID = null;
+    let CURRENT_ARTIST_NAME = '';
+    function seedCommentsIfEmpty(postId){
+      const k = `comments:${postId}`;
+      if(!localStorage.getItem(k)){
+        let defaults = [];
+        if(postId==='p1'){
+          defaults = [
+            {id:1, name:'粉絲A', avatar:'https://picsum.photos/40?u=f1', isArtist:false, text:'好好吃的樣子！', translated:false},
+            {id:2, name:'Woochan', avatar:'https://picsum.photos/40?u=wc', isArtist:true,  text:'真的超好吃 😋', translated:false}
+          ];
+        }else if(postId==='p2'){
+          defaults = [
+            {id:1, name:'粉絲C', avatar:'https://picsum.photos/40?u=f3', isArtist:false, text:'努力的樣子最美！', translated:false},
+            {id:2, name:'Dohee',  avatar:'https://picsum.photos/40?u=dh', isArtist:true,  text:'謝謝大家 💖', translated:false}
+          ];
+        }else{
+          defaults = [
+            {id:1, name:'粉絲D', avatar:'https://picsum.photos/40?u=f4', isArtist:false, text:'自拍好漂亮！', translated:false},
+            {id:2, name:'Annie',  avatar:'https://picsum.photos/40?u=an', isArtist:true,  text:'謝謝你們 🥰', translated:false}
+          ];
+        }
+        LS.set(k, defaults);
+      }
+    }
+    function getComments(postId){ seedCommentsIfEmpty(postId); return LS.get(`comments:${postId}`, []); }
+    function setComments(postId, list){ LS.set(`comments:${postId}`, list); }
+
+    function openPost(postId){
+      saveHomeScroll(); // 記住首頁位置
+      const post = POSTS.find(p=>p.id===postId); if(!post) return;
+      CURRENT_POST_ID = postId;
+      CURRENT_ARTIST_NAME = post.artistName;
+
+      // filter 預設 ON
+      const sw = document.getElementById('filterArtistSwitch');
+      if(sw){ sw.checked = true; }
+      document.getElementById('filterLabel').textContent = `只看 ${post.artistName} 的回覆`;
+
+      const content = `
+        <div class="card soft postCard" onclick="void(0)">
+          <div class="hdr">
+            <img src="${post.avatar}" class="avatar" onerror="imgFallback(this)">
+            <div class="meta"><b>${post.artistName}</b><small class="ghost">${post.ts}</small></div>
+            <div class="translate-btn" onclick="togglePostTranslate('${post.id}')">翻譯</div>
+          </div>
+          <div class="body">
+            <p id="postText-${post.id}">${escapeHtml(post.text)}</p>
+            ${post.img ? `<img class="hero" src="${post.img}" onerror="imgFallback(this)">` : ''}
+            ${renderReactionsBar(post.id)}
+          </div>
+        </div>
+      `;
+      document.getElementById('postDetailContent').innerHTML = content;
+      renderComments();
+      showPage('postDetail');
+    }
+
+    function renderComments(){
+      if(!CURRENT_POST_ID) return;
+      const wrap = document.getElementById('commentList'); wrap.innerHTML = '';
+      const onlyArtist = document.getElementById('filterArtistSwitch').checked;
+      const list = getComments(CURRENT_POST_ID);
+      document.getElementById('commentsCount').textContent = `全部 ${list.length} 則`;
+
+      list.forEach(c=>{
+        if(onlyArtist && c.name !== CURRENT_ARTIST_NAME) return; // 只看該藝人
+        const item = document.createElement('div');
+        item.className = 'citem'+(c.isArtist?' artist':'');
+        item.innerHTML = `
+          <div class="u">
+            <img src="${c.avatar}" onerror="imgFallback(this)" onclick="openMiniProfile('${c.name}','${c.avatar}')">
+            <b class="name">${escapeHtml(c.name)}</b>
+          </div>
+          <p id="cText-${c.id}">${escapeHtml(c.text)}</p>
+          <div class="c-actions">
+            <div class="chip" onclick="toggleCommentTranslate('${c.id}')">翻譯</div>
+          </div>
+        `;
+        wrap.appendChild(item);
+      });
+    }
+    function toggleCommentTranslate(cid){
+      const wrap = document.getElementById('commentList');
+      if(!wrap) return;
+      const k = `cTranslated:${CURRENT_POST_ID}:${cid}`;
+      const translated = LS.getStr(k,'0')==='1';
+      const el = document.getElementById(`cText-${cid}`);
+      if(!el) return;
+      if(translated){
+        el.textContent = el.textContent.replace(/^（翻譯）/,'');
+        LS.setStr(k,'0');
+      }else{
+        el.textContent = `（翻譯）${el.textContent}`;
+        LS.setStr(k,'1');
+      }
+    }
+    function sendComment(){
+      if(!CURRENT_POST_ID) return;
+      const inp = document.getElementById('commentInput');
+      const t = (inp.value||'').trim();
+      if(!t) return;
+      const meName = LS.getStr('nickname','我');
+      const meAvatar = LS.getStr('avatar','https://picsum.photos/40?u=me');
+      const list = getComments(CURRENT_POST_ID);
+      list.push({id: Date.now(), name: meName, avatar: meAvatar, isArtist:false, text:t, translated:false});
+      setComments(CURRENT_POST_ID, list);
+      inp.value=''; renderComments();
+    }
+
+    /* -------------------------------------
+     * DM 模組
+     * -----------------------------------*/
+    let currentChat = null;
+
+    function renderDMList(){
+      const wrap = document.getElementById('dmListWrap');
+      const empty = document.getElementById('dmEmpty');
+
+      // 同步愛心：以 Profile 儲存為準（粉絲剩餘天數顯示）
+      const days = parseInt(LS.getStr('heartDays','0'),10);
+      DM_ARTISTS.forEach(a=>{ if(a.subscribed) a.heartDays = days; });
+
+      // 依最後訊息時間排序（最新在前）
+      const withTs = DM_ARTISTS.map(a=>{
+        const msgs = dmMessages[a.id] || [];
+        const last = msgs.length? msgs[msgs.length-1].ts : a.lastTs || 0;
+        return {...a, lastTs: last};
+      }).sort((a,b)=> b.lastTs - a.lastTs);
+
+      if(withTs.length===0){
+        wrap.innerHTML = ''; empty.style.display = 'block'; return;
+      }
+      empty.style.display = 'none';
+      wrap.innerHTML = withTs.map(a=>`
+        <div class="dmCard" onclick="openDm('${a.id}')">
+          <div class="left">
+            <img src="${a.avatar}" onerror="imgFallback(this)">
+            <div class="meta">
+              <b>${a.name}</b>
+              <small class="ghost">${escapeHtml(a.lastMsg || '')}</small>
+            </div>
+          </div>
+          <div class="dmRight">
+            ${a.subscribed? `<span class="heartDays">${a.heartDays}</span>` : ''}
+            ${a.unread>0 ? `<span class="badge">${a.unread}</span>` : ''}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function openDm(chatId){
+      currentChat = chatId;
+      const artist = DM_ARTISTS.find(a=>a.id===chatId);
+      if(!artist) return;
+      document.getElementById('dmTitle').textContent = artist.name;
+
+      // 清除未讀
+      artist.unread = 0;
+      renderDMList();
+
+      // 顯示內容
+      renderDmThread(chatId);
+
+      showPage('dmDetail');
+
+      // 模擬「藝人已讀」：2 秒後把我方訊息 read 狀態設為 true，並刷新 UI
+      setTimeout(()=>{
+        const list = dmMessages[chatId] || [];
+        list.forEach(m=>{ if(m.from==='right') m.read = true; });
+        renderDmThread(chatId);
+      }, 2000);
+    }
+
+    function renderDmThread(chatId){
+      const box = document.getElementById('dmThread'); box.innerHTML = '';
+      const list = dmMessages[chatId] || [];
+      // Lazy：只顯示最後 50 則
+      const start = Math.max(0, list.length - 50);
+      const slice = list.slice(start);
+      slice.forEach(m=>{
+        const translated = LS.getStr(`dmTranslated:${m.id}`,'0')==='1';
+        const text = translated ? `（翻譯）${m.text}` : m.text;
+        const div = document.createElement('div');
+        div.className = `dmMsg ${m.from}`;
+        div.innerHTML = `
+          <div class="bubble">
+            <div>${escapeHtml(text)}</div>
+            <div class="translate-chip ghost" onclick="toggleDmTranslate('${m.id}','${m.text}')">翻譯</div>
+            <div class="meta">${new Date(m.ts||Date.now()).toLocaleTimeString()} ${m.from==='right' ? `<span class="read1">${m.read? '' : '1'}</span>`:''}</div>
+          </div>
+        `;
+        box.appendChild(div);
+      });
+      box.scrollTop = box.scrollHeight;
+    }
+
+    function toggleDmTranslate(msgId, origin){
+      const k = `dmTranslated:${msgId}`;
+      const newState = LS.getStr(k,'0')==='1' ? '0' : '1';
+      LS.setStr(k, newState);
+      // 重新渲染目前聊天室
+      if(currentChat) renderDmThread(currentChat);
+    }
+
+    document.getElementById('dmSendBtn').addEventListener('click', ()=>{
+      const input = document.getElementById('dmMessageInput');
+      const message = input.value.trim(); if(!message) return;
+      const arr = dmMessages[currentChat] || (dmMessages[currentChat]=[]);
+      arr.push({id:'x'+Date.now(), from:'right', text:message, ts:Date.now(), translated:false, read:false});
+      input.value='';
+      renderDmThread(currentChat);
+      // 更新列表排序
+      renderDMList();
+    });
+
+    /* -------------------------------------
+     * Live
+     * -----------------------------------*/
+    function renderLives(){
+      const og = document.getElementById('liveOngoingList');
+      const up = document.getElementById('liveUpcomingList');
+      const ed = document.getElementById('liveEndedList');
+
+      og.innerHTML = LIVE_DATA.active.map(l=> liveCard(l,'on')).join('');
+      up.innerHTML = LIVE_DATA.upcoming.map(l=> liveCard(l,'soon')).join('');
+      ed.innerHTML = LIVE_DATA.ended.map(l=> liveCard(l,'end')).join('');
+    }
+    function liveCard(l,status){
+      let label = `<span class="status ${status}">已結束</span>`;
+      if(status==='on') label = `<span class="status on">進行中</span>`;
+      if(status==='soon'){
+        const diff = Math.max(0, l.startTime - Date.now());
+        label = `<span class="status soon">即將開始（${Math.ceil(diff/1000)}s）</span>`;
+      }
+      return `
+        <div class="liveCard" onclick="${status==='end' ? `openReplay('${l.id}')` : `openLive('${l.id}')`}">
+          <img src="${l.thumb}" onerror="imgFallback(this)">
+          <div class="liveMeta">
+            <b>${l.title}</b>
+            ${label}
+          </div>
+        </div>
+      `;
+    }
+    // 倒數動態更新
+    setInterval(()=>{
+      if( document.getElementById('liveUpcomingList') ){
+        renderLives();
+      }
+    },1000);
+
+    function openLive(id){
+      const live = [...LIVE_DATA.active, ...LIVE_DATA.upcoming].find(l=>l.id===id);
+      if(!live) return;
+      document.getElementById('liveTitle').textContent = live.title;
+      document.getElementById('liveHostName').textContent = live.host;
+      document.getElementById('liveThread').innerHTML = '';
+
+      showPage('liveRoom');
+
+      // 歡迎訊息（只顯示在我自己畫面）
+      const welcome = document.createElement('div');
+      welcome.className = 'liveMsg welcome';
+      welcome.textContent = '🎤 歡迎來到直播';
+      document.getElementById('liveThread').appendChild(welcome);
+    }
+    function sendLiveMsg(){
+      const input = document.getElementById('liveInput');
+      const text = input.value.trim(); if(!text) return;
+      const div = document.createElement('div');
+      div.className='liveMsg fan';
+      div.textContent = text;
+      const box = document.getElementById('liveThread');
+      box.appendChild(div);
+      input.value=''; box.scrollTop = box.scrollHeight;
+    }
+
+    // 回放
+    let replayTimer = null;
+    let replayMsgs = [];
+    function openReplay(id){
+      const live = LIVE_DATA.ended.find(l=>l.id===id);
+      if(!live) return;
+      document.getElementById('replayHostName').textContent = live.host;
+      document.getElementById('replayTitle').textContent = live.title;
+      const avatar = document.getElementById('replayHostAvatar'); avatar.src = 'https://picsum.photos/60?u='+encodeURIComponent(live.host);
+
+      showPage('liveReplay');
+
+      // 假資料
+      replayMsgs = [
+        {type:'host', text:'大家好～我是 '+ live.host},
+        {type:'fan',  text:'嗨！！'},
+        {type:'fan',  text:'愛你💜'},
+        {type:'host', text:'謝謝大家來看～'}
+      ];
+      playReplay(1);
+    }
+    function playReplay(speed=1){
+      clearInterval(replayTimer);
+      const thread = document.getElementById('replayThread'); thread.innerHTML = '';
+      let i = 0;
+      replayTimer = setInterval(()=>{
+        if(i >= replayMsgs.length){ clearInterval(replayTimer); return; }
+        const m = replayMsgs[i++];
+        const div = document.createElement('div');
+        div.className = 'replayMsg '+m.type;
+        div.textContent = m.text;
+        thread.appendChild(div);
+        thread.scrollTop = thread.scrollHeight;
+      }, 2000 / speed);
+    }
+    function changeReplaySpeed(val){ playReplay(parseFloat(val)||1); }
+
+    /* -------------------------------------
+     * Mini Profile（簡化卡片）
+     * -----------------------------------*/
+    function openMiniProfile(name, avatar){
+      document.getElementById('mpName').textContent = name;
+      document.getElementById('mpId').textContent = randomFanIdForName(name);
+      const img = document.getElementById('mpAvatar'); img.src = avatar; img.onerror = ()=>imgFallback(img);
+      document.getElementById('mpBio').textContent = `Hi，我是 ${name}`;
+      document.getElementById('miniProfile').style.display = 'block';
+    }
+    function closeMiniProfile(){ document.getElementById('miniProfile').style.display = 'none'; }
+    function randomFanIdForName(name){
+      // 為展示方便，每個名字固定一次
+      const key = `miniId:${name}`;
+      let id = LS.getStr(key);
+      if(!id){
+        id = 'NEXT-'+ Math.floor(10000+Math.random()*90000);
+        LS.setStr(key, id);
+      }
+      return id;
+    }
+
+    /* -------------------------------------
+     * 導航 / 切頁 / 滾動記憶
+     * -----------------------------------*/
+    const pageStack = [];
+    function showPage(id){
+      document.querySelectorAll('section.page').forEach(s=>s.classList.remove('active'));
+      const page = document.getElementById(id); if(page) page.classList.add('active');
+
+      // 記錄 stack
+      if(pageStack[pageStack.length-1] !== id) pageStack.push(id);
+
+      // 底部 nav 顯示規則
+      const hideNavOn = ['postDetail','dmDetail','liveRoom','liveReplay'];
+      const nav = document.getElementById('nav');
+      if(hideNavOn.includes(id)) nav.classList.add('hidden'); else nav.classList.remove('hidden');
+
+      // nav active 樣式
+      document.querySelectorAll('#nav button').forEach(b=>b.classList.remove('active'));
+      const map = {home:'tabHome', dm:'tabDM', liveList:'tabLive', profile:'tabProfile'};
+      if(map[id]) document.getElementById(map[id]).classList.add('active');
+
+      // 特定頁面初始化
+      if(id==='dm') renderDMList();
+      if(id==='liveList') renderLives();
+      if(id==='profile'){ showFanProfile(); }
+      if(id==='home'){ restoreHomeScroll(); }
+    }
+    function goBack(){
+      if(pageStack.length>1){
+        pageStack.pop();
+        showPage(pageStack[pageStack.length-1]);
+      }else{
+        showPage('home');
+      }
+    }
+    function saveHomeScroll(){
+      const y = document.documentElement.scrollTop || document.body.scrollTop || 0;
+      LS.setStr('homeScroll', String(y));
+    }
+    function restoreHomeScroll(){
+      const y = parseInt(LS.getStr('homeScroll','0'),10) || 0;
+      window.scrollTo(0, y);
+    }
+
+    /* -------------------------------------
+     * 小工具
+     * -----------------------------------*/
+    function escapeHtml(str){
+      return String(str).replace(/[&<>"']/g, s=>({
+        '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+      }[s]));
+    }
+
+    /* -------------------------------------
+     * 初始化
+     * -----------------------------------*/
+    document.addEventListener('DOMContentLoaded', ()=>{
+      ensureMyIdentity();
+      showMyBar();
+      showFanProfile();
+
+      renderStoryBar();
+      renderFeed('all');   // 首頁顯示全部
+      renderDMList();
+      renderLives();
+
+      // 預設停留在 home
+      showPage('home');
+
+      // 首次生日提示
+      checkBirthday();
+    });
   </script>
 </body>
 </html>
