@@ -62,13 +62,69 @@ h2,h3,p{margin:0}
 .story-avatar{width:60px; height:60px; border-radius:50%; border:2px solid var(--accent); object-fit:cover}
 .story-name{margin-top:4px; font-size:12px; color:var(--sub)}
 
-/* ===== 文章卡片 ===== */
-.post-card img {
-  width: 100%;           /* 填滿卡片寬度 */
-  height: 400px;         /* 固定高度，自己可以改 300/350/400px */
-  border-radius: 12px;   /* 跟卡片同樣圓角 */
+/* ====== 貼文卡片 ====== */
+.postCard {
+  background: var(--card);
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 16px; /* 讓卡片之間有間隔 */
+}
+
+.postHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.postHeader .avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 8px;
+}
+
+.postMeta {
+  display: flex;
+  flex-direction: column;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.verify {
+  color: #1d9bf0;
+  font-size: 12px;
+}
+
+.time {
+  font-size: 12px;
+  color: gray;
+}
+
+.postImg {
+  width: 100%;
+  border-radius: 12px;
+  object-fit: cover;
   display: block;
-  object-fit: cover;     /* 保持比例，超出部分裁掉 */
+  margin-bottom: 8px;
+}
+
+.postReactions {
+  display: flex;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.postReactions button {
+  background: none;
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--text-secondary);
 }
 
 /* ===== Reaction 列 ===== */
@@ -357,20 +413,42 @@ nav button:active{background:var(--hover)}
 </section>
 
 <!-- 貼文卡片 (社群首頁用) -->
-<div class=".postCard img " onclick="openPostDetail(this)">
+<div class="postCard" onclick="openPostDetail(this)">
   <div class="postHeader">
     <img src="annie.jpg" class="avatar">
-    <div class="meta">
+  </div>
+  <div class="postBody">
+    <p>last one just for my day ones✨🍰</p>
+    <img src="annie_post.jpg" class="postImg">
+  </div>
+  <div class="postReactions">
+    <button>👏 <span>717</span></button>
+    <button>😍 <span>538</span></button>
+    <button>😂 <span>234</span></button>
+    <button>🐼 <span>177</span></button>
+    <button>😭 <span>110</span></button>
+  </div>
+  <div class="postFooter">
+    💬 314 則留言
+  </div>
+</div>
+
+<!-- ====== 貼文卡片（新版） ====== -->
+<div class="postCard" onclick="openPost('p1')">
+  <div class="postHeader">
+    <img src="annie.jpg" class="avatar">
+    <div class="postMeta">
       <b>ANNIE</b> <span class="verify">✔</span>
       <span class="time">3小時前</span>
     </div>
-
-    <!-- 翻譯鍵也在右上角 -->
     <button class="translateBtn">翻譯</button>
   </div>
+
   <div class="detailBody">
     <img src="annie_post.jpg" class="postImg">
     <p>last one just for my day ones✨🍰</p>
+
+    <!-- reaction bar -->
     <div class="postReactions">
       <button>👏 <span>717</span></button>
       <button>😍 <span>538</span></button>
@@ -379,6 +457,7 @@ nav button:active{background:var(--hover)}
       <button>😭 <span>110</span></button>
     </div>
   </div>
+
   <div class="commentBar">
     <span>全部 314</span>
     <label><input type="checkbox"> 只看ADP的評論</label>
@@ -839,30 +918,21 @@ function setComments(postId, list){
   localStorage.setItem(`comments:${postId}`, JSON.stringify(list));
 }
 
-function openPost(postId){
-  const post = POSTS.find(p=>p.id===postId);
-  if(!post) return;
-  CURRENT_POST_ID = postId;
-  CURRENT_ARTIST_NAME = post.artistName;
-
-  // 🟢 更新 filterLabel
-  document.getElementById('filterLabel').textContent = `只看 ${post.artistName} 的回覆`;
-
-  const content = `
-  <div class="card soft postCard" onclick="openPost('${post.id}')">
-      <div class="row">
-        <img src="${post.avatar}" style="width:52px;height:52px;border-radius:50%;object-fit:cover;border:1px solid var(--line)">
-        <div><b>${post.artistName}</b><br><small class="ghost">${post.ts}</small></div>
-        <div class="translate-chip" onclick="toggleTranslate('${post.id}')">翻譯</div>
-      </div>
-      <p id="postText-${post.id}" style="margin-top:8px">${post.text}</p>
-      ${post.img ? `<img class="hero" src="${post.img}">` : ''}
-      ${renderReactionsBar(post.id)}
-    </div>
-  `;
-  document.getElementById('postDetailContent').innerHTML = content;
-  renderComments();
+// ====== JS: 開啟貼文詳情 ======
+function openPost(postId) {
+  console.log("打開貼文詳情:", postId);
+  // TODO: 之後這裡接 API，把 postId 資料帶進 detail 頁面
   showPage('postDetail');
+}
+
+// ====== 切換頁面 ======
+function showPage(id) {
+  document.querySelectorAll(".page").forEach(p => p.classList.add("hidden"));
+  document.getElementById(id).classList.remove("hidden");
+}
+
+function goBack() {
+  window.history.back(); // 或者自己定義要回哪個頁面
 }
 
 function renderComments() {
@@ -1054,31 +1124,6 @@ let replaySpeed = 1000;
 
 // ====== 回放功能 ======
 
-// 打開回放
-function openReplay(id) {
-  const live = LIVE_DATA.ended.find(l => l.id === id);
-  if (!live) return;
-
-  // 清空舊訊息
-  document.getElementById("replayThread").innerHTML = "";
-  document.getElementById("replayHostName").textContent = live.host;
-  document.getElementById("replayTitle").textContent = live.title;
-
-  showPage("liveReplay");
-
-  // 假資料（之後可換成後端撈歷史訊息）
-  const msgs = [
-    {type:"host", text: "大家好～我是 " + live.host},
-    {type:"fan", text: "嗨！！"},
-    {type:"fan", text: "愛你💜"},
-    {type:"host", text: "謝謝大家來看～"}
-  ];
-
-  playReplay(msgs, 1); // 預設 1.0x 速度
-}
-
-let replayTimer = null;
-
 // 播放回放訊息
 function playReplay(msgs, speed=1) {
   clearInterval(replayTimer);
@@ -1102,6 +1147,11 @@ function playReplay(msgs, speed=1) {
 // 調整回放速度（0.5x, 1.0x, 2.0x ...）
 function changeReplaySpeed(val) {
   const speed = parseFloat(val);
+  if (currentReplay) {
+    document.getElementById("replayThread").innerHTML = "";
+    playReplay(currentReplay.msgs, speed);
+  }
+}
 
   // 重新取出 replay 畫面顯示的場次
   const host = document.getElementById("replayHostName").textContent || "Annie";
