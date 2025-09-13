@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
@@ -10,49 +9,68 @@
 =  CSS：主題與共用基礎樣式  =
 ========================== -->
 <style>
-  /* ===== Theme ===== */
-  body.nx{
-    --bg:#0f0f12; --card:#16181d; --hover:#1b1e24; --line:rgba(255,255,255,.06);
-    --text:#f6f7fb; --sub:#b5bac7; --muted:#8c92a1;
-    --accent:#ff2d55; --accent-2:#ff3b63; --ok:#2ecc71; --ng:#ff5a5f;
-    --r:16px; --shadow: 12px 18px 40px rgba(0,0,0,.45);
-    margin:0; color:var(--text); background:var(--bg);
-    -webkit-font-smoothing:antialiased; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
-  }
-  .panel,.card{background:var(--card); border:1px solid var(--line); border-radius:var(--r); box-shadow:var(--shadow)}
-  .panel.soft,.card.soft{padding:16px}
-  section{display:none; padding:16px 16px 96px}
-  section.active{display:block; animation:fadeIn .24s ease}
-  @keyframes fadeIn{from{opacity:0; transform:translateY(6px)} to{opacity:1; transform:none}}
-  h2,h3,p{margin:0}
-  .ghost{opacity:.75; color:var(--sub)}
-  .row{display:flex; align-items:center; gap:12px}
-  .topbar{display:flex; align-items:center; gap:12px; margin-bottom:10px}
-  .menu-btn{width:40px; height:40px; border-radius:12px; border:1px solid var(--line); background:var(--card); color:var(--text); cursor:pointer}
+/* ===== Theme：藍紫白 ===== */
+:root {
+  --bg: #f5f7ff;          /* 背景 藍白 */
+  --card: #ffffff;        /* 卡片 白 */
+  --accent: #6a5acd;      /* 主色 藍紫 (slateblue) */
+  --accent-2: #836fff;    /* 漸層 藍紫 (lighter purple) */
+  --text: #1a1a1a;        /* 文字 黑灰 */
+  --sub: #666;            /* 次文字 */
+  --line: #ddd;           /* 分隔線 */
+  --hover: #eef1ff;       /* hover 狀態 */
+  --r: 16px;
+  --shadow: 12px 18px 40px rgba(0,0,0,.1);
+}
 
-  /* ===== Nav & StoryBar 動畫 ===== */
-  #nav, #storyBar { transition: transform .3s ease; }
+body.nx {
+  margin:0;
+  color:var(--text);
+  background:var(--bg);
+  -webkit-font-smoothing:antialiased;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+}
 
-  /* ===== Home header ===== */
-  #friendsHeader{display:flex; justify-content:space-between; align-items:center; gap:12px}
-  #friendsHeader .me{display:flex; align-items:center; gap:12px; cursor:pointer}
-  #friendsHeader img{width:48px; height:48px; border-radius:50%; object-fit:cover; border:1px solid var(--line)}
-  #friendsHeader .nick{font-weight:800}
+.panel,.card {
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:var(--r);
+  box-shadow:var(--shadow)
+}
+.panel.soft,.card.soft{padding:16px}
+section{display:none; padding:16px 16px 96px}
+section.active{display:block; animation:fadeIn .24s ease}
+@keyframes fadeIn{from{opacity:0; transform:translateY(6px)} to{opacity:1; transform:none}}
+h2,h3,p{margin:0}
+.ghost{opacity:.75; color:var(--sub)}
+.row{display:flex; align-items:center; gap:12px}
+.topbar{display:flex; align-items:center; gap:12px; margin-bottom:10px}
+.menu-btn{width:40px; height:40px; border-radius:12px; border:1px solid var(--line); background:var(--card); color:var(--text); cursor:pointer}
 
-  /* ===== Story bar ===== */
-  .story-bar{display:flex; gap:14px; padding:12px; overflow-x:auto}
-  .story-item{flex:0 0 auto; text-align:center; cursor:pointer}
-  .story-avatar{width:60px; height:60px; border-radius:50%; border:2px solid orange; object-fit:cover}
-  .story-name{margin-top:4px; font-size:12px; color:var(--sub)}
+/* ===== Nav & StoryBar 動畫 ===== */
+#nav, #storyBar { transition: transform .3s ease; }
 
-  /* ===== 文章卡片 ===== */
-  .post-card img.hero{width:100%; border-radius:12px; margin-top:8px}
-  .translate-chip{margin-left:auto; border:1px solid var(--line); background:var(--hover); border-radius:12px; padding:6px 10px; font-size:12px; cursor:pointer}
+/* ===== Home header ===== */
+#friendsHeader{display:flex; justify-content:space-between; align-items:center; gap:12px}
+#friendsHeader .me{display:flex; align-items:center; gap:12px; cursor:pointer}
+#friendsHeader img{width:48px; height:48px; border-radius:50%; object-fit:cover; border:1px solid var(--line)}
+#friendsHeader .nick{font-weight:800}
 
-  /* ===== Reaction 列 ===== */
-  .reactions{display:flex; flex-wrap:wrap; gap:10px; margin-top:10px}
-  .reaction{display:flex; align-items:center; gap:6px; padding:6px 10px; border:1px solid var(--line); border-radius:999px; background:var(--hover); cursor:pointer}
-  .reaction .count{font-weight:700}
+/* ===== Story bar ===== */
+.story-bar{display:flex; gap:14px; padding:12px; overflow-x:auto}
+.story-item{flex:0 0 auto; text-align:center; cursor:pointer}
+.story-avatar{width:60px; height:60px; border-radius:50%; border:2px solid var(--accent); object-fit:cover}
+.story-name{margin-top:4px; font-size:12px; color:var(--sub)}
+
+/* ===== 文章卡片 ===== */
+.post-card img.hero{width:100%; border-radius:12px; margin-top:8px}
+.translate-chip{margin-left:auto; border:1px solid var(--line); background:var(--hover); border-radius:12px; padding:6px 10px; font-size:12px; cursor:pointer}
+.postCard { cursor:pointer; }
+
+/* ===== Reaction 列 ===== */
+.reactions{display:flex; flex-wrap:wrap; gap:10px; margin-top:10px}
+.reaction{display:flex; flex-direction:column; align-items:center; gap:4px; padding:6px 10px; border:1px solid var(--line); border-radius:12px; background:var(--hover); cursor:pointer; min-width:48px}
+.reaction .count{font-weight:700; font-size:12px}
 .reaction.active {
   background: var(--accent);
   color: #fff;
@@ -60,31 +78,31 @@
   transition: .15s;
 }
 
-  /* ===== 留言區 ===== */
-  .comments-head{display:flex; align-items:center; justify-content:space-between; margin:8px 0 12px}
-  .comments-left{display:flex; align-items:center; gap:10px}
-  .refresh-btn{width:22px; height:22px; border-radius:50%; border:1px solid var(--line); display:flex; align-items:center; justify-content:center; cursor:pointer}
-  .switch{position:relative; width:44px; height:24px}
-  .switch input{opacity:0; width:0; height:0}
-  .slider{position:absolute; cursor:pointer; inset:0; background:#333; border-radius:999px; transition:.2s}
-  .slider:before{content:""; position:absolute; height:18px; width:18px; left:3px; top:3px; background:#fff; border-radius:50%; transition:.2s}
-  .switch input:checked + .slider{background:var(--accent)}
-  .switch input:checked + .slider:before{transform:translateX(20px)}
-  .citem{border:1px solid var(--line); border-radius:12px; padding:10px; background:linear-gradient(180deg, var(--card), var(--hover)); margin-bottom:10px}
-  .citem.artist{background:linear-gradient(180deg, #2a1a1f, #3b1f29); border-color:#ff8aa2} /* 藝人回覆：不同顏色 */
-  .citem .u{display:flex; align-items:center; gap:10px}
-  .citem .u img{width:36px; height:36px; border-radius:50%; border:1px solid var(--line); object-fit:cover}
-  .citem .name{font-weight:800}
-  .comment-input{position:fixed; left:0; right:0; bottom:0; padding:12px 14px; background:linear-gradient(180deg,rgba(0,0,0,0),rgba(0,0,0,.55)); backdrop-filter:blur(10px); display:flex; gap:10px}
-  .comment-input input{flex:1; border:none; outline:none; border-radius:16px; padding:14px 16px; background:var(--hover); color:var(--text); border:1px solid var(--line)}
-  .comment-input button{width:52px; height:52px; border:none; border-radius:18px; font-weight:900; color:#fff; background:linear-gradient(180deg,var(--accent),var(--accent-2)); cursor:pointer}
+/* ===== 留言區 ===== */
+.comments-head{display:flex; align-items:center; justify-content:space-between; margin:8px 0 12px}
+.comments-left{display:flex; align-items:center; gap:10px}
+.refresh-btn{width:22px; height:22px; border-radius:50%; border:1px solid var(--line); display:flex; align-items:center; justify-content:center; cursor:pointer}
+.switch{position:relative; width:44px; height:24px}
+.switch input{opacity:0; width:0; height:0}
+.slider{position:absolute; cursor:pointer; inset:0; background:#ccc; border-radius:999px; transition:.2s}
+.slider:before{content:""; position:absolute; height:18px; width:18px; left:3px; top:3px; background:#fff; border-radius:50%; transition:.2s}
+.switch input:checked + .slider{background:var(--accent)}
+.switch input:checked + .slider:before{transform:translateX(20px)}
+.citem{border:1px solid var(--line); border-radius:12px; padding:10px; background:linear-gradient(180deg, var(--card), var(--hover)); margin-bottom:10px}
+.citem.artist{background:linear-gradient(180deg, #eae6ff, #f5f2ff); border-color:#b8aaff} /* 藝人回覆：不同顏色 */
+.citem .u{display:flex; align-items:center; gap:10px}
+.citem .u img{width:36px; height:36px; border-radius:50%; border:1px solid var(--line); object-fit:cover}
+.citem .name{font-weight:800}
+.comment-input{position:fixed; left:0; right:0; bottom:0; padding:12px 14px; background:linear-gradient(180deg,rgba(255,255,255,0),rgba(255,255,255,.85)); backdrop-filter:blur(10px); display:flex; gap:10px}
+.comment-input input{flex:1; border:none; outline:none; border-radius:16px; padding:14px 16px; background:var(--hover); color:var(--text); border:1px solid var(--line)}
+.comment-input button{width:52px; height:52px; border:none; border-radius:18px; font-weight:900; color:#fff; background:linear-gradient(180deg,var(--accent),var(--accent-2)); cursor:pointer}
 
-  /* ===== NAV ===== */
-  nav{position:fixed; left:0; right:0; bottom:0; background:#0f1116; border-top:1px solid var(--line);
-      display:flex; justify-content:space-around; padding:12px 8px 16px; backdrop-filter:blur(8px)}
-  nav.hidden{display:none}
-  nav button{background:transparent; border:none; color:var(--text); font-weight:800; padding:8px 10px; border-radius:12px; cursor:pointer}
-  nav button:active{background:var(--hover)}
+/* ===== NAV ===== */
+nav{position:fixed; left:0; right:0; bottom:0; background:#fff; border-top:1px solid var(--line);
+    display:flex; justify-content:space-around; padding:12px 8px 16px; backdrop-filter:blur(8px)}
+nav.hidden{display:none}
+nav button{background:transparent; border:none; color:var(--text); font-weight:800; padding:8px 10px; border-radius:12px; cursor:pointer}
+nav button:active{background:var(--hover)}
 
   /* =========================
   =  Profile（單一頁：自己/他人共用）=
@@ -117,125 +135,89 @@
   word-break: break-word;     /* 強制切斷太長的字串 */
 }
 
-/* DM 列表 */
-#dmListWrap { display:flex; flex-direction:column; }
-.dmCard {
-  display:flex; align-items:center; gap:12px;
-  padding:14px; border-bottom:1px solid var(--line);
-  cursor:pointer;
-}
-.dmCard img { width:48px; height:48px; border-radius:50%; object-fit:cover; }
-
-.dmMeta { flex:1; }
-.dmMeta b { display:block; margin-bottom:2px; }
-.dmMeta small { color:var(--sub); font-size:12px; }
-
-.dmRight {
-  display:flex;
-  flex-direction:column;
-  align-items:flex-end;
-  font-size:12px;
-  color:var(--sub);
-  min-width:50px;
-}
-.dmUnread {
-  background:var(--accent);
-  color:#fff;
-  font-size:11px;
-  font-weight:700;
-  border-radius:999px;
-  padding:2px 6px;
-  margin-top:4px;
-}
-
-/* DM 聊天室 */
-.dmBox { padding:12px; height:calc(100vh - 120px); overflow-y:auto; }
-.dmMsg { display:flex; margin-bottom:12px; }
-.dmMsg.me { justify-content:flex-end; }
-.dmMsg .bubble {
-  max-width:70%; padding:10px 14px; border-radius:16px;
-  background:var(--card); position:relative;
-  word-break:break-word; white-space:pre-wrap;
-}
-.dmMsg.me .bubble { background:var(--accent); color:#fff; }
-
-/* 聊天訊息區 */
+/* ========================= DM 列表 ========================= */
 .dmBox {
+  display: flex;
+  align-items: center;
+  gap: 12px;
   padding: 12px;
-  height: calc(100vh - 120px); /* 扣掉上方標題列 & 下方輸入框 */
-  overflow-y: auto;
-}
-.dmMsg {
-  display: flex;
-  margin-bottom: 12px;
-}
-.dmMsg.me { justify-content: flex-end; }
-.dmMsg .bubble {
-  max-width: 70%;
-  padding: 10px 14px;
-  border-radius: 16px;
-  background: var(--card);
-  position: relative;
-  word-break: break-word;
-  white-space: pre-wrap;
-}
-.dmMsg.me .bubble {
-  background: var(--accent);
-  color: #fff;
-}
-
-/* 輸入框 */
-.dmInputBar {
-  position: fixed;
-  left: 0; right: 0; bottom: 0;
-  padding: 12px 14px;
-  background: linear-gradient(180deg, rgba(0,0,0,0), rgba(0,0,0,.55));
-  backdrop-filter: blur(10px);
-  display: flex;
-  gap: 10px;
-}
-.dmInputBar input {
-  flex: 1;
-  border: none;
-  outline: none;
-  border-radius: 16px;
-  padding: 14px 16px;
-  background: var(--hover);
-  color: var(--text);
-  border: 1px solid var(--line);
-}
-.dmInputBar button {
-  width: 52px;
-  height: 52px;
-  border: none;
-  border-radius: 18px;
-  font-weight: 900;
-  color: #fff;
-  background: linear-gradient(180deg,var(--accent),var(--accent-2));
+  border-bottom: 1px solid var(--line);
   cursor: pointer;
 }
 
-.dmMeta { flex:1; display:flex; flex-direction:column; }
-.dmMeta .topline { display:flex; justify-content:space-between; align-items:center; }
-.dmMeta .topline b { font-weight:700; }
-.dmMeta .topline .heart { margin-left:6px; }
-.dmMeta .bottomline { display:flex; justify-content:space-between; color:var(--sub); font-size:12px; margin-top:2px; }
+.dmBox img {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+}
 
-/* 翻譯 chip（合併用一份即可） */
+.dmBox .info {
+  flex: 1;
+  min-width: 0; /* 防止文字溢出 */
+}
 
-.translate-chip {
-  margin-top:4px;
-  margin-left:8px; /* ⬅ 原本 auto 改成 8px，避免太貼邊 */
+.dmBox .info b {
+  display: block;
+  font-size: 15px;
+  color: var(--text);
+}
+
+.dmBox .info .lastMsg {
+  font-size: 13px;
+  color: var(--text-light);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.dmBox .time {
+  font-size: 12px;
+  color: var(--text-light);
+}
+
+/* ========================= DM 內文 ========================= */
+.dmMsg {
+  max-width: 70%;
+  padding: 10px 14px;
+  border-radius: 16px;
+  margin: 8px 0;
+  font-size: 14px;
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.dmMsg.me {
+  background: var(--accent);
+  color: white;
+  margin-left: auto;
+}
+
+.dmMsg.other {
+  background: var(--card);
+  color: var(--text);
+  margin-right: auto;
+}
+
+/* Header 統一設定 */
+.postHeader, .detailHeader {
+  display:flex;
+  align-items:center;
+  position:relative; /* 讓翻譯鍵絕對定位 */
+}
+
+/* 翻譯鍵 */
+.translateBtn {
+  position:absolute;
+  right:12px;
+  top:12px;
   border:1px solid var(--line);
   background:var(--hover);
   border-radius:12px;
   padding:4px 8px;
-  font-size:11px;
+  font-size:12px;
   cursor:pointer;
-  text-align:right;
-  display:inline-block;
-  color:var(--sub);
 }
+
 </style>
 </head>
 
@@ -254,6 +236,66 @@
   <div id="storyBar" class="story-bar"></div>
   <div id="feedWrap" class="feed-col"></div>
 </section>
+
+<!-- 貼文卡片 (社群首頁用) -->
+<div class="postCard" onclick="openPostDetail(this)">
+  <div class="postHeader">
+    <img src="annie.jpg" class="avatar">
+    <div class="meta">
+      <b>ANNIE</b> <span class="verify">✔</span>
+      <span class="time">3小時前</span>
+    </div>
+    <!-- 翻譯鍵移到右上角 -->
+    <button class="translateBtn">翻譯</button>
+  </div>
+  <div class="postBody">
+    last one just for my day ones✨🍰
+    <img src="annie_post.jpg" class="postImg">
+  </div>
+  <div class="postReactions">
+    <button>👏 <span>717</span></button>
+    <button>😍 <span>538</span></button>
+    <button>😂 <span>234</span></button>
+    <button>🐼 <span>177</span></button>
+    <button>😭 <span>110</span></button>
+  </div>
+  <div class="postFooter">
+    💬 314 則留言
+  </div>
+</div>
+
+<!-- 詳情頁 (隱藏，點擊卡片後顯示) -->
+<div id="postDetail" class="postDetail hidden">
+  <div class="detailHeader">
+    <button class="backBtn" onclick="closePostDetail()">←</button>
+    <img src="annie.jpg" class="avatar">
+    <div class="meta">
+      <b>ANNIE</b> <span class="verify">✔</span>
+      <span class="time">3小時前</span>
+    </div>
+    <!-- 翻譯鍵也在右上角 -->
+    <button class="translateBtn">翻譯</button>
+  </div>
+  <div class="detailBody">
+    <img src="annie_post.jpg" class="postImg">
+    <p>last one just for my day ones✨🍰</p>
+    <div class="postReactions">
+      <button>👏 <span>717</span></button>
+      <button>😍 <span>538</span></button>
+      <button>😂 <span>234</span></button>
+      <button>🐼 <span>177</span></button>
+      <button>😭 <span>110</span></button>
+    </div>
+  </div>
+  <div class="commentBar">
+    <span>全部 314</span>
+    <label><input type="checkbox"> 只看ADP的評論</label>
+  </div>
+  <div class="commentInput">
+    <input type="text" placeholder="請輸入評論">
+    <button>➤</button>
+  </div>
+</div>
 
 <!-- =========================
 =  HTML：貼文詳情（留言區） =
@@ -564,7 +606,7 @@ function renderFeed(filter='all'){
     list = POSTS.filter(p => p.artistId === filter);
   }
   wrap.innerHTML = list.map(p=>`
-    <div class="card soft post-card" style="margin-bottom:16px">
+<div class="card soft postCard" onclick="openPost('${p.id}')">
       <div class="row">
         <img src="${p.avatar}" style="width:52px;height:52px;border-radius:50%;object-fit:cover;border:1px solid var(--line)">
         <div><b>${p.artistName}</b><br><small class="ghost">${p.ts}</small></div>
@@ -589,6 +631,8 @@ function toggleTranslate(postId){
     pEl.textContent = pEl.dataset.origin || pEl.textContent;
   }
 }
+
+// === Reaction Bar 渲染 ===
 function renderReactionsBar(postId){
   const data = getReactions(postId);
   const myData = getMyReactions(postId);
@@ -596,31 +640,39 @@ function renderReactionsBar(postId){
     ${REACTION_TYPES.map(r=>{
       const cnt = data[r.key] || 0;
       const active = myData[r.key] ? 'active' : '';
+      // 🟢 數字只有 >0 才顯示
+      const countHtml = cnt > 0 
+        ? `<span class="count" id="rc-${postId}-${r.key}">${cnt}</span>` 
+        : `<span class="count" id="rc-${postId}-${r.key}"></span>`;
       return `<div class="reaction ${active}" onclick="toggleReaction('${postId}','${r.key}')">
-        <span>${r.icon}</span><span class="count" id="rc-${postId}-${r.key}">${cnt}</span>
+        <span>${r.icon}</span>${countHtml}
       </div>`;
     }).join('')}
   </div>`;
 }
-function toggleReaction(postId, key){
-  const data = getReactions(postId);
-  const myData = getMyReactions(postId);
-  if(myData[key]){
-    data[key] = Math.max((data[key]||1) - 1, 0);
-    myData[key] = false;
-  }else{
-    data[key] = (data[key]||0) + 1;
-    myData[key] = true;
+function toggleReaction(postId, type) {
+  let data = getReactions(postId);
+  let myData = getMyReactions(postId);
+
+  if (myData[type]) {
+    delete myData[type];
+    data[type] = Math.max((data[type]||0)-1, 0);
+  } else {
+    // 清掉舊的
+    for (let k in myData) {
+      if (myData[k]) {
+        data[k] = Math.max((data[k]||0)-1, 0);
+      }
+    }
+    myData = {};
+    myData[type] = true;
+    data[type] = (data[type]||0)+1;
   }
-  setReactions(postId, data);
+
   setMyReactions(postId, myData);
-  const el = document.getElementById(`rc-${postId}-${key}`);
-  if(el) el.textContent = data[key];
-  const btn = el?.closest('.reaction');
-  if(btn){
-    if(myData[key]) btn.classList.add('active');
-    else btn.classList.remove('active');
-  }
+  setReactions(postId, data);
+
+  document.getElementById(`reactions-${postId}`).outerHTML = renderReactionsBar(postId);
 }
 
 /* -------------------------------------
@@ -669,7 +721,7 @@ function openPost(postId){
   document.getElementById('filterLabel').textContent = `只看 ${post.artistName} 的回覆`;
 
   const content = `
-    <div class="card soft post-card" style="margin-bottom:16px">
+  <div class="card soft postCard" onclick="openPost('${post.id}')">
       <div class="row">
         <img src="${post.avatar}" style="width:52px;height:52px;border-radius:50%;object-fit:cover;border:1px solid var(--line)">
         <div><b>${post.artistName}</b><br><small class="ghost">${post.ts}</small></div>
@@ -684,22 +736,26 @@ function openPost(postId){
   renderComments();
   showPage('postDetail');
 }
-function renderComments(){
+
+function renderComments() {
   if(!CURRENT_POST_ID) return;
-  let list = getComments(CURRENT_POST_ID);
-  const box = document.getElementById('commentList');
-  box.innerHTML = list.map(c=>`
-    <div class="citem ${c.isArtist ? 'artist':''}" data-id="${c.id}">
-      <div class="u">
-        <img src="${c.avatar}">
-        <div style="flex:1">
-          <div class="name" style="color:${c.isArtist ? '#ff8aa2':'var(--text)'}">${c.name}</div>
-          <div>${c.text}</div>
-        </div>
-      </div>
-    </div>
-  `).join('');
-  box.scrollTop = box.scrollHeight;
+  const wrap = document.getElementById("commentList");
+  wrap.innerHTML = "";
+  const onlyArtist = document.getElementById("filterArtistSwitch").checked;
+
+  const comments = getComments(CURRENT_POST_ID);
+  document.getElementById("commentsCount").textContent = `全部 ${comments.length} 則`;
+
+  comments.forEach(c => {
+    if(onlyArtist && !c.isArtist) return;
+    const div = document.createElement("div");
+    div.className = "citem" + (c.isArtist ? " artist" : "");
+    div.innerHTML = `
+      <div class="u"><img src="${c.avatar}"><b class="name">${c.name}</b></div>
+      <p>${c.text}</p>
+    `;
+    wrap.appendChild(div);
+  });
 }
 function sendComment(){
   if(!CURRENT_POST_ID) return;
@@ -718,34 +774,23 @@ function sendComment(){
 /* -------------------------------------
  *  JS：切頁
  * -----------------------------------*/
+
 let pageStack = [];
 
 function showPage(id){
-  const current = document.querySelector('section.active');
-  if(current && current.id !== id){
-    // 🔑 避免重複 push
-    if(pageStack[pageStack.length-1] !== current.id){
-      pageStack.push(current.id);
-    }
-  }
-  document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));
-  const target = document.getElementById(id);
-  if(target) target.classList.add('active');
-  const nav = document.getElementById('nav');
-  if(['postDetail','profile','dm','dmDetail'].includes(id)){
-    nav.classList.add('hidden');
-  }else{
-    nav.classList.remove('hidden');
+  document.querySelectorAll("section").forEach(s => s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  if(pageStack[pageStack.length-1] !== id){
+    pageStack.push(id);
   }
 }
 
-// 🔙 返回上一頁
 function goBack(){
-  if(pageStack.length > 0){
-    const prev = pageStack.pop();
-    showPage(prev);
-  }else{
-    showPage('home'); // 如果沒有上一頁 → 回首頁
+  if(pageStack.length > 1){
+    pageStack.pop();
+    const prev = pageStack[pageStack.length-1];
+    document.querySelectorAll("section").forEach(s => s.classList.remove("active"));
+    document.getElementById(prev).classList.add("active");
   }
 }
 
