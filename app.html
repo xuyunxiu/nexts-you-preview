@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <title>NEXT’S YOU</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <style>
     :root {
       --bg: #fff;
@@ -15,6 +16,7 @@
       --artist: #f3e8ff;
       --chip: #f1f1f1;
       --danger: #ff3b30;
+      --accent: #9146ff;
     }
     body {
       margin: 0;
@@ -25,35 +27,49 @@
     }
     .page { display: none; }
     .active { display: block; }
-    header.navbar {
-      position: sticky;
-      top: 0;
+
+    /* ===== NAV BAR ===== */
+    #navBar {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      height: 56px;
       background: var(--bg);
-      border-bottom: 1px solid var(--line);
+      border-top: 1px solid var(--line);
       display: flex;
       justify-content: space-around;
-      padding: 8px 0;
-      z-index: 10;
+      align-items: center;
+      font-size: 14px;
+      z-index: 99;
       transition: transform 0.3s ease;
     }
-    header.navbar.hidden { transform: translateY(-100%); }
-    header.navbar button {
-      background: none;
+    #navBar.hidden { transform: translateY(100%); }
+    #navBar button {
       border: none;
-      font-size: 14px;
-      color: var(--ghost);
+      background: transparent;
+      font-size: 20px;
+      cursor: pointer;
     }
-    header.navbar button.active {
-      color: var(--primary);
-      font-weight: bold;
+
+    /* ===== StoryBar ===== */
+    .profileBar {
+      display: flex;
+      align-items: center;
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--line);
+      background: var(--bg);
     }
-    /* StoryBar 分類圓圈 */
+    .profileBar img {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      margin-right: 8px;
+    }
     .storyBar {
       display: flex;
       overflow-x: auto;
       padding: 8px;
       border-bottom: 1px solid var(--line);
       background: var(--bg);
+      scrollbar-width: none;
     }
     .storyItem {
       flex: none;
@@ -62,8 +78,7 @@
       cursor: pointer;
     }
     .storyItem img {
-      width: 56px;
-      height: 56px;
+      width: 56px; height: 56px;
       border-radius: 50%;
       border: 2px solid var(--primary);
       object-fit: cover;
@@ -74,17 +89,14 @@
       margin-top: 4px;
       color: var(--text);
     }
-    /* 卡片樣式 */
+
+    /* ===== Post Card ===== */
     .card {
       background: var(--bg);
       border-bottom: 1px solid var(--line);
       padding: 12px;
     }
-    .row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
+    .row { display: flex; align-items: center; gap: 8px; }
     .hero {
       width: 100%;
       border-radius: 8px;
@@ -115,40 +127,8 @@
       color: var(--danger);
       margin-left: 6px;
     }
-  </style>
-</head>
-<body>
-  <!-- NAV -->
-  <header class="navbar" id="navbar">
-    <button id="navHome" class="active" onclick="showPage('home')">首頁</button>
-    <button id="navDM" onclick="showPage('dmList')">DM</button>
-    <button id="navLive" onclick="showPage('liveList')">直播</button>
-    <button id="navProfile" onclick="showPage('profile')">我的</button>
-  </header>
 
-  <!-- StoryBar -->
-  <div class="storyBar" id="storyBar">
-    <!-- 動態生成 -->
-  </div>
-
-  <!-- Home Page -->
-  <div class="page active" id="home">
-    <div id="postFeed"></div>
-  </div>
-    <!-- Post Detail Page -->
-  <div class="page" id="postDetail">
-    <div id="postDetailContent"></div>
-    <div style="padding:12px;border-top:1px solid var(--line)">
-      <label id="filterLabel" class="ghost" style="font-size:12px"></label>
-      <div id="commentList" style="margin-top:8px"></div>
-      <div class="row" style="margin-top:8px">
-        <input id="commentInput" type="text" placeholder="留下評論..." style="flex:1;padding:6px;border:1px solid var(--line);border-radius:6px">
-        <button onclick="submitComment()" style="margin-left:8px">送出</button>
-      </div>
-    </div>
-  </div>
-
-  <style>
+    /* ===== Post Detail ===== */
     .comment {
       padding: 8px;
       border-bottom: 1px solid var(--line);
@@ -158,20 +138,12 @@
       font-size: 12px;
       color: var(--ghost);
     }
-    .comment-artist {
-      background: var(--artist);
-      border-radius: 6px;
-      padding: 6px;
-    }
-    .comment-fan {
-      background: var(--fan);
-      border-radius: 6px;
-      padding: 6px;
-    }
+    .comment-artist { background: var(--artist); border-radius: 6px; padding: 6px; }
+    .comment-fan { background: var(--fan); border-radius: 6px; padding: 6px; }
+
     .profile-popup {
       position: fixed;
-      top: 50%;
-      left: 50%;
+      top: 50%; left: 50%;
       transform: translate(-50%, -50%);
       background: #fff;
       border: 1px solid var(--line);
@@ -181,27 +153,114 @@
       width: 280px;
       display: none;
     }
-    .profile-popup h3 {
-      margin: 0 0 8px 0;
-    }
-    .profile-popup button {
-      margin-top: 12px;
-    }
-  </style>
 
-  <!-- 簡化粉絲個人檔案 Popup -->
+    /* ===== DM ===== */
+    .dmItem {
+      display: flex;
+      align-items: center;
+      padding: 10px;
+      border-bottom: 1px solid var(--line);
+      cursor: pointer;
+    }
+    .dmItem img {
+      width: 48px; height: 48px;
+      border-radius: 50%;
+      margin-right: 12px;
+      object-fit: cover;
+    }
+    .badge {
+      background: red;
+      color: #fff;
+      font-size: 12px;
+      border-radius: 50%;
+      padding: 2px 6px;
+      margin-left: 8px;
+    }
+    .dmMsg { margin: 6px 0; display: flex; }
+    .dmMsg .bubble {
+      padding: 8px;
+      border-radius: 8px;
+      max-width: 70%;
+    }
+    .dmMsg.fan { justify-content: flex-end; }
+    .dmMsg.fan .bubble { background: var(--fan); }
+    .dmMsg.artist .bubble { background: var(--artist); }
+
+    /* ===== Live ===== */
+    .liveMsg { margin: 6px 0; padding: 8px; border-radius: 6px; max-width: 70%; }
+    .liveMsg.host { background: var(--artist); align-self: flex-start; }
+    .liveMsg.fan { background: var(--fan); align-self: flex-end; }
+    .liveMsg.welcome { background: #ffe9a7; text-align: center; margin: 12px auto; font-size: 12px; }
+
+    /* ===== Replay ===== */
+    .replayMsg { margin: 6px 0; padding: 8px; border-radius: 6px; max-width: 70%; }
+    .replayMsg.host { background: var(--artist); }
+    .replayMsg.fan { background: var(--fan); margin-left:auto; }
+
+    /* ===== Profile ===== */
+    .profileHeader {
+      display: flex;
+      align-items: center;
+      padding: 16px;
+      border-bottom: 1px solid var(--line);
+    }
+    .profileAvatar {
+      width: 72px; height: 72px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--line);
+      margin-right: 16px;
+    }
+    .profileMeta { display: flex; flex-direction: column; gap: 4px; }
+    .fanId { font-size: 14px; color: var(--ghost); }
+    .fanHeart { font-size: 14px; color: var(--danger); }
+  </style>
+</head>
+<body>
+
+  <!-- ===== NAV ===== -->
+  <div id="navBar">
+    <button onclick="showPage('home')">🏠</button>
+    <button onclick="showPage('dmList')">💬</button>
+    <button onclick="showPage('liveList')">📺</button>
+    <button onclick="showPage('profilePage')">👤</button>
+  </div>
+
+  <!-- ===== HOME ===== -->
+  <div class="page active" id="home">
+    <div class="profileBar">
+      <img src="default_avatar.png">
+      <span id="homeFanId">NEXT-00000</span>
+    </div>
+    <div class="storyBar" id="storyBar"></div>
+    <div id="postFeed"></div>
+  </div>
+
+  <!-- ===== POST DETAIL ===== -->
+  <div class="page" id="postDetail">
+    <div id="postDetailContent"></div>
+    <div style="padding:12px;border-top:1px solid var(--line)">
+      <label id="filterLabel" style="font-size:12px;color:var(--ghost)">只看該藝人評論</label>
+      <div id="commentList" style="margin-top:8px"></div>
+      <div class="row" style="margin-top:8px">
+        <input id="commentInput" type="text" placeholder="留下評論..." style="flex:1;padding:6px;border:1px solid var(--line);border-radius:6px">
+        <button onclick="submitComment()" style="margin-left:8px">送出</button>
+      </div>
+    </div>
+  </div>
   <div id="profilePopup" class="profile-popup">
     <h3 id="popupName"></h3>
     <p id="popupId"></p>
     <button onclick="closeProfilePopup()">關閉</button>
   </div>
-    <!-- DM List Page -->
+
+  <!-- ===== DM LIST ===== -->
   <div class="page" id="dmList">
-    <h2>訊息</h2>
+    <h2>訊息 <span style="font-size:14px;color:var(--danger)">❤️ <span id="dmHeartDays">0</span> 天</span></h2>
     <div id="dmListContent"></div>
   </div>
 
-  <!-- DM Detail Page -->
+  <!-- ===== DM DETAIL ===== -->
   <div class="page" id="dmDetail">
     <div class="row" style="padding:12px;border-bottom:1px solid var(--line)">
       <b id="dmTitle"></b>
@@ -213,59 +272,7 @@
     </div>
   </div>
 
-  <style>
-    .dmItem {
-      display: flex;
-      align-items: center;
-      padding: 10px;
-      border-bottom: 1px solid var(--line);
-      cursor: pointer;
-    }
-    .dmItem img {
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-      margin-right: 12px;
-      object-fit: cover;
-    }
-    .dmItem .name {
-      flex: 1;
-    }
-    .badge {
-      background: red;
-      color: #fff;
-      font-size: 12px;
-      border-radius: 50%;
-      padding: 2px 6px;
-      margin-left: 8px;
-    }
-    .dmMsg {
-      margin: 6px 0;
-      display: flex;
-    }
-    .dmMsg .bubble {
-      padding: 8px;
-      border-radius: 8px;
-      max-width: 70%;
-      position: relative;
-    }
-    .dmMsg.fan {
-      justify-content: flex-end;
-    }
-    .dmMsg.fan .bubble {
-      background: var(--fan);
-    }
-    .dmMsg.artist .bubble {
-      background: var(--artist);
-    }
-    .dmMsg .translate-chip {
-      font-size: 10px;
-      color: var(--ghost);
-      cursor: pointer;
-      margin-top: 4px;
-    }
-  </style>
-    <!-- Live Page -->
+  <!-- ===== LIVE ===== -->
   <div class="page" id="liveRoom">
     <div class="row" style="padding:12px;border-bottom:1px solid var(--line)">
       <b id="liveHostName"></b>
@@ -278,59 +285,7 @@
     </div>
   </div>
 
-  <style>
-    .liveMsg {
-      margin: 6px 0;
-      padding: 8px;
-      border-radius: 6px;
-      max-width: 70%;
-    }
-    .liveMsg.host {
-      background: var(--artist);
-      align-self: flex-start;
-    }
-    .liveMsg.fan {
-      background: var(--fan);
-      align-self: flex-end;
-    }
-    .liveMsg.welcome {
-      background: #ffe9a7;
-      text-align: center;
-      margin: 12px auto;
-      font-size: 12px;
-    }
-  </style>
-
-  <script>
-    function openLive(id) {
-      const live = LIVE_DATA.active.find(l => l.id === id);
-      if (!live) return;
-
-      document.getElementById("liveHostName").textContent = live.host;
-      document.getElementById("liveTitle").textContent = live.title;
-      document.getElementById("liveThread").innerHTML = "";
-
-      showPage("liveRoom");
-
-      // 🟡 進場歡迎訊息（只顯示給自己）
-      const welcome = document.createElement("div");
-      welcome.className = "liveMsg welcome";
-      welcome.textContent = "🎤 歡迎來到直播";
-      document.getElementById("liveThread").appendChild(welcome);
-    }
-
-    function sendLiveMsg() {
-      const input = document.getElementById("liveInput");
-      if (!input.value.trim()) return;
-      const div = document.createElement("div");
-      div.className = "liveMsg fan";
-      div.textContent = input.value.trim();
-      document.getElementById("liveThread").appendChild(div);
-      input.value = "";
-      document.getElementById("liveThread").scrollTop = document.getElementById("liveThread").scrollHeight;
-    }
-  </script>
-    <!-- Live Replay Page -->
+  <!-- ===== REPLAY ===== -->
   <div class="page" id="liveReplay">
     <div class="row" style="padding:12px;border-bottom:1px solid var(--line)">
       <b id="replayHostName"></b>
@@ -344,114 +299,57 @@
     <div id="replayThread" style="height:calc(100vh - 120px);overflow-y:auto;padding:12px"></div>
   </div>
 
-  <style>
-    .replayMsg { margin: 6px 0; padding: 8px; border-radius: 6px; max-width: 70%; }
-    .replayMsg.host { background: var(--artist); }
-    .replayMsg.fan { background: var(--fan); margin-left:auto; }
-  </style>
-
-  <script>
-    let replayTimer = null;
-    let replayMsgs = [];
-
-    function openReplay(id) {
-      const live = LIVE_DATA.ended.find(l => l.id === id);
-      if (!live) return;
-
-      document.getElementById("replayHostName").textContent = live.host;
-      document.getElementById("replayTitle").textContent = live.title;
-      document.getElementById("replayThread").innerHTML = "";
-
-      showPage("liveReplay");
-
-      // 假資料（實際換成後端紀錄）
-      replayMsgs = [
-        {type:"host", text:"大家好～我是 " + live.host},
-        {type:"fan", text:"嗨！！"},
-        {type:"fan", text:"愛你💜"},
-        {type:"host", text:"謝謝大家來看～"}
-      ];
-
-      playReplay(1);
-    }
-
-    function playReplay(speed=1) {
-      clearInterval(replayTimer);
-      const thread = document.getElementById("replayThread");
-      thread.innerHTML = "";
-      let i = 0;
-      replayTimer = setInterval(()=>{
-        if (i >= replayMsgs.length) {
-          clearInterval(replayTimer);
-          return;
-        }
-        const m = replayMsgs[i++];
-        const div = document.createElement("div");
-        div.className = "replayMsg " + m.type;
-        div.textContent = m.text;
-        thread.appendChild(div);
-        thread.scrollTop = thread.scrollHeight;
-      }, 2000 / speed);
-    }
-
-    function changeReplaySpeed(val) {
-      playReplay(parseFloat(val));
-    }
-  </script>
-    <!-- Profile Page -->
+  <!-- ===== PROFILE ===== -->
   <div class="page" id="profilePage">
-    <div class="row" style="padding:12px;border-bottom:1px solid var(--line)">
-      <b>個人資料</b>
+    <div class="profileHeader">
+      <img id="profileAvatar" src="default_avatar.png" class="profileAvatar">
+      <div class="profileMeta">
+        <div><b id="profileName">粉絲暱稱</b></div>
+        <div class="fanId" id="fanId">NEXT-00000</div>
+        <div class="fanHeart">❤️ 已持有 <span id="fanHeartDays">0</span> 天</div>
+      </div>
     </div>
     <div style="padding:16px">
-      <div style="text-align:center;margin-bottom:16px">
-        <img id="profileAvatar" src="default_avatar.png" style="width:100px;height:100px;border-radius:50%;object-fit:cover;border:2px solid var(--line)">
-      </div>
-
-      <p><b>粉絲 ID</b>：<span id="fanId"></span></p>
-      <p><b>暱稱</b>：<span id="profileName">我的暱稱</span></p>
-      <p>
-        <b>生日</b>：<input type="date" id="birthdayInput" onchange="saveBirthday(this.value)">
-      </p>
-
-      <hr style="margin:16px 0">
-
-      <h3>💜 我的愛心</h3>
-      <p>剩餘天數：<span id="heartDays">0</span> 天</p>
-      <button onclick="buyHearts(30)">購買 30 天</button>
+      <label>生日：<input type="date" id="birthdayInput" onchange="saveBirthday(this.value)"></label>
     </div>
   </div>
 
   <script>
-    // 生成粉絲 ID
-    function generateFanId() {
-      const id = "NEXT-" + Math.floor(10000 + Math.random()*90000);
-      localStorage.setItem("fanId", id);
-      return id;
+    /* ===== 共通 ===== */
+    function showPage(id) {
+      document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+      document.getElementById(id).classList.add("active");
+      if (["postDetail","dmDetail","liveRoom","liveReplay"].includes(id)) {
+        document.getElementById("navBar").classList.add("hidden");
+      } else {
+        document.getElementById("navBar").classList.remove("hidden");
+      }
+      if (id==="profilePage") loadProfile();
+      if (id==="dmList") refreshDMList();
     }
 
+    /* ===== Profile ===== */
+    function generateFanId() {
+      let stored = localStorage.getItem("fanId");
+      if (!stored) {
+        stored = "NEXT-" + Math.floor(10000 + Math.random()*90000);
+        localStorage.setItem("fanId", stored);
+      }
+      return stored;
+    }
     function loadProfile() {
-      let fid = localStorage.getItem("fanId");
-      if (!fid) fid = generateFanId();
-      document.getElementById("fanId").textContent = fid;
-
-      // 載入生日
+      document.getElementById("fanId").textContent = generateFanId();
+      document.getElementById("homeFanId").textContent = localStorage.getItem("fanId");
+      document.getElementById("fanHeartDays").textContent = localStorage.getItem("heartDays")||0;
+      document.getElementById("dmHeartDays").textContent = localStorage.getItem("heartDays")||0;
       const bd = localStorage.getItem("birthday");
       if (bd) document.getElementById("birthdayInput").value = bd;
-
-      // 載入愛心
-      const heart = parseInt(localStorage.getItem("heartDays")||"0",10);
-      document.getElementById("heartDays").textContent = heart;
-
-      // 生日提醒
       checkBirthday();
     }
-
     function saveBirthday(val) {
       localStorage.setItem("birthday", val);
       checkBirthday();
     }
-
     function checkBirthday() {
       const bd = localStorage.getItem("birthday");
       if (!bd) return;
@@ -462,249 +360,75 @@
       }
     }
 
-    // 愛心購買
-    function buyHearts(days) {
-      let heart = parseInt(localStorage.getItem("heartDays")||"0",10);
-      heart += days;
-      localStorage.setItem("heartDays", heart);
-      document.getElementById("heartDays").textContent = heart;
-      alert("成功購買 " + days + " 天 💜");
+    /* ===== DM Mock ===== */
+    function refreshDMList() {
+      const box = document.getElementById("dmListContent");
+      box.innerHTML = "";
+      const item = document.createElement("div");
+      item.className = "dmItem";
+      item.innerHTML = '<img src="default_avatar.png"><div class="name">藝人A</div><span class="badge">1</span>';
+      item.onclick = ()=>openDm("藝人A");
+      box.appendChild(item);
     }
-  </script>
-    <!-- Navigation Bar -->
-  <div id="navBar" class="navBar">
-    <button onclick="showPage('home')">🏠</button>
-    <button onclick="showPage('dmList')">💬</button>
-    <button onclick="showPage('liveList')">📺</button>
-    <button onclick="showPage('profilePage')">👤</button>
-  </div>
-
-  <style>
-    .navBar {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 56px;
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-      background: var(--card);
-      border-top: 1px solid var(--line);
-      transition: transform 0.3s ease;
+    function openDm(name) {
+      document.getElementById("dmTitle").textContent = name;
+      document.getElementById("dmBox").innerHTML = "";
+      showPage("dmDetail");
     }
-    .navBar.hidden {
-      transform: translateY(100%);
-    }
-    .navBar button {
-      border: none;
-      background: transparent;
-      font-size: 20px;
-      cursor: pointer;
-    }
-  </style>
-
-  <script>
-    // 顯示/隱藏 nav
-    function toggleNav(show) {
-      const nav = document.getElementById("navBar");
-      if (!nav) return;
-      if (show) nav.classList.remove("hidden");
-      else nav.classList.add("hidden");
+    function sendDm() {
+      const input = document.getElementById("dmInput");
+      if (!input.value.trim()) return;
+      const div = document.createElement("div");
+      div.className = "dmMsg fan";
+      div.innerHTML = '<div class="bubble">'+input.value+'</div>';
+      document.getElementById("dmBox").appendChild(div);
+      input.value="";
     }
 
-    // 修改 showPage 控制 nav
-    const originalShowPage = showPage;
-    showPage = function(id) {
-      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-      document.getElementById(id).classList.add('active');
-
-      // 規則：
-      // 貼文詳情、直播間、回放、DM詳情 → 收起 nav
-      // 其他頁 → 顯示 nav
-      if (["postDetail","liveRoom","replayPage","dmDetail"].includes(id)) {
-        toggleNav(false);
-      } else {
-        toggleNav(true);
-      }
-    }
-  </script>
-    <!-- ===== 個人資料頁 ===== -->
-  <div id="profilePage" class="page">
-    <div class="topbar">
-      <b>我的</b>
-    </div>
-
-    <div class="profileHeader">
-      <img id="profileAvatar" src="default_avatar.jpg" class="profileAvatar">
-      <div class="profileMeta">
-        <div><b id="profileName">粉絲暱稱</b></div>
-        <div class="fanId" id="fanId">NEXT-00000</div>
-        <div class="fanHeart">❤️ 已持有 <span id="fanHeartDays">0</span> 天</div>
-      </div>
-    </div>
-
-    <div class="profileInfo">
-      <label>生日：
-        <input type="date" id="birthdayInput" onchange="saveBirthday()">
-      </label>
-    </div>
-
-    <div class="walletSection">
-      <h3>錢包</h3>
-      <div>餘額：<span id="walletBalance">0</span> 點</div>
-      <button onclick="chargeWallet()">充值</button>
-    </div>
-  </div>
-
-  <style>
-    .profileHeader {
-      display: flex;
-      align-items: center;
-      padding: 16px;
-      background: var(--card);
-      border-bottom: 1px solid var(--line);
-    }
-    .profileAvatar {
-      width: 72px;
-      height: 72px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 2px solid var(--line);
-      margin-right: 16px;
-    }
-    .profileMeta {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-    .fanId {
-      font-size: 14px;
-      color: var(--sub);
-    }
-    .fanHeart {
-      font-size: 14px;
-      color: var(--accent);
-    }
-    .profileInfo {
-      padding: 16px;
-      background: var(--card);
-      border-bottom: 1px solid var(--line);
-    }
-    .walletSection {
-      padding: 16px;
-      background: var(--card);
-      margin-top: 12px;
-    }
-    .walletSection button {
-      margin-top: 8px;
-      border: none;
-      background: var(--accent);
-      color: white;
-      padding: 6px 12px;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-  </style>
-
-  <script>
-    // 粉絲 ID 生成
-    function generateFanId() {
-      const stored = localStorage.getItem("fanId");
-      if (stored) return stored;
-      const newId = "NEXT-" + Math.floor(10000 + Math.random() * 90000);
-      localStorage.setItem("fanId", newId);
-      return newId;
+    /* ===== Live Mock ===== */
+    function sendLiveMsg() {
+      const input = document.getElementById("liveInput");
+      if (!input.value.trim()) return;
+      const div = document.createElement("div");
+      div.className = "liveMsg fan";
+      div.textContent = input.value;
+      document.getElementById("liveThread").appendChild(div);
+      input.value="";
     }
 
-    // 生日存取
-    function saveBirthday() {
-      const bday = document.getElementById("birthdayInput").value;
-      localStorage.setItem("birthday", bday);
-      checkBirthday();
+    /* ===== Replay Mock ===== */
+    let replayTimer=null, replayMsgs=[];
+    function openReplay() {
+      document.getElementById("replayHostName").textContent="藝人A";
+      document.getElementById("replayTitle").textContent="直播回放";
+      replayMsgs = [
+        {type:"host", text:"大家好～"},
+        {type:"fan", text:"嗨！"},
+        {type:"fan", text:"愛你💜"},
+        {type:"host", text:"謝謝支持！"}
+      ];
+      playReplay(1);
+      showPage("liveReplay");
     }
-
-    function checkBirthday() {
-      const bday = localStorage.getItem("birthday");
-      if (!bday) return;
-      const today = new Date().toISOString().slice(5,10); // MM-DD
-      const setDay = bday.slice(5);
-      if (today === setDay) {
-        alert("🎂 生日快樂！");
-      }
+    function playReplay(speed=1) {
+      clearInterval(replayTimer);
+      const thread=document.getElementById("replayThread");
+      thread.innerHTML="";
+      let i=0;
+      replayTimer=setInterval(()=>{
+        if(i>=replayMsgs.length){clearInterval(replayTimer);return;}
+        const m=replayMsgs[i++];
+        const div=document.createElement("div");
+        div.className="replayMsg "+m.type;
+        div.textContent=m.text;
+        thread.appendChild(div);
+        thread.scrollTop=thread.scrollHeight;
+      },2000/speed);
     }
+    function changeReplaySpeed(val){ playReplay(parseFloat(val)); }
 
-    // 錢包功能
-    function chargeWallet() {
-      let balance = parseInt(localStorage.getItem("walletBalance") || "0");
-      balance += 100;
-      localStorage.setItem("walletBalance", balance);
-      document.getElementById("walletBalance").textContent = balance;
-    }
-
-    function loadProfile() {
-      document.getElementById("fanId").textContent = generateFanId();
-      document.getElementById("walletBalance").textContent = localStorage.getItem("walletBalance") || "0";
-
-      const bday = localStorage.getItem("birthday");
-      if (bday) document.getElementById("birthdayInput").value = bday;
-    }
-  </script>
-    <!-- ===== 底部導覽列 ===== -->
-  <div id="navbar">
-    <div onclick="showPage('homePage')">🏠<br>首頁</div>
-    <div onclick="showPage('feedPage')">📰<br>動態</div>
-    <div onclick="showPage('dmPage')">💬<br>訊息</div>
-    <div onclick="showPage('profilePage')">👤<br>我的</div>
-  </div>
-
-  <style>
-    #navbar {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 64px;
-      background: var(--card);
-      border-top: 1px solid var(--line);
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-      font-size: 14px;
-    }
-    #navbar div {
-      flex: 1;
-      text-align: center;
-      cursor: pointer;
-      padding-top: 6px;
-    }
-  </style>
-
-  <script>
-    // 切換頁面
-    function showPage(id) {
-      // nav bar 遇到直播頁要收起
-      if (id === "livePage") {
-        document.getElementById("navbar").style.display = "none";
-      } else {
-        document.getElementById("navbar").style.display = "flex";
-      }
-
-      document.querySelectorAll(".page").forEach(p => p.style.display = "none");
-      document.getElementById(id).style.display = "block";
-
-      // 特殊頁面初始化
-      if (id === "profilePage") loadProfile();
-      if (id === "dmPage") refreshDMList();
-    }
-
-    // 首次初始化
-    window.onload = () => {
-      document.querySelectorAll(".page").forEach(p => p.style.display = "none");
-      showPage("homePage"); // 預設進首頁
-      loadProfile();
-      checkBirthday();
-    };
+    /* ===== Init ===== */
+    window.onload = ()=>{ showPage("home"); loadProfile(); };
   </script>
 </body>
 </html>
