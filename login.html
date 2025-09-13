@@ -1,170 +1,124 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8" />
-  <title>NEXT'S YOU — Login</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-
-  <!-- 若已登入，直接跳 APP -->
-  <script>
-    if (localStorage.getItem('loggedIn')) {
-      window.location.replace('app.html');
-    }
-  </script>
-
+  <meta charset="UTF-8">
+  <title>登入 - NEXT’S YOU</title>
   <style>
-    /* ===== Theme (與 app.html 一致) ===== */
-    :root{
-      --bg:#0f0f12; --card:#16181d; --hover:#1b1e24; --line:rgba(255,255,255,.06);
-      --text:#f6f7fb; --sub:#b5bac7; --muted:#8c92a1;
-      --accent:#ff2d55; --accent-2:#ff3b63; --ok:#2ecc71; --ng:#ff5a5f;
-      --r:16px; --shadow:12px 18px 40px rgba(0,0,0,.45);
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      background: #000;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
     }
-    html,body{height:100%}
-    body{
-      margin:0; color:var(--text);
-      background:
-        radial-gradient(1200px 800px at 90% -10%, rgba(255,45,85,.08), transparent 50%),
-        radial-gradient(900px 700px at 10% 110%, rgba(109,40,217,.08), transparent 50%),
-        var(--bg);
-      -webkit-font-smoothing:antialiased; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+    .loginBox {
+      background: #111;
+      padding: 32px;
+      border-radius: 12px;
+      text-align: center;
+      box-shadow: 0 0 20px rgba(255,255,255,0.1);
     }
+    input {
+      padding: 10px;
+      margin: 8px 0;
+      border: none;
+      border-radius: 6px;
+      width: 220px;
+    }
+    button {
+      margin-top: 12px;
+      padding: 10px 20px;
+      background: #ff5fa2;
+      border: none;
+      border-radius: 6px;
+      color: #fff;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    button:hover { background: #ff2e88; }
 
-    /* ===== Center Card ===== */
-    .wrap{
-      min-height:100dvh; /* 手機瀏覽器更穩定 */
-      padding: max(env(safe-area-inset-top, 16px),16px) 16px max(env(safe-area-inset-bottom, 16px),16px);
-      display:grid; place-items:center;
-      box-sizing:border-box;
+    /* Loading Animation */
+    .hidden { display: none; }
+    .loadingScreen {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: black;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      font-weight: bold;
+      z-index: 9999;
     }
-    .card{
-      width:100%; max-width:360px;
-      background:var(--card); border:1px solid var(--line); border-radius:16px; box-shadow:var(--shadow);
-      padding:24px; text-align:center;
+    .loadingText {
+      opacity: 0;
+      transition: opacity 1s ease;
     }
-    .btn{display:block; width:100%; border:none; border-radius:12px; padding:14px; font-weight:700; cursor:pointer}
-    .btn-line{background:#06C755; color:#fff; margin-bottom:12px}
-    .btn-white{background:#fff; color:#000}
-    .ipt{
-      width:100%; padding:12px; font-size:15px; margin:12px 0 6px 0; display:block;
-      border:1px solid var(--line); border-radius:12px; background:var(--hover); color:var(--text);
-      box-sizing:border-box; outline:none;
-      transition: border-color .18s ease, transform .12s ease;
+    .loadingText.show {
+      opacity: 1;
     }
-    .ipt:focus{ border-color:#3b82f6 }
-    .error{
-      display:none; text-align:left; font-size:12px; font-weight:700;
-      color:#ff6b6b; margin:-2px 2px 10px 2px;
-    }
-    .input-error{ border-color:#ff6b6b !important; }
-    @keyframes shake {
-      10%, 90% { transform: translateX(-2px); }
-      20%, 80% { transform: translateX(4px); }
-      30%, 50%, 70% { transform: translateX(-6px); }
-      40%, 60% { transform: translateX(6px); }
-    }
-    .shake{ animation: shake .36s ease both }
-
-    /* ===== Splash Logo 動畫（穩定版 + 4.5s 保險關閉） ===== */
-    #splash{
-      position:fixed; inset:0; background:#000; z-index:9999; pointer-events:none;
-      display:flex; justify-content:center; align-items:center;
-    }
-    #splash .stage{ display:flex; gap:20px; align-items:center; justify-content:center; font-weight:800; font-size:44px; color:#fff; }
-    #splash .next{ color:#fff; }
-    #splash .one{ opacity:0; }
-    #splash .syou{ opacity:0; color:#e42323; transform: rotateY(90deg); transform-origin:left center; }
-    @keyframes sp-fade-in  { from{opacity:0} to{opacity:1} }
-    @keyframes sp-fade-out { from{opacity:1} to{opacity:0} }
-    @keyframes sp-flip-in  { from{opacity:0; transform:rotateY(90deg)} to{opacity:1; transform:rotateY(0)} }
-    #splash .one.play { animation: sp-fade-in .6s ease forwards; }
-    #splash .one.hide { animation: sp-fade-out .4s ease forwards; }
-    #splash .syou.play{ animation: sp-flip-in .6s ease forwards; }
-    #splash.hide{ transition: opacity .4s ease; opacity:0; }
-
-    /* 小細節 */
-    h1{margin:0 0 8px 0; font-size:20px}
-    p.sub{margin:0 0 16px 0; color:var(--sub); font-size:13px}
   </style>
 </head>
 <body>
-
-  <!-- Splash Logo -->
-  <div id="splash" aria-hidden="true">
-    <div class="stage">
-      <span class="next">NEXT</span>
-      <span class="one"  id="spOne">ONE</span>
-      <span class="syou" id="spYou">’S YOU</span>
-    </div>
+  <div class="loginBox">
+    <h2>輸入邀請碼</h2>
+    <input type="text" id="inviteCode" placeholder="邀請碼">
+    <br>
+    <button onclick="verifyCode()">登入</button>
   </div>
 
-  <div class="wrap">
-    <div class="card">
-      <h1>NEXT’S YOU</h1>
-      <p class="sub">登入以開始體驗</p>
-
-      <button id="lineLoginBtn" class="btn btn-line">用 LINE 登入（模擬）</button>
-
-      <input id="inviteCode" class="ipt" placeholder="輸入邀請碼，例如 NEXT2025" inputmode="text" autocomplete="one-time-code" />
-      <div id="codeError" class="error">✗ 邀請碼錯誤！</div>
-
-      <button id="codeLoginBtn" class="btn btn-white">使用邀請碼</button>
-    </div>
+  <!-- Loading Animation (NEXT ONE → NEXT’S YOU) -->
+  <div id="loadingScreen" class="loadingScreen hidden">
+    <div class="loadingText" id="loadingText">NEXT ONE</div>
   </div>
 
   <script>
-    /* ===== Splash：兩次 RAF 確保第一次 paint 後才加動畫；4.5s 保險關閉 ===== */
-    (function(){
-      const splash = document.getElementById('splash');
-      const one    = document.getElementById('spOne');
-      const you    = document.getElementById('spYou');
-      const raf = window.requestAnimationFrame || (fn=>setTimeout(fn,16));
-      const safeHide = () => { if (!splash) return; splash.classList.add('hide'); setTimeout(()=>splash.remove(), 460); };
-      const killer = setTimeout(safeHide, 4500);
-      function start(){
-        one.classList.add('play');
-        setTimeout(()=>{ one.classList.remove('play'); one.classList.add('hide'); setTimeout(()=>{ you.classList.add('play'); }, 400); }, 900);
-        setTimeout(()=>{ clearTimeout(killer); safeHide(); }, 2600);
-      }
-      window.addEventListener('pageshow', (e)=>{ if (e.persisted) start(); }, {once:true});
-      raf(()=> raf(start));
-    })();
+    const VALID_CODES = ["ADP2025", "NEXT01", "VIPPASS"]; // 可換成你要的邀請碼清單
 
-    /* ===== 登入流程（LINE / 邀請碼） ===== */
-    function doLogin(method){
-      const ipt = document.getElementById('inviteCode');
-      const err = document.getElementById('codeError');
-      const code = (ipt.value || '').trim().toUpperCase();
-      const ok   = (method==='line') || (method==='code' && code==='NEXT2025');
+    function verifyCode() {
+      const code = document.getElementById("inviteCode").value.trim();
+      if (VALID_CODES.includes(code)) {
+        // 生成粉絲ID
+        const fanId = "NEXT-" + Math.floor(10000 + Math.random() * 90000);
+        localStorage.setItem("fanId", fanId);
 
-      // 清錯誤
-      ipt.classList.remove('input-error','shake'); err.style.display='none';
-
-      if (ok) {
-        localStorage.setItem('loggedIn','true');
-        if(!localStorage.getItem('fanId')){
-          localStorage.setItem('fanId','FAN'+Math.floor(Math.random()*100000));
-        }
-        // 進 APP
-        window.location.replace('app.html');
+        playLoadingAnimation(() => {
+          window.location = "app.html";
+        });
       } else {
-        // 顯示錯誤 + 搖晃 input
-        err.textContent = '✗ 邀請碼錯誤！';
-        err.style.display = 'block';
-        ipt.classList.add('input-error','shake');
-        ipt.addEventListener('animationend', ()=> ipt.classList.remove('shake'), {once:true});
-        ipt.focus();
+        alert("邀請碼錯誤，請再試一次！");
       }
     }
 
-    // 綁定按鈕
-    document.getElementById('lineLoginBtn').addEventListener('click', ()=>doLogin('line'));
-    document.getElementById('codeLoginBtn').addEventListener('click', ()=>doLogin('code'));
+    function playLoadingAnimation(callback) {
+      const screen = document.getElementById("loadingScreen");
+      const text = document.getElementById("loadingText");
+      screen.classList.remove("hidden");
 
-    // Enter 送出：偵測輸入框按下 Enter == 使用邀請碼
-    document.getElementById('inviteCode').addEventListener('keydown', (e)=>{
-      if(e.key==='Enter'){ e.preventDefault(); doLogin('code'); }
-    });
+      // Step 1: NEXT ONE
+      text.textContent = "NEXT ONE";
+      text.classList.add("show");
+
+      setTimeout(() => {
+        // Step 2: NEXT’S YOU
+        text.classList.remove("show");
+        setTimeout(() => {
+          text.textContent = "NEXT’S YOU";
+          text.classList.add("show");
+
+          // Step 3: 結束動畫
+          setTimeout(() => {
+            screen.classList.add("hidden");
+            if (callback) callback();
+          }, 1500);
+
+        }, 1000);
+      }, 1500);
+    }
   </script>
 </body>
 </html>
