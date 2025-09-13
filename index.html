@@ -1212,5 +1212,219 @@
       checkBirthday();
     });
   </script>
+
+  <!-- ============= MERGED HOTFIX (no conflicts) — paste before </body> ============= -->
+<style>
+  /* ===== Theme（沿用現有變數） ===== */
+  :root{
+    --accent:#6a5acd; --accent-2:#836fff;
+    --line:#ddd; --sub:#666; --chip:#eef1ff;
+    --card:#fff; --bg:#f5f7ff;
+  }
+
+  /* ===== Profile header & 底部安全距 ===== */
+  #profile, #profilePage, section#profile {
+    padding-bottom: calc(120px + env(safe-area-inset-bottom, 16px)) !important;
+  }
+  #profileHeader{ height:46vh !important; min-height:260px; border-radius:0 0 24px 24px; overflow:hidden; position:relative; }
+  #avatarWrap{ position:absolute; left:50%; transform:translateX(-50%); bottom:-52px !important; text-align:center; z-index:2; }
+  #editAvatar{ width:110px; height:110px; border-radius:50%; border:3px solid #fff; object-fit:cover; }
+  .profile-actions{ position:absolute; left:50%; transform:translateX(-50%); bottom:78px !important; display:flex; gap:16px; z-index:3; }
+  #profileInfo{ margin-top:86px !important; }
+  .profile-actions-row{ display:flex; gap:12px; flex-wrap:wrap; margin-top:12px; }
+  .profile-actions-row button{ border:1px solid var(--line); background:var(--chip); color:#333; padding:8px 12px; border-radius:999px; cursor:pointer; }
+
+  /* ===== StoryBar：選取才紫色，其餘灰 ===== */
+  #storyBar.story-bar{ background:var(--card); }
+  #storyBar .story-item, #storyBar .storyItem{ opacity:.9; transition:.15s; }
+  #storyBar .story-item img.story-avatar,
+  #storyBar .storyItem img{ width:60px; height:60px; border-radius:50%; border:2px solid #cfcfcf; object-fit:cover; }
+  #storyBar .story-item span, #storyBar .storyItem span{ color:#9aa1ad; font-weight:600; }
+  #storyBar .story-item.active img.story-avatar,
+  #storyBar .storyItem.active img{ border-color:var(--accent); box-shadow:0 0 0 2px rgba(106,90,205,.18); }
+  #storyBar .story-item.active span, #storyBar .storyItem.active span{ color:var(--accent); }
+
+  /* ===== Reaction bar：數字置右、固定寬 ===== */
+  .reactions{ display:flex; flex-wrap:wrap; gap:10px; margin-top:10px; }
+  .reaction{
+    display:flex; align-items:center; justify-content:space-between;
+    gap:8px; padding:8px 12px; min-width:84px;
+    border:1px solid var(--line); border-radius:14px; background:var(--chip); cursor:pointer; user-select:none;
+  }
+  .reaction .emoji{ font-size:18px; line-height:1; }
+  .reaction .count{ min-width:2.2em; text-align:right; font-weight:800; font-size:12px; }
+  .reaction.active{ background:var(--accent); color:#fff; }
+  .postCard .reaction, .detailBody .reaction{ pointer-events:auto; }
+  .postCard .reaction *{ pointer-events:none; }
+
+  /* ===== DM 版位：泡泡上、時間列在下；「1」在時間左邊（只在 right & 未被藝人讀時顯示） ===== */
+  .dmThread .dmMsg{ display:flex !important; flex-direction:column !important; max-width:80% !important; margin:8px 0 !important; }
+  .dmThread .dmMsg.left{ align-self:flex-start !important; }
+  .dmThread .dmMsg.right{ align-self:flex-end !important; }
+  .dmThread .dmMsg .bubble{ position:relative; }
+  .dmMeta{ display:flex; align-items:center; gap:6px; margin-top:4px; font-size:11px; line-height:1; color:#9aa1ad; }
+  .dmMsg.right .dmMeta{ justify-content:flex-end; }
+  .dmMsg.left  .dmMeta{ justify-content:flex-start; }
+  .readFlag{ font-weight:800; color:var(--accent); min-width:.8em; text-align:center; }
+  .readFlag.hidden{ display:none; }
+</style>
+
+<script>
+/* ====================== 合併 JS：StoryBar 高亮、Reaction 固定、DM 已讀 ====================== */
+
+/* ---- StoryBar 高亮（保持 ALL 置前） ---- */
+window.currentFilter = window.currentFilter || 'all';
+(function(){
+  const _origRenderStoryBar = window.renderStoryBar;
+  window.renderStoryBar = function(){
+    if (typeof _origRenderStoryBar==='function') _origRenderStoryBar();
+    const bar = document.getElementById('storyBar'); if(!bar) return;
+    [...bar.children].forEach(el=>{
+      const name = (el.querySelector('.story-name')?.textContent || el.querySelector('span')?.textContent || '').trim();
+      const id = (el.dataset.id || name || '').toLowerCase();
+      el.dataset.id = el.dataset.id || id;
+      el.classList.toggle('active', id===window.currentFilter);
+      el.onclick = function(e){
+        e.stopPropagation();
+        const target = this.dataset.id || 'all';
+        if (typeof window.renderFeed==='function') window.renderFeed(target);
+      };
+    });
+  };
+})();
+(function(){
+  const _origRenderFeed = window.renderFeed;
+  window.renderFeed = function(filter='all'){
+    window.currentFilter = filter;
+    if (typeof _origRenderFeed==='function') _origRenderFeed(filter);
+    const bar = document.getElementById('storyBar'); if(!bar) return;
+    [...bar.children].forEach(el=> el.classList.toggle('active', (el.dataset.id||'')===filter));
+  };
+})();
+
+/* ---- Reaction bar：輸出固定（左 emoji / 右數字），點擊不冒泡 ---- */
+(function(){
+  window.renderReactionsBar = function(postId){
+    const data   = (typeof getReactions==='function')   ? getReactions(postId)   : {};
+    const myData = (typeof getMyReactions==='function') ? getMyReactions(postId) : {};
+    const types = (window.REACTION_TYPES || [
+      {key:'heart',icon:'💜'},{key:'clap',icon:'👏'},{key:'laugh',icon:'🤣'},
+      {key:'panda',icon:'🐼'},{key:'tears',icon:'🥲'},{key:'cheer',icon:'🥳'}
+    ]);
+    return `<div class="reactions" id="reactions-${postId}" onclick="event.stopPropagation()">
+      ${types.map(r=>{
+        const cnt=data[r.key]||0, active=myData[r.key]?'active':'', n=cnt>0?cnt:'';
+        return `<div class="reaction ${active}" onclick="event.stopPropagation(); __toggleReaction('${postId}','${r.key}')">
+                  <span class="emoji">${r.icon}</span><span class="count" id="rc-${postId}-${r.key}">${n}</span>
+                </div>`;
+      }).join('')}
+    </div>`;
+  };
+  window.__toggleReaction = function(postId,type){
+    if (typeof window.toggleReaction==='function'){ window.toggleReaction(postId,type); }
+    else {
+      const g=k=>JSON.parse(localStorage.getItem(k)||'{}');
+      const s=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
+      let data=g(`reactions:${postId}`), my=g(`myReacts:${postId}`);
+      if(my[type]){ delete my[type]; data[type]=Math.max((data[type]||0)-1,0); }
+      else{ for(const k in my){ if(my[k]) data[k]=Math.max((data[k]||0)-1,0);} my={}; my[type]=true; data[type]=(data[type]||0)+1; }
+      s(`reactions:${postId}`,data); s(`myReacts:${postId}`,my);
+    }
+    const holder=document.getElementById(`reactions-${postId}`); if(holder) holder.outerHTML=renderReactionsBar(postId);
+  };
+})();
+
+/* ---- DM：泡泡下方時間列 + 「1」只在藝人讀後才消失 ---- */
+(function(){
+  function fmt(ts){ try{ const d=ts?new Date(ts):new Date(); return d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});}catch(e){return '';} }
+
+  const _origRenderDm = window.renderDm || window.renderDM || null;
+  window.renderDm = function(chatId){
+    if (_origRenderDm) _origRenderDm(chatId);  // 讓原流程跑（例如排序/取數據）
+
+    const box = document.getElementById('dmBox') || document.getElementById('dmThread');
+    if(!box) return;
+
+    const list = (window.dmMessages && window.dmMessages[chatId]) || [];
+    box.innerHTML = list.map(m=>{
+      const showFlag = (m.from==='right' && !m.readByArtist);
+      const ts = m.ts || Date.now();
+      const txt = m.text || '';
+      return `
+        <div class="dmMsg ${m.from}" data-mid="${m.id}">
+          <div class="bubble">
+            <p id="dmText-${m.id}">${txt.replace(/</g,'&lt;')}</p>
+            <div class="translate-chip" onclick="event.stopPropagation(); window.toggleDmTranslate && window.toggleDmTranslate('${m.id}','${txt.replace(/"/g,'&quot;')}')">翻譯</div>
+          </div>
+          <div class="dmMeta">
+            ${m.from==='right' ? `<span class="readFlag ${showFlag?'':'hidden'}" id="rf-${m.id}">1</span>` : ``}
+            <span class="time">${fmt(ts)}</span>
+          </div>
+        </div>`;
+    }).join('');
+    box.scrollTop = box.scrollHeight;
+
+    // 長按右側泡泡 → 模擬「藝人已讀」
+    const nodes = box.querySelectorAll('.dmMsg.right .bubble');
+    nodes.forEach(b=>{
+      const msgId = b.closest('.dmMsg')?.dataset.mid;
+      if(!msgId) return;
+      let t=null; const start=()=> t=setTimeout(()=>markArtistRead(chatId,msgId),650);
+      const end=()=>{ if(t){clearTimeout(t); t=null;} };
+      b.addEventListener('mousedown',start); b.addEventListener('mouseup',end); b.addEventListener('mouseleave',end);
+      b.addEventListener('touchstart',start,{passive:true}); b.addEventListener('touchend',end); b.addEventListener('touchcancel',end);
+    });
+  };
+
+  // 送訊息：右側新訊息預設 readByArtist=false
+  const _origSend = window.sendDm || null;
+  window.sendDm = function(){
+    const input = document.getElementById('dmInput') || document.getElementById('dmMessageInput');
+    if(!input) return; const val=(input.value||'').trim(); if(!val) return;
+    const chatId = window.currentChat;
+    if(!_origSend){
+      if(!window.dmMessages) window.dmMessages={};
+      if(!window.dmMessages[chatId]) window.dmMessages[chatId]=[];
+      window.dmMessages[chatId].push({ id:'m'+Date.now(), from:'right', text:val, translated:false, readByArtist:false, ts:Date.now() });
+      input.value=''; window.renderDm && window.renderDm(chatId);
+    }else{
+      _origSend();
+      try{
+        const list=window.dmMessages?.[chatId];
+        if(list?.length){ const last=list[list.length-1];
+          if(last.from==='right' && typeof last.readByArtist==='undefined'){ last.readByArtist=false; last.ts=last.ts||Date.now(); window.renderDm && window.renderDm(chatId); }
+        }
+      }catch(e){}
+    }
+  };
+
+  // 只有藝人讀才消失
+  window.markArtistRead = function(chatId,msgId){
+    const list = window.dmMessages?.[chatId]; if(!list) return;
+    list.forEach(m=>{
+      if(m.id===msgId && m.from==='right'){
+        m.readByArtist = true;
+        const f=document.getElementById('rf-'+m.id); if(f) f.classList.add('hidden');
+      }
+    });
+  };
+
+  document.addEventListener('DOMContentLoaded', ()=>{
+    if (window.currentChat && (document.getElementById('dmBox')||document.getElementById('dmThread'))) {
+      window.renderDm && window.renderDm(window.currentChat);
+    }
+  });
+})();
+
+/* ---- 啟動時，把 StoryBar/Reaction 結構修正一次 ---- */
+document.addEventListener('DOMContentLoaded', ()=>{
+  if (typeof window.renderStoryBar==='function') window.renderStoryBar();
+  document.querySelectorAll('[id^="reactions-"]').forEach(el=>{
+    const postId = el.id.replace('reactions-','');
+    el.outerHTML = window.renderReactionsBar(postId);
+  });
+});
+</script>
+<!-- ============================ /MERGED HOTFIX END ============================ -->
 </body>
 </html>
