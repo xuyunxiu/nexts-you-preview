@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
@@ -63,9 +64,13 @@ h2,h3,p{margin:0}
 .story-name{margin-top:4px; font-size:12px; color:var(--sub)}
 
 /* ===== 文章卡片 ===== */
-.post-card img.hero{width:100%; border-radius:12px; margin-top:8px}
-.translate-chip{margin-left:auto; border:1px solid var(--line); background:var(--hover); border-radius:12px; padding:6px 10px; font-size:12px; cursor:pointer}
-.postCard { cursor:pointer; }
+.post-card img {
+  width: 100%;           /* 填滿卡片寬度 */
+  height: 400px;         /* 固定高度，自己可以改 300/350/400px */
+  border-radius: 12px;   /* 跟卡片同樣圓角 */
+  display: block;
+  object-fit: cover;     /* 保持比例，超出部分裁掉 */
+}
 
 /* ===== Reaction 列 ===== */
 .reactions{display:flex; flex-wrap:wrap; gap:10px; margin-top:10px}
@@ -175,27 +180,44 @@ nav button:active{background:var(--hover)}
   color: var(--text-light);
 }
 
-/* ========================= DM 內文 ========================= */
-.dmMsg {
-  max-width: 70%;
-  padding: 10px 14px;
-  border-radius: 16px;
-  margin: 8px 0;
-  font-size: 14px;
-  line-height: 1.4;
-  word-break: break-word;
+/* DM 新版樣式 */
+.dmThread {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
+  max-height: 60vh;
 }
 
-.dmMsg.me {
+.msg {
+  padding: 12px 16px;
+  border-radius: 18px;
+  max-width: 70%;
+  word-break: break-word;
+  font-size: 14px;
+  position: relative;
+}
+
+.msg.left {
+  background: var(--card);
+  align-self: flex-start;
+}
+
+.msg.right {
   background: var(--accent);
   color: white;
-  margin-left: auto;
+  align-self: flex-end;
 }
 
-.dmMsg.other {
-  background: var(--card);
-  color: var(--text);
-  margin-right: auto;
+/* 未讀提示小圓點 */
+.readStatus {
+  font-size: 10px;
+  background: white;
+  color: var(--accent);
+  padding: 2px 6px;
+  border-radius: 999px;
+  margin-left: 8px;
 }
 
 /* Header 統一設定 */
@@ -238,41 +260,14 @@ nav button:active{background:var(--hover)}
 </section>
 
 <!-- 貼文卡片 (社群首頁用) -->
-<div class="postCard" onclick="openPostDetail(this)">
+<div class=".postCard img " onclick="openPostDetail(this)">
   <div class="postHeader">
     <img src="annie.jpg" class="avatar">
     <div class="meta">
       <b>ANNIE</b> <span class="verify">✔</span>
       <span class="time">3小時前</span>
     </div>
-    <!-- 翻譯鍵移到右上角 -->
-    <button class="translateBtn">翻譯</button>
-  </div>
-  <div class="postBody">
-    last one just for my day ones✨🍰
-    <img src="annie_post.jpg" class="postImg">
-  </div>
-  <div class="postReactions">
-    <button>👏 <span>717</span></button>
-    <button>😍 <span>538</span></button>
-    <button>😂 <span>234</span></button>
-    <button>🐼 <span>177</span></button>
-    <button>😭 <span>110</span></button>
-  </div>
-  <div class="postFooter">
-    💬 314 則留言
-  </div>
-</div>
 
-<!-- 詳情頁 (隱藏，點擊卡片後顯示) -->
-<div id="postDetail" class="postDetail hidden">
-  <div class="detailHeader">
-    <button class="backBtn" onclick="closePostDetail()">←</button>
-    <img src="annie.jpg" class="avatar">
-    <div class="meta">
-      <b>ANNIE</b> <span class="verify">✔</span>
-      <span class="time">3小時前</span>
-    </div>
     <!-- 翻譯鍵也在右上角 -->
     <button class="translateBtn">翻譯</button>
   </div>
@@ -396,22 +391,33 @@ nav button:active{background:var(--hover)}
   </div>
 </section>
 
-<!-- ===== DM 聊天室 ===== -->
-<section id="dmDetail">
-  <div class="topbar">
-    <button class="menu-btn" onclick="goBack()">←</button>
-    <h2 id="dmTitle">聊天室</h2>
+<!-- DM 詳情頁 -->
+<div id="dmDetail" class="page hidden">
+  <div class="detailHeader">
+    <button class="backBtn" onclick="goBackToDMList()">←</button>
+    <span class="title">DOHEE</span>
   </div>
 
-  <!-- DM 訊息容器 -->
-  <div id="dmBox" class="dmBox"></div>
+  <!-- 聊天內容 -->
+  <div class="dmThread" id="dmThread">
+    <div class="msg left">
+      嗨～
+    </div>
+    <div class="msg right">
+      哈囉！最近好嗎？
+      <span class="readStatus">1</span>
+    </div>
+    <div class="msg left">
+      我剛傳了一張自拍 📸
+    </div>
+  </div>
 
   <!-- 輸入框 -->
   <div class="dmInputBar">
-    <input id="dmInput" type="text" placeholder="輸入訊息…" />
-    <button onclick="sendDm(currentChat)">送出</button>
+    <input type="text" id="dmMessageInput" placeholder="輸入訊息…" />
+    <button id="dmSendBtn">➤</button>
   </div>
-</section>
+</div>
 
 <!-- ===== GALLERY ===== -->
 <section id="gallery">
@@ -887,20 +893,25 @@ function toggleDmTranslate(msgId, origin){
   }
 }
 
-function sendDm(chatId){
-  const input = document.getElementById('dmInput');
-  const val = input.value.trim();
-  if(!val) return;
+// 送出 DM 訊息（新版用法）
+document.getElementById('dmSendBtn').addEventListener('click', () => {
+  const input = document.getElementById('dmMessageInput');
+  const message = input.value.trim();
+  if (!message) return;
 
-  const msgId = `msg-${Date.now()}`;
-  const msg = {id:msgId, from:'me', text:val};
-  if(!dmMessages[chatId]) dmMessages[chatId] = [];
-  dmMessages[chatId].push(msg);
+  // 新增一則右邊訊息（含未讀狀態）
+  const thread = document.getElementById('dmThread');
+  const msgDiv = document.createElement('div');
+  msgDiv.className = 'msg right';
+  msgDiv.innerHTML = `${message}<span class="readStatus">1</span>`;
+  thread.appendChild(msgDiv);
 
-  renderDm(chatId);
+  // 清空輸入框
   input.value = '';
-  input.focus();
-}
+
+  // 自動滾到最底
+  thread.scrollTop = thread.scrollHeight;
+});
 
 /* -------------------------------------
  *  JS：購買 NEXX
