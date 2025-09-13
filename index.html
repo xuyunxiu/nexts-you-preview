@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
@@ -240,6 +239,104 @@ nav button:active{background:var(--hover)}
   cursor:pointer;
 }
 
+.liveCard {
+  display:flex;align-items:center;gap:12px;
+  padding:12px;margin:8px 0;
+  background:var(--card);
+  border-radius:12px;cursor:pointer;
+}
+.liveCard img {width:80px;height:60px;object-fit:cover;border-radius:8px;}
+.liveMeta {flex:1;}
+.liveMeta b {display:block;}
+
+.liveThread {
+  padding:12px;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  max-height:65vh;
+  overflow-y:auto;
+}
+
+.liveMsg {
+  padding:10px 14px;
+  border-radius:14px;
+  max-width:70%;
+  word-break:break-word;
+  font-size:14px;
+}
+.liveMsg.fan {
+  align-self:flex-start;
+  background:var(--card);
+}
+.liveMsg.host {
+  align-self:flex-start;
+  background:var(--accent);
+  color:white;
+  font-weight:bold;
+}
+.liveInputBar {
+  display:flex;
+  padding:12px;
+  border-top:1px solid var(--line);
+  gap:8px;
+}
+.liveInputBar input {
+  flex:1;
+  padding:10px;
+  border-radius:12px;
+  border:1px solid var(--line);
+}
+.liveInputBar button {
+  background:var(--accent);
+  color:white;
+  border:none;
+  border-radius:12px;
+  padding:0 16px;
+}
+
+.replayControls {
+  padding:12px;
+  border-top:1px solid var(--line);
+}
+
+.emojiBar {
+  display: flex;
+  gap: 8px;
+  padding: 10px 12px;
+  background: var(--hover);
+  border-top: 1px solid var(--line);
+  overflow-x: auto;
+}
+
+.emojiBar button {
+  font-size: 18px;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.stickerPanel {
+  display: flex;
+  gap: 10px;
+  padding: 10px;
+  background: var(--card);
+  border-top: 1px solid var(--line);
+  overflow-x: auto;
+}
+
+.stickerPanel img {
+  width: 60px;
+  height: 60px;
+  border-radius: 12px;
+  cursor: pointer;
+  object-fit: cover;
+}
+
+.hidden {
+  display: none;
+}
+
 </style>
 </head>
 
@@ -391,25 +488,18 @@ nav button:active{background:var(--hover)}
   </div>
 </section>
 
-<!-- DM 詳情頁 -->
-<div id="dmDetail" class="page hidden">
+<!-- ===== DM 詳情頁 ===== -->
+<section id="dmDetail" class="page hidden">
   <div class="detailHeader">
     <button class="backBtn" onclick="goBackToDMList()">←</button>
-    <span class="title">DOHEE</span>
+    <span id="dmTitle">DOHEE</span>
   </div>
 
   <!-- 聊天內容 -->
   <div class="dmThread" id="dmThread">
-    <div class="msg left">
-      嗨～
-    </div>
-    <div class="msg right">
-      哈囉！最近好嗎？
-      <span class="readStatus">1</span>
-    </div>
-    <div class="msg left">
-      我剛傳了一張自拍 📸
-    </div>
+    <div class="msg left">嗨～</div>
+    <div class="msg right">哈囉！最近好嗎？<span class="readStatus">1</span></div>
+    <div class="msg left">我剛傳了一張自拍 📸</div>
   </div>
 
   <!-- 輸入框 -->
@@ -417,34 +507,66 @@ nav button:active{background:var(--hover)}
     <input type="text" id="dmMessageInput" placeholder="輸入訊息…" />
     <button id="dmSendBtn">➤</button>
   </div>
-</div>
-
-<!-- ===== GALLERY ===== -->
-<section id="gallery">
-  <div class="topbar"><h2>相簿</h2></div>
-  <div id="galleryGrid"></div>
 </section>
+
 
 <!-- ===== LIVE LIST ===== -->
-<section id="liveList">
-  <div class="topbar"><h2>直播列表</h2><button onclick="toggleLiveSort()">排序</button></div>
-  <div id="liveListWrap"></div>
+<section id="liveList" class="page">
+  <h2>直播</h2>
+
+  <h3>進行中</h3>
+  <div id="liveOngoingList"></div>
+
+  <h3>即將開始</h3>
+  <div id="liveUpcomingList"></div>
+
+  <h3>已結束</h3>
+  <div id="liveEndedList"></div>
 </section>
 
-<!-- ===== LIVE DETAIL ===== -->
-<section id="liveDetail">
-  <div class="topbar"><button class="menu-btn" onclick="showPage('liveList')">←</button><h2 id="liveTitle">直播中</h2></div>
-  <div id="hostInfo" class="host-card"></div>
-  <div id="fanMessages"></div>
-  <div id="fanInput"><input id="fanMsgInput" placeholder="輸入留言…"><button onclick="sendFanMsg()">送出</button></div>
+<!-- ===== LIVE DETAIL（進行中） ===== -->
+<section id="liveDetail" class="page hidden">
+  <div class="topbar">
+    <button class="backBtn" onclick="showPage('liveList')">←</button>
+    <h2 id="liveTitle">直播中</h2>
+  </div>
+
+  <!-- 主播資訊 -->
+  <div id="hostInfo" class="row">
+    <img id="liveHostAvatar" src="" class="avatar-lg">
+    <div>
+      <b id="liveHostName"></b><br>
+      <small class="ghost">粉絲限定聊天室</small>
+    </div>
+  </div>
+
+  <!-- 聊天流 -->
+  <div class="liveThread" id="liveThread"></div>
+
+  <!-- 粉絲輸入 -->
+  <div class="liveInputBar">
+    <input id="fanMsgInput" type="text" placeholder="輸入留言…" />
+    <button onclick="sendFanMsg()">送出</button>
+  </div>
 </section>
 
-<!-- ===== WALLET ===== -->
-<section id="wallet">
-  <div class="topbar"><h2>錢包</h2></div>
-  <div class="panel soft">
-    <p>目前點數：<b id="points2">0</b></p>
-    <button onclick="buyNexx()">購買 NEXX</button>
+<!-- ===== LIVE REPLAY（回放） ===== -->
+<section id="liveReplay" class="page hidden">
+  <div class="topbar">
+    <button class="backBtn" onclick="showPage('liveList')">←</button>
+    <h2>直播回放</h2>
+  </div>
+
+  <div class="liveThread" id="replayThread"></div>
+
+  <!-- 回放控制列 -->
+  <div class="replayControls">
+    <label>播放速度：</label>
+    <select id="replaySpeed" onchange="changeReplaySpeed(this.value)">
+      <option value="0.5">0.5x</option>
+      <option value="1" selected>1.0x</option>
+      <option value="2">2.0x</option>
+    </select>
   </div>
 </section>
 
@@ -893,25 +1015,110 @@ function toggleDmTranslate(msgId, origin){
   }
 }
 
-// 送出 DM 訊息（新版用法）
+// DM 送訊息
 document.getElementById('dmSendBtn').addEventListener('click', () => {
   const input = document.getElementById('dmMessageInput');
   const message = input.value.trim();
   if (!message) return;
 
-  // 新增一則右邊訊息（含未讀狀態）
   const thread = document.getElementById('dmThread');
   const msgDiv = document.createElement('div');
   msgDiv.className = 'msg right';
   msgDiv.innerHTML = `${message}<span class="readStatus">1</span>`;
   thread.appendChild(msgDiv);
 
-  // 清空輸入框
   input.value = '';
-
-  // 自動滾到最底
   thread.scrollTop = thread.scrollHeight;
 });
+
+// 直播送訊息
+function sendFanMsg() {
+  const input = document.getElementById("fanMsgInput");
+  const text = input.value.trim();
+  if (!text) return;
+
+  const thread = document.getElementById("liveThread");
+  const msgDiv = document.createElement("div");
+  msgDiv.className = "liveMsg fan";
+  msgDiv.textContent = text;
+
+  thread.appendChild(msgDiv);
+  input.value = '';
+  thread.scrollTop = thread.scrollHeight;
+}
+
+let replayInterval = null;
+let replayMessages = [];
+let replayIndex = 0;
+let replaySpeed = 1000;
+
+// ====== 回放功能 ======
+
+// 打開回放
+function openReplay(id) {
+  const live = LIVE_DATA.ended.find(l => l.id === id);
+  if (!live) return;
+
+  // 清空舊訊息
+  document.getElementById("replayThread").innerHTML = "";
+  document.getElementById("replayHostName").textContent = live.host;
+  document.getElementById("replayTitle").textContent = live.title;
+
+  showPage("liveReplay");
+
+  // 假資料（之後可換成後端撈歷史訊息）
+  const msgs = [
+    {type:"host", text: "大家好～我是 " + live.host},
+    {type:"fan", text: "嗨！！"},
+    {type:"fan", text: "愛你💜"},
+    {type:"host", text: "謝謝大家來看～"}
+  ];
+
+  playReplay(msgs, 1); // 預設 1.0x 速度
+}
+
+let replayTimer = null;
+
+// 播放回放訊息
+function playReplay(msgs, speed=1) {
+  clearInterval(replayTimer);
+  let i = 0;
+  const thread = document.getElementById("replayThread");
+
+  replayTimer = setInterval(() => {
+    if (i >= msgs.length) {
+      clearInterval(replayTimer);
+      return;
+    }
+    const m = msgs[i++];
+    const div = document.createElement("div");
+    div.className = "liveMsg " + m.type;
+    div.textContent = m.text;
+    thread.appendChild(div);
+    thread.scrollTop = thread.scrollHeight;
+  }, 2000 / speed); // 速度調整
+}
+
+// 調整回放速度（0.5x, 1.0x, 2.0x ...）
+function changeReplaySpeed(val) {
+  const speed = parseFloat(val);
+
+  // 重新取出 replay 畫面顯示的場次
+  const host = document.getElementById("replayHostName").textContent || "Annie";
+  const title = document.getElementById("replayTitle").textContent || "直播回放";
+
+  const msgs = [
+    {type:"host", text: "大家好～我是 " + host},
+    {type:"fan", text: "嗨！！"},
+    {type:"fan", text: "愛你💜"},
+    {type:"host", text: "謝謝大家來看～"}
+  ];
+
+  // 清空重新播
+  document.getElementById("replayThread").innerHTML = "";
+  playReplay(msgs, speed);
+}
+
 
 /* -------------------------------------
  *  JS：購買 NEXX
