@@ -110,15 +110,23 @@
     .postCard .body{margin-top:8px}
     .postCard .body p{margin:8px 0 0}
     .postCard .hero{width:100%; height:400px; object-fit:cover; border-radius:12px; border:1px solid var(--line)}
-    .reaction-bar{display:flex; gap:10px; flex-wrap:wrap; margin-top:10px}
-    .reaction{
-      display:flex; flex-direction:column; align-items:center; gap:4px; min-width:54px;
-      padding:6px 10px; border:1px solid var(--line); background:var(--hover); border-radius:12px; cursor:pointer;
-      user-select:none;
-    }
-    .reaction.active{background:linear-gradient(180deg,var(--accent),var(--accent2)); color:#fff}
+    .reaction-bar{display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:12px}
+.reaction{
+  display:flex; align-items:center; justify-content:space-between; gap:10px; height:44px;
+  padding:10px 14px; border:1.2px solid var(--line); background:#f7f8ff; border-radius:14px; cursor:pointer;
+  user-select:none; font-weight:800;
+}
+.reaction .count{margin-left:auto; min-width:2em; text-align:right; font-size:12px}
+.reaction.active{background:var(--accent); color:#fff; border-color:transparent}
     .reaction .count{font-weight:800; font-size:12px}
-
+    .postMeta{
+  display:flex; align-items:center; justify-content:space-between;
+  margin-top:10px; padding-top:8px; border-top:1px solid var(--line);
+}
+.c-bubble{display:inline-flex; align-items:center; gap:6px;
+  border:1px solid var(--line); border-radius:14px; padding:6px 10px; font-weight:800;}
+.comment-link{font-weight:900; color:var(--accent); text-decoration:none}
+    
     /* ---------- Post Detail ---------- */
     #postDetail .topbar{display:flex; align-items:center; gap:10px; margin:2px 0 10px}
     #postDetail .topbar .back{width:40px; height:40px; border-radius:12px; border:1px solid var(--line); background:var(--card); cursor:pointer}
@@ -168,6 +176,17 @@
     .dmInputBar{display:flex; gap:8px; padding:10px 0; border-top:1px solid var(--line); position:sticky; bottom:0; background:linear-gradient(180deg,rgba(255,255,255,.3),rgba(255,255,255,.95)); backdrop-filter:blur(10px)}
     .dmInputBar input{flex:1; border:1px solid var(--line); padding:12px; border-radius:14px; background:var(--hover)}
     .dmInputBar button{min-width:60px; border:none; background:linear-gradient(180deg,var(--accent),var(--accent2)); color:#fff; border-radius:12px; font-weight:900; cursor:pointer}
+    .dmThread{padding:8px 2px 8px; display:flex; flex-direction:column; gap:8px; height:calc(100vh - 180px); overflow-y:auto}
+    .dmMsg{display:flex; flex-direction:column; max-width:78%; margin:6px 0}
+    .dmMsg.left{align-self:flex-start} .dmMsg.right{align-self:flex-end}
+    .dmMsg .bubble{max-width:100%; padding:10px 12px; border-radius:14px}
+    .dmMsg.left .bubble{background:var(--artist)}
+    .dmMsg.right .bubble{background:var(--accent); color:#fff}
+    .dmMsg .translate-chip{margin-top:6px; align-self:flex-start; font-size:12px; background:#eef1ff; border:1px solid var(--line); border-radius:999px; padding:6px 10px; cursor:pointer}
+    .dmMsg.right .translate-chip{background:#fff}
+    .dmMsg .meta{margin-top:6px; font-size:11px; color:var(--ghost); display:flex; gap:8px}
+    .dmMsg.left .meta{justify-content:flex-start} .dmMsg.right .meta{justify-content:flex-end}
+    .read1{display:inline-flex; align-items:center; justify-content:center; min-width:16px; height:16px; font-size:11px; background:#fff; color:var(--accent); border-radius:999px; padding:0 4px}
 
     /* ---------- Live List ---------- */
     #liveList .group{margin:10px 0}
@@ -203,7 +222,7 @@
     .replayCtrl{display:flex; align-items:center; gap:8px; padding:10px 0}
 
     /* ---------- Profile ---------- */
-    #profile{padding:0}
+    #profile{padding:0 12px 120px} /* 不會被底部 nav 蓋住 */
     #profile .topbar{position:sticky; top:0; z-index:5; padding:8px 12px; background:linear-gradient(180deg,rgba(245,247,255,.95),rgba(245,247,255,.6))}
     #profileHeader{position:relative; height:46vh; border-radius:0 0 22px 22px; overflow:hidden}
     #profileBg{width:100%; height:100%; object-fit:cover}
@@ -323,16 +342,11 @@
   <section id="liveList" class="page">
     <div class="row" style="justify-content:space-between; margin:2px 0 10px">
       <b style="font-weight:900">直播</b>
-      <span class="ghost">粉絲限定聊天室</span>
     </div>
 
     <div class="group">
       <h3 class="sub">進行中</h3>
       <div id="liveOngoingList"></div>
-    </div>
-    <div class="group">
-      <h3 class="sub">即將開始</h3>
-      <div id="liveUpcomingList"></div>
     </div>
     <div class="group">
       <h3 class="sub">已結束</h3>
@@ -392,6 +406,30 @@
 
     <div id="replayThread" class="replayThread"></div>
   </section>
+
+  <section id="store" class="page">
+  <div class="row" style="justify-content:space-between; margin:2px 0 10px">
+    <b style="font-weight:900">商店</b>
+  </div>
+
+  <div class="card soft">
+    <b>購買愛心（個人）</b>
+    <div class="row" style="flex-wrap:wrap; margin-top:10px">
+      <button class="chip" onclick="buyHeartsStore('annie',30,1000)">Annie 30天（1000點）</button>
+      <button class="chip" onclick="buyHeartsStore('dohee',30,1000)">Dohee 30天（1000點）</button>
+      <button class="chip" onclick="buyHeartsStore('woo',30,1000)">Woochan 30天（1000點）</button>
+    </div>
+  </div>
+
+  <div class="card soft" style="margin-top:12px">
+    <b>購買愛心（團體）</b>
+    <div class="row" style="flex-wrap:wrap; margin-top:10px">
+      <button class="chip" onclick="buyHeartsStore('group',30,2400)">ALLDAY 30天（2400點）</button>
+    </div>
+  </div>
+
+  <div class="ghost" style="margin-top:12px">＊點數不足不會自動扣。需先由後台加值。</div>
+</section>
 
   <!-- ===============================
          PROFILE
@@ -457,11 +495,7 @@
         <div class="label">錢包餘額</div>
         <div class="value"><span id="walletBalance">0</span> 點</div>
       </div>
-
-      <div class="row" style="gap:10px; margin-top:4px">
-        <button class="chip" onclick="buyHearts(30)">購買 30 天</button>
-        <button class="chip" onclick="chargeWallet()">充值 +100</button>
-      </div>
+      
     </div>
   </section>
 
@@ -486,11 +520,11 @@
          BOTTOM NAV
        =============================== -->
   <nav id="nav">
-    <button id="tabHome" class="active" onclick="showPage('home')">首頁</button>
-    <button id="tabDM" onclick="showPage('dm')">DM</button>
-    <button id="tabLive" onclick="showPage('liveList')">直播</button>
-    <button id="tabProfile" onclick="showPage('profile')">我的</button>
-  </nav>
+  <button id="tabHome" class="active" onclick="showPage('home')">首頁</button>
+  <button id="tabDM" onclick="showPage('dm')">DM</button>
+  <button id="tabLive" onclick="showPage('liveList')">直播</button>
+  <button id="tabStore" onclick="showPage('store')">商店</button>
+</nav>
 
   <!-- ===============================
          SCRIPTS (DATA + LOGIC)
@@ -678,7 +712,7 @@
       // DM 列表需同步顯示
       DM_ARTISTS.forEach(a=>{ if(a.subscribed) a.heartDays = h; });
       renderDMList(); // 更新愛心天數
-      alert(`成功購買 ${days} 天 💜`);
+      alert(`成功購買 ${days} 天 ❤️`);
     }
     function chargeWallet(){
       let b = parseInt(LS.getStr('walletBalance','0'),10);
@@ -690,26 +724,7 @@
     /* -------------------------------------
      * StoryBar / 分類圓圈
      * -----------------------------------*/
-    function buildStorySet(){
-      const set = new Map();
-      set.set('all', {id:'all', name:'ALL', avatar:'https://picsum.photos/60?u=all'});
-      ARTISTS.forEach(a=> set.set(a.id, {id:a.id, name:a.name, avatar:a.avatar}) );
-      // 根據 POST 動態排序（最新互動的藝人靠前，但 ALL 永遠第一）
-      const recentByArtist = {};
-      POSTS.forEach((p,i)=>{ recentByArtist[p.artistId] = Date.now() - (i*1000) });
-      const sorted = [...set.values()].filter(x=>x.id!=='all').sort((a,b)=>(recentByArtist[b.id]||0)-(recentByArtist[a.id]||0));
-      return [ set.get('all'), ...sorted ];
-    }
-    function renderStoryBar(){
-      const bar = document.getElementById('storyBar');
-      const items = buildStorySet();
-      bar.innerHTML = items.map(u=>`
-        <div class="story-item ${u.id==='all'?'all':''}" onclick="renderFeed('${u.id}')">
-          <img src="${u.avatar}" onerror="imgFallback(this)">
-          <div class="name">${u.name}</div>
-        </div>
-      `).join('');
-    }
+    let currentFilter = 'all';
     function rebuildStoryFromNewPost(newPost){
       POSTS.unshift(newPost);
       renderStoryBar(); // ALL 固定最前；新的 artist 圈圈會排到 ALL 後第一
@@ -725,25 +740,32 @@
     function setMyReactions(postId, data){ LS.set(`myReacts:${postId}`, data); }
 
     function renderFeed(filter='all'){
-      const wrap = document.getElementById('feedWrap');
-      let list = POSTS;
-      if(filter!=='all'){ list = POSTS.filter(p=> p.artistId===filter); }
-      wrap.innerHTML = list.map(p=>`
-        <div class="card soft postCard" onclick="onPostCardClick(event,'${p.id}')">
-          <div class="hdr">
-            <img src="${p.avatar}" class="avatar" onerror="imgFallback(this)">
-            <div class="meta"><b>${p.artistName}</b><small class="ghost">${p.ts}</small></div>
-            <div class="translate-btn" onclick="event.stopPropagation(); togglePostTranslate('${p.id}')">翻譯</div>
-          </div>
-          <div class="body">
-            <p id="postText-${p.id}">${escapeHtml(p.text)}</p>
-            ${p.img ? `<img class="hero" src="${p.img}" onerror="imgFallback(this)">` : ''}
-            ${renderReactionsBar(p.id)}
+  const wrap = document.getElementById('feedWrap');
+  let list = POSTS;
+  if(filter!=='all'){ list = POSTS.filter(p=> p.artistId===filter); }
+  wrap.innerHTML = list.map(p=>{
+    const commentsCount = getComments(p.id).length; // 直接用你的 comments 儲存
+    return `
+      <div class="card soft postCard" onclick="onPostCardClick(event,'${p.id}')">
+        <div class="hdr">
+          <img src="${p.avatar}" class="avatar" onerror="imgFallback(this)">
+          <div class="meta"><b>${p.artistName}</b><small class="ghost">${p.ts}</small></div>
+          <div class="translate-btn" onclick="event.stopPropagation(); togglePostTranslate('${p.id}')">翻譯</div>
+        </div>
+        <div class="body">
+          <p id="postText-${p.id}">${escapeHtml(p.text)}</p>
+          ${p.img ? `<img class="hero" src="${p.img}" onerror="imgFallback(this)">` : ''}
+          ${renderReactionsBar(p.id)}
+          <div class="postMeta">
+            <div class="c-bubble">💬 <span>${commentsCount}</span></div>
+            <a class="comment-link" href="javascript:void(0)" onclick="event.stopPropagation(); openPost('${p.id}')">發表評論</a>
           </div>
         </div>
-      `).join('');
-      restoreHomeScroll();
-    }
+      </div>
+    `;
+  }).join('');
+  restoreHomeScroll();
+}
     function onPostCardClick(e, postId){
       const path = e.composedPath ? e.composedPath(): [];
       // 阻擋：reaction btn / translate-btn
@@ -967,13 +989,7 @@
       renderDmThread(chatId);
 
       showPage('dmDetail');
-
-      // 模擬「藝人已讀」：2 秒後把我方訊息 read 狀態設為 true，並刷新 UI
-      setTimeout(()=>{
-        const list = dmMessages[chatId] || [];
-        list.forEach(m=>{ if(m.from==='right') m.read = true; });
-        renderDmThread(chatId);
-      }, 2000);
+      
     }
 
     function renderDmThread(chatId){
@@ -988,12 +1004,13 @@
         const div = document.createElement('div');
         div.className = `dmMsg ${m.from}`;
         div.innerHTML = `
-          <div class="bubble">
-            <div>${escapeHtml(text)}</div>
-            <div class="translate-chip ghost" onclick="toggleDmTranslate('${m.id}','${m.text}')">翻譯</div>
-            <div class="meta">${new Date(m.ts||Date.now()).toLocaleTimeString()} ${m.from==='right' ? `<span class="read1">${m.read? '' : '1'}</span>`:''}</div>
-          </div>
-        `;
+  <div class="bubble">${escapeHtml(text)}</div>
+  <div class="translate-chip" onclick="toggleDmTranslate('${m.id}','${m.text}')">翻譯</div>
+  <div class="meta">
+    ${m.from==='right' && !m.read ? `<span class="read1">1</span>` : ''}
+    <span>${new Date(m.ts||Date.now()).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span>
+  </div>
+`;
         box.appendChild(div);
       });
       box.scrollTop = box.scrollHeight;
@@ -1023,11 +1040,9 @@
      * -----------------------------------*/
     function renderLives(){
       const og = document.getElementById('liveOngoingList');
-      const up = document.getElementById('liveUpcomingList');
       const ed = document.getElementById('liveEndedList');
 
       og.innerHTML = LIVE_DATA.active.map(l=> liveCard(l,'on')).join('');
-      up.innerHTML = LIVE_DATA.upcoming.map(l=> liveCard(l,'soon')).join('');
       ed.innerHTML = LIVE_DATA.ended.map(l=> liveCard(l,'end')).join('');
     }
     function liveCard(l,status){
@@ -1047,16 +1062,10 @@
         </div>
       `;
     }
-    // 倒數動態更新
-    setInterval(()=>{
-      if( document.getElementById('liveUpcomingList') ){
-        renderLives();
-      }
-    },1000);
 
     function openLive(id){
-      const live = [...LIVE_DATA.active, ...LIVE_DATA.upcoming].find(l=>l.id===id);
-      if(!live) return;
+    const live = LIVE_DATA.active.find(l=>l.id===id);
+    if(!live) return;
       document.getElementById('liveTitle').textContent = live.title;
       document.getElementById('liveHostName').textContent = live.host;
       document.getElementById('liveThread').innerHTML = '';
@@ -1157,7 +1166,7 @@
 
       // nav active 樣式
       document.querySelectorAll('#nav button').forEach(b=>b.classList.remove('active'));
-      const map = {home:'tabHome', dm:'tabDM', liveList:'tabLive', profile:'tabProfile'};
+      const map = {home:'tabHome', dm:'tabDM', liveList:'tabLive', store:'tabStore' };
       if(map[id]) document.getElementById(map[id]).classList.add('active');
 
       // 特定頁面初始化
@@ -1191,6 +1200,25 @@
         '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
       }[s]));
     }
+
+    function buyHeartsStore(target, days, cost){
+  let wallet = parseInt(LS.getStr('walletBalance','0'),10);
+  if(wallet < cost){ alert('點數不足，請先充值或等待後台加值'); return; }
+  // 扣點
+  wallet -= cost;
+  LS.setStr('walletBalance', String(wallet));
+  const wElm = document.getElementById('walletBalance');
+  if(wElm) wElm.textContent = wallet;
+
+  // 加天數（個人 or 團體分開存）
+  const key = (target==='group') ? 'heartDaysGroup' : `heartDays:${target}`;
+  let cur = parseInt(LS.getStr(key,'0'),10);
+  cur += days;
+  LS.setStr(key, String(cur));
+
+  // 你的 DM 列表目前用 heartDays 顯示（全團），這裡不自動混用，僅提示
+  alert(`已購買：${target==='group'?'全團':'個人'} ${days} 天（已扣 ${cost} 點）`);
+}
 
     /* -------------------------------------
      * 初始化
