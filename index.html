@@ -301,6 +301,29 @@
 .transBox .origin{font-size:12px; color:var(--sub);}
 .transBox .tran{margin-top:4px; font-weight:800;}
 .transBox .by{margin-top:2px; font-size:10px; color:var(--ghost);}
+
+/* --- DM：側欄排版（時間/1/翻譯放泡泡側邊） --- */
+.dmRow{display:flex; align-items:flex-end; gap:8px;}
+.dmMsg.right .dmRow{flex-direction:row-reverse;} /* 右邊訊息：泡泡靠右，側欄在左 */
+.dmSide{display:flex; flex-direction:column; align-items:center; gap:6px; min-width:56px;}
+.dmTime{font-size:11px; color:var(--ghost);}
+
+/* 讀取標記「1」：不要圓點、不要色塊，就純字樣 */
+.read1{font-size:12px; color:var(--ghost); font-weight:900; background:none; padding:0; border-radius:0;}
+
+/* 側邊翻譯按鈕（取代泡泡下面的小籤） */
+.dmTranslate{border:1px solid var(--line); background:#fff; border-radius:999px; padding:4px 8px; font-size:12px; cursor:pointer;}
+/* 隱藏舊的泡泡下方翻譯小籤 */
+.dmMsg .translate-chip{display:none;}
+
+/* DM 標題的 ARTIST 徽章 */
+.artistTag{
+  font-size:10px; font-weight:900; letter-spacing:.6px;
+  padding:2px 6px; border-radius:6px; color:#fff;
+  background:linear-gradient(90deg,var(--accent),var(--accent2));
+}
+#dmDetail .topbar .titleWrap{display:flex; align-items:center; gap:8px; font-weight:900;}
+    
   </style>
 </head>
 
@@ -378,9 +401,12 @@
        =============================== -->
   <section id="dmDetail" class="page">
     <div class="topbar">
-      <button class="back" onclick="goBack()">←</button>
-      <b id="dmTitle">DOHEE</b>
-    </div>
+  <button class="back" onclick="goBack()">←</button>
+  <div class="titleWrap">
+    <span class="artistTag">ARTIST</span>
+    <b id="dmTitle">DOHEE</b>
+  </div>
+</div>
     <div id="dmThread" class="dmThread"></div>
     <div class="dmInputBar">
       <input id="dmMessageInput" placeholder="輸入訊息…" />
@@ -1070,6 +1096,7 @@ function renderStoryBar(){
 
       // 清除未讀
       artist.unread = 0;
+      markSeenByLatestLeft(chatId);
       renderDMList();
 
       // 顯示內容
@@ -1080,46 +1107,46 @@ function renderStoryBar(){
     }
 
     function renderDmThread(chatId){
-  const box = document.getElementById('dmThread'); 
+  const box = document.getElementById('dmThread');
   box.innerHTML = '';
+
+  // 先套用「藝人有新訊息 → 該時點前我的訊息設為已讀」
+  markSeenByLatestLeft(chatId);
 
   const list = dmMessages[chatId] || [];
   const start = Math.max(0, list.length - 50);
   const slice = list.slice(start);
 
   slice.forEach(m=>{
-    const showTrans = LS.getStr(`dmTranslated:${m.id}`,'0') === '1';
-    const timeStr   = new Date(m.ts || Date.now()).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-    const readMark  = (m.from === 'right' && !m.read) ? '1 ' : '';
+    const showTrans = LS.getStr(`dmTranslated:${m.id}`,'0')==='1';
+    const text = showTrans ? `（翻譯）${m.text}` : m.text;
+    const timeStr = new Date(m.ts||Date.now()).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
 
-    const transBoxHtml = showTrans ? `
-      <div class="transBox">
-        <div class="origin">${escapeHtml(m.text)}</div>
-        <div class="tran">${escapeHtml('（翻譯）' + m.text)}</div>
-        <div class="by">Translated by Papago</div>
-      </div>` : '';
+    const side = `
+      <div class="dmSide">
+        ${m.from==='right' && !m.read ? `<div class="read1">1</div>` : `<div style="height:12px"></div>`}
+        <div class="dmTime">${timeStr}</div>
+        <div class="dmTranslate" onclick="toggleDmTranslate('${m.id}')">${showTrans?'收合翻譯':'翻譯'}</div>
+      </div>`;
 
     const div = document.createElement('div');
     div.className = `dmMsg ${m.from}`;
     div.innerHTML = `
-      <div class="bubble">${escapeHtml(m.text)}</div>
-      <div class="translate-chip" onclick="toggleDmTranslate('${m.id}')">${showTrans ? '收合翻譯' : '翻譯'}</div>
-      ${transBoxHtml}
-      <div class="meta">${readMark}${timeStr}</div>
-    `;
+      <div class="dmRow">
+        ${side}
+        <div class="bubble">${escapeHtml(text)}</div>
+      </div>`;
     box.appendChild(div);
   });
 
   box.scrollTop = box.scrollHeight;
 }
 
-    function toggleDmTranslate(msgId, origin){
-      const k = `dmTranslated:${msgId}`;
-      const newState = LS.getStr(k,'0')==='1' ? '0' : '1';
-      LS.setStr(k, newState);
-      // 重新渲染目前聊天室
-      if(currentChat) renderDmThread(currentChat);
-    }
+    function toggleDmTranslate(msgId){
+  const k = `dmTranslated:${msgId}`;
+  LS.setStr(k, LS.getStr(k,'0')==='1' ? '0' : '1');
+  if(currentChat) renderDmThread(currentChat);
+}
 
     document.getElementById('dmSendBtn').addEventListener('click', ()=>{
       const input = document.getElementById('dmMessageInput');
@@ -1314,7 +1341,10 @@ function installHomeScrollAutoHide(){
       if(id==='dm') renderDMList();
       if(id==='liveList') renderLives();
       if(id==='profile'){ showFanProfile(); }
-      if(id==='home'){ restoreHomeScroll(); }
+      if(id==='home'){
+  renderFeed(currentFilter);   // 回首頁時同步詳情頁的 reaction 狀態
+  restoreHomeScroll();
+}
     }
     function goBack(){
       if(pageStack.length>1){
