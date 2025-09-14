@@ -275,10 +275,8 @@
 .profile-actions{display:none;}      /* 移除兩顆懸浮按鈕（仍可點頭貼換圖） */
 #avatarWrap{position:static; transform:none; bottom:auto; text-align:center; margin:16px auto 4px;}
 #editAvatar{width:120px; height:120px; border-radius:50%; border:2px solid var(--line); object-fit:cover; cursor:pointer}
-.profile-actions{position:absolute; left:50%; transform:translateX(-50%); bottom:64px; display:flex; gap:14px}
-.round-btn{width:40px; height:40px; border-radius:50%; border:1px solid var(--line); background:var(--card); display:flex; align-items:center; justify-content:center; cursor:pointer}
 
-    #profileInfo{margin-top:68px; padding:12px; display:flex; flex-direction:column; gap:12px}
+    #profileInfo{margin-top:12px; padding:12px; display:flex; flex-direction:column; gap:12px}
     .pitem{display:flex; align-items:center; justify-content:space-between; padding:14px; border:1px solid var(--line); background:var(--card); border-radius:14px}
     .pitem .label{color:var(--sub); font-size:13px}
     .pitem .value{font-weight:900}
@@ -1085,21 +1083,25 @@ function renderStoryBar(){
       const start = Math.max(0, list.length - 50);
       const slice = list.slice(start);
       slice.forEach(m=>{
-        const translated = LS.getStr(`dmTranslated:${m.id}`,'0')==='1';
-        const text = translated ? `（翻譯）${m.text}` : m.text;
-        const div = document.createElement('div');
-        div.className = `dmMsg ${m.from}`;
-        div.innerHTML = `
-  <div class="bubble">${escapeHtml(text)}</div>
-  <div class="translate-chip" onclick="toggleDmTranslate('${m.id}','${m.text}')">翻譯</div>
-  <div class="meta">
-    ${m.from==='right' && !m.read ? '1 ' : ''}${new Date(m.ts||Date.now()).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}
-  </div>
-`;
-        box.appendChild(div);
-      });
-      box.scrollTop = box.scrollHeight;
-    }
+        const transBoxHtml = showTrans ? `
+      <div class="transBox">
+        <div class="origin">${escapeHtml(m.text)}</div>
+        <div class="tran">${escapeHtml('（翻譯）'+m.text)}</div>
+        <div class="by">Translated by Papago</div>
+      </div>` : '';
+
+    const div = document.createElement('div');
+    div.className = `dmMsg ${m.from}`;
+    div.innerHTML = `
+      <div class="bubble">${escapeHtml(m.text)}</div>
+      <div class="translate-chip" onclick="toggleDmTranslate('${m.id}','${m.text}')">${showTrans?'收合翻譯':'翻譯'}</div>
+      ${transBoxHtml}
+      <div class="meta">${readMark}${timeStr}</div>
+    `;
+    box.appendChild(div);
+  });
+  box.scrollTop = box.scrollHeight;
+}
 
     function toggleDmTranslate(msgId, origin){
       const k = `dmTranslated:${msgId}`;
