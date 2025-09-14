@@ -82,8 +82,14 @@
     #homeHeader .me .id{font-size:12px; color:var(--ghost)}
     #homeHeader .right{display:flex; align-items:center; gap:8px}
 
-  /* ---------- StoryBar / 分類圈圈 ---------- */
-#storyWrap{position:sticky; top:0; z-index:30; background:linear-gradient(180deg,rgba(245,247,255,.98),rgba(245,247,255,.92)); backdrop-filter:blur(6px)}
+/* --- Story bar 捲動收起 --- */
+#storyWrap{
+  position:sticky; top:0; z-index:30;
+  background:linear-gradient(180deg,rgba(245,247,255,.98),rgba(245,247,255,.92));
+  backdrop-filter:blur(6px);
+  transition:transform .24s ease;
+}
+#storyWrap.collapse{transform:translateY(-120%);} /* 往上滑隱藏 */
 #storyBar{
   display:flex; gap:12px; overflow-x:auto; padding:10px 8px 12px; scroll-snap-type:x proximity;
   -webkit-overflow-scrolling:touch; border-bottom:1px solid var(--line);
@@ -229,12 +235,6 @@
 .dmMsg.left .meta{ justify-content:flex-start; }
 .dmMsg.right .meta{ justify-content:flex-end; }
 
-.read1{
-  display:inline-flex; align-items:center; justify-content:center;
-  min-width:16px; height:16px; font-size:11px;
-  background:#fff; color:var(--accent);
-  border-radius:999px; padding:0 4px; margin-left:6px;
-}
 /* ---------- Live List ---------- */
     #liveList .group{margin:10px 0}
     .liveCard{
@@ -268,16 +268,15 @@
     .replayMsg.fan{background:var(--fan); align-self:flex-end}
     .replayCtrl{display:flex; align-items:center; gap:8px; padding:10px 0}
 
-    /* ---------- Profile ---------- */
-    #profile{padding:0 12px 120px} /* 不會被底部 nav 蓋住 */
-    #profile .topbar{position:sticky; top:0; z-index:5; padding:8px 12px; background:linear-gradient(180deg,rgba(245,247,255,.95),rgba(245,247,255,.6))}
-    #profileHeader{position:relative; height:46vh; border-radius:0 0 22px 22px; overflow:hidden}
-    #profileBg{width:100%; height:100%; object-fit:cover}
-    #profileHeader::after{content:""; position:absolute; inset:auto 0 0 0; height:36%; background:linear-gradient(180deg, rgba(0,0,0,0), rgba(0,0,0,.55))}
-    #avatarWrap{position:absolute; left:50%; transform:translateX(-50%); bottom:-46px; text-align:center}
-    #editAvatar{width:96px; height:96px; border-radius:50%; border:3px solid #fff; object-fit:cover; background:#888; cursor:pointer}
-    .profile-actions{position:absolute; left:50%; transform:translateX(-50%); bottom:64px; display:flex; gap:14px}
-    .round-btn{width:40px; height:40px; border-radius:50%; border:1px solid var(--line); background:var(--card); display:flex; align-items:center; justify-content:center; cursor:pointer}
+/* --- Profile：只留頭貼，移除大背景 --- */
+#profileHeader{height:auto; border-radius:0; overflow:visible; background:none;}
+#profileHeader::after{display:none;}
+#profileBg{display:none;}            /* 不要背景圖 */
+.profile-actions{display:none;}      /* 移除兩顆懸浮按鈕（仍可點頭貼換圖） */
+#avatarWrap{position:static; transform:none; bottom:auto; text-align:center; margin:16px auto 4px;}
+#editAvatar{width:120px; height:120px; border-radius:50%; border:2px solid var(--line); object-fit:cover; cursor:pointer}
+.profile-actions{position:absolute; left:50%; transform:translateX(-50%); bottom:64px; display:flex; gap:14px}
+.round-btn{width:40px; height:40px; border-radius:50%; border:1px solid var(--line); background:var(--card); display:flex; align-items:center; justify-content:center; cursor:pointer}
 
     #profileInfo{margin-top:68px; padding:12px; display:flex; flex-direction:column; gap:12px}
     .pitem{display:flex; align-items:center; justify-content:space-between; padding:14px; border:1px solid var(--line); background:var(--card); border-radius:14px}
@@ -295,6 +294,15 @@
     #miniProfile .hdr img{width:56px; height:56px; border-radius:50%; border:1px solid var(--line); object-fit:cover}
     #miniProfile .actions{display:flex; justify-content:flex-end; gap:8px; margin-top:12px}
     #miniProfile .actions button{border:none; background:var(--hover); border:1px solid var(--line); padding:8px 12px; border-radius:10px; cursor:pointer}
+  /* --- DM 翻譯區塊（粉絲端） --- */
+.transBox{
+  align-self:flex-start;
+  margin-top:6px; padding:8px 10px;
+  background:#f7f8ff; border:1px solid var(--line); border-radius:12px;
+}
+.transBox .origin{font-size:12px; color:var(--sub);}
+.transBox .tran{margin-top:4px; font-weight:800;}
+.transBox .by{margin-top:2px; font-size:10px; color:var(--ghost);}
   </style>
 </head>
 
@@ -1085,8 +1093,7 @@ function renderStoryBar(){
   <div class="bubble">${escapeHtml(text)}</div>
   <div class="translate-chip" onclick="toggleDmTranslate('${m.id}','${m.text}')">翻譯</div>
   <div class="meta">
-    ${m.from==='right' && !m.read ? `<span class="read1">1</span>` : ''}
-    <span>${new Date(m.ts||Date.now()).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span>
+    ${m.from==='right' && !m.read ? '1 ' : ''}${new Date(m.ts||Date.now()).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}
   </div>
 `;
         box.appendChild(div);
@@ -1111,8 +1118,25 @@ function renderStoryBar(){
       renderDmThread(currentChat);
       // 更新列表排序
       renderDMList();
+      
     });
 
+// 只要藝人有新訊息 => 將該時間點之前的我方訊息視為已讀
+function markSeenByLatestLeft(chatId){
+  const list = dmMessages[chatId] || [];
+  // 找出此聊天室「最新」的左側訊息時間
+  let lastLeftTs = 0;
+  for(const m of list){
+    if(m.from === 'left') lastLeftTs = Math.max(lastLeftTs, m.ts || 0);
+  }
+  // 將 <= 該時間 的右側訊息標記為已讀
+  for(const m of list){
+    if(m.from === 'right' && !m.read && (m.ts || 0) <= lastLeftTs){
+      m.read = true;
+    }
+  }
+}
+      
     /* -------------------------------------
      * Live
      * -----------------------------------*/
@@ -1226,11 +1250,38 @@ function renderStoryBar(){
       return id;
     }
 
+// 追蹤目前頁面（供捲動時只在 home 生效）
+let CURRENT_PAGE = 'home';
+
+// 首頁：下滑收起 Story 與 Nav，上滑出現
+function installHomeScrollAutoHide(){
+  const story = document.getElementById('storyWrap');
+  const nav = document.getElementById('nav');
+  let lastY = window.scrollY || 0;
+
+  window.addEventListener('scroll', ()=>{
+    if(CURRENT_PAGE!=='home') return;
+    const y = window.scrollY || document.documentElement.scrollTop || 0;
+    const goingDown = y > lastY + 6;
+    const goingUp   = y < lastY - 6;
+
+    if(goingDown && y > 60){
+      story.classList.add('collapse');
+      nav.classList.add('hidden');     // 你原本就有 nav.hidden 的動畫
+    }else if(goingUp){
+      story.classList.remove('collapse');
+      nav.classList.remove('hidden');
+    }
+    lastY = y;
+  }, {passive:true});
+}
+           
     /* -------------------------------------
      * 導航 / 切頁 / 滾動記憶
      * -----------------------------------*/
     const pageStack = [];
     function showPage(id){
+      CURRENT_PAGE = id;
       document.querySelectorAll('section.page').forEach(s=>s.classList.remove('active'));
       const page = document.getElementById(id); if(page) page.classList.add('active');
 
@@ -1316,6 +1367,7 @@ function renderStoryBar(){
 
       // 首次生日提示
       checkBirthday();
+      installHomeScrollAutoHide();
     });
   </script>
 </body>
