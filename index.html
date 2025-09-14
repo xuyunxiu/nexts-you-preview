@@ -82,20 +82,20 @@
     #homeHeader .me .id{font-size:12px; color:var(--ghost)}
     #homeHeader .right{display:flex; align-items:center; gap:8px}
 
-    /* ---------- StoryBar / 分類圈圈 ---------- */
-    #storyWrap{position:sticky; top:0; z-index:30; background:linear-gradient(180deg,rgba(245,247,255,.98),rgba(245,247,255,.92)); backdrop-filter:blur(6px)}
-    #storyBar{
-      display:flex; gap:12px; overflow-x:auto; padding:10px 8px 12px; scroll-snap-type:x proximity;
-      -webkit-overflow-scrolling:touch;
-      border-bottom:1px solid var(--line);
-      /* 隱藏水平捲軸的灰條（各瀏覽器） */
-      scrollbar-width:none; /* Firefox */
-    }
-    #storyBar::-webkit-scrollbar{display:none} /* WebKit */
-    .story-item{flex:0 0 auto; width:64px; text-align:center; cursor:pointer; scroll-snap-align:center}
-    .story-item img{width:56px; height:56px; border-radius:50%; object-fit:cover; border:2px solid var(--accent)}
-    .story-item .name{font-size:12px; margin-top:4px; color:var(--sub)}
-    .story-item.all img{border-color:#111}
+  /* ---------- StoryBar / 分類圈圈 ---------- */
+#storyWrap{position:sticky; top:0; z-index:30; background:linear-gradient(180deg,rgba(245,247,255,.98),rgba(245,247,255,.92)); backdrop-filter:blur(6px)}
+#storyBar{
+  display:flex; gap:12px; overflow-x:auto; padding:10px 8px 12px; scroll-snap-type:x proximity;
+  -webkit-overflow-scrolling:touch; border-bottom:1px solid var(--line);
+  scrollbar-width:none;
+}
+#storyBar::-webkit-scrollbar{display:none}
+.story-item{flex:0 0 auto; width:64px; text-align:center; cursor:pointer; scroll-snap-align:center}
+.story-item img{width:56px; height:56px; border-radius:50%; object-fit:cover; border:2px solid #cfcfe9;} /* 預設灰 */
+.story-item .name{font-size:12px; margin-top:4px; color:#9aa1ad;}
+.story-item.active img{border-color:var(--accent); box-shadow:0 0 0 2px rgba(106,90,205,.18);}
+.story-item.active .name{color:var(--accent); font-weight:700;}
+.story-item.all img{border-color:#111}
 
     /* ---------- Feed / 貼文卡片 ---------- */
     .postCard{margin:12px 6px; cursor:pointer}
