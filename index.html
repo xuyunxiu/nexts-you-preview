@@ -202,12 +202,29 @@
     .dmMsg .translate-chip{display:none}
     .dmRow{display:flex;align-items:flex-end;gap:8px}
     .dmMsg.right .dmRow{flex-direction:row-reverse}
-    .dmSide{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:56px}
     .dmTime{font-size:11px;color:var(--ghost)}
-    .read1{font-size:12px;color:var(--ghost);font-weight:900;line-height:1}
-    .trash{border:none;background:#fff;border:1px solid var(--line);
-      width:28px;height:28px;border-radius:50%;cursor:pointer}
-    .trash:hover{filter:brightness(0.98)}
+    
+    /* 右側訊息的側欄：上排=垃圾桶+1（橫排），下排=時間 */
+.dmSide{
+  display:flex; flex-direction:column; align-items:flex-end;
+  gap:4px; min-width:48px;
+}
+.dmSideTop{ display:flex; align-items:center; gap:6px; }
+
+/* 1 的樣式（已送出未讀） */
+.read1{
+  font-size:12px; color:var(--ghost);
+  font-weight:900; line-height:1;
+}
+
+/* 垃圾桶改用小圓鈕 + SVG，不要 emoji 放大 */
+.trash{
+  display:inline-flex; align-items:center; justify-content:center;
+  width:24px; height:24px; padding:0;
+  border-radius:999px; border:1px solid var(--line); background:#fff;
+  cursor:pointer;
+}
+.trash svg{ width:14px; height:14px; opacity:.55; }
 
     /* ---------- Live / Replay / Profile / MiniProfile ---------- */
     #liveList .group{margin:10px 0}
@@ -259,6 +276,15 @@
     #miniProfile .hdr img{width:56px; height:56px; border-radius:50%; border:1px solid var(--line); object-fit:cover}
     #miniProfile .actions{display:flex; justify-content:flex-end; gap:8px; margin-top:12px}
     #miniProfile .actions button{border:none; background:var(--hover); border:1px solid var(--line); padding:8px 12px; border-radius:10px; cursor:pointer}
+    /* Verified 勳章（淡紫） */
+.v-badge{
+  display:inline-flex; align-items:center; justify-content:center;
+  width:18px; height:18px; margin-left:6px; vertical-align:middle;
+  border-radius:50%;
+  background: radial-gradient(ellipse at 30% 30%, #efeaff 0%, #cbb9ff 65%, #b49bff 100%);
+  box-shadow: 0 0 0 1px #e0d9ff, 0 2px 6px rgba(106,90,205,.25);
+}
+.v-badge svg{ width:11px; height:11px; display:block }
   </style>
 </head>
 
@@ -695,7 +721,10 @@
           <div class="card soft postCard" onclick="onPostCardClick(event,'${p.id}')">
             <div class="hdr">
               <img src="${p.avatar}" class="avatar" onerror="imgFallback(this)">
-              <div class="meta"><b>${p.artistName}</b><small class="ghost">${p.ts}</small></div>
+              <div class="meta">
+  <b>${p.artistName} ${VB()}</b>
+  <small class="ghost">${p.ts}</small>
+</div>
               <div class="translate-btn" onclick="event.stopPropagation(); togglePostTranslate('${p.id}')">翻譯</div>
             </div>
             <div class="body">
@@ -813,7 +842,10 @@
         <div class="card soft postCard" onclick="void(0)">
           <div class="hdr">
             <img src="${post.avatar}" class="avatar" onerror="imgFallback(this)">
-            <div class="meta"><b>${post.artistName}</b><small class="ghost">${post.ts}</small></div>
+            <div class="meta">
+  <b>${post.artistName} ${VB()}</b>
+  <small class="ghost">${post.ts}</small>
+</div>
             <div class="translate-btn" onclick="togglePostTranslate('${post.id}')">翻譯</div>
           </div>
           <div class="body">
@@ -842,7 +874,9 @@
         item.innerHTML = `
           <div class="u">
             <img src="${c.avatar}" onerror="imgFallback(this)" onclick="openMiniProfile('${c.name}','${c.avatar}')">
-            <b class="name">${escapeHtml(c.name)}</b>
+            <b class="name">
+  ${escapeHtml(c.name)} ${c.isArtist ? VB(16) : ''}
+</b>
           </div>
           <p id="cText-${c.id}">${escapeHtml(c.text)}</p>
           <div class="c-actions">
@@ -947,9 +981,13 @@
         let sideBits = `<span class="dmTime">${timeStr}</span>`;
         if(m.from === 'right'){
           const unread1 = !m.read ? `<span class="read1">1</span>` : '';
-          const trash = `<button class="trash" title="刪除" onclick="deleteMsg('${m.id}')">🗑️</button>`;
-          sideBits = `${trash}${unread1}<span class="dmTime">${timeStr}</span>`;
-        }
+const trash = `
+  <button class="trash" title="刪除" onclick="deleteMsg('${m.id}')">
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M9 3h6l1 2h4v2H4V5h4l1-2zm1 6h2v8h-2V9zm4 0h2v8h-2V9z" fill="currentColor"/>
+    </svg>
+  </button>`;
+let sideBits = `<div class="dmSideTop">${trash}${unread1}</div><span class="dmTime">${timeStr}</span>`;
         const sideHTML = `<div class="dmSide">${sideBits}</div>`;
         const transBtnHTML = isLeft ? `<div class="translate-under" onclick="toggleDmTranslate('${m.id}')">${showTrans?'收合翻譯':'翻譯'}</div>` : '';
 
@@ -980,6 +1018,15 @@
         renderDMList();
       }
     }
+
+    // 產生 Verified 勳章（淡紫）；可調整尺寸：VB(20)
+function VB(size=18){
+  return `<span class="v-badge" style="width:${size}px;height:${size}px">
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path fill="#fff" d="M9.6 16.2 5.9 12.5a1.1 1.1 0 0 1 1.6-1.6l2.1 2.1 5-5a1.1 1.1 0 1 1 1.6 1.6l-5.8 5.6a1.1 1.1 0 0 1-1.6 0Z"/>
+    </svg>
+  </span>`;
+}
 
     /* Live */
     const LIVE_DATA = {
