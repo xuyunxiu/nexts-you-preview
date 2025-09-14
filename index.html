@@ -5,9 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>NEXT’S YOU — Fan App (單頁版)</title>
 
-  <!-- ===============================
-       ==========  GLOBAL CSS  =========
-       =============================== -->
   <style>
     /* ---------- Theme ---------- */
     :root{
@@ -22,8 +19,8 @@
       --danger:#ff4d4f;
       --ok:#1abc9c;
       --hover:#eef1ff;
-      --fan:#ffffff;        /* 粉絲留言背景 */
-      --artist:#efe7ff;     /* 藝人留言背景（淡紫） */
+      --fan:#ffffff;
+      --artist:#efe7ff;
       --radius:16px;
       --shadow:0 10px 35px rgba(26,26,26,.08);
     }
@@ -89,7 +86,7 @@
       backdrop-filter:blur(6px);
       transition:transform .24s ease;
     }
-    #storyWrap.collapse{transform:translateY(-120%);} /* 往上滑隱藏 */
+    #storyWrap.collapse{transform:translateY(-120%);}
     #storyBar{
       display:flex; gap:12px; overflow-x:auto; padding:10px 8px 12px; scroll-snap-type:x proximity;
       -webkit-overflow-scrolling:touch; border-bottom:1px solid var(--line);
@@ -97,7 +94,7 @@
     }
     #storyBar::-webkit-scrollbar{display:none}
     .story-item{flex:0 0 auto; width:64px; text-align:center; cursor:pointer; scroll-snap-align:center}
-    .story-item img{width:56px; height:56px; border-radius:50%; object-fit:cover; border:2px solid #cfcfe9;} /* 預設灰 */
+    .story-item img{width:56px; height:56px; border-radius:50%; object-fit:cover; border:2px solid #cfcfe9;}
     .story-item .name{font-size:12px; margin-top:4px; color:#9aa1ad;}
     .story-item.active img{border-color:var(--accent); box-shadow:0 0 0 2px rgba(106,90,205,.18);}
     .story-item.active .name{color:var(--accent); font-weight:700;}
@@ -116,15 +113,21 @@
     .postCard .body{margin-top:8px}
     .postCard .body p{margin:8px 0 0}
     .postCard .hero{width:100%; height:400px; object-fit:cover; border-radius:12px; border:1px solid var(--line)}
-    .reaction-bar{display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:12px}
-    .reaction{
-      display:flex; align-items:center; justify-content:space-between; gap:10px; height:44px;
-      padding:10px 14px; border:1.2px solid var(--line); background:#f7f8ff; border-radius:14px; cursor:pointer;
-      user-select:none; font-weight:800;
+
+    /* ====== 新：Reaction Bar（縮小版） ====== */
+    .reaction-bar{
+      display:grid; grid-template-columns:repeat(3,1fr);
+      gap:8px; margin-top:10px
     }
-    .reaction .count{margin-left:auto; min-width:2em; text-align:right; font-size:12px}
+    .reaction{
+      display:flex; align-items:center; justify-content:space-between; gap:8px;
+      height:36px; padding:6px 10px;
+      border:1px solid var(--line); background:#f7f8ff; border-radius:12px;
+      cursor:pointer; user-select:none; font-weight:800; font-size:13px;
+    }
+    .reaction .count{margin-left:auto; min-width:2.2em; text-align:right; font-size:12px; font-weight:800}
     .reaction.active{background:var(--accent); color:#fff; border-color:transparent}
-    .reaction .count{font-weight:800; font-size:12px}
+
     .postMeta{
       display:flex; align-items:center; justify-content:space-between;
       margin-top:10px; padding-top:8px; border-top:1px solid var(--line);
@@ -176,9 +179,7 @@
       padding:2px 6px;border-radius:6px;color:#fff;
       background:linear-gradient(90deg,var(--accent),var(--accent2));
     }
-
     .dmThread{padding:8px 2px 8px;display:flex;flex-direction:column;gap:8px;height:calc(100vh - 180px);overflow-y:auto}
-
     .dmInputBar{display:flex;gap:8px;padding:10px 0;border-top:1px solid var(--line);position:sticky;bottom:0;background:linear-gradient(180deg,rgba(255,255,255,.3),rgba(255,255,255,.95));backdrop-filter:blur(10px)}
     .dmInputBar input{flex:1;border:1px solid var(--line);padding:12px;border-radius:14px;background:var(--hover)}
     .dmInputBar button{min-width:60px;border:none;background:linear-gradient(180deg,var(--accent),var(--accent2));color:#fff;border-radius:12px;font-weight:900;cursor:pointer}
@@ -189,33 +190,28 @@
     .dmMsg .bubble{max-width:100%;padding:10px 12px;border-radius:14px}
     .dmMsg.left .bubble{background:var(--artist)}
     .dmMsg.right .bubble{background:var(--accent);color:#fff}
-
     .bubble .orig{white-space:pre-wrap;}
     .bubble .transDivider{height:1px;background:var(--line);margin:8px 0}
     .bubble .tran{white-space:pre-wrap;font-weight:800}
     .bubble .by{margin-top:2px;font-size:10px;color:var(--ghost)}
-
     .translate-under{
       display:inline-block;margin-top:6px;font-size:12px;
       padding:4px 8px;border-radius:999px;border:1px solid var(--line);
       background:#fff;cursor:pointer;
     }
-
+    .dmMsg .translate-chip{display:none}
     .dmRow{display:flex;align-items:flex-end;gap:8px}
     .dmMsg.right .dmRow{flex-direction:row-reverse}
     .dmSide{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:56px}
     .dmTime{font-size:11px;color:var(--ghost)}
     .read1{font-size:12px;color:var(--ghost);font-weight:900;line-height:1}
-
     .trash{border:none;background:#fff;border:1px solid var(--line);
       width:28px;height:28px;border-radius:50%;cursor:pointer}
     .trash:hover{filter:brightness(0.98)}
 
-    /* ---------- Live List ---------- */
+    /* ---------- Live / Replay / Profile / MiniProfile ---------- */
     #liveList .group{margin:10px 0}
-    .liveCard{
-      display:flex; align-items:center; gap:12px; padding:12px; border:1px solid var(--line); border-radius:14px; background:var(--card); margin:8px 0; cursor:pointer;
-    }
+    .liveCard{display:flex; align-items:center; gap:12px; padding:12px; border:1px solid var(--line); border-radius:14px; background:var(--card); margin:8px 0; cursor:pointer;}
     .liveCard img{width:100px; height:64px; border-radius:10px; object-fit:cover; border:1px solid var(--line)}
     .liveMeta b{display:block}
     .status{font-size:12px; color:var(--ghost)}
@@ -223,7 +219,6 @@
     .status.soon{color:#ff9800}
     .status.end{color:var(--ghost)}
 
-    /* ---------- Live Room ---------- */
     #liveRoom .topbar{display:flex; align-items:center; gap:10px; margin:2px 0 10px}
     #liveRoom .back{width:40px; height:40px; border-radius:12px; border:1px solid var(--line); background:var(--card); cursor:pointer}
     .liveThread{display:flex; flex-direction:column; gap:8px; height:calc(100vh - 180px); overflow-y:auto; padding:4px 2px}
@@ -235,7 +230,6 @@
     .liveInputBar input{flex:1; border:1px solid var(--line); padding:12px; border-radius:14px; background:var(--hover)}
     .liveInputBar button{min-width:60px; border:none; background:linear-gradient(180deg,var(--accent),var(--accent2)); color:#fff; border-radius:12px; font-weight:900; cursor:pointer}
 
-    /* ---------- Live Replay ---------- */
     #liveReplay .topbar{display:flex; align-items:center; gap:10px; margin:2px 0 10px}
     #liveReplay .back{width:40px; height:40px; border-radius:12px; border:1px solid var(--line); background:var(--card); cursor:pointer}
     .replayThread{display:flex; flex-direction:column; gap:8px; height:calc(100vh - 200px); overflow-y:auto; padding:4px 2px}
@@ -244,21 +238,18 @@
     .replayMsg.fan{background:var(--fan); align-self:flex-end}
     .replayCtrl{display:flex; align-items:center; gap:8px; padding:10px 0}
 
-    /* --- Profile：只留頭貼，移除大背景 --- */
     #profileHeader{height:auto; border-radius:0; overflow:visible; background:none;}
     #profileHeader::after{display:none;}
     #profileBg{display:none;}
     .profile-actions{display:none;}
     #avatarWrap{position:static; transform:none; bottom:auto; text-align:center; margin:16px auto 4px;}
     #editAvatar{width:120px; height:120px; border-radius:50%; border:2px solid var(--line); object-fit:cover; cursor:pointer}
-
     #profileInfo{margin-top:12px; padding:12px; display:flex; flex-direction:column; gap:12px}
     .pitem{display:flex; align-items:center; justify-content:space-between; padding:14px; border:1px solid var(--line); background:var(--card); border-radius:14px}
     .pitem .label{color:var(--sub); font-size:13px}
     .pitem .value{font-weight:900}
     .edit-btn{border:none; background:transparent; cursor:pointer; font-size:14px; color:var(--accent)}
 
-    /* ---------- Popup: mini profile ---------- */
     #miniProfile{
       position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
       width:300px; max-width:86vw; background:var(--card); border:1px solid var(--line); border-radius:16px; box-shadow:var(--shadow);
@@ -268,20 +259,12 @@
     #miniProfile .hdr img{width:56px; height:56px; border-radius:50%; border:1px solid var(--line); object-fit:cover}
     #miniProfile .actions{display:flex; justify-content:flex-end; gap:8px; margin-top:12px}
     #miniProfile .actions button{border:none; background:var(--hover); border:1px solid var(--line); padding:8px 12px; border-radius:10px; cursor:pointer}
-
-    /* 翻譯區塊（可留作擴充） */
-    .transBox{align-self:flex-start;margin-top:6px;padding:8px 10px;background:#f7f8ff;border:1px solid var(--line);border-radius:12px;}
-    .transBox .origin{font-size:12px;color:var(--sub);}
-    .transBox .tran{margin-top:4px;font-weight:800;}
-    .transBox .by{margin-top:2px;font-size:10px;color:var(--ghost);}
   </style>
 </head>
 
 <body class="nx">
 
-  <!-- ===============================
-         HOME
-       =============================== -->
+  <!-- =============================== HOME =============================== -->
   <section id="home" class="page active">
     <div id="homeHeader">
       <div class="me" onclick="openProfile()">
@@ -291,21 +274,14 @@
           <div class="id" id="meFanId">NEXT-00000</div>
         </div>
       </div>
-      <div class="right">
-        <span class="chip">></span>
-      </div>
+      <div class="right"><span class="chip">></span></div>
     </div>
 
-    <div id="storyWrap">
-      <div id="storyBar"></div>
-    </div>
-
+    <div id="storyWrap"><div id="storyBar"></div></div>
     <div id="feedWrap"></div>
   </section>
 
-  <!-- ===============================
-         POST DETAIL
-       =============================== -->
+  <!-- ============================ POST DETAIL =========================== -->
   <section id="postDetail" class="page">
     <div class="topbar">
       <button class="back" onclick="goBack()">←</button>
@@ -335,9 +311,7 @@
     </div>
   </section>
 
-  <!-- ===============================
-         DM LIST
-       =============================== -->
+  <!-- ============================== DM LIST ============================ -->
   <section id="dm" class="page">
     <div class="row" style="justify-content:space-between; margin:2px 0 10px">
       <b style="font-weight:900">訊息</b>
@@ -346,9 +320,7 @@
     <div id="dmEmpty" class="ghost" style="text-align:center; margin-top:30vh; display:none">尚未與任何藝人開啟聊天 ❤️</div>
   </section>
 
-  <!-- ===============================
-         DM DETAIL
-       =============================== -->
+  <!-- ============================ DM DETAIL ============================ -->
   <section id="dmDetail" class="page">
     <div class="topbar">
       <button class="back" onclick="goBack()">←</button>
@@ -364,9 +336,7 @@
     </div>
   </section>
 
-  <!-- ===============================
-         LIVE LIST
-       =============================== -->
+  <!-- ============================= LIVE LIST =========================== -->
   <section id="liveList" class="page">
     <div class="row" style="justify-content:space-between; margin:2px 0 10px">
       <b style="font-weight:900">直播</b>
@@ -382,9 +352,7 @@
     </div>
   </section>
 
-  <!-- ===============================
-         LIVE ROOM
-       =============================== -->
+  <!-- ============================== LIVE ROOM ========================== -->
   <section id="liveRoom" class="page">
     <div class="topbar">
       <button class="back" onclick="showPage('liveList')">←</button>
@@ -393,9 +361,7 @@
 
     <div class="row" style="gap:12px; margin-bottom:6px">
       <img id="liveHostAvatar" src="https://picsum.photos/60?u=host" onerror="imgFallback(this)" style="width:44px;height:44px;border-radius:50%;border:1px solid var(--line);object-fit:cover">
-      <div>
-        <b id="liveHostName">Host</b><br>
-      </div>
+      <div><b id="liveHostName">Host</b><br></div>
     </div>
 
     <div id="liveThread" class="liveThread"></div>
@@ -406,9 +372,7 @@
     </div>
   </section>
 
-  <!-- ===============================
-         LIVE REPLAY
-       =============================== -->
+  <!-- ============================= LIVE REPLAY ========================= -->
   <section id="liveReplay" class="page">
     <div class="topbar">
       <button class="back" onclick="showPage('liveList')">←</button>
@@ -434,9 +398,7 @@
     <div id="replayThread" class="replayThread"></div>
   </section>
 
-  <!-- ===============================
-         STORE
-       =============================== -->
+  <!-- ================================ STORE ============================ -->
   <section id="store" class="page">
     <div class="row" style="justify-content:space-between; margin:2px 0 10px">
       <b style="font-weight:900">商店</b>
@@ -461,20 +423,13 @@
     <div class="ghost" style="margin-top:12px">＊點數不足不會自動扣。需先由後台加值。</div>
   </section>
 
-  <!-- ===============================
-         PROFILE
-       =============================== -->
+  <!-- =============================== PROFILE =========================== -->
   <section id="profile" class="page">
-    <div class="topbar">
-      <b style="font-weight:900">我的</b>
-    </div>
+    <div class="topbar"><b style="font-weight:900">我的</b></div>
 
     <div id="profileHeader">
       <img id="profileBg" src="https://picsum.photos/1200/800?blur" onerror="imgFallback(this)">
-      <div class="profile-actions">
-        <button class="round-btn onlyMe" title="換頭貼" onclick="document.getElementById('avatarInput').click()">📷</button>
-        <button class="round-btn onlyMe" title="換背景" onclick="document.getElementById('bgInput').click()">🖼️</button>
-      </div>
+      <div class="profile-actions"></div>
       <div id="avatarWrap">
         <img id="editAvatar" src="https://picsum.photos/160?u=me" onclick="document.getElementById('avatarInput').click()">
         <input type="file" id="avatarInput" accept="image/*" class="onlyMe hidden" onchange="changeAvatar(event)">
@@ -484,53 +439,29 @@
 
     <div id="profileInfo">
       <div class="pitem">
-        <div>
-          <div class="label">Chat name</div>
-          <div class="value" id="p_nickname">暱稱</div>
-        </div>
+        <div><div class="label">Chat name</div><div class="value" id="p_nickname">暱稱</div></div>
         <button class="edit-btn onlyMe" onclick="editNickname()">✏️</button>
       </div>
 
       <div class="pitem">
-        <div>
-          <div class="label">Status message</div>
-          <div class="value" id="p_status">尚未設定</div>
-        </div>
+        <div><div class="label">Status message</div><div class="value" id="p_status">尚未設定</div></div>
         <button class="edit-btn onlyMe" onclick="editStatus()">✏️</button>
       </div>
 
-      <div class="pitem">
-        <div class="label">粉絲 ID</div>
-        <div class="value" id="p_fanId">NEXT-00000</div>
-      </div>
-
-      <div class="pitem">
-        <div class="label">加入日期</div>
-        <div class="value" id="p_joinDate">—</div>
-      </div>
+      <div class="pitem"><div class="label">粉絲 ID</div><div class="value" id="p_fanId">NEXT-00000</div></div>
+      <div class="pitem"><div class="label">加入日期</div><div class="value" id="p_joinDate">—</div></div>
 
       <div class="pitem">
         <div class="label">生日</div>
-        <div class="value">
-          <input type="date" id="birthdayInput" onchange="saveBirthday(this.value)">
-        </div>
+        <div class="value"><input type="date" id="birthdayInput" onchange="saveBirthday(this.value)"></div>
       </div>
 
-      <div class="pitem">
-        <div class="label">💜 我的愛心（剩餘天數）</div>
-        <div class="value"><span id="heartDays">0</span> 天</div>
-      </div>
-
-      <div class="pitem">
-        <div class="label">錢包餘額</div>
-        <div class="value"><span id="walletBalance">0</span> 點</div>
-      </div>
+      <div class="pitem"><div class="label">💜 我的愛心（剩餘天數）</div><div class="value"><span id="heartDays">0</span> 天</div></div>
+      <div class="pitem"><div class="label">錢包餘額</div><div class="value"><span id="walletBalance">0</span> 點</div></div>
     </div>
   </section>
 
-  <!-- ===============================
-         MINI PROFILE POPUP
-       =============================== -->
+  <!-- ============================== MINI PROFILE ======================= -->
   <div id="miniProfile">
     <div class="hdr">
       <img id="mpAvatar" src="" onerror="imgFallback(this)">
@@ -540,14 +471,10 @@
       </div>
     </div>
     <div id="mpBio" class="sub" style="font-size:13px">—</div>
-    <div class="actions">
-      <button onclick="closeMiniProfile()">關閉</button>
-    </div>
+    <div class="actions"><button onclick="closeMiniProfile()">關閉</button></div>
   </div>
 
-  <!-- ===============================
-         BOTTOM NAV
-       =============================== -->
+  <!-- ============================== BOTTOM NAV ========================= -->
   <nav id="nav">
     <button id="tabHome" class="active" onclick="showPage('home')">首頁</button>
     <button id="tabDM" onclick="showPage('dm')">DM</button>
@@ -555,22 +482,16 @@
     <button id="tabStore" onclick="showPage('store')">商店</button>
   </nav>
 
-  <!-- ===============================
-         SCRIPTS (DATA + LOGIC)
-       =============================== -->
+  <!-- ================================ SCRIPTS ========================== -->
   <script>
-    /* -------------------------------------
-     * 工具：fallback avatar / image
-     * -----------------------------------*/
+    /* 工具：fallback image */
     function imgFallback(img){
       const svg = encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><rect width='100%' height='100%' fill='#eaeef8'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='#9aa0b4' font-family='sans-serif' font-size='20'>NO IMG</text></svg>`);
       img.src = 'data:image/svg+xml;charset=UTF-8,' + svg;
       img.onerror = null;
     }
 
-    /* -------------------------------------
-     * 假資料
-     * -----------------------------------*/
+    /* 假資料 */
     const ARTISTS = [
       {id:'annie',  name:'Annie',   avatar:'https://picsum.photos/80?u=an'},
       {id:'dohee',  name:'Dohee',   avatar:'https://picsum.photos/80?u=dh'},
@@ -593,6 +514,7 @@
       {key:'cheer', icon:'🥳'}
     ];
 
+    /* DM 假資料 */
     const DM_ARTISTS = [
       {id:'dohee',   name:'Dohee',   avatar:'https://picsum.photos/100?2', subscribed:true,  heartDays:120, lastMsg:'還想再聊一下 🥺', unread:2, lastTs:Date.now()-1000*60*4 },
       {id:'woo',     name:'Woochan', avatar:'https://picsum.photos/100?1', subscribed:false, heartDays:0,   lastMsg:'（無訊息）', unread:0, lastTs:Date.now()-1000*60*60 },
@@ -603,23 +525,11 @@
         {id:'d1', from:'left',  text:'嗨～粉絲你好！', ts:Date.now()-1000*60*60, translated:false, read:true},
         {id:'d2', from:'right', text:'哈囉！最近好嗎？', ts:Date.now()-1000*60*45, translated:false, read:false}
       ],
-      woo: [
-        {id:'w1', from:'left',  text:'今天午餐吃什麼？', ts:Date.now()-1000*60*70, translated:false, read:true}
-      ],
-      annie: [
-        {id:'a1', from:'left',  text:'我剛傳了一張自拍 📸', ts:Date.now()-1000*60*8, translated:false, read:true}
-      ]
+      woo: [{id:'w1', from:'left', text:'今天午餐吃什麼？', ts:Date.now()-1000*60*70, translated:false, read:true}],
+      annie: [{id:'a1', from:'left', text:'我剛傳了一張自拍 📸', ts:Date.now()-1000*60*8, translated:false, read:true}]
     };
 
-    const LIVE_DATA = {
-      active: [{id:'L1', host:'Annie',  title:'Annie Live',  thumb:'https://picsum.photos/300/180?live1'}],
-      upcoming: [{id:'L2', host:'Dohee', title:'Dance Practice', thumb:'https://picsum.photos/300/180?live2', startTime: Date.now()+1000*60*3 }],
-      ended: [{id:'L3', host:'ALLDAY', title:'Full Group Replay', thumb:'https://picsum.photos/300/180?live3'}]
-    };
-
-    /* -------------------------------------
-     * LocalStorage Helpers
-     * -----------------------------------*/
+    /* LocalStorage Helpers */
     const LS = {
       get(k, def=null){ try{ const v=localStorage.getItem(k); return v? JSON.parse(v): def }catch(e){ return def } },
       set(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)) }catch(e){} },
@@ -627,9 +537,7 @@
       setStr(k, v){ localStorage.setItem(k, v) }
     };
 
-    /* -------------------------------------
-     * Profile（身分、上傳）
-     * -----------------------------------*/
+    /* Profile */
     function ensureMyIdentity(){
       if(!LS.getStr('fanId')){
         const id = 'NEXT-' + Math.floor(10000 + Math.random()*90000);
@@ -643,8 +551,7 @@
     function showMyBar(){
       document.getElementById('meNickname').textContent = LS.getStr('nickname','暱稱');
       document.getElementById('meFanId').textContent = LS.getStr('fanId','NEXT-00000');
-      const a = LS.getStr('avatar');
-      if(a) document.getElementById('meAvatar').src = a;
+      const a = LS.getStr('avatar'); if(a) document.getElementById('meAvatar').src = a;
     }
     function showFanProfile(){
       document.getElementById('p_nickname').textContent = LS.getStr('nickname','暱稱');
@@ -712,8 +619,7 @@
     }
     function saveBirthday(val){ LS.setStr('birthday', val); checkBirthday(); }
     function checkBirthday(){
-      const bd = LS.getStr('birthday');
-      if(!bd) return;
+      const bd = LS.getStr('birthday'); if(!bd) return;
       const today = new Date();
       const [yyyy,mm,dd] = bd.split('-').map(Number);
       if( (today.getMonth()+1)===mm && today.getDate()===dd ){
@@ -722,7 +628,8 @@
     }
     function buyHearts(days){
       let h = parseInt(LS.getStr('heartDays','0'),10);
-      h += days; LS.setStr('heartDays', String(h));
+      h += days;
+      LS.setStr('heartDays', String(h));
       document.getElementById('heartDays').textContent = h;
       DM_ARTISTS.forEach(a=>{ if(a.subscribed) a.heartDays = h; });
       renderDMList();
@@ -730,13 +637,12 @@
     }
     function chargeWallet(){
       let b = parseInt(LS.getStr('walletBalance','0'),10);
-      b += 100; LS.setStr('walletBalance', String(b));
+      b += 100;
+      LS.setStr('walletBalance', String(b));
       document.getElementById('walletBalance').textContent = b;
     }
 
-    /* -------------------------------------
-     * StoryBar / 分類圓圈
-     * -----------------------------------*/
+    /* Story Bar */
     let currentFilter = 'all';
     function buildStorySet(){
       const items = [{ id:'all', name:'ALL', avatar:'https://picsum.photos/60?u=all' }];
@@ -766,15 +672,19 @@
     }
     function rebuildStoryFromNewPost(newPost){ POSTS.unshift(newPost); renderStoryBar(); }
 
-    /* -------------------------------------
-     * Feed & Translation & Reactions
-     * -----------------------------------*/
+    /* ===== Reaction 狀態儲存 ===== */
     const _translateState = {};
-    function getReactions(pid){ return LS.get(`reactions:${pid}`, {}); }
-    function setReactions(pid, data){ LS.set(`reactions:${pid}`, data); }
-    function getMyReactions(pid){ return LS.get(`myReacts:${pid}`, {}); }
-    function setMyReactions(pid, data){ LS.set(`myReacts:${pid}`, data); }
+    function getReactions(postId){ return LS.get(`reactions:${postId}`, {}); }
+    function setReactions(postId, data){ LS.set(`reactions:${postId}`, data); }
+    function getMyReactions(postId){ return LS.get(`myReacts:${postId}`, {}); }
+    function setMyReactions(postId, data){ LS.set(`myReacts:${postId}`, data); }
+    function formatCount(n){
+      if(n>=1000000) return Math.round(n/100000)/10+'M';
+      if(n>=1000) return Math.round(n/100)/10+'K';
+      return String(n);
+    }
 
+    /* ===== Feed ===== */
     function renderFeed(filter='all'){
       const wrap = document.getElementById('feedWrap');
       let list = POSTS;
@@ -804,9 +714,12 @@
     }
     function onPostCardClick(e, postId){
       const path = e.composedPath ? e.composedPath(): [];
-      if( path.some(el=> el && el.classList && (el.classList.contains('reaction') || el.classList.contains('translate-btn')) ) ){ return; }
+      if( path.some(el=> el && el.classList && (el.classList.contains('reaction') || el.classList.contains('translate-btn')) ) ){
+        return;
+      }
       openPost(postId);
     }
+
     function togglePostTranslate(postId){
       const el = document.getElementById(`postText-${postId}`);
       if(!el) return;
@@ -819,23 +732,28 @@
       }
       LS.setStr(`postTranslated:${postId}`, _translateState[postId] ? '1' : '0');
     }
+
+    /* ===== Reaction Bar（無重複 id 版本） ===== */
     function renderReactionsBar(postId){
       const data = getReactions(postId);
       const myData = getMyReactions(postId);
-      return `<div class="reaction-bar" id="reactions-${postId}">
+      return `<div class="reaction-bar" data-react-for="${postId}">
         ${REACTION_TYPES.map(r=>{
           const cnt = data[r.key] || 0;
           const active = myData[r.key] ? 'active' : '';
-          const countHtml = cnt>0 ? `<span class="count" id="rc-${postId}-${r.key}">${cnt}</span>` : `<span class="count" id="rc-${postId}-${r.key}"></span>`;
-          return `<div class="reaction ${active}" onclick="event.stopPropagation(); toggleReaction('${postId}','${r.key}')">
-            <span>${r.icon}</span>${countHtml}
-          </div>`;
+          const countHtml = cnt>0 ? `<span class="count" data-react-count="${r.key}">${formatCount(cnt)}</span>` : `<span class="count" data-react-count="${r.key}"></span>`;
+          return `<button type="button" class="reaction ${active}" onclick="toggleReaction('${postId}','${r.key}', event)">
+            <span class="icon">${r.icon}</span>${countHtml}
+          </button>`;
         }).join('')}
       </div>`;
     }
-    function toggleReaction(postId, type){
+
+    function toggleReaction(postId, type, e){
+      if(e && e.stopPropagation) e.stopPropagation();
       let data = getReactions(postId);
       let myData = getMyReactions(postId);
+
       if(myData[type]){
         delete myData[type];
         data[type] = Math.max((data[type]||0)-1, 0);
@@ -847,13 +765,13 @@
       }
       setMyReactions(postId, myData);
       setReactions(postId, data);
-      const area = document.getElementById(`reactions-${postId}`);
-      if(area) area.outerHTML = renderReactionsBar(postId);
+
+      // 同步刷新：頁面上所有同貼文的 reaction-bar 都更新（避免詳情頁/首頁不同步）
+      document.querySelectorAll(`.reaction-bar[data-react-for="${postId}"]`)
+        .forEach(area => { area.outerHTML = renderReactionsBar(postId); });
     }
 
-    /* -------------------------------------
-     * 留言（Post Detail）
-     * -----------------------------------*/
+    /* ===== 留言（Post Detail） ===== */
     let CURRENT_POST_ID = null;
     let CURRENT_ARTIST_NAME = '';
     function seedCommentsIfEmpty(postId){
@@ -888,8 +806,7 @@
       CURRENT_POST_ID = postId;
       CURRENT_ARTIST_NAME = post.artistName;
 
-      const sw = document.getElementById('filterArtistSwitch');
-      if(sw){ sw.checked = true; }
+      const sw = document.getElementById('filterArtistSwitch'); if(sw) sw.checked = true;
       document.getElementById('filterLabel').textContent = `只看 ${post.artistName} 的回覆`;
 
       const content = `
@@ -938,21 +855,14 @@
     function toggleCommentTranslate(cid){
       const k = `cTranslated:${CURRENT_POST_ID}:${cid}`;
       const translated = LS.getStr(k,'0')==='1';
-      const el = document.getElementById(`cText-${cid}`);
-      if(!el) return;
-      if(translated){
-        el.textContent = el.textContent.replace(/^（翻譯）/,'');
-        LS.setStr(k,'0');
-      }else{
-        el.textContent = `（翻譯）${el.textContent}`;
-        LS.setStr(k,'1');
-      }
+      const el = document.getElementById(`cText-${cid}`); if(!el) return;
+      if(translated){ el.textContent = el.textContent.replace(/^（翻譯）/,''); LS.setStr(k,'0'); }
+      else{ el.textContent = `（翻譯）${el.textContent}`; LS.setStr(k,'1'); }
     }
     function sendComment(){
       if(!CURRENT_POST_ID) return;
       const inp = document.getElementById('commentInput');
-      const t = (inp.value||'').trim();
-      if(!t) return;
+      const t = (inp.value||'').trim(); if(!t) return;
       const meName = LS.getStr('nickname','我');
       const meAvatar = LS.getStr('avatar','https://picsum.photos/40?u=me');
       const list = getComments(CURRENT_POST_ID);
@@ -961,48 +871,21 @@
       inp.value=''; renderComments();
     }
 
-    /* -------------------------------------
-     * DM 模組
-     * -----------------------------------*/
+    /* ===== DM ===== */
     let currentChat = null;
-
-    // 修復重點：將我方（right）在「最新一則左側訊息」之前的訊息標記為已讀
-    function markSeenByLatestLeft(chatId){
-      const list = dmMessages[chatId] || [];
-      let cutoff = -Infinity;
-      for(let i = list.length - 1; i >= 0; i--){
-        if(list[i].from === 'left'){
-          cutoff = list[i].ts || 0;
-          break;
-        }
-      }
-      for(const m of list){
-        if(m.from === 'right' && (cutoff === -Infinity || (m.ts || 0) <= cutoff)){
-          m.read = true;
-        }
-      }
-    }
-
     function renderDMList(){
       const wrap = document.getElementById('dmListWrap');
       const empty = document.getElementById('dmEmpty');
-
       const days = parseInt(LS.getStr('heartDays','0'),10);
       DM_ARTISTS.forEach(a=>{ if(a.subscribed) a.heartDays = days; });
 
       const withTs = DM_ARTISTS.map(a=>{
         const msgs = dmMessages[a.id] || [];
         const last = msgs.length ? msgs[msgs.length-1] : null;
-        return {
-          ...a,
-          lastTs: last ? (last.ts || 0) : (a.lastTs || 0),
-          _lastMsgText: last ? last.text : (a.lastMsg || '')
-        };
+        return {...a, lastTs: last ? (last.ts || 0) : (a.lastTs || 0), _lastMsgText: last ? last.text : (a.lastMsg || '')};
       }).sort((a,b)=> b.lastTs - a.lastTs);
       
-      if(withTs.length===0){
-        wrap.innerHTML = ''; empty.style.display = 'block'; return;
-      }
+      if(withTs.length===0){ wrap.innerHTML = ''; empty.style.display = 'block'; return; }
       empty.style.display = 'none';
       wrap.innerHTML = withTs.map(a=>`
         <div class="dmCard" onclick="openDm('${a.id}')">
@@ -1020,29 +903,26 @@
         </div>
       `).join('');
     }
-
     function openDm(chatId){
       currentChat = chatId;
-      const artist = DM_ARTISTS.find(a=>a.id===chatId);
-      if(!artist) return;
+      const artist = DM_ARTISTS.find(a=>a.id===chatId); if(!artist) return;
       document.getElementById('dmTitle').textContent = artist.name;
-
-      // 清除未讀並標記既有訊息的已讀狀態
       artist.unread = 0;
       markSeenByLatestLeft(chatId);
       renderDMList();
-
       renderDmThread(chatId);
       showPage('dmDetail');
     }
-
+    function markSeenByLatestLeft(chatId){
+      const arr = dmMessages[chatId] || [];
+      let lastLeftTs = 0;
+      for(let i=arr.length-1;i>=0;i--){ if(arr[i].from==='left'){ lastLeftTs = arr[i].ts||0; break; } }
+      arr.forEach(m=>{ if(m.from==='right' && (m.ts||0)<=lastLeftTs){ m.read = true; } });
+    }
     function renderDmThread(chatId){
       const box = document.getElementById('dmThread');
       box.innerHTML = '';
-
-      // 保障：藝人若有新訊息 → 先把該時點前我的訊息設已讀
       markSeenByLatestLeft(chatId);
-
       const list = dmMessages[chatId] || [];
       const start = Math.max(0, list.length - 50);
 
@@ -1071,27 +951,21 @@
           sideBits = `${trash}${unread1}<span class="dmTime">${timeStr}</span>`;
         }
         const sideHTML = `<div class="dmSide">${sideBits}</div>`;
-
-        const transBtnHTML = isLeft
-          ? `<div class="translate-under" onclick="toggleDmTranslate('${m.id}')">${showTrans?'收合翻譯':'翻譯'}</div>`
-          : '';
+        const transBtnHTML = isLeft ? `<div class="translate-under" onclick="toggleDmTranslate('${m.id}')">${showTrans?'收合翻譯':'翻譯'}</div>` : '';
 
         const wrap = document.createElement('div');
         wrap.className = `dmMsg ${m.from}`;
         wrap.innerHTML = `<div class="dmRow">${bubbleHTML}${sideHTML}</div>${transBtnHTML}`;
         box.appendChild(wrap);
       });
-
       box.scrollTop = box.scrollHeight;
     }
-
     function toggleDmTranslate(msgId){
       const k = `dmTranslated:${msgId}`;
       const now = LS.getStr(k,'0') === '1';
       LS.setStr(k, now ? '0' : '1');
       if(currentChat) renderDmThread(currentChat);
     }
-
     function deleteMsg(msgId){
       const arr = dmMessages[currentChat] || [];
       const idx = arr.findIndex(x => x.id === msgId && x.from === 'right');
@@ -1101,31 +975,18 @@
         if(artist){
           const last = arr[arr.length-1];
           artist.lastMsg = last ? last.text : '（無訊息）';
-          artist.lastTs  = last ? (last.ts||0) : artist.lastTs;
         }
         renderDmThread(currentChat);
         renderDMList();
       }
     }
 
-    // 新增：送出 DM 訊息（按鈕與 Enter）
-    function sendDm(){
-      const input = document.getElementById('dmMessageInput');
-      const text = (input.value || '').trim();
-      if(!text || !currentChat) return;
-      const msg = { id:'u'+Date.now(), from:'right', text, ts:Date.now(), translated:false, read:false };
-      dmMessages[currentChat] = dmMessages[currentChat] || [];
-      dmMessages[currentChat].push(msg);
-      input.value = '';
-      const artist = DM_ARTISTS.find(a=>a.id===currentChat);
-      if(artist){ artist.lastMsg = text; artist.lastTs = msg.ts; }
-      renderDmThread(currentChat);
-      renderDMList();
-    }
-
-    /* -------------------------------------
-     * Live
-     * -----------------------------------*/
+    /* Live */
+    const LIVE_DATA = {
+      active: [{id:'L1', host:'Annie',  title:'Annie Live',  thumb:'https://picsum.photos/300/180?live1'}],
+      upcoming: [{id:'L2', host:'Dohee', title:'Dance Practice', thumb:'https://picsum.photos/300/180?live2', startTime: Date.now()+1000*60*3 }],
+      ended: [{id:'L3', host:'ALLDAY', title:'Full Group Replay', thumb:'https://picsum.photos/300/180?live3'}]
+    };
     function renderLives(){
       const og = document.getElementById('liveOngoingList');
       const ed = document.getElementById('liveEndedList');
@@ -1142,16 +1003,12 @@
       return `
         <div class="liveCard" onclick="${status==='end' ? `openReplay('${l.id}')` : `openLive('${l.id}')`}">
           <img src="${l.thumb}" onerror="imgFallback(this)">
-          <div class="liveMeta">
-            <b>${l.title}</b>
-            ${label}
-          </div>
+          <div class="liveMeta"><b>${l.title}</b>${label}</div>
         </div>
       `;
     }
     function openLive(id){
-      const live = LIVE_DATA.active.find(l=>l.id===id);
-      if(!live) return;
+      const live = LIVE_DATA.active.find(l=>l.id===id); if(!live) return;
       document.getElementById('liveTitle').textContent = live.title;
       document.getElementById('liveHostName').textContent = live.host;
       document.getElementById('liveThread').innerHTML = '';
@@ -1174,8 +1031,7 @@
     let replayTimer = null;
     let replayMsgs = [];
     function openReplay(id){
-      const live = LIVE_DATA.ended.find(l=>l.id===id);
-      if(!live) return;
+      const live = LIVE_DATA.ended.find(l=>l.id===id); if(!live) return;
       document.getElementById('replayHostName').textContent = live.host;
       document.getElementById('replayTitle').textContent = live.title;
       const avatar = document.getElementById('replayHostAvatar'); avatar.src = 'https://picsum.photos/60?u='+encodeURIComponent(live.host);
@@ -1204,9 +1060,7 @@
     }
     function changeReplaySpeed(val){ playReplay(parseFloat(val)||1); }
 
-    /* -------------------------------------
-     * Mini Profile（簡化卡片）
-     * -----------------------------------*/
+    /* Mini Profile */
     function openMiniProfile(name, avatar){
       document.getElementById('mpName').textContent = name;
       document.getElementById('mpId').textContent = randomFanIdForName(name);
@@ -1218,44 +1072,17 @@
     function randomFanIdForName(name){
       const key = `miniId:${name}`;
       let id = LS.getStr(key);
-      if(!id){
-        id = 'NEXT-'+ Math.floor(10000+Math.random()*90000);
-        LS.setStr(key, id);
-      }
+      if(!id){ id = 'NEXT-'+ Math.floor(10000+Math.random()*90000); LS.setStr(key, id); }
       return id;
     }
 
-    // 追蹤目前頁面（供捲動時只在 home 生效）
+    /* 導航 / 滾動記憶 */
     let CURRENT_PAGE = 'home';
-    function installHomeScrollAutoHide(){
-      const story = document.getElementById('storyWrap');
-      const nav = document.getElementById('nav');
-      let lastY = window.scrollY || 0;
-      window.addEventListener('scroll', ()=>{
-        if(CURRENT_PAGE!=='home') return;
-        const y = window.scrollY || document.documentElement.scrollTop || 0;
-        const goingDown = y > lastY + 6;
-        const goingUp   = y < lastY - 6;
-        if(goingDown && y > 60){
-          story.classList.add('collapse');
-          nav.classList.add('hidden');
-        }else if(goingUp){
-          story.classList.remove('collapse');
-          nav.classList.remove('hidden');
-        }
-        lastY = y;
-      }, {passive:true});
-    }
-           
-    /* -------------------------------------
-     * 導航 / 切頁 / 滾動記憶
-     * -----------------------------------*/
     const pageStack = [];
     function showPage(id){
       CURRENT_PAGE = id;
       document.querySelectorAll('section.page').forEach(s=>s.classList.remove('active'));
       const page = document.getElementById(id); if(page) page.classList.add('active');
-
       if(pageStack[pageStack.length-1] !== id) pageStack.push(id);
 
       const hideNavOn = ['postDetail','dmDetail','liveRoom','liveReplay'];
@@ -1269,10 +1096,7 @@
       if(id==='dm') renderDMList();
       if(id==='liveList') renderLives();
       if(id==='profile'){ showFanProfile(); }
-      if(id==='home'){
-        renderFeed(currentFilter);
-        restoreHomeScroll();
-      }
+      if(id==='home'){ renderFeed(currentFilter); restoreHomeScroll(); }
     }
     function goBack(){
       if(pageStack.length>1){
@@ -1291,32 +1115,47 @@
       window.scrollTo(0, y);
     }
 
-    /* -------------------------------------
-     * 小工具
-     * -----------------------------------*/
+    /* 小工具 */
     function escapeHtml(str){
       return String(str).replace(/[&<>"']/g, s=>({
         '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
       }[s]));
     }
-
     function buyHeartsStore(target, days, cost){
       let wallet = parseInt(LS.getStr('walletBalance','0'),10);
       if(wallet < cost){ alert('點數不足，請先充值或等待後台加值'); return; }
-      wallet -= cost; LS.setStr('walletBalance', String(wallet));
-      const wElm = document.getElementById('walletBalance');
-      if(wElm) wElm.textContent = wallet;
-
+      wallet -= cost;
+      LS.setStr('walletBalance', String(wallet));
+      const wElm = document.getElementById('walletBalance'); if(wElm) wElm.textContent = wallet;
       const key = (target==='group') ? 'heartDaysGroup' : `heartDays:${target}`;
-      let cur = parseInt(LS.getStr(key,'0'),10);
-      cur += days; LS.setStr(key, String(cur));
-
+      let cur = parseInt(LS.getStr(key,'0'),10); cur += days; LS.setStr(key, String(cur));
       alert(`已購買：${target==='group'?'全團':'個人'} ${days} 天（已扣 ${cost} 點）`);
     }
 
-    /* -------------------------------------
-     * 初始化
-     * -----------------------------------*/
+    /* Home 捲動自動隱藏 story/nav */
+    function installHomeScrollAutoHide(){
+      const story = document.getElementById('storyWrap');
+      const nav = document.getElementById('nav');
+      let lastY = window.scrollY || 0;
+
+      window.addEventListener('scroll', ()=>{
+        if(CURRENT_PAGE!=='home') return;
+        const y = window.scrollY || document.documentElement.scrollTop || 0;
+        const goingDown = y > lastY + 6;
+        const goingUp   = y < lastY - 6;
+
+        if(goingDown && y > 60){
+          story.classList.add('collapse');
+          nav.classList.add('hidden');
+        }else if(goingUp){
+          story.classList.remove('collapse');
+          nav.classList.remove('hidden');
+        }
+        lastY = y;
+      }, {passive:true});
+    }
+
+    /* 初始化 */
     document.addEventListener('DOMContentLoaded', ()=>{
       ensureMyIdentity();
       showMyBar();
@@ -1328,24 +1167,8 @@
       renderLives();
 
       showPage('home');
-
       checkBirthday();
       installHomeScrollAutoHide();
-
-      // 綁定 DM 送出
-      const btn = document.getElementById('dmSendBtn');
-      const inp = document.getElementById('dmMessageInput');
-      if(btn) btn.addEventListener('click', sendDm);
-      if(inp) inp.addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); sendDm(); } });
-    });
-
-    // 確保 inline 事件都抓得到（不同環境更穩）
-    Object.assign(window, {
-      openDm, deleteMsg, toggleDmTranslate, onPostCardClick, openPost,
-      togglePostTranslate, toggleReaction, toggleCommentTranslate,
-      openLive, openReplay, changeReplaySpeed, showPage, goBack,
-      buyHeartsStore, openMiniProfile, closeMiniProfile, openProfile,
-      renderComments, sendComment, sendLiveMsg
     });
   </script>
 </body>
