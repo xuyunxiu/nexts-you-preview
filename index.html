@@ -977,22 +977,23 @@
         bubbleHTML += `</div>`;
 
         let sideBits = `<span class="dmTime">${timeStr}</span>`;
-        if(m.from === 'right'){
-          const unread1 = !m.read ? `<span class="read1">1</span>` : '';
-const trash = `
-  <button class="trash" title="刪除" onclick="deleteMsg('${m.id}')">
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M9 3h6l1 2h4v2H4V5h4l1-2zm1 6h2v8h-2V9zm4 0h2v8h-2V9z" fill="currentColor"/>
-    </svg>
-  </button>`;
-let sideBits = `<div class="dmSideTop">${trash}${unread1}</div><span class="dmTime">${timeStr}</span>`;
-        const sideHTML = `<div class="dmSide">${sideBits}</div>`;
-        const transBtnHTML = isLeft ? `<div class="translate-under" onclick="toggleDmTranslate('${m.id}')">${showTrans?'收合翻譯':'翻譯'}</div>` : '';
+if (m.from === 'right') {
+  const unread1 = !m.read ? `<span class="read1">1</span>` : '';
+  const trash = `
+    <button class="trash" title="刪除" onclick="deleteMsg('${m.id}')">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M9 3h6l1 2h4v2H4V5h4l1-2zm1 6h2v8h-2V9zm4 0h2v8h-2V9z" fill="currentColor"/>
+      </svg>
+    </button>`;
+  sideBits = `<div class="dmSideTop">${trash}${unread1}</div><span class="dmTime">${timeStr}</span>`;
+}
+const sideHTML = `<div class="dmSide">${sideBits}</div>`;
+const transBtnHTML = isLeft ? `<div class="translate-under" onclick="toggleDmTranslate('${m.id}')">${showTrans?'收合翻譯':'翻譯'}</div>` : '';
 
-        const wrap = document.createElement('div');
-        wrap.className = `dmMsg ${m.from}`;
-        wrap.innerHTML = `<div class="dmRow">${bubbleHTML}${sideHTML}</div>${transBtnHTML}`;
-        box.appendChild(wrap);
+const wrap = document.createElement('div');
+wrap.className = `dmMsg ${m.from}`;
+wrap.innerHTML = `<div class="dmRow">${bubbleHTML}${sideHTML}</div>${transBtnHTML}`;
+box.appendChild(wrap);
       });
       box.scrollTop = box.scrollHeight;
     }
