@@ -367,7 +367,6 @@
       <img id="liveHostAvatar" src="https://picsum.photos/60?u=host" onerror="imgFallback(this)" style="width:44px;height:44px;border-radius:50%;border:1px solid var(--line);object-fit:cover">
       <div>
         <b id="liveHostName">Host</b><br>
-        <small class="ghost">粉絲限定聊天室</small>
       </div>
     </div>
 
@@ -725,6 +724,40 @@
      * StoryBar / 分類圓圈
      * -----------------------------------*/
     let currentFilter = 'all';
+    <script>
+// ---------- StoryBar ----------
+function buildStorySet(){
+  const items = [{ id:'all', name:'ALL', avatar:'https://picsum.photos/60?u=all' }];
+  ARTISTS.forEach(a=> items.push({ id:a.id, name:a.name, avatar:a.avatar }));
+
+  // 依最近有貼文的藝人排序（ALL 永遠第一）
+  const recent = {};
+  POSTS.forEach((p,i)=>{ recent[p.artistId] = Date.now() - i; });
+  const others = items.slice(1).sort((a,b)=>(recent[b.id]||0)-(recent[a.id]||0));
+
+  return [items[0], ...others];
+}
+
+function renderStoryBar(){
+  const bar = document.getElementById('storyBar');
+  const data = buildStorySet();
+  bar.innerHTML = data.map(u=>`
+    <div class="story-item ${u.id==='all'?'all':''} ${u.id===currentFilter?'active':''}" data-id="${u.id}">
+      <img src="${u.avatar}" onerror="imgFallback(this)">
+      <div class="name">${u.name}</div>
+    </div>
+  `).join('');
+
+  // 點擊切換過濾，並重畫貼文
+  bar.querySelectorAll('.story-item').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      currentFilter = el.dataset.id;
+      renderFeed(currentFilter);
+      bar.querySelectorAll('.story-item').forEach(x=>x.classList.toggle('active', x===el));
+      window.scrollTo({ top:0, behavior:'smooth' });
+    });
+  });
+}
     function rebuildStoryFromNewPost(newPost){
       POSTS.unshift(newPost);
       renderStoryBar(); // ALL 固定最前；新的 artist 圈圈會排到 ALL 後第一
