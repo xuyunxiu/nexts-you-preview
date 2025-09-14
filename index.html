@@ -161,34 +161,81 @@
     .heartDays{color:var(--danger); font-weight:800}
     .heartDays::before{content:"❤️ ";}
 
-    /* ---------- DM Detail ---------- */
-    #dmDetail .topbar{display:flex; align-items:center; gap:10px; margin:2px 0 10px}
-    #dmDetail .back{width:40px; height:40px; border-radius:12px; border:1px solid var(--line); background:var(--card); cursor:pointer}
-    .dmThread{padding:8px 2px 8px; display:flex; flex-direction:column; gap:8px; height:calc(100vh - 180px); overflow-y:auto}
-    .dmMsg{display:flex}
-    .dmMsg .bubble{max-width:72%; padding:10px 12px; border-radius:14px; position:relative}
-    .dmMsg.left .bubble{background:var(--artist); margin-right:auto}
-    .dmMsg.right .bubble{background:var(--accent); color:#fff; margin-left:auto}
-    .dmMsg .meta{font-size:11px; color:var(--ghost); margin-top:4px}
-    .dmMsg .translate-chip{font-size:10px; opacity:.9; margin-top:4px; cursor:pointer}
-    .read1{display:inline-flex; align-items:center; justify-content:center; min-width:16px; height:16px; font-size:11px; background:#fff; color:var(--accent); border-radius:999px; padding:0 4px; margin-left:6px}
+    /* ---------- DM Detail (clean, merged) ---------- */
+#dmDetail .topbar{
+  display:flex; align-items:center; gap:10px; margin:2px 0 10px;
+}
+#dmDetail .back{
+  width:40px; height:40px; border-radius:12px; border:1px solid var(--line);
+  background:var(--card); cursor:pointer;
+}
 
-    .dmInputBar{display:flex; gap:8px; padding:10px 0; border-top:1px solid var(--line); position:sticky; bottom:0; background:linear-gradient(180deg,rgba(255,255,255,.3),rgba(255,255,255,.95)); backdrop-filter:blur(10px)}
-    .dmInputBar input{flex:1; border:1px solid var(--line); padding:12px; border-radius:14px; background:var(--hover)}
-    .dmInputBar button{min-width:60px; border:none; background:linear-gradient(180deg,var(--accent),var(--accent2)); color:#fff; border-radius:12px; font-weight:900; cursor:pointer}
-    .dmThread{padding:8px 2px 8px; display:flex; flex-direction:column; gap:8px; height:calc(100vh - 180px); overflow-y:auto}
-    .dmMsg{display:flex; flex-direction:column; max-width:78%; margin:6px 0}
-    .dmMsg.left{align-self:flex-start} .dmMsg.right{align-self:flex-end}
-    .dmMsg .bubble{max-width:100%; padding:10px 12px; border-radius:14px}
-    .dmMsg.left .bubble{background:var(--artist)}
-    .dmMsg.right .bubble{background:var(--accent); color:#fff}
-    .dmMsg .translate-chip{margin-top:6px; align-self:flex-start; font-size:12px; background:#eef1ff; border:1px solid var(--line); border-radius:999px; padding:6px 10px; cursor:pointer}
-    .dmMsg.right .translate-chip{background:#fff}
-    .dmMsg .meta{margin-top:6px; font-size:11px; color:var(--ghost); display:flex; gap:8px}
-    .dmMsg.left .meta{justify-content:flex-start} .dmMsg.right .meta{justify-content:flex-end}
-    .read1{display:inline-flex; align-items:center; justify-content:center; min-width:16px; height:16px; font-size:11px; background:#fff; color:var(--accent); border-radius:999px; padding:0 4px}
+/* thread 區塊 */
+.dmThread{
+  padding:8px 2px 8px;
+  display:flex; flex-direction:column; gap:8px;
+  height:calc(100vh - 180px);
+  overflow-y:auto;
+}
 
-    /* ---------- Live List ---------- */
+/* 輸入列 */
+.dmInputBar{
+  display:flex; gap:8px; padding:10px 0; border-top:1px solid var(--line);
+  position:sticky; bottom:0;
+  background:linear-gradient(180deg,rgba(255,255,255,.3),rgba(255,255,255,.95));
+  backdrop-filter:blur(10px);
+}
+.dmInputBar input{
+  flex:1; border:1px solid var(--line); padding:12px; border-radius:14px; background:var(--hover);
+}
+.dmInputBar button{
+  min-width:60px; border:none;
+  background:linear-gradient(180deg,var(--accent),var(--accent2));
+  color:#fff; border-radius:12px; font-weight:900; cursor:pointer;
+}
+
+/* 訊息泡泡 */
+.dmMsg{
+  display:flex; flex-direction:column;
+  max-width:78%;
+  margin:6px 0;
+}
+.dmMsg.left{ align-self:flex-start; }
+.dmMsg.right{ align-self:flex-end; }
+
+.dmMsg .bubble{
+  max-width:100%; padding:10px 12px; border-radius:14px;
+}
+.dmMsg.left .bubble{
+  background:var(--artist);
+}
+.dmMsg.right .bubble{
+  background:var(--accent); color:#fff;
+}
+
+/* 翻譯小籤 */
+.dmMsg .translate-chip{
+  margin-top:6px; align-self:flex-start;
+  font-size:12px; background:#eef1ff; border:1px solid var(--line);
+  border-radius:999px; padding:6px 10px; cursor:pointer;
+}
+.dmMsg.right .translate-chip{ background:#fff; }
+
+/* 時間 / 既讀 */
+.dmMsg .meta{
+  margin-top:6px; font-size:11px; color:var(--ghost);
+  display:flex; gap:8px;
+}
+.dmMsg.left .meta{ justify-content:flex-start; }
+.dmMsg.right .meta{ justify-content:flex-end; }
+
+.read1{
+  display:inline-flex; align-items:center; justify-content:center;
+  min-width:16px; height:16px; font-size:11px;
+  background:#fff; color:var(--accent);
+  border-radius:999px; padding:0 4px; margin-left:6px;
+}
+/* ---------- Live List ---------- */
     #liveList .group{margin:10px 0}
     .liveCard{
       display:flex; align-items:center; gap:12px; padding:12px; border:1px solid var(--line); border-radius:14px; background:var(--card); margin:8px 0; cursor:pointer;
@@ -724,9 +771,7 @@
      * StoryBar / 分類圓圈
      * -----------------------------------*/
     let currentFilter = 'all';
-    <script>
-// ---------- StoryBar ----------
-function buildStorySet(){
+    function buildStorySet(){
   const items = [{ id:'all', name:'ALL', avatar:'https://picsum.photos/60?u=all' }];
   ARTISTS.forEach(a=> items.push({ id:a.id, name:a.name, avatar:a.avatar }));
 
