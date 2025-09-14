@@ -368,7 +368,6 @@
   <section id="dm" class="page">
     <div class="row" style="justify-content:space-between; margin:2px 0 10px">
       <b style="font-weight:900">訊息</b>
-      <span class="ghost" id="dmTips">向右滑返回首頁</span>
     </div>
     <div id="dmListWrap"></div>
     <div id="dmEmpty" class="ghost" style="text-align:center; margin-top:30vh; display:none">尚未與任何藝人開啟聊天 ❤️</div>
@@ -1033,11 +1032,15 @@ function renderStoryBar(){
 
       // 依最後訊息時間排序（最新在前）
       const withTs = DM_ARTISTS.map(a=>{
-        const msgs = dmMessages[a.id] || [];
-        const last = msgs.length? msgs[msgs.length-1].ts : a.lastTs || 0;
-        return {...a, lastTs: last};
-      }).sort((a,b)=> b.lastTs - a.lastTs);
-
+  const msgs = dmMessages[a.id] || [];
+  const last = msgs.length ? msgs[msgs.length-1] : null;
+  return {
+    ...a,
+    lastTs: last ? (last.ts || 0) : (a.lastTs || 0),
+    _lastMsgText: last ? last.text : (a.lastMsg || '')
+  };
+}).sort((a,b)=> b.lastTs - a.lastTs);
+      
       if(withTs.length===0){
         wrap.innerHTML = ''; empty.style.display = 'block'; return;
       }
@@ -1048,7 +1051,7 @@ function renderStoryBar(){
             <img src="${a.avatar}" onerror="imgFallback(this)">
             <div class="meta">
               <b>${a.name}</b>
-              <small class="ghost">${escapeHtml(a.lastMsg || '')}</small>
+              <small class="ghost">${escapeHtml(a._lastMsgText || '')}</small>
             </div>
           </div>
           <div class="dmRight">
@@ -1077,16 +1080,22 @@ function renderStoryBar(){
     }
 
     function renderDmThread(chatId){
-      const box = document.getElementById('dmThread'); box.innerHTML = '';
-      const list = dmMessages[chatId] || [];
-      // Lazy：只顯示最後 50 則
-      const start = Math.max(0, list.length - 50);
-      const slice = list.slice(start);
-      slice.forEach(m=>{
-        const transBoxHtml = showTrans ? `
+  const box = document.getElementById('dmThread'); 
+  box.innerHTML = '';
+
+  const list = dmMessages[chatId] || [];
+  const start = Math.max(0, list.length - 50);
+  const slice = list.slice(start);
+
+  slice.forEach(m=>{
+    const showTrans = LS.getStr(`dmTranslated:${m.id}`,'0') === '1';
+    const timeStr   = new Date(m.ts || Date.now()).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+    const readMark  = (m.from === 'right' && !m.read) ? '1 ' : '';
+
+    const transBoxHtml = showTrans ? `
       <div class="transBox">
         <div class="origin">${escapeHtml(m.text)}</div>
-        <div class="tran">${escapeHtml('（翻譯）'+m.text)}</div>
+        <div class="tran">${escapeHtml('（翻譯）' + m.text)}</div>
         <div class="by">Translated by Papago</div>
       </div>` : '';
 
@@ -1094,12 +1103,13 @@ function renderStoryBar(){
     div.className = `dmMsg ${m.from}`;
     div.innerHTML = `
       <div class="bubble">${escapeHtml(m.text)}</div>
-      <div class="translate-chip" onclick="toggleDmTranslate('${m.id}','${m.text}')">${showTrans?'收合翻譯':'翻譯'}</div>
+      <div class="translate-chip" onclick="toggleDmTranslate('${m.id}')">${showTrans ? '收合翻譯' : '翻譯'}</div>
       ${transBoxHtml}
       <div class="meta">${readMark}${timeStr}</div>
     `;
     box.appendChild(div);
   });
+
   box.scrollTop = box.scrollHeight;
 }
 
