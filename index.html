@@ -167,73 +167,58 @@
     .heartDays{color:var(--danger); font-weight:800}
     .heartDays::before{content:"❤️ ";}
 
-    /* ---------- DM Detail (clean, merged) ---------- */
-#dmDetail .topbar{
-  display:flex; align-items:center; gap:10px; margin:2px 0 10px;
-}
-#dmDetail .back{
-  width:40px; height:40px; border-radius:12px; border:1px solid var(--line);
-  background:var(--card); cursor:pointer;
+/* ---------- DM Detail ---------- */
+#dmDetail .topbar{display:flex;align-items:center;gap:10px;margin:2px 0 10px}
+#dmDetail .back{width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--card);cursor:pointer}
+#dmDetail .topbar .titleWrap{display:flex;align-items:center;gap:8px;font-weight:900;}
+.artistTag{
+  font-size:10px;font-weight:900;letter-spacing:.6px;
+  padding:2px 6px;border-radius:6px;color:#fff;
+  background:linear-gradient(90deg,var(--accent),var(--accent2));
 }
 
 /* thread 區塊 */
-.dmThread{
-  padding:8px 2px 8px;
-  display:flex; flex-direction:column; gap:8px;
-  height:calc(100vh - 180px);
-  overflow-y:auto;
-}
+.dmThread{padding:8px 2px 8px;display:flex;flex-direction:column;gap:8px;height:calc(100vh - 180px);overflow-y:auto}
 
 /* 輸入列 */
-.dmInputBar{
-  display:flex; gap:8px; padding:10px 0; border-top:1px solid var(--line);
-  position:sticky; bottom:0;
-  background:linear-gradient(180deg,rgba(255,255,255,.3),rgba(255,255,255,.95));
-  backdrop-filter:blur(10px);
-}
-.dmInputBar input{
-  flex:1; border:1px solid var(--line); padding:12px; border-radius:14px; background:var(--hover);
-}
-.dmInputBar button{
-  min-width:60px; border:none;
-  background:linear-gradient(180deg,var(--accent),var(--accent2));
-  color:#fff; border-radius:12px; font-weight:900; cursor:pointer;
-}
+.dmInputBar{display:flex;gap:8px;padding:10px 0;border-top:1px solid var(--line);position:sticky;bottom:0;background:linear-gradient(180deg,rgba(255,255,255,.3),rgba(255,255,255,.95));backdrop-filter:blur(10px)}
+.dmInputBar input{flex:1;border:1px solid var(--line);padding:12px;border-radius:14px;background:var(--hover)}
+.dmInputBar button{min-width:60px;border:none;background:linear-gradient(180deg,var(--accent),var(--accent2));color:#fff;border-radius:12px;font-weight:900;cursor:pointer}
 
-/* 訊息泡泡 */
-.dmMsg{
-  display:flex; flex-direction:column;
-  max-width:78%;
-  margin:6px 0;
-}
-.dmMsg.left{ align-self:flex-start; }
-.dmMsg.right{ align-self:flex-end; }
+/* 泡泡 */
+.dmMsg{display:flex;flex-direction:column;max-width:78%;margin:6px 0}
+.dmMsg.left{align-self:flex-start}
+.dmMsg.right{align-self:flex-end}
+.dmMsg .bubble{max-width:100%;padding:10px 12px;border-radius:14px}
+.dmMsg.left .bubble{background:var(--artist)}
+.dmMsg.right .bubble{background:var(--accent);color:#fff}
 
-.dmMsg .bubble{
-  max-width:100%; padding:10px 12px; border-radius:14px;
-}
-.dmMsg.left .bubble{
-  background:var(--artist);
-}
-.dmMsg.right .bubble{
-  background:var(--accent); color:#fff;
-}
+/* 泡泡內翻譯（原文/分隔線/翻譯/byline） */
+.bubble .orig{white-space:pre-wrap;}
+.bubble .transDivider{height:1px;background:var(--line);margin:8px 0}
+.bubble .tran{white-space:pre-wrap;font-weight:800}
+.bubble .by{margin-top:2px;font-size:10px;color:var(--ghost)}
 
-/* 翻譯小籤 */
-.dmMsg .translate-chip{
-  margin-top:6px; align-self:flex-start;
-  font-size:12px; background:#eef1ff; border:1px solid var(--line);
-  border-radius:999px; padding:6px 10px; cursor:pointer;
+/* 「翻譯」按鈕：放在泡泡下方（只給 left 用） */
+.translate-under{
+  display:inline-block;margin-top:6px;font-size:12px;
+  padding:4px 8px;border-radius:999px;border:1px solid var(--line);
+  background:#fff;cursor:pointer;
 }
-.dmMsg.right .translate-chip{ background:#fff; }
+/* 舊版泡泡下方小籤隱藏 */
+.dmMsg .translate-chip{display:none}
 
-/* 時間 / 既讀 */
-.dmMsg .meta{
-  margin-top:6px; font-size:11px; color:var(--ghost);
-  display:flex; gap:8px;
-}
-.dmMsg.left .meta{ justify-content:flex-start; }
-.dmMsg.right .meta{ justify-content:flex-end; }
+/* 側欄（時間 / 1 / 垃圾桶） */
+.dmRow{display:flex;align-items:flex-end;gap:8px}
+.dmMsg.right .dmRow{flex-direction:row-reverse} /* 右訊息：側欄在左、泡泡在右 */
+.dmSide{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:56px}
+.dmTime{font-size:11px;color:var(--ghost)}
+.read1{font-size:12px;color:var(--ghost);font-weight:900;line-height:1}
+
+/* 垃圾桶（粉絲可刪自己訊息） */
+.trash{border:none;background:#fff;border:1px solid var(--line);
+  width:28px;height:28px;border-radius:50%;cursor:pointer}
+.trash:hover{filter:brightness(0.98)}
 
 /* ---------- Live List ---------- */
     #liveList .group{margin:10px 0}
@@ -1142,69 +1127,74 @@ function renderStoryBar(){
   const box = document.getElementById('dmThread');
   box.innerHTML = '';
 
-  // 先套用「藝人有新訊息 → 該時點前我的訊息設為已讀」
+  // 藝人若有新訊息 → 先把該時點前我的訊息設已讀
   markSeenByLatestLeft(chatId);
 
   const list = dmMessages[chatId] || [];
   const start = Math.max(0, list.length - 50);
-  const slice = list.slice(start);
 
-  slice.forEach(m=>{
-    const showTrans = LS.getStr(`dmTranslated:${m.id}`,'0')==='1';
-    const text = showTrans ? `（翻譯）${m.text}` : m.text;
-    const timeStr = new Date(m.ts||Date.now()).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+  list.slice(start).forEach(m=>{
+    const isLeft = (m.from === 'left');
+    const showTrans = isLeft && (LS.getStr(`dmTranslated:${m.id}`,'0') === '1');
+    const timeStr = new Date(m.ts||Date.now()).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
 
-    const side = `
-      <div class="dmSide">
-        ${m.from==='right' && !m.read ? `<div class="read1">1</div>` : `<div style="height:12px"></div>`}
-        <div class="dmTime">${timeStr}</div>
-        <div class="dmTranslate" onclick="toggleDmTranslate('${m.id}')">${showTrans?'收合翻譯':'翻譯'}</div>
-      </div>`;
+    // 泡泡內容
+    let bubbleHTML = `<div class="bubble">`;
+    if(showTrans){
+      bubbleHTML += `
+        <div class="orig">${escapeHtml(m.text)}</div>
+        <div class="transDivider"></div>
+        <div class="tran">${escapeHtml('（翻譯）' + m.text)}</div>
+        <div class="by">Translated by Papago</div>
+      `;
+    }else{
+      bubbleHTML += `${escapeHtml(m.text)}`;
+    }
+    bubbleHTML += `</div>`;
 
-    const div = document.createElement('div');
-    div.className = `dmMsg ${m.from}`;
-    div.innerHTML = `
-      <div class="dmRow">
-        ${side}
-        <div class="bubble">${escapeHtml(text)}</div>
-      </div>`;
-    box.appendChild(div);
+    // 側欄
+    let sideBits = `<span class="dmTime">${timeStr}</span>`;
+    if(m.from === 'right'){
+      const unread1 = !m.read ? `<span class="read1">1</span>` : '';
+      const trash = `<button class="trash" title="刪除" onclick="deleteMsg('${m.id}')">🗑️</button>`;
+      sideBits = `${trash}${unread1}<span class="dmTime">${timeStr}</span>`;
+    }
+    const sideHTML = `<div class="dmSide">${sideBits}</div>`;
+
+    // left 的「翻譯」按鈕（泡泡下方）
+    const transBtnHTML = isLeft
+      ? `<div class="translate-under" onclick="toggleDmTranslate('${m.id}')">${showTrans?'收合翻譯':'翻譯'}</div>`
+      : '';
+
+    const wrap = document.createElement('div');
+    wrap.className = `dmMsg ${m.from}`;
+    wrap.innerHTML = `<div class="dmRow">${bubbleHTML}${sideHTML}</div>${transBtnHTML}`;
+    box.appendChild(wrap);
   });
 
   box.scrollTop = box.scrollHeight;
 }
 
-    function toggleDmTranslate(msgId){
+function toggleDmTranslate(msgId){
   const k = `dmTranslated:${msgId}`;
-  LS.setStr(k, LS.getStr(k,'0')==='1' ? '0' : '1');
+  const now = LS.getStr(k,'0') === '1';
+  LS.setStr(k, now ? '0' : '1');
   if(currentChat) renderDmThread(currentChat);
 }
 
-    document.getElementById('dmSendBtn').addEventListener('click', ()=>{
-      const input = document.getElementById('dmMessageInput');
-      const message = input.value.trim(); if(!message) return;
-      const arr = dmMessages[currentChat] || (dmMessages[currentChat]=[]);
-      arr.push({id:'x'+Date.now(), from:'right', text:message, ts:Date.now(), translated:false, read:false});
-      input.value='';
-      renderDmThread(currentChat);
-      // 更新列表排序
-      renderDMList();
-      
-    });
-
-// 只要藝人有新訊息 => 將該時間點之前的我方訊息視為已讀
-function markSeenByLatestLeft(chatId){
-  const list = dmMessages[chatId] || [];
-  // 找出此聊天室「最新」的左側訊息時間
-  let lastLeftTs = 0;
-  for(const m of list){
-    if(m.from === 'left') lastLeftTs = Math.max(lastLeftTs, m.ts || 0);
-  }
-  // 將 <= 該時間 的右側訊息標記為已讀
-  for(const m of list){
-    if(m.from === 'right' && !m.read && (m.ts || 0) <= lastLeftTs){
-      m.read = true;
+    function deleteMsg(msgId){
+  const arr = dmMessages[currentChat] || [];
+  const idx = arr.findIndex(x => x.id === msgId && x.from === 'right');
+  if(idx > -1){
+    arr.splice(idx,1);
+    // 更新 DM 列表預覽文字
+    const artist = DM_ARTISTS.find(a=>a.id===currentChat);
+    if(artist){
+      const last = arr[arr.length-1];
+      artist.lastMsg = last ? last.text : '（無訊息）';
     }
+    renderDmThread(currentChat);
+    renderDMList();
   }
 }
       
