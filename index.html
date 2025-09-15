@@ -795,7 +795,7 @@
       document.getElementById('heartDays').textContent = h;
       DM_ARTISTS.forEach(a=>{ if(a.subscribed) a.heartDays = h; });
       renderDMList();
-      alert(`成功購買 ${days} 天 ❤️`);
+      alert(`成功購買 ${days} 天 ♡`);
       renderDMList();
     }
     function chargeWallet(){
@@ -1095,6 +1095,7 @@
       renderDMList();
       renderDmThread(chatId);
       showPage('dmDetail');
+      setTimeout(()=> document.getElementById('dmMessageInput')?.focus(), 50);
     }
     function markSeenByLatestLeft(chatId){
       const arr = dmMessages[chatId] || [];
@@ -1177,6 +1178,35 @@ bubbleHTML += `</div>`;
         renderDMList();
       }
     }
+
+    function sendDm(){
+  if(!currentChat) return;                           // 還沒開任何聊天
+  const inp = document.getElementById('dmMessageInput');
+  const t = (inp.value || '').trim();
+  if(!t) return;
+
+  const arr = dmMessages[currentChat] || (dmMessages[currentChat] = []);
+  const msg = {
+    id: 'u' + Date.now(),
+    from: 'right',
+    text: t,
+    ts: Date.now(),
+    translated: false,
+    read: false
+  };
+  arr.push(msg);
+
+  // 更新列表上的最後一則訊息與排序依據
+  const artist = DM_ARTISTS.find(a => a.id === currentChat);
+  if (artist){
+    artist.lastMsg = t;
+    artist.lastTs  = msg.ts;
+  }
+
+  inp.value = '';
+  renderDmThread(currentChat);   // 重新渲染聊天室
+  renderDMList();                // 重新渲染 DM 清單（讓預覽/排序更新）
+}
 
 function isSubscribed(artistId){
   const groupDays = parseInt(LS.getStr('heartDaysGroup','0'), 10) || 0;           // 全團
@@ -1550,6 +1580,12 @@ function showLiveEndedScene(host, avatar){
       checkBirthday();
       installHomeScrollAutoHide();
       installLiveSwipeToExit();
+      document.getElementById('dmSendBtn').addEventListener('click', sendDm);
+document.getElementById('dmMessageInput').addEventListener('keydown', function(e){
+  if(e.key === 'Enter' && !e.shiftKey){
+    e.preventDefault();
+    sendDm();
+  }
     });
   </script>
 </body>
