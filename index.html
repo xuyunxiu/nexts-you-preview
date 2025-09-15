@@ -295,22 +295,21 @@
     #miniProfile .hdr img{width:56px; height:56px; border-radius:50%; border:1px solid var(--line); object-fit:cover}
     #miniProfile .actions{display:flex; justify-content:flex-end; gap:8px; margin-top:12px}
     #miniProfile .actions button{border:none; background:var(--hover); border:1px solid var(--line); padding:8px 12px; border-radius:10px; cursor:pointer}
-  .verified-badge{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  width:18px; 
-  height:18px;
-  border-radius:50%;
-  background: conic-gradient(from 180deg, #8a2be2, #4169e1, #ffffff, #8a2be2);
-  box-shadow: 0 0 4px rgba(0,0,0,0.15);
-  margin-left:6px;
-}
 
-.verified-badge svg{
-  width:12px;
-  height:12px;
-  color:#fff;   /* 勾勾顏色固定白色，對比清楚 */
+ /* 齒輪版 Verified 徽章（藍紫＋一咪咪白） */
+.verified-badge{
+  display:inline-block;
+  width:18px; height:18px;         /* 想變大改這裡（以及 VB(size)） */
+  margin-left:6px; vertical-align:middle;
+}
+.verified-badge svg{width:100%; height:100%; display:block}
+.verified-badge .gear{
+  stroke:#fff; stroke-width:.9;     /* 白色細描邊，背景上更清楚 */
+  filter:drop-shadow(0 1px 2px rgba(0,0,0,.25));
+}
+.verified-badge .tick{
+  fill:#fff;                        /* 勾勾顏色：白。如果要深藍，改成 #0a1b4f */
+  filter:drop-shadow(0 1px 0 rgba(0,0,0,.18));
 }
   </style>
 </head>
@@ -1260,9 +1259,25 @@ function doDmTranslate(msgId){
     }
 
     function VB(size=18){
-  return `<span class="verified-badge" aria-label="Verified" title="Verified" style="width:${size}px;height:${size}px">
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <path fill="#fff" d="M9 16.2 5.6 12.8a1.2 1.2 0 1 1 1.7-1.7L9.4 13l4.9-4.9a1.2 1.2 0 1 1 1.7 1.7l-6.1 6.1a1.2 1.2 0 0 1-1.7 0z"/>
+  return `
+  <span class="verified-badge" style="width:${size}px;height:${size}px">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <defs>
+        <!-- 藍 → 紫 → 最後一咪咪白 -->
+        <linearGradient id="vbGrad" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%"   stop-color="#6fb3ff"/>
+          <stop offset="58%"  stop-color="#7b6dff"/>
+          <stop offset="92%"  stop-color="#ffffff"/>
+          <stop offset="100%" stop-color="#e9ecff"/>
+        </linearGradient>
+      </defs>
+
+      <!-- 齒輪外框（12 齒），填充藍紫白漸層 -->
+      <path class="gear" fill="url(#vbGrad)" d="
+        M12 2.3 14 4l2.9-.6.9 2.7 2.7.9-.6 2.9L22 12l-2.1 2.1.6 2.9-2.7.9-.9 2.7-2.9-.6L12 21.7 10 20l-2.9.6-.9-2.7-2.7-.9.6-2.9L2 12l2.1-2.1-.6-2.9 2.7-.9.9-2.7L10 4l2-1.7z"/>
+
+      <!-- 勾勾 -->
+      <path class="tick" d="M10.4 12.8 8.7 11.2l1.1-1.1 1.2 1.2 3-3 1.1 1.1-3.8 3.8a1 1 0 0 1-1.4 0z"/>
     </svg>
   </span>`;
 }
