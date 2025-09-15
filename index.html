@@ -373,6 +373,16 @@
   font-size:18px; pointer-events:none; opacity:0; transform:translateY(10px);
   animation:floatUp 1.2s ease forwards;
 }
+
+/* 心心飛出（配合 JS 計算位置） */
+.flying-heart{
+  position:fixed;
+  z-index:50;
+  font-size:18px;
+  pointer-events:none;
+  animation:floatUp 1.2s ease forwards;
+}
+    
 @keyframes floatUp{
   0%{ opacity:0; transform:translateY(10px) scale(.9) }
   10%{ opacity:1 }
