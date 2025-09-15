@@ -1373,6 +1373,73 @@ function installLiveSwipeToExit(){
 
   el.addEventListener('touchend', ()=> dragging=false, {passive:true});
 }
+
+    function renderLivePage(){
+  const ongoingBox = document.getElementById('liveOngoing');
+  const replayBox = document.getElementById('liveReplay');
+  const emptyTip = document.getElementById('liveEmptyTip');
+
+  // 先清空
+  ongoingBox.innerHTML = '';
+  replayBox.innerHTML = '';
+  emptyTip.style.display = 'none';
+
+  const ongoing = LIVE_DATA.active || [];
+  const replay = LIVE_DATA.ended || [];
+
+  if(ongoing.length === 0 && replay.length === 0){
+    // 🚩 1. 完全沒直播過
+    emptyTip.style.display = 'block';
+    emptyTip.textContent = '還未有藝人開始直播\n敬請期待';
+  }else{
+    // 🚩 2. 有正在進行的
+    if(ongoing.length > 0){
+      ongoing.forEach(live=>{
+        const item = document.createElement('div');
+        item.className = 'liveOngoingItem';
+        item.textContent = `🔥 ${live.title} (${live.host})`;
+        item.onclick = ()=>openLive(live.id);
+        ongoingBox.appendChild(item);
+      });
+    }
+
+    // 🚩 3. 有結束的 → 顯示重播清單
+    if(replay.length > 0){
+      const sortBar = document.createElement('div');
+      sortBar.className = 'liveSortBar';
+      sortBar.innerHTML = `
+        <button onclick="sortReplay('new')">最新優先</button>
+        <button onclick="sortReplay('old')">最舊優先</button>
+      `;
+      replayBox.appendChild(sortBar);
+
+      replay.forEach(live=>{
+        const item = document.createElement('div');
+        item.className = 'liveReplayItem';
+        item.innerHTML = `
+          <div class="thumb">🎬</div>
+          <div class="meta">
+            <div class="title">${live.title}</div>
+            <div class="host">${live.host}</div>
+            <div class="time">${live.date}</div>
+          </div>
+        `;
+        item.onclick = ()=>openLive(live.id);
+        replayBox.appendChild(item);
+      });
+    }
+  }
+}
+
+// 排序方法
+function sortReplay(mode){
+  if(mode==='new'){
+    LIVE_DATA.ended.sort((a,b)=> new Date(b.date) - new Date(a.date));
+  }else{
+    LIVE_DATA.ended.sort((a,b)=> new Date(a.date) - new Date(b.date));
+  }
+  renderLivePage(); // 重新渲染
+}
     
     let replayTimer = null;
     let replayMsgs = [];
@@ -1587,6 +1654,7 @@ document.getElementById('dmMessageInput').addEventListener('keydown', function(e
     sendDm();
   }
     });
+  });
   </script>
 </body>
 </html>
