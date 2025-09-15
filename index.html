@@ -174,20 +174,27 @@
 #dmDetail .topbar{display:flex;align-items:center;gap:10px;margin:2px 0 10px}
 #dmDetail .back{width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--card);cursor:pointer}
 
+/* 讓標題區上下堆疊：徽章在上、名字在下 */
 #dmDetail .topbar .titleWrap{
-  display:flex;
-  flex-direction:column;
-  align-items:flex-start;
-  gap:4px;
-  line-height:1.15;
+  display:flex; flex-direction:column; align-items:flex-start;
+  gap:4px; line-height:1.12;
 }
+
+/* ARTIST 徽章（紫藍白漸層、圓角膠囊） */
 .artistTag{
-  display:inline-block;
-  padding:2px 6px;
-  border-radius:6px;
-  font-size:10px;
-  font-weight:900;
-  letter-spacing:.6px;
+  display:inline-flex; align-items:center; justify-content:center;
+  padding:3px 8px;
+  height:18px;
+  border-radius:8px;
+  font-size:10px; font-weight:900; letter-spacing:.7px;
+  text-transform:uppercase;
+  color:#2e2a6f;                           /* 深紫字色 */
+  background: linear-gradient(90deg,       /* 紫→藍→白 */
+              #cbb9ff 0%,
+              #8fb4ff 62%,
+              #ffffff 100%);
+  border:1px solid #ded6ff;
+  box-shadow: 0 2px 8px rgba(106,90,205,.20);
 }
 .dmThread{padding:8px 2px 8px;display:flex;flex-direction:column;gap:8px;height:calc(100vh - 180px);overflow-y:auto}
 
@@ -221,22 +228,22 @@
 .trash{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;padding:0;border-radius:999px;border:1px solid var(--line);background:#fff;cursor:pointer}
 .trash svg{width:14px;height:14px;opacity:.55}
 
-/* 翻譯按鈕在氣泡內且換新行 */
+/* 翻譯按鈕在氣泡內，樣式像截圖 */
 .bubble .translate-in{
-  display:flex;              /* 一定換到新的一行 */
-  width:fit-content;
+  display:inline-flex;            /* 讓按鈕自身是小膠囊 */
   align-items:center;
   gap:6px;
   margin-top:8px;
   font-size:12px;
-  padding:4px 8px;
+  padding:4px 10px;
   border-radius:999px;
-  border:1px solid var(--line);
-  background:#fff;
-  color:var(--sub);
+  border:1px solid #e3e6ef;
+  background:#f1f3f6;
+  color:#6f7a94;
   cursor:pointer;
+  user-select:none;
 }
-.bubble .translate-in svg{width:14px;height:14px;opacity:.65}
+.bubble .translate-in svg{ width:14px; height:14px; opacity:.7 }
 
     /* ---------- Live / Replay / Profile / MiniProfile ---------- */
     #liveList .group{margin:10px 0}
@@ -991,28 +998,30 @@
     const showTrans = isLeft && (LS.getStr(`dmTranslated:${m.id}`,'0') === '1');
     const timeStr   = new Date(m.ts||Date.now()).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
 
-    // ===== 氣泡內容：原文／譯文上下排 =====
-    let bubbleHTML = `<div class="bubble">`;
-    if (showTrans) {
-      bubbleHTML += `
-        <div class="orig">${escapeHtml(m.text)}</div>
-        <div class="transDivider"></div>
-        <div class="tran">${escapeHtml(m.text)}</div>
-        <div class="by">Translated by Papago</div>
-      `;
-      // ※ 這裡不再顯示任何「收合」按鈕
-    } else {
-      bubbleHTML += `
-        <div class="orig">${escapeHtml(m.text)}</div>
-        ${isLeft ? `
-          <div class="translate-in" onclick="doDmTranslate('${m.id}')">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M3 4h18v2H3V4zm8 4h2v2h-2V8zm-6 0h4v2H5V8zm0 4h14v2H5v-2zm0 4h10v2H5v-2z" fill="currentColor"/>
-            </svg> 翻譯
-          </div>` : '' }
-      `;
-    }
-    bubbleHTML += `</div>`;
+   // ===== 氣泡內容（保留原文 + 譯文；不提供收合） =====
+let bubbleHTML = `<div class="bubble">`;
+
+if (showTrans) {
+  // 需要：原文 → 分隔線 → 譯文 → 「Translated by Papago」
+  bubbleHTML += `
+    <div class="orig">${escapeHtml(m.text)}</div>
+    <div class="transDivider"></div>
+    <div class="tran">${escapeHtml(m.text /* 這裡可換成真正的翻譯結果 m.trans */)}</div>
+    <div class="by">Translated by Papago</div>
+  `;
+} else {
+  // 未翻譯：只顯示原文 + 底部的小翻譯鈕
+  bubbleHTML += `
+    <div class="orig">${escapeHtml(m.text)}</div>
+    <div class="translate-in" onclick="doDmTranslate('${m.id}')">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M3 4h18v2H3V4zm8 4h2v2h-2V8zm-6 0h4v2H5V8zm0 4h14v2H5v-2zm0 4h10v2H5v-2z" fill="currentColor"/>
+      </svg>
+      Translate
+    </div>
+  `;
+}
+bubbleHTML += `</div>`;
 
     // ===== 右側側欄（時間／未讀 1／垃圾桶） =====
     let topRow = '';
