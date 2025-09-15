@@ -170,74 +170,54 @@
     .heartDays{color:var(--danger); font-weight:800}
     .heartDays::before{content:"❤️ ";}
 
-    /* ---------- DM Detail ---------- */
+/* ---------- DM Detail ---------- */
+#dmDetail .topbar{display:flex;align-items:center;gap:10px;margin:2px 0 10px}
+#dmDetail .back{width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--card);cursor:pointer}
+
 #dmDetail .topbar .titleWrap{
-  display:flex;
-  flex-direction: column;     /* 直向排 */
-  align-items: flex-start;    /* 從左對齊 */
-  gap: 4px;                   /* 徽章與名字距離 */
-  line-height: 1.15;
+  display:flex; flex-direction:column; align-items:flex-start; gap:4px; line-height:1.15;
 }
+.artistTag{display:inline-block;padding:2px 6px;border-radius:6px;font-size:10px;font-weight:900;letter-spacing:.6px;}
 
-/* 讓徽章更像「標題上方小標」 */
-.artistTag{
-  display:inline-block;
-  padding:2px 6px;
-  border-radius:6px;
-  font-size:10px;
-  font-weight:900;
-  letter-spacing:.6px;
+.dmThread{padding:8px 2px 8px;display:flex;flex-direction:column;gap:8px;height:calc(100vh - 180px);overflow-y:auto}
+
+.dmInputBar{
+  display:flex; gap:8px; padding:10px 0; border-top:1px solid var(--line);
+  position:sticky; bottom:0;
+  background:linear-gradient(180deg,rgba(255,255,255,.3),rgba(255,255,255,.95));
+  backdrop-filter:blur(10px);
 }
-    .dmMsg{display:flex;flex-direction:column;max-width:78%;margin:6px 0}
-    .dmMsg.left{align-self:flex-start}
-    .dmMsg.right{align-self:flex-end}
-    .dmMsg .bubble{max-width:100%;padding:10px 12px;border-radius:14px}
-    .dmMsg.left .bubble{background:var(--artist)}
-    .dmMsg.right .bubble{background:var(--accent);color:#fff}
-    .bubble .orig{white-space:pre-wrap;}
-    .bubble .transDivider{height:1px;background:var(--line);margin:8px 0}
-    .bubble .tran{white-space:pre-wrap;font-weight:800}
-    .bubble .by{margin-top:2px;font-size:10px;color:var(--ghost)}
-    
-    .dmMsg .translate-chip{display:none}
-    .dmRow{display:flex;align-items:flex-end;gap:8px}
-    .dmMsg.right .dmRow{flex-direction:row-reverse}
-    .dmTime{font-size:11px;color:var(--ghost)}
-    
-    /* 右側訊息側欄：上=1；下=垃圾桶＋時間（同一列） */
-.dmSide{
-  display:flex; flex-direction:column; align-items:flex-end;
-  gap:4px; min-width:56px;
-}
-.dmSideRow{ display:flex; align-items:center; gap:8px; }
+.dmInputBar input{flex:1;border:1px solid var(--line);padding:12px;border-radius:14px;background:var(--hover)}
+.dmInputBar button{min-width:60px;border:none;background:linear-gradient(180deg,var(--accent),var(--accent2));color:#fff;border-radius:12px;font-weight:900;cursor:pointer}
 
-/* 1 的樣式（已送出未讀） */
-.read1{ font-size:12px; color:var(--ghost); font-weight:900; line-height:1; }
+.dmMsg{display:flex;flex-direction:column;max-width:78%;margin:6px 0}
+.dmMsg.left{align-self:flex-start}
+.dmMsg.right{align-self:flex-end}
+.dmMsg .bubble{max-width:100%;padding:10px 12px;border-radius:14px}
+.dmMsg.left .bubble{background:var(--artist)}
+.dmMsg.right .bubble{background:var(--accent);color:#fff}
+.bubble .orig{white-space:pre-wrap;}
+.bubble .transDivider{height:1px;background:var(--line);margin:8px 0}
+.bubble .tran{white-space:pre-wrap;font-weight:800}
+.bubble .by{margin-top:2px;font-size:10px;color:var(--ghost)}
 
-/* 垃圾桶按鈕 */
-.trash{
-  display:inline-flex; align-items:center; justify-content:center;
-  width:24px; height:24px; padding:0;
-  border-radius:999px; border:1px solid var(--line); background:#fff; cursor:pointer;
-}
-.trash svg{ width:14px; height:14px; opacity:.55; }
+.dmRow{display:flex;align-items:flex-end;gap:8px}
+.dmMsg.right .dmRow{flex-direction:row-reverse}
+.dmTime{font-size:11px;color:var(--ghost)}
 
-/* 翻譯按鈕：放在氣泡裡 */
+.dmSide{display:flex;flex-direction:column;align-items:flex-end;gap:4px;min-width:56px}
+.dmSideRow{display:flex;align-items:center;gap:8px}
+.read1{font-size:12px;color:var(--ghost);font-weight:900;line-height:1}
+.trash{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;padding:0;border-radius:999px;border:1px solid var(--line);background:#fff;cursor:pointer}
+.trash svg{width:14px;height:14px;opacity:.55}
+
+/* 翻譯按鈕在氣泡內且換新行 */
 .bubble .translate-in{
-  display:flex;            /* 區塊級：一定換到新的一行 */
-  width:fit-content;       /* 讓膠囊不撐滿整列（可留可不留） */
-  align-items:center;
-  gap:6px;
-  margin-top:8px;
-  font-size:12px;
-  padding:4px 8px;
-  border-radius:999px;
-  border:1px solid var(--line);
-  background:#fff;
-  color:var(--sub);
-  cursor:pointer;
+  display:inline-flex; width:fit-content; align-items:center; gap:6px;
+  margin-top:8px; font-size:12px; padding:4px 8px;
+  border-radius:999px; border:1px solid var(--line); background:#fff; color:var(--sub); cursor:pointer;
 }
-.bubble .translate-in svg{ width:14px; height:14px; opacity:.65; }
+.bubble .translate-in svg{width:14px;height:14px;opacity:.65}
 
     /* ---------- Live / Replay / Profile / MiniProfile ---------- */
     #liveList .group{margin:10px 0}
