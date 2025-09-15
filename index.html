@@ -194,37 +194,38 @@
     .bubble .transDivider{height:1px;background:var(--line);margin:8px 0}
     .bubble .tran{white-space:pre-wrap;font-weight:800}
     .bubble .by{margin-top:2px;font-size:10px;color:var(--ghost)}
-    .translate-under{
-      display:inline-block;margin-top:6px;font-size:12px;
-      padding:4px 8px;border-radius:999px;border:1px solid var(--line);
-      background:#fff;cursor:pointer;
-    }
+    
     .dmMsg .translate-chip{display:none}
     .dmRow{display:flex;align-items:flex-end;gap:8px}
     .dmMsg.right .dmRow{flex-direction:row-reverse}
     .dmTime{font-size:11px;color:var(--ghost)}
     
-    /* 右側訊息的側欄：上排=垃圾桶+1（橫排），下排=時間 */
+    /* 右側訊息側欄：上=1；下=垃圾桶＋時間（同一列） */
 .dmSide{
   display:flex; flex-direction:column; align-items:flex-end;
-  gap:4px; min-width:48px;
+  gap:4px; min-width:56px;
 }
-.dmSideTop{ display:flex; align-items:center; gap:6px; }
+.dmSideRow{ display:flex; align-items:center; gap:8px; }
 
 /* 1 的樣式（已送出未讀） */
-.read1{
-  font-size:12px; color:var(--ghost);
-  font-weight:900; line-height:1;
-}
+.read1{ font-size:12px; color:var(--ghost); font-weight:900; line-height:1; }
 
-/* 垃圾桶改用小圓鈕 + SVG，不要 emoji 放大 */
+/* 垃圾桶按鈕 */
 .trash{
   display:inline-flex; align-items:center; justify-content:center;
   width:24px; height:24px; padding:0;
-  border-radius:999px; border:1px solid var(--line); background:#fff;
-  cursor:pointer;
+  border-radius:999px; border:1px solid var(--line); background:#fff; cursor:pointer;
 }
 .trash svg{ width:14px; height:14px; opacity:.55; }
+
+/* 翻譯按鈕：放在氣泡裡 */
+.bubble .translate-in{
+  display:inline-flex; align-items:center; gap:6px;
+  margin-top:8px; font-size:12px; padding:4px 8px;
+  border-radius:999px; border:1px solid var(--line);
+  background:#fff; color:var(--sub); cursor:pointer;
+}
+.bubble .translate-in svg{ width:14px; height:14px; opacity:.65; }
 
     /* ---------- Live / Replay / Profile / MiniProfile ---------- */
     #liveList .group{margin:10px 0}
@@ -960,44 +961,57 @@
       const start = Math.max(0, list.length - 50);
 
       list.slice(start).forEach(m=>{
-        const isLeft = (m.from === 'left');
-        const showTrans = isLeft && (LS.getStr(`dmTranslated:${m.id}`,'0') === '1');
-        const timeStr = new Date(m.ts||Date.now()).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+  const isLeft = (m.from === 'left');
+  const showTrans = isLeft && (LS.getStr(`dmTranslated:${m.id}`,'0') === '1');
+  const timeStr = new Date(m.ts||Date.now()).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
 
-        let bubbleHTML = `<div class="bubble">`;
-        if(showTrans){
-          bubbleHTML += `
-            <div class="orig">${escapeHtml(m.text)}</div>
-            <div class="transDivider"></div>
-            <div class="tran">${escapeHtml('（翻譯）' + m.text)}</div>
-            <div class="by">Translated by Papago</div>
-          `;
-        }else{
-          bubbleHTML += `${escapeHtml(m.text)}`;
-        }
-        bubbleHTML += `</div>`;
+  // ===== 氣泡內容 =====
+  let bubbleHTML = `<div class="bubble">`;
+  if(showTrans){
+    bubbleHTML += `
+      <div class="orig">${escapeHtml(m.text)}</div>
+      <div class="transDivider"></div>
+      <div class="tran">${escapeHtml('（翻譯）' + m.text)}</div>
+      <div class="by">Translated by Papago</div>
+    `;
+  }else{
+    bubbleHTML += `${escapeHtml(m.text)}`;
+  }
+  // 翻譯按鈕放進氣泡（只給左側訊息）
+  if(isLeft){
+    bubbleHTML += `
+      <div class="translate-in" onclick="toggleDmTranslate('${m.id}')">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M3 4h18v2H3V4zm8 4h2v2h-2V8zm-6 0h4v2H5V8zm0 4h14v2H5v-2zm0 4h10v2H5v-2z" fill="currentColor"/>
+        </svg> ${showTrans ? '收合翻譯' : '翻譯'}
+      </div>`;
+  }
+  bubbleHTML += `</div>`;
 
-        let sideBits = `<span class="dmTime">${timeStr}</span>`;
-if (m.from === 'right') {
-  const unread1 = !m.read ? `<span class="read1">1</span>` : '';
-  const trash = `
-    <button class="trash" title="刪除" onclick="deleteMsg('${m.id}')">
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M9 3h6l1 2h4v2H4V5h4l1-2zm1 6h2v8h-2V9zm4 0h2v8h-2V9z" fill="currentColor"/>
-      </svg>
-    </button>`;
-  sideBits = `<div class="dmSideTop">${trash}${unread1}</div><span class="dmTime">${timeStr}</span>`;
+  // ===== 右側側欄：上=1；下=垃圾桶＋時間同一列 =====
+  let topRow = '';
+  let bottomRow = `<span class="dmTime">${timeStr}</span>`;
+  if(m.from === 'right'){
+    const unread1 = !m.read ? `<span class="read1">1</span>` : '';
+    const trash = `
+      <button class="trash" title="刪除" onclick="deleteMsg('${m.id}')">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M9 3h6l1 2h4v2H4V5h4l1-2zm1 6h2v8h-2V9zm4 0h2v8h-2V9z" fill="currentColor"/>
+        </svg>
+      </button>`;
+    topRow = unread1;
+    bottomRow = `${trash}${bottomRow}`;   // 垃圾桶 + 時間「同一列」
+  }
+  const sideHTML = `<div class="dmSide">${topRow ? topRow : ''}<div class="dmSideRow">${bottomRow}</div></div>`;
+
+  // ===== 組合 =====
+  const wrap = document.createElement('div');
+  wrap.className = `dmMsg ${m.from}`;
+  wrap.innerHTML = `<div class="dmRow">${bubbleHTML}${sideHTML}</div>`;
+  box.appendChild(wrap);
+});
+        box.scrollTop = box.scrollHeight;
 }
-const sideHTML = `<div class="dmSide">${sideBits}</div>`;
-const transBtnHTML = isLeft ? `<div class="translate-under" onclick="toggleDmTranslate('${m.id}')">${showTrans?'收合翻譯':'翻譯'}</div>` : '';
-
-const wrap = document.createElement('div');
-wrap.className = `dmMsg ${m.from}`;
-wrap.innerHTML = `<div class="dmRow">${bubbleHTML}${sideHTML}</div>${transBtnHTML}`;
-box.appendChild(wrap);
-      });
-      box.scrollTop = box.scrollHeight;
-    }
     function toggleDmTranslate(msgId){
       const k = `dmTranslated:${msgId}`;
       const now = LS.getStr(k,'0') === '1';
