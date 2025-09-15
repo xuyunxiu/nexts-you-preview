@@ -175,10 +175,20 @@
 #dmDetail .back{width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--card);cursor:pointer}
 
 #dmDetail .topbar .titleWrap{
-  display:flex; flex-direction:column; align-items:flex-start; gap:4px; line-height:1.15;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  gap:4px;
+  line-height:1.15;
 }
-.artistTag{display:inline-block;padding:2px 6px;border-radius:6px;font-size:10px;font-weight:900;letter-spacing:.6px;}
-
+.artistTag{
+  display:inline-block;
+  padding:2px 6px;
+  border-radius:6px;
+  font-size:10px;
+  font-weight:900;
+  letter-spacing:.6px;
+}
 .dmThread{padding:8px 2px 8px;display:flex;flex-direction:column;gap:8px;height:calc(100vh - 180px);overflow-y:auto}
 
 .dmInputBar{
@@ -972,17 +982,24 @@
   const showTrans = isLeft && (LS.getStr(`dmTranslated:${m.id}`,'0') === '1');
   const timeStr = new Date(m.ts||Date.now()).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
 
-  // ===== 氣泡內容 =====
-  let bubbleHTML = `<div class="bubble">`;
-  if(showTrans){
-    bubbleHTML += `
-      <div class="orig">${escapeHtml(m.text)}</div>
-      <div class="transDivider"></div>
-      <div class="tran">${escapeHtml('（翻譯）' + m.text)}</div>
-      <div class="by">Translated by Papago</div>
-    `;
-  }else{
-    bubbleHTML += `${escapeHtml(m.text)}`;
+// 氣泡內容
+let bubbleHTML = `<div class="bubble">`;
+if (showTrans) {
+  bubbleHTML += `
+    <div class="tran">${escapeHtml(m.text)}</div>
+    <div class="by">Translated by Papago</div>
+  `;
+} else {
+  bubbleHTML += `${escapeHtml(m.text)}
+    ${isLeft ? `
+      <div class="translate-in" onclick="doDmTranslate('${m.id}')">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M3 4h18v2H3V4zm8 4h2v2h-2V8zm-6 0h4v2H5V8zm0 4h14v2H5v-2zm0 4h10v2H5v-2z" fill="currentColor"/>
+        </svg> 翻譯
+      </div>` : '' }
+  `;
+}
+bubbleHTML += `</div>`;
   }
   // 翻譯按鈕放進氣泡（只給左側訊息）
   if(isLeft){
@@ -1055,6 +1072,14 @@ function VB(size=18){
   </span>`;
 }
 
+function doDmTranslate(msgId){
+  const k = `dmTranslated:${msgId}`;
+  if (LS.getStr(k,'0') !== '1') {
+    LS.setStr(k,'1');            // 只往「已翻譯」設定，不再切回
+    if(currentChat) renderDmThread(currentChat);
+  }
+}
+    
     /* Live */
     const LIVE_DATA = {
       active: [{id:'L1', host:'Annie',  title:'Annie Live',  thumb:'https://picsum.photos/300/180?live1'}],
