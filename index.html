@@ -335,7 +335,9 @@
       <b style="font-weight:900">訊息</b>
     </div>
     <div id="dmListWrap"></div>
-    <div id="dmEmpty" class="ghost" style="text-align:center; margin-top:30vh; display:none">尚未與任何藝人開啟聊天 ❤️</div>
+    <div id="dmEmpty" class="ghost" style="text-align:center; margin-top:30vh; display:none">
+  還未添加任何好友<br>請去添加好友
+</div>
   </section>
 
   <!-- ============================ DM DETAIL ============================ -->
@@ -652,6 +654,7 @@
       DM_ARTISTS.forEach(a=>{ if(a.subscribed) a.heartDays = h; });
       renderDMList();
       alert(`成功購買 ${days} 天 ❤️`);
+      renderDMList();
     }
     function chargeWallet(){
       let b = parseInt(LS.getStr('walletBalance','0'),10);
@@ -900,36 +903,48 @@
     /* ===== DM ===== */
     let currentChat = null;
     function renderDMList(){
-      const wrap = document.getElementById('dmListWrap');
-      const empty = document.getElementById('dmEmpty');
-      const days = parseInt(LS.getStr('heartDays','0'),10);
-      DM_ARTISTS.forEach(a=>{ if(a.subscribed) a.heartDays = days; });
+  const wrap  = document.getElementById('dmListWrap');
+  const empty = document.getElementById('dmEmpty');
 
-      const withTs = DM_ARTISTS.map(a=>{
-        const msgs = dmMessages[a.id] || [];
-        const last = msgs.length ? msgs[msgs.length-1] : null;
-        return {...a, lastTs: last ? (last.ts || 0) : (a.lastTs || 0), _lastMsgText: last ? last.text : (a.lastMsg || '')};
-      }).sort((a,b)=> b.lastTs - a.lastTs);
-      
-      if(withTs.length===0){ wrap.innerHTML = ''; empty.style.display = 'block'; return; }
-      empty.style.display = 'none';
-      wrap.innerHTML = withTs.map(a=>`
-        <div class="dmCard" onclick="openDm('${a.id}')">
-          <div class="left">
-            <img src="${a.avatar}" onerror="imgFallback(this)">
-            <div class="meta">
-              <b>${a.name}</b>
-              <small class="ghost">${escapeHtml(a._lastMsgText || '')}</small>
-            </div>
-          </div>
-          <div class="dmRight">
-            ${a.subscribed? `<span class="heartDays">${a.heartDays}</span>` : ''}
-            ${a.unread>0 ? `<span class="badge">${a.unread}</span>` : ''}
-          </div>
+  // 依錢包天數重算當前的「是否已購買」
+  const artistsNow = DM_ARTISTS.map(a => ({ ...a, subscribed: isSubscribed(a.id) }));
+
+  // 只留已購買的
+  const visible = artistsNow.filter(a => a.subscribed);
+
+  // 如果沒有任何好友（=未購買）
+  if(visible.length === 0){
+    wrap.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+
+  // 排序＋顯示
+  const withTs = visible.map(a=>{
+    const msgs = dmMessages[a.id] || [];
+    const last = msgs.length ? msgs[msgs.length-1] : null;
+    return { ...a, lastTs: last ? (last.ts || 0) : (a.lastTs || 0), _lastMsgText: last ? last.text : (a.lastMsg || '') };
+  }).sort((a,b)=> b.lastTs - a.lastTs);
+
+  wrap.innerHTML = withTs.map(a=>`
+    <div class="dmCard" onclick="openDm('${a.id}')">
+      <div class="left">
+        <img src="${a.avatar}" onerror="imgFallback(this)">
+        <div class="meta">
+          <b>${a.name}</b>
+          <small class="ghost">${escapeHtml(a._lastMsgText || '')}</small>
         </div>
-      `).join('');
-    }
+      </div>
+      <div class="dmRight">
+        <span class="heartDays">${a.heartDays || 0}</span>
+        ${a.unread>0 ? `<span class="badge">${a.unread}</span>` : ''}
+      </div>
+    </div>
+  `).join('');
+}
     function openDm(chatId){
+      if(!isSubscribed(chatId)){ alert('尚未添加好友'); return; }
       currentChat = chatId;
       const artist = DM_ARTISTS.find(a=>a.id===chatId); if(!artist) return;
       document.getElementById('dmTitle').textContent = artist.name;
@@ -1025,6 +1040,12 @@
       }
     }
 
+function isSubscribed(artistId){
+  const groupDays = parseInt(LS.getStr('heartDaysGroup','0'), 10) || 0;           // 全團
+  const personal   = parseInt(LS.getStr(`heartDays:${artistId}`,'0'), 10) || 0;   // 個人
+  return (groupDays > 0) || (personal > 0);
+}
+    
     // 產生 Verified 勳章（淡紫）；可調整尺寸：VB(20)
 function VB(size=18){
   return `<span class="v-badge" style="width:${size}px;height:${size}px">
