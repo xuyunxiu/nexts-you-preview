@@ -223,9 +223,18 @@
 
 /* 翻譯按鈕在氣泡內且換新行 */
 .bubble .translate-in{
-  display:inline-flex; width:fit-content; align-items:center; gap:6px;
-  margin-top:8px; font-size:12px; padding:4px 8px;
-  border-radius:999px; border:1px solid var(--line); background:#fff; color:var(--sub); cursor:pointer;
+  display:flex;              /* 一定換到新的一行 */
+  width:fit-content;
+  align-items:center;
+  gap:6px;
+  margin-top:8px;
+  font-size:12px;
+  padding:4px 8px;
+  border-radius:999px;
+  border:1px solid var(--line);
+  background:#fff;
+  color:var(--sub);
+  cursor:pointer;
 }
 .bubble .translate-in svg{width:14px;height:14px;opacity:.65}
 
@@ -982,37 +991,27 @@
   const showTrans = isLeft && (LS.getStr(`dmTranslated:${m.id}`,'0') === '1');
   const timeStr = new Date(m.ts||Date.now()).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
 
-// 氣泡內容
-let bubbleHTML = `<div class="bubble">`;
-if (showTrans) {
-  bubbleHTML += `
-    <div class="tran">${escapeHtml(m.text)}</div>
-    <div class="by">Translated by Papago</div>
-  `;
-} else {
-  bubbleHTML += `${escapeHtml(m.text)}
-    ${isLeft ? `
-      <div class="translate-in" onclick="doDmTranslate('${m.id}')">
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M3 4h18v2H3V4zm8 4h2v2h-2V8zm-6 0h4v2H5V8zm0 4h14v2H5v-2zm0 4h10v2H5v-2z" fill="currentColor"/>
-        </svg> 翻譯
-      </div>` : '' }
-  `;
-}
-bubbleHTML += `</div>`;
-  }
-  // 翻譯按鈕放進氣泡（只給左側訊息）
-  if(isLeft){
+  // ===== 氣泡內容（一次性翻譯） =====
+  let bubbleHTML = `<div class="bubble">`;
+  if (showTrans) {
     bubbleHTML += `
-      <div class="translate-in" onclick="toggleDmTranslate('${m.id}')">
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M3 4h18v2H3V4zm8 4h2v2h-2V8zm-6 0h4v2H5V8zm0 4h14v2H5v-2zm0 4h10v2H5v-2z" fill="currentColor"/>
-        </svg> ${showTrans ? '收合翻譯' : '翻譯'}
-      </div>`;
+      <div class="tran">${escapeHtml(m.text)}</div>
+      <div class="by">Translated by Papago</div>
+    `;
+  } else {
+    bubbleHTML += `${escapeHtml(m.text)}`;
+    if (isLeft) {
+      bubbleHTML += `
+        <div class="translate-in" onclick="doDmTranslate('${m.id}')">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M3 4h18v2H3V4zm8 4h2v2h-2V8zm-6 0h4v2H5V8zm0 4h14v2H5v-2zm0 4h10v2H5v-2z" fill="currentColor"/>
+          </svg> 翻譯
+        </div>`;
+    }
   }
   bubbleHTML += `</div>`;
 
-  // ===== 右側側欄：上=1；下=垃圾桶＋時間同一列 =====
+  // ===== 右側側欄 =====
   let topRow = '';
   let bottomRow = `<span class="dmTime">${timeStr}</span>`;
   if(m.from === 'right'){
@@ -1024,24 +1023,15 @@ bubbleHTML += `</div>`;
         </svg>
       </button>`;
     topRow = unread1;
-    bottomRow = `${trash}${bottomRow}`;   // 垃圾桶 + 時間「同一列」
+    bottomRow = `${trash}${bottomRow}`;
   }
   const sideHTML = `<div class="dmSide">${topRow ? topRow : ''}<div class="dmSideRow">${bottomRow}</div></div>`;
 
-  // ===== 組合 =====
   const wrap = document.createElement('div');
   wrap.className = `dmMsg ${m.from}`;
   wrap.innerHTML = `<div class="dmRow">${bubbleHTML}${sideHTML}</div>`;
   box.appendChild(wrap);
 });
-        box.scrollTop = box.scrollHeight;
-}
-    function toggleDmTranslate(msgId){
-      const k = `dmTranslated:${msgId}`;
-      const now = LS.getStr(k,'0') === '1';
-      LS.setStr(k, now ? '0' : '1');
-      if(currentChat) renderDmThread(currentChat);
-    }
     function deleteMsg(msgId){
       const arr = dmMessages[currentChat] || [];
       const idx = arr.findIndex(x => x.id === msgId && x.from === 'right');
