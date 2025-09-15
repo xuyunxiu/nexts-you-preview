@@ -987,31 +987,34 @@
   const start = Math.max(0, list.length - 50);
 
   list.slice(start).forEach(m=>{
-    const isLeft = (m.from === 'left');
+    const isLeft    = (m.from === 'left');
     const showTrans = isLeft && (LS.getStr(`dmTranslated:${m.id}`,'0') === '1');
-    const timeStr = new Date(m.ts||Date.now()).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+    const timeStr   = new Date(m.ts||Date.now()).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
 
-    // ===== 氣泡內容（一次性翻譯） =====
+    // ===== 氣泡內容：原文／譯文上下排 =====
     let bubbleHTML = `<div class="bubble">`;
     if (showTrans) {
       bubbleHTML += `
+        <div class="orig">${escapeHtml(m.text)}</div>
+        <div class="transDivider"></div>
         <div class="tran">${escapeHtml(m.text)}</div>
         <div class="by">Translated by Papago</div>
       `;
+      // ※ 這裡不再顯示任何「收合」按鈕
     } else {
-      bubbleHTML += `${escapeHtml(m.text)}`;
-      if (isLeft) {
-        bubbleHTML += `
+      bubbleHTML += `
+        <div class="orig">${escapeHtml(m.text)}</div>
+        ${isLeft ? `
           <div class="translate-in" onclick="doDmTranslate('${m.id}')">
             <svg viewBox="0 0 24 24" aria-hidden="true">
               <path d="M3 4h18v2H3V4zm8 4h2v2h-2V8zm-6 0h4v2H5V8zm0 4h14v2H5v-2zm0 4h10v2H5v-2z" fill="currentColor"/>
             </svg> 翻譯
-          </div>`;
-      }
+          </div>` : '' }
+      `;
     }
     bubbleHTML += `</div>`;
 
-    // ===== 右側側欄 =====
+    // ===== 右側側欄（時間／未讀 1／垃圾桶） =====
     let topRow = '';
     let bottomRow = `<span class="dmTime">${timeStr}</span>`;
     if(m.from === 'right'){
@@ -1033,7 +1036,6 @@
     box.appendChild(wrap);
   });
 
-  // ← 你這兩行原本不見了，少了它 JS 就沒把函式關起來
   box.scrollTop = box.scrollHeight;
 }
     function deleteMsg(msgId){
