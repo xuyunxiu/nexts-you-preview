@@ -545,6 +545,7 @@
       img.onerror = null;
     }
 
+    
     /* 假資料 */
     const ARTISTS = [
       {id:'annie',  name:'Annie',   avatar:'https://picsum.photos/80?u=an'},
@@ -1075,14 +1076,6 @@ function isSubscribed(artistId){
   const personal   = parseInt(LS.getStr(`heartDays:${artistId}`,'0'), 10) || 0;   // 個人
   return (groupDays > 0) || (personal > 0);
 }
-    
-    // 產生 Verified 勳章（淡紫）；可調整尺寸：VB(20)
-<span class="verified-badge">
-  <svg viewBox="0 0 24 24" aria-hidden="true">
-    <path fill="currentColor" d="M9.0 16.2l-3.5-3.5 1.4-1.4 2.1 2.1 4.6-4.6 1.4 1.4-6 6z"/>
-  </svg>
-</span>`;
-}
 
 function doDmTranslate(msgId){
   const k = `dmTranslated:${msgId}`;
@@ -1265,6 +1258,14 @@ function doDmTranslate(msgId){
         lastY = y;
       }, {passive:true});
     }
+
+    function VB(size=18){
+  return `<span class="verified-badge" aria-label="Verified" title="Verified" style="width:${size}px;height:${size}px">
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path fill="#fff" d="M9 16.2 5.6 12.8a1.2 1.2 0 1 1 1.7-1.7L9.4 13l4.9-4.9a1.2 1.2 0 1 1 1.7 1.7l-6.1 6.1a1.2 1.2 0 0 1-1.7 0z"/>
+    </svg>
+  </span>`;
+}
 
     /* 初始化 */
     document.addEventListener('DOMContentLoaded', ()=>{
