@@ -1182,18 +1182,48 @@ function doDmTranslate(msgId){
   }
 }
     
-    /* Live */
-    const LIVE_DATA = {
-      active: [{id:'L1', host:'Annie',  title:'Annie Live',  thumb:'https://picsum.photos/300/180?live1'}],
-      upcoming: [{id:'L2', host:'Dohee', title:'Dance Practice', thumb:'https://picsum.photos/300/180?live2', startTime: Date.now()+1000*60*3 }],
-      ended: [{id:'L3', host:'ALLDAY', title:'Full Group Replay', thumb:'https://picsum.photos/300/180?live3'}]
-    };
+  /* Live */
+const LIVE_DATA = {
+  active: [],   // 目前沒有進行中
+  ended:  []    // 目前沒有回放
+};
     function renderLives(){
-      const og = document.getElementById('liveOngoingList');
-      const ed = document.getElementById('liveEndedList');
-      og.innerHTML = LIVE_DATA.active.map(l=> liveCard(l,'on')).join('');
-      ed.innerHTML = LIVE_DATA.ended.map(l=> liveCard(l,'end')).join('');
-    }
+  const og = document.getElementById('liveOngoingList');
+  const ed = document.getElementById('liveEndedList');
+
+  if(!LIVE_DATA.active.length){
+    og.innerHTML = `<div class="ghost" style="padding:12px">目前沒有進行中的直播</div>`;
+  }else{
+    og.innerHTML = LIVE_DATA.active.map(l => liveOngoingCard(l)).join('');
+  }
+
+  if(!LIVE_DATA.ended.length){
+    ed.innerHTML = `<div class="ghost" style="padding:12px">尚無回放</div>`;
+  }else{
+    ed.innerHTML = LIVE_DATA.ended.map(l => `
+      <div class="liveCard" onclick="openReplay('${l.id}')">
+        <img src="${l.thumb}" onerror="imgFallback(this)">
+        <div class="liveMeta"><b>${escapeHtml(l.title||l.host)}</b><span class="status end">已結束</span></div>
+      </div>
+    `).join('');
+  }
+}
+
+function liveOngoingCard(l){
+  return `
+    <div class="liveHeroCard" onclick="openLive('${l.id}')">
+      <div class="bg" style="background-image:url('${l.cover||l.thumb||''}')"></div>
+      <div class="grad"></div>
+      <div class="hud">
+        <span class="liveTag">LIVE</span>
+        <div class="liveHearts">${formatCount(l.hearts||0)}</div>
+      </div>
+      <div class="meta">
+        <b>${escapeHtml(l.host)}</b>
+        <div class="title">${escapeHtml(l.title||'Live')}</div>
+      </div>
+    </div>`;
+}
     function liveCard(l,status){
       let label = `<span class="status ${status}">已結束</span>`;
       if(status==='on') label = `<span class="status on">進行中</span>`;
@@ -1208,17 +1238,80 @@ function doDmTranslate(msgId){
         </div>
       `;
     }
-    function openLive(id){
-      const live = LIVE_DATA.active.find(l=>l.id===id); if(!live) return;
-      document.getElementById('liveTitle').textContent = live.title;
-      document.getElementById('liveHostName').textContent = live.host;
-      document.getElementById('liveThread').innerHTML = '';
-      showPage('liveRoom');
-      const welcome = document.createElement('div');
-      welcome.className = 'liveMsg welcome';
-      welcome.textContent = '🎤 歡迎來到直播';
-      document.getElementById('liveThread').appendChild(welcome);
+    let _currentLiveId = null;
+let _liveHearts = 0;
+
+function openLive(id){
+  const live = LIVE_DATA.active.find(l => l.id === id);
+  if(!live) return;
+
+  _currentLiveId = id;
+  _liveHearts = live.hearts || 0;
+
+  // 設定標題與主持資訊
+  document.getElementById('liveTitle').textContent = live.title || '直播中';
+  document.getElementById('liveHostName').textContent = live.host || 'Host';
+  document.getElementById('liveHeartCount').textContent = formatCount(_liveHearts);
+
+  // 清空訊息串，加入一則歡迎
+  const box = document.getElementById('liveThread');
+  box.innerHTML = '';
+  const welcome = document.createElement('div');
+  welcome.className = 'liveMsg welcome';
+  welcome.textContent = '🎤 歡迎來到直播';
+  box.appendChild(welcome);
+
+  showPage('liveRoom');
+
+  // 綁愛心按鈕
+  const hb = document.getElementById('heartBtn');
+  hb.onclick = () => {
+    _liveHearts++;
+    document.getElementById('liveHeartCount').textContent = formatCount(_liveHearts);
+
+    // 動畫效果
+    spawnHeartAnimation();
+    
+    // 同步回 LIVE_DATA（給回放用）
+    const liveObj = LIVE_DATA.active.find(l => l.id === _currentLiveId);
+    if(liveObj){
+      liveObj.hearts = _liveHearts;
     }
+  };
+}
+
+// 格式化數字（例如 4522 -> 4.5K）
+function formatCount(n){
+  if(n > 1000){
+    return (n/1000).toFixed(1)+'K';
+  }
+  return n;
+}
+
+// 動畫：浮動愛心
+function spawnHeartAnimation(){
+  const hb = document.getElementById('heartBtn');
+  const rect = hb.getBoundingClientRect();
+  const heart = document.createElement('div');
+  heart.className = 'flying-heart';
+  heart.textContent = '❤️';
+  document.body.appendChild(heart);
+
+  // 初始位置
+  heart.style.left = (rect.left + rect.width/2) + 'px';
+  heart.style.top = (rect.top - 10) + 'px';
+
+  // 動畫
+  const anim = heart.animate([
+    { transform: 'translateY(0) scale(1)', opacity: 1 },
+    { transform: 'translateY(-120px) scale(1.5)', opacity: 0 }
+  ], {
+    duration: 1000,
+    easing: 'ease-out'
+  });
+
+  anim.onfinish = () => heart.remove();
+}
     function sendLiveMsg(){
       const input = document.getElementById('liveInput');
       const text = input.value.trim(); if(!text) return;
