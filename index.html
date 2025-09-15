@@ -980,58 +980,62 @@
       arr.forEach(m=>{ if(m.from==='right' && (m.ts||0)<=lastLeftTs){ m.read = true; } });
     }
     function renderDmThread(chatId){
-      const box = document.getElementById('dmThread');
-      box.innerHTML = '';
-      markSeenByLatestLeft(chatId);
-      const list = dmMessages[chatId] || [];
-      const start = Math.max(0, list.length - 50);
+  const box = document.getElementById('dmThread');
+  box.innerHTML = '';
+  markSeenByLatestLeft(chatId);
+  const list = dmMessages[chatId] || [];
+  const start = Math.max(0, list.length - 50);
 
-      list.slice(start).forEach(m=>{
-  const isLeft = (m.from === 'left');
-  const showTrans = isLeft && (LS.getStr(`dmTranslated:${m.id}`,'0') === '1');
-  const timeStr = new Date(m.ts||Date.now()).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+  list.slice(start).forEach(m=>{
+    const isLeft = (m.from === 'left');
+    const showTrans = isLeft && (LS.getStr(`dmTranslated:${m.id}`,'0') === '1');
+    const timeStr = new Date(m.ts||Date.now()).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
 
-  // ===== 氣泡內容（一次性翻譯） =====
-  let bubbleHTML = `<div class="bubble">`;
-  if (showTrans) {
-    bubbleHTML += `
-      <div class="tran">${escapeHtml(m.text)}</div>
-      <div class="by">Translated by Papago</div>
-    `;
-  } else {
-    bubbleHTML += `${escapeHtml(m.text)}`;
-    if (isLeft) {
+    // ===== 氣泡內容（一次性翻譯） =====
+    let bubbleHTML = `<div class="bubble">`;
+    if (showTrans) {
       bubbleHTML += `
-        <div class="translate-in" onclick="doDmTranslate('${m.id}')">
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M3 4h18v2H3V4zm8 4h2v2h-2V8zm-6 0h4v2H5V8zm0 4h14v2H5v-2zm0 4h10v2H5v-2z" fill="currentColor"/>
-          </svg> 翻譯
-        </div>`;
+        <div class="tran">${escapeHtml(m.text)}</div>
+        <div class="by">Translated by Papago</div>
+      `;
+    } else {
+      bubbleHTML += `${escapeHtml(m.text)}`;
+      if (isLeft) {
+        bubbleHTML += `
+          <div class="translate-in" onclick="doDmTranslate('${m.id}')">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M3 4h18v2H3V4zm8 4h2v2h-2V8zm-6 0h4v2H5V8zm0 4h14v2H5v-2zm0 4h10v2H5v-2z" fill="currentColor"/>
+            </svg> 翻譯
+          </div>`;
+      }
     }
-  }
-  bubbleHTML += `</div>`;
+    bubbleHTML += `</div>`;
 
-  // ===== 右側側欄 =====
-  let topRow = '';
-  let bottomRow = `<span class="dmTime">${timeStr}</span>`;
-  if(m.from === 'right'){
-    const unread1 = !m.read ? `<span class="read1">1</span>` : '';
-    const trash = `
-      <button class="trash" title="刪除" onclick="deleteMsg('${m.id}')">
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M9 3h6l1 2h4v2H4V5h4l1-2zm1 6h2v8h-2V9zm4 0h2v8h-2V9z" fill="currentColor"/>
-        </svg>
-      </button>`;
-    topRow = unread1;
-    bottomRow = `${trash}${bottomRow}`;
-  }
-  const sideHTML = `<div class="dmSide">${topRow ? topRow : ''}<div class="dmSideRow">${bottomRow}</div></div>`;
+    // ===== 右側側欄 =====
+    let topRow = '';
+    let bottomRow = `<span class="dmTime">${timeStr}</span>`;
+    if(m.from === 'right'){
+      const unread1 = !m.read ? `<span class="read1">1</span>` : '';
+      const trash = `
+        <button class="trash" title="刪除" onclick="deleteMsg('${m.id}')">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M9 3h6l1 2h4v2H4V5h4l1-2zm1 6h2v8h-2V9zm4 0h2v8h-2V9z" fill="currentColor"/>
+          </svg>
+        </button>`;
+      topRow = unread1;
+      bottomRow = `${trash}${bottomRow}`;
+    }
+    const sideHTML = `<div class="dmSide">${topRow ? topRow : ''}<div class="dmSideRow">${bottomRow}</div></div>`;
 
-  const wrap = document.createElement('div');
-  wrap.className = `dmMsg ${m.from}`;
-  wrap.innerHTML = `<div class="dmRow">${bubbleHTML}${sideHTML}</div>`;
-  box.appendChild(wrap);
-});
+    const wrap = document.createElement('div');
+    wrap.className = `dmMsg ${m.from}`;
+    wrap.innerHTML = `<div class="dmRow">${bubbleHTML}${sideHTML}</div>`;
+    box.appendChild(wrap);
+  });
+
+  // ← 你這兩行原本不見了，少了它 JS 就沒把函式關起來
+  box.scrollTop = box.scrollHeight;
+}
     function deleteMsg(msgId){
       const arr = dmMessages[currentChat] || [];
       const idx = arr.findIndex(x => x.id === msgId && x.from === 'right');
