@@ -534,7 +534,7 @@
     <div class="liveInputBar">
   <input id="liveInput" placeholder="輸入留言…" />
   <button id="liveHeartBtn" type="button" >💗</button>
-  <button onclick="sendLiveMsg()">></button>
+  <button onclick="sendLiveMsg()">&gt;</button>
 </div>
   </section>
 
@@ -788,7 +788,7 @@
     function checkBirthday(){
       const bd = LS.getStr('birthday'); if(!bd) return;
       const today = new Date();
-      const [yyyy,mm,dd] = bd.split('-').map(Number);
+      const [,mm,dd] = bd.split('-').map(Number);
       if( (today.getMonth()+1)===mm && today.getDate()===dd ){
         alert('🎉 生日快樂！祝你有美好的一天！');
       }
@@ -864,7 +864,7 @@
             <div class="hdr">
               <img src="${p.avatar}" class="avatar" onerror="imgFallback(this)">
               <div class="meta">
-  <b>${p.artistName} ${VB()}</b>
+  <b>${escapeHtml(p.artistName)} ${VB()}</b>
   <small class="ghost">${p.ts}</small>
 </div>
               <div class="translate-btn" onclick="event.stopPropagation(); togglePostTranslate('${p.id}')">翻譯</div>
@@ -985,7 +985,7 @@
           <div class="hdr">
             <img src="${post.avatar}" class="avatar" onerror="imgFallback(this)">
             <div class="meta">
-  <b>${post.artistName} ${VB()}</b>
+  <b>${escapeHtml(post.artistName)} ${VB()}</b>
   <small class="ghost">${post.ts}</small>
 </div>
             <div class="translate-btn" onclick="togglePostTranslate('${post.id}')">翻譯</div>
@@ -1054,7 +1054,11 @@
   const empty = document.getElementById('dmEmpty');
 
   // 依錢包天數重算當前的「是否已購買」
-  const artistsNow = DM_ARTISTS.map(a => ({ ...a, subscribed: isSubscribed(a.id) }));
+  const artistsNow = DM_ARTISTS.map(a => ({
+  ...a,
+  subscribed: isSubscribed(a.id),
+  heartDays: getDaysFor(a.id)
+}));
 
   // 只留已購買的
   const visible = artistsNow.filter(a => a.subscribed);
@@ -1220,6 +1224,19 @@ function isSubscribed(artistId){
   return (groupDays > 0) || (personal > 0);
 }
 
+ function getDaysFor(artistId){
+  const groupDays = parseInt(LS.getStr('heartDaysGroup','0'),10) || 0;
+  const personal  = parseInt(LS.getStr(`heartDays:${artistId}`,'0'),10) || 0;
+  return Math.max(groupDays, personal);
+}
+function updateHeartDaysSummary(){
+  const all = ['annie','dohee','woo'].map(getDaysFor);
+  const groupDays = parseInt(LS.getStr('heartDaysGroup','0'),10) || 0;
+  const summary = Math.max(groupDays, ...all);
+  LS.setStr('heartDays', String(summary));
+  const el = document.getElementById('heartDays'); if(el) el.textContent = summary;
+}   
+
 function doDmTranslate(msgId){
   const k = `dmTranslated:${msgId}`;
   if (LS.getStr(k,'0') !== '1') {
@@ -1290,20 +1307,22 @@ function liveOngoingCard(l){
       </div>
     </div>`;
 }
-    function liveCard(l,status){
-      let label = `<span class="status ${status}">已結束</span>`;
-      if(status==='on') label = `<span class="status on">進行中</span>`;
-      if(status==='soon'){
-        const diff = Math.max(0, l.startTime - Date.now());
-        label = `<span class="status soon">即將開始（${Math.ceil(diff/1000)}s）</span>`;
-      }
-      return `
-        <div class="liveCard" onclick="${status==='end' ? `openReplay('${l.id}')` : `openLive('${l.id}')`}">
-          <img src="${l.thumb}" onerror="imgFallback(this)">
-          <div class="liveMeta"><b>${l.title}</b>${label}</div>
-        </div>
-      `;
-    }
+function liveCard(l,status){
+  let label = `<span class="status ${status}">已結束</span>`;
+  if(status==='on') {
+    label = `<span class="status on">進行中</span>`;
+  } else if(status==='soon'){
+    const diffMs = (typeof l.startTime === 'number') ? Math.max(0, l.startTime - Date.now()) : 0;
+    const secs = Math.ceil(diffMs / 1000);
+    label = `<span class="status soon">即將開始（${secs}s）</span>`;
+  }
+  return `
+    <div class="liveCard" onclick="${status==='end' ? `openReplay('${l.id}')` : `openLive('${l.id}')`}">
+      <img src="${l.thumb}" onerror="imgFallback(this)">
+      <div class="liveMeta"><b>${escapeHtml(l.title)}</b>${label}</div>
+    </div>
+  `;
+}
     let _currentLiveId = null;
 let _liveHearts = 0;
 
@@ -1402,59 +1421,14 @@ function installLiveSwipeToExit(){
 
     function renderLivePage(){
   const ongoingBox = document.getElementById('liveOngoing');
-  const replayBox = document.getElementById('liveReplay');
-  const emptyTip = document.getElementById('liveEmptyTip');
-
-  // 先清空
-  ongoingBox.innerHTML = '';
-  replayBox.innerHTML = '';
-  emptyTip.style.display = 'none';
-
-  const ongoing = LIVE_DATA.active || [];
-  const replay = LIVE_DATA.ended || [];
-
-  if(ongoing.length === 0 && replay.length === 0){
-    // 🚩 1. 完全沒直播過
-    emptyTip.style.display = 'block';
-    emptyTip.textContent = '還未有藝人開始直播\n敬請期待';
-  }else{
-    // 🚩 2. 有正在進行的
-    if(ongoing.length > 0){
-      ongoing.forEach(live=>{
-        const item = document.createElement('div');
-        item.className = 'liveOngoingItem';
-        item.textContent = `🔥 ${live.title} (${live.host})`;
-        item.onclick = ()=>openLive(live.id);
-        ongoingBox.appendChild(item);
-      });
-    }
-
-    // 🚩 3. 有結束的 → 顯示重播清單
-    if(replay.length > 0){
-      const sortBar = document.createElement('div');
-      sortBar.className = 'liveSortBar';
-      sortBar.innerHTML = `
-        <button onclick="sortReplay('new')">最新優先</button>
-        <button onclick="sortReplay('old')">最舊優先</button>
-      `;
-      replayBox.appendChild(sortBar);
-
-      replay.forEach(live=>{
-        const item = document.createElement('div');
-        item.className = 'liveReplayItem';
-        item.innerHTML = `
-          <div class="thumb">🎬</div>
-          <div class="meta">
-            <div class="title">${live.title}</div>
-            <div class="host">${live.host}</div>
-            <div class="time">${live.date}</div>
-          </div>
-        `;
-        item.onclick = ()=>openLive(live.id);
-        replayBox.appendChild(item);
-      });
-    }
+  const replayBox  = document.getElementById('liveReplay');
+  const emptyTip   = document.getElementById('liveEmptyTip');
+  if(!ongoingBox || !replayBox || !emptyTip){
+    // 舊函式作廢，交給新版的 renderLives()
+    renderLives();
+    return;
   }
+  // 若未來補齊 DOM，再把真實渲染邏輯放回來
 }
 
 // 排序方法
@@ -1464,7 +1438,7 @@ function sortReplay(mode){
   }else{
     LIVE_DATA.ended.sort((a,b)=> new Date(a.date) - new Date(b.date));
   }
-  renderLivePage(); // 重新渲染
+  renderLives();
 }
     
     let replayTimer = null;
@@ -1519,14 +1493,8 @@ function endCurrentLive(){
 
   // 結束畫面（照你圖四）
   showLiveEndedScene(live.host, live.cover || live.thumb);
-  setTimeout(()=>{
-    document.getElementById('liveEndedOverlay')?.remove();
-    showPage('liveList');
-    renderLives();
-    _currentLiveId = null;
-  }, 1500);
-}
-
+  setTimeout(()=> { var el = document.getElementById('dmMessageInput'); if(el) el.focus(); }, 50);
+}    
 function showLiveEndedScene(host, avatar){
   const o = document.createElement('div');
   o.className = 'liveEndedScene';
@@ -1609,6 +1577,9 @@ function showLiveEndedScene(host, avatar){
       const key = (target==='group') ? 'heartDaysGroup' : `heartDays:${target}`;
       let cur = parseInt(LS.getStr(key,'0'),10); cur += days; LS.setStr(key, String(cur));
       alert(`已購買：${target==='group'?'全團':'個人'} ${days} 天（已扣 ${cost} 點）`);
+      updateHeartDaysSummary();
+renderDMList();
+if (CURRENT_PAGE === 'profile') showFanProfile();
     }
 
     /* Home 捲動自動隱藏 story/nav */
@@ -1634,25 +1605,20 @@ function showLiveEndedScene(host, avatar){
       }, {passive:true});
     }
 
-    function VB(size=18){
+function VB(size=18){
+  const gid = 'vbGrad-' + Math.random().toString(36).slice(2,8);
   return `
   <span class="verified-badge" style="width:${size}px;height:${size}px">
     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
       <defs>
-        <!-- 藍 → 紫 → 最後一咪咪白 -->
-        <linearGradient id="vbGrad" x1="0" y1="0" x2="1" y2="1">
+        <linearGradient id="${gid}" x1="0" y1="0" x2="1" y2="1">
           <stop offset="0%"   stop-color="#6fb3ff"/>
           <stop offset="58%"  stop-color="#7b6dff"/>
           <stop offset="92%"  stop-color="#ffffff"/>
           <stop offset="100%" stop-color="#e9ecff"/>
         </linearGradient>
       </defs>
-
-      <!-- 齒輪外框（12 齒），填充藍紫白漸層 -->
-      <path class="gear" fill="url(#vbGrad)" d="
-        M12 2.3 14 4l2.9-.6.9 2.7 2.7.9-.6 2.9L22 12l-2.1 2.1.6 2.9-2.7.9-.9 2.7-2.9-.6L12 21.7 10 20l-2.9.6-.9-2.7-2.7-.9.6-2.9L2 12l2.1-2.1-.6-2.9 2.7-.9.9-2.7L10 4l2-1.7z"/>
-
-      <!-- 勾勾 -->
+      <path class="gear" fill="url(#${gid})" d="M12 2.3 14 4l2.9-.6.9 2.7 2.7.9-.6 2.9L22 12l-2.1 2.1.6 2.9-2.7.9-.9 2.7-2.9-.6L12 21.7 10 20l-2.9.6-.9-2.7-2.7-.9.6-2.9L2 12l2.1-2.1-.6-2.9 2.7-.9.9-2.7L10 4l2-1.7z"/>
       <path class="tick" d="M10.4 12.8 8.7 11.2l1.1-1.1 1.2 1.2 3-3 1.1 1.1-3.8 3.8a1 1 0 0 1-1.4 0z"/>
     </svg>
   </span>`;
@@ -1678,6 +1644,7 @@ document.getElementById('dmMessageInput').addEventListener('keydown', function(e
   if(e.key === 'Enter' && !e.shiftKey){
     e.preventDefault();
     sendDm();
+    updateHeartDaysSummary();
   }
     });
   });
