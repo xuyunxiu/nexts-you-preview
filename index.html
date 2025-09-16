@@ -1127,16 +1127,17 @@ if (showTrans) {
     <div class="by">Translated by Papago</div>
   `;
 } else {
-  // 未翻譯：只顯示原文 + 底部的小翻譯鈕
-  bubbleHTML += `
-    <div class="orig">${escapeHtml(m.text)}</div>
-    <div class="translate-in" onclick="doDmTranslate('${m.id}')">
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M3 4h18v2H3V4zm8 4h2v2h-2V8zm-6 0h4v2H5V8zm0 4h14v2H5v-2zm0 4h10v2H5v-2z" fill="currentColor"/>
-      </svg>
-      Translate
-    </div>
-  `;
+  bubbleHTML += `<div class="orig">${escapeHtml(m.text)}</div>`;
+  if (m.from === 'left') {
+    bubbleHTML += `
+      <div class="translate-in" onclick="doDmTranslate('${m.id}')">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M3 4h18v2H3V4zm8 4h2v2h-2V8zm-6 0h4v2H5V8zm0 4h14v2H5v-2zm0 4h10v2H5v-2z" fill="currentColor"/>
+        </svg>
+        Translate
+      </div>
+    `;
+  }
 }
 bubbleHTML += `</div>`;
 
