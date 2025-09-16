@@ -505,6 +505,11 @@
       <h3 class="sub">已結束</h3>
       <div id="liveEndedList"></div>
     </div>
+
+<!-- 新增：直播空狀態（照 DM 的寫法） -->
+<div id="liveEmpty" class="ghost" style="text-align:center; margin-top:30vh; display:none">
+  還未有藝人開始直播<br>敬請期待
+</div>
   </section>
 
   <!-- ============================== LIVE ROOM ========================== -->
@@ -1228,17 +1233,37 @@ const LIVE_DATA = {
   active: [],   // 目前沒有進行中
   ended:  []    // 目前沒有回放
 };
-    function renderLives(){
-  const og = document.getElementById('liveOngoingList');
-  const ed = document.getElementById('liveEndedList');
+function renderLives(){
+  const og    = document.getElementById('liveOngoingList');
+  const ed    = document.getElementById('liveEndedList');
+  const empty = document.getElementById('liveEmpty');
+  const groups = Array.from(document.querySelectorAll('#liveList .group'));
 
-  if(!LIVE_DATA.active.length){
+  const hasActive = Array.isArray(LIVE_DATA.active) && LIVE_DATA.active.length > 0;
+  const hasEnded  = Array.isArray(LIVE_DATA.ended)  && LIVE_DATA.ended.length  > 0;
+
+  // ✅ 完全沒有直播/回放 → 只顯示置中空狀態，隱藏群組標題
+  if(!hasActive && !hasEnded){
+    groups.forEach(g => g.style.display = 'none');
+    empty.style.display = 'block';
+    og.innerHTML = '';
+    ed.innerHTML = '';
+    return;
+  }
+
+  // 其他情況 → 顯示群組，隱藏空狀態
+  groups.forEach(g => g.style.display = '');
+  empty.style.display = 'none';
+
+  // 進行中
+  if(!hasActive){
     og.innerHTML = `<div class="ghost" style="padding:12px">目前沒有進行中的直播</div>`;
   }else{
     og.innerHTML = LIVE_DATA.active.map(l => liveOngoingCard(l)).join('');
   }
 
-  if(!LIVE_DATA.ended.length){
+  // 已結束
+  if(!hasEnded){
     ed.innerHTML = `<div class="ghost" style="padding:12px">尚無回放</div>`;
   }else{
     ed.innerHTML = LIVE_DATA.ended.map(l => `
