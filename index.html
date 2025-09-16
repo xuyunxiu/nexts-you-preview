@@ -1583,27 +1583,40 @@ if (CURRENT_PAGE === 'profile') showFanProfile();
     }
 
     /* Home 捲動自動隱藏 story/nav */
-    function installHomeScrollAutoHide(){
-      const story = document.getElementById('storyWrap');
-      const nav = document.getElementById('nav');
-      let lastY = window.scrollY || 0;
+function installScrollAutoHide(){
+  const nav   = document.getElementById('nav');
+  const story = document.getElementById('storyWrap');
+  let lastY = window.scrollY || 0;
+  let ticking = false;
 
-      window.addEventListener('scroll', ()=>{
-        if(CURRENT_PAGE!=='home') return;
-        const y = window.scrollY || document.documentElement.scrollTop || 0;
-        const goingDown = y > lastY + 6;
-        const goingUp   = y < lastY - 6;
+  const pagesEnable = ['home','dm','liveList'];   // 這三頁要自動隱藏
+  const canWork = () => pagesEnable.includes(CURRENT_PAGE);
 
-        if(goingDown && y > 60){
-          story.classList.add('collapse');
-          nav.classList.add('hidden');
-        }else if(goingUp){
-          story.classList.remove('collapse');
-          nav.classList.remove('hidden');
-        }
-        lastY = y;
-      }, {passive:true});
+  function handle(){
+    if(!canWork()){ ticking=false; return; }
+    const y = window.scrollY || document.documentElement.scrollTop || 0;
+    const goingDown = y > lastY + 6;
+    const goingUp   = y < lastY - 6;
+
+    if(goingDown && y > 60){
+      if(CURRENT_PAGE==='home' && story) story.classList.add('collapse'); // 只有首頁收起 story bar
+      nav.classList.add('hidden');
+      document.documentElement.classList.add('chrome-collapsed');         // 給 iOS 一點提示（見下方 CSS）
+    }else if(goingUp){
+      if(CURRENT_PAGE==='home' && story) story.classList.remove('collapse');
+      nav.classList.remove('hidden');
+      document.documentElement.classList.remove('chrome-collapsed');
     }
+    lastY = y;
+    ticking=false;
+  }
+
+  window.addEventListener('scroll', ()=>{
+    if(ticking) return;
+    ticking = true;
+    requestAnimationFrame(handle);
+  }, {passive:true});
+}
 
 function VB(size=18){
   const gid = 'vbGrad-' + Math.random().toString(36).slice(2,8);
@@ -1637,7 +1650,7 @@ function VB(size=18){
 
       showPage('home');
       checkBirthday();
-      installHomeScrollAutoHide();
+      installScrollAutoHide();();
       installLiveSwipeToExit();
       document.getElementById('dmSendBtn').addEventListener('click', sendDm);
 document.getElementById('dmMessageInput').addEventListener('keydown', function(e){
