@@ -413,6 +413,93 @@
   fill:#fff;                        /* 勾勾顏色：白。如果要深藍，改成 #0a1b4f */
   filter:drop-shadow(0 1px 0 rgba(0,0,0,.18));
 }
+
+/* ===== Polish Pack: Tokens ===== */
+:root{
+  --accent-grad: linear-gradient(180deg,#7b7fff,#6a5acd);
+  --accent-grad-2: linear-gradient(90deg,#8fb4ff,#7b6dff 60%,#ffffff);
+  --surface: rgba(255,255,255,.82);
+  --hair: rgba(26,26,26,.08);         /* 超淡邊框 */
+  --shadow-1: 0 6px 22px rgba(26,26,26,.08);
+  --shadow-2: 0 12px 44px rgba(26,26,26,.12);
+  --radius-s: 10px; --radius-m: 14px; --radius-l: 20px; --radius-xl: 26px;
+  --ease: cubic-bezier(.2,.7,.2,1);
+}
+
+/* 全局細節：更銳利的字、去藍色點擊高亮、統一 focus ring */
+*{-webkit-tap-highlight-color:transparent}
+:focus-visible{outline:2px solid #7b6dff44; outline-offset:2px; border-radius:12px}
+button:active{transform:translateY(1px)}
+
+/* ===== 玻璃化 App Bar / Bottom Nav ===== */
+#storyWrap,
+nav#nav{
+  background: var(--surface);
+  backdrop-filter: saturate(140%) blur(14px);
+  border-color: var(--hair);
+  box-shadow: var(--shadow-1);
+}
+
+/* ===== Story bar 強化：圓環＋邊緣漸隱＋未讀紅點 ===== */
+#storyBar{ position:relative; mask-image: linear-gradient(to right, transparent 0, #000 24px, #000 calc(100% - 24px), transparent 100%) }
+.story-item img{
+  border:2px solid #dfe3ff; box-shadow:0 0 0 3px #fff inset;
+  transition:transform .18s var(--ease), box-shadow .18s var(--ease);
+}
+.story-item.active img{ border-color:#7b6dff; box-shadow:0 0 0 3px #f0f1ff inset, 0 0 0 2px rgba(123,109,255,.20) }
+.story-item.new::after{
+  content:""; position:absolute; right:6px; top:2px; width:9px; height:9px;
+  background:#ff4d4f; border:2px solid #fff; border-radius:50%;
+}
+
+/* ===== 卡片層次 ===== */
+.card{border-color:var(--hair); box-shadow:var(--shadow-1); border-radius:var(--radius-l)}
+.postCard .hero{border-radius:var(--radius-m)}
+.translate-btn{background:rgba(123,109,255,.1)}
+
+/* ===== 反應按鈕更像「按鈕」 ===== */
+.reaction{
+  background: rgba(123,109,255,.06);
+  border-color: var(--hair);
+  transition: transform .12s var(--ease), background .18s var(--ease);
+}
+.reaction:active{ transform: scale(.98) }
+.reaction.active{
+  background: var(--accent-grad); color:#fff; border-color:transparent; box-shadow:0 6px 18px rgba(123,109,255,.30)
+}
+
+/* ===== DM：玻璃泡泡＋群組頭更精緻 ===== */
+.dmMsg .bubble{
+  background: rgba(255,255,255,.80);
+  backdrop-filter: blur(8px);
+  border:1px solid var(--hair);
+  border-radius: 18px;
+}
+.dmMsg.right .bubble{ background: var(--accent-grad); color:#fff; border-color:transparent }
+.msgHeader b{ letter-spacing:.2px }
+.artistTag{
+  background:var(--accent-grad-2); color:#2e2a6f; border:1px solid #ded6ff;
+}
+
+/* 背景遮罩（粉絲/藝人都好看） */
+#dmBgMask::after{
+  background: linear-gradient(180deg,rgba(255,255,255,.70),rgba(255,255,255,.88));
+}
+
+/* ===== 骨架屏 / Shimmer ===== */
+.skeleton{
+  position:relative; overflow:hidden; background:#eef1ff;
+}
+.skeleton::after{
+  content:""; position:absolute; inset:0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.7), transparent);
+  transform: translateX(-100%);
+  animation: shimmer 1.2s infinite;
+}
+@keyframes shimmer{ 100%{ transform:translateX(100%) } }
+
+/* ===== 小動效：出場淡入 ===== */
+.fade-in{animation:fadeIn .24s var(--ease)}    
   </style>
 </head>
 
@@ -871,7 +958,7 @@
             </div>
             <div class="body">
               <p id="postText-${p.id}">${escapeHtml(p.text)}</p>
-              ${p.img ? `<img class="hero" src="${p.img}" onerror="imgFallback(this)">` : ''}
+              ${p.img ? `<img class="hero skeleton" src="${p.img}" onload="this.classList.remove('skeleton')" onerror="imgFallback(this)">` : ''}
               ${renderReactionsBar(p.id)}
               <div class="postMeta">
                 <div class="c-bubble">💬 <span>${commentsCount}</span></div>
@@ -992,7 +1079,7 @@
           </div>
           <div class="body">
             <p id="postText-${post.id}">${escapeHtml(post.text)}</p>
-            ${post.img ? `<img class="hero" src="${post.img}" onerror="imgFallback(this)">` : ''}
+            ${post.img ? `<img class="hero skeleton" src="${post.img}" onload="this.classList.remove('skeleton')" onerror="imgFallback(this)">` : ''}
             ${renderReactionsBar(post.id)}
           </div>
         </div>
@@ -1285,7 +1372,7 @@ function renderLives(){
   }else{
     ed.innerHTML = LIVE_DATA.ended.map(l => `
       <div class="liveCard" onclick="openReplay('${l.id}')">
-        <img src="${l.thumb}" onerror="imgFallback(this)">
+        ${post.img ? `<img class="hero skeleton" src="${post.img}" onload="this.classList.remove('skeleton')" onerror="imgFallback(this)">` : ''}
         <div class="liveMeta"><b>${escapeHtml(l.title||l.host)}</b><span class="status end">已結束</span></div>
       </div>
     `).join('');
