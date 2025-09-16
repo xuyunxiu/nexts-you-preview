@@ -1293,6 +1293,7 @@ function renderLives(){
 }
 
 function liveOngoingCard(l){
+  const bg = encodeURI(l.cover || l.thumb || '');
   return `
     <div class="liveHeroCard" onclick="openLive('${l.id}')">
       <div class="bg" style="background-image:url('${l.cover||l.thumb||''}')"></div>
@@ -1319,7 +1320,7 @@ function liveCard(l,status){
   return `
     <div class="liveCard" onclick="${status==='end' ? `openReplay('${l.id}')` : `openLive('${l.id}')`}">
       <img src="${l.thumb}" onerror="imgFallback(this)">
-      <div class="liveMeta"><b>${escapeHtml(l.title)}</b>${label}</div>
+      <div class="liveMeta"><b>${escapeHtml(l.title || l.host || 'Live')}</b>${label}</div>
     </div>
   `;
 }
@@ -1491,11 +1492,17 @@ function endCurrentLive(){
     date: new Date().toISOString()
   });
 
-  // 結束畫面（照你圖四）
+  // 結束畫面
   showLiveEndedScene(live.host, live.cover || live.thumb);
-  setTimeout(()=> { var el = document.getElementById('dmMessageInput'); if(el) el.focus(); }, 50);
-}    
-function showLiveEndedScene(host, avatar){
+
+  setTimeout(()=>{
+    document.getElementById('liveEndedOverlay')?.remove();
+    showPage('liveList');
+    renderLives();
+    _currentLiveId = null;
+  }, 1500);
+}
+    function showLiveEndedScene(host, avatar){
   const o = document.createElement('div');
   o.className = 'liveEndedScene';
   o.id = 'liveEndedOverlay';
@@ -1642,6 +1649,7 @@ function VB(size=18){
       ensureMyIdentity();
       showMyBar();
       showFanProfile();
+      updateHeartDaysSummary();
 
       renderStoryBar();
       renderFeed('all');
@@ -1650,7 +1658,7 @@ function VB(size=18){
 
       showPage('home');
       checkBirthday();
-      installScrollAutoHide();();
+      installScrollAutoHide();
       installLiveSwipeToExit();
       document.getElementById('dmSendBtn').addEventListener('click', sendDm);
 document.getElementById('dmMessageInput').addEventListener('keydown', function(e){
