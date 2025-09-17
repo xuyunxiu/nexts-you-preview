@@ -97,6 +97,64 @@
     .inputBar button.send{min-width:60px;border:none;background:linear-gradient(180deg,var(--accent),var(--accent2));color:#fff;border-radius:12px;font-weight:900}
 
     .artistTag{display:inline-flex;align-items:center;justify-content:center;padding:3px 8px;height:18px;border-radius:8px;font-size:10px;font-weight:900;letter-spacing:.7px;text-transform:uppercase;color:#2e2a6f;background:linear-gradient(90deg,#cbb9ff 0%,#8fb4ff 62%,#ffffff 100%);border:1px solid #ded6ff;box-shadow:0 2px 8px rgba(106,90,205,.20)}
+  /* ===== DM HUD（頂部） ===== */
+.chatHUD{display:flex;align-items:center;justify-content:space-between;padding:4px 2px 8px}
+.chatHUD .left{display:flex;align-items:center;gap:10px}
+.chatHUD .center{flex:1;min-width:0}
+.chatHUD .titleRow{display:flex;align-items:center;gap:8px;line-height:1}
+.chatHUD .subtitle{font-size:12px;color:#9aa0b4;margin-top:4px}
+.hudBtn{width:42px;height:42px;border-radius:12px;border:1px solid var(--line);background:var(--card);display:inline-flex;align-items:center;justify-content:center;cursor:pointer}
+
+/* ===== DM reply（Quoted preview） ===== */
+.replyPreview{
+  max-width:260px; padding:8px 12px; border-radius:12px;
+  background:rgba(255,255,255,.75); border:1px solid var(--line);
+  font-size:12px; color:#556; backdrop-filter:blur(6px);
+  margin:8px 0 0;
+}
+.replyPreview.top{ margin:0 0 8px }  /* 粉絲視角用：放上方 */
+.replyTag{font-weight:900; margin-right:6px; color:#7a86b7}
+
+/* 氣泡右上角回覆鈕（粉絲訊息泡泡才有） */
+.replyBtn{
+  position:absolute; right:-12px; top:50%; transform:translateY(-50%);
+  width:28px;height:28px;border-radius:999px;border:1px solid var(--line);
+  background:var(--card); box-shadow:0 4px 12px rgba(0,0,0,.06);
+  font-size:14px; cursor:pointer;
+}
+
+/* ===== DM 輸入列（去掉笑臉，iOS 泡泡感） ===== */
+.dmInputBar{
+  gap:10px; padding:12px; border-top:1px solid var(--line);
+  background:linear-gradient(180deg,rgba(255,255,255,.55),rgba(255,255,255,.98));
+}
+.dmInputBar .box{
+  flex:1; display:flex; align-items:center; gap:8px;
+  border:1px solid var(--line); background:#f4f6ff; border-radius:18px; padding:10px 14px;
+}
+.dmInputBar input{ border:none; background:transparent; padding:0; outline:none }
+.dmSend{min-width:56px;height:44px;border:none;border-radius:14px;
+  background:linear-gradient(180deg,var(--accent),var(--accent2));color:#fff;font-weight:900;cursor:pointer}
+
+/* 回覆 chip（輸入列上方顯示目前要回覆哪句） */
+.replyChip{display:none;align-items:center;gap:8px;margin:-6px 0 6px}
+.replyChip .x{border:none;background:transparent;cursor:pointer;color:#888}
+
+/* ===== DM 背景編輯器 ===== */
+#bgEditor{position:fixed;inset:0;z-index:80;display:none;background:rgba(0,0,0,.45)}
+#bgEditor .panel{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:min(720px,92vw);background:var(--card);border:1px solid var(--line);
+  border-radius:18px;padding:14px;box-shadow:var(--shadow)
+}
+#bgPreview{
+  height:42vh;border:1px dashed var(--line);border-radius:12px;
+  background-size:var(--bgScale,cover);background-position:center;
+  background-repeat:no-repeat;position:relative;overflow:hidden
+}
+#bgOverlay{position:absolute;inset:0;background:rgba(0,0,0,var(--bgDim,.25));backdrop-filter:blur(var(--bgBlur,0px))}
+.rangeRow{display:flex;align-items:center;gap:10px;margin:10px 0}
+.rangeRow label{min-width:72px;color:#556}
   </style>
 </head>
 <body>
