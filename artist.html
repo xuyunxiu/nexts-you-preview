@@ -3,17 +3,19 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>NEXT’S YOU — Fan App (單頁版)</title> <!-- 保持你想要的一樣的抬頭 -->
+  <title>NEXT’S YOU — Fan App (單頁版)</title>
 
   <style>
     :root{
       --bg:#f5f7ff; --card:#fff; --text:#1a1a1a; --sub:#666; --line:#e6e8ef; --ghost:#9aa0b4;
-      --accent:#6a5acd; --accent2:#836fff; --danger:#ff4d4f; --ok:#10b981; --hover:#eef1ff;
+      --accent:#6a5acd; --accent2:#836fff; --danger:#ff4d4f; --hover:#eef1ff;
       --radius:16px; --shadow:0 10px 35px rgba(26,26,26,.08);
     }
-    *{box-sizing:border-box} html,body{height:100%}
-    body{margin:0;background:var(--bg);color:var(--text);font-family: ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;overflow-x:hidden}
-    img{display:block;max-width:100%} a{text-decoration:none;color:inherit} button{font:inherit;cursor:pointer}
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;overflow-x:hidden}
+    img{display:block;max-width:100%}
+    button{font:inherit;cursor:pointer}
     .ghost{color:var(--ghost)} .sub{color:var(--sub)}
     .row{display:flex;align-items:center;gap:12px}
     .soft{padding:16px} .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
@@ -23,29 +25,27 @@
     section.page.active{display:block;animation:fadeIn .24s ease}
     @keyframes fadeIn{from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:none}}
 
-    nav#nav{
-      position:fixed;left:0;right:0;bottom:0;z-index:40;background:var(--card);border-top:1px solid var(--line);
-      display:flex;justify-content:space-around;gap:6px;padding:10px 8px 14px;backdrop-filter:saturate(140%) blur(10px);transition:transform .28s ease;
-    }
+    /* 底部 Nav */
+    nav#nav{position:fixed;left:0;right:0;bottom:0;z-index:40;background:var(--card);border-top:1px solid var(--line);
+      display:flex;justify-content:space-around;gap:6px;padding:10px 8px 14px;backdrop-filter:saturate(140%) blur(10px);transition:transform .28s ease;}
     nav#nav.hidden{transform:translateY(120%)}
     nav#nav button{flex:1;border:none;background:transparent;padding:8px 0 6px;border-radius:12px;color:var(--sub);font-weight:800;font-size:13px}
     nav#nav button.active{color:var(--accent);background:var(--hover);border:1px solid var(--line)}
 
+    /* Home */
     #homeHeader{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:6px 6px 8px}
     #homeHeader .me{display:flex;align-items:center;gap:10px}
     #homeHeader .me img{width:44px;height:44px;border-radius:50%;object-fit:cover;border:1px solid var(--line)}
     #homeHeader .me .id{font-size:12px;color:var(--ghost)}
-
     #storyWrap{position:sticky;top:0;z-index:30;background:linear-gradient(180deg,rgba(245,247,255,.98),rgba(245,247,255,.92));backdrop-filter:blur(6px)}
-    #storyBar{display:flex;gap:12px;overflow-x:auto;padding:10px 8px 12px;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;border-bottom:1px solid var(--line);scrollbar-width:none}
+    #storyBar{display:flex;gap:12px;overflow-x:auto;padding:10px 8px 12px;border-bottom:1px solid var(--line);scrollbar-width:none}
     #storyBar::-webkit-scrollbar{display:none}
-    .story-item{flex:0 0 auto;width:64px;text-align:center;cursor:pointer;scroll-snap-align:center;position:relative}
+    .story-item{flex:0 0 auto;width:64px;text-align:center;cursor:pointer;position:relative}
     .story-item img{width:56px;height:56px;border-radius:50%;object-fit:cover;border:2px solid #cfcfe9}
     .story-item .name{font-size:12px;margin-top:4px;color:#9aa1ad}
     .story-item.active img{border-color:var(--accent);box-shadow:0 0 0 2px rgba(106,90,205,.18)}
     .story-item.active .name{color:var(--accent);font-weight:700}
     .story-item .dot{position:absolute;right:6px;top:2px;width:8px;height:8px;background:var(--danger);border-radius:50%;box-shadow:0 0 0 2px #fff}
-    .story-item.pinned img{border-color:#111}
 
     .postCard{margin:12px 6px}
     .postCard .hdr{display:flex;align-items:center;gap:10px}
@@ -57,109 +57,59 @@
     .postCard .actions{display:flex;gap:8px;margin-top:10px}
     .postCard .actions .chip{cursor:pointer}
 
-    .fab{
-      position:fixed;right:16px;bottom:86px;z-index:35;width:56px;height:56px;border-radius:50%;
+    .fab{position:fixed;right:16px;bottom:86px;z-index:35;width:56px;height:56px;border-radius:50%;
       display:flex;align-items:center;justify-content:center;border:1px solid var(--line);
-      background:linear-gradient(180deg,var(--accent),var(--accent2));color:#fff;font-weight:900;font-size:22px;box-shadow:0 12px 28px rgba(106,90,205,.28);
-    }
+      background:linear-gradient(180deg,var(--accent),var(--accent2));color:#fff;font-weight:900;font-size:22px;box-shadow:0 12px 28px rgba(106,90,205,.28);}
 
+    /* DM list */
     #dm .dmCard{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px;border:1px solid var(--line);border-radius:14px;background:var(--card);margin:10px 0;cursor:pointer}
     #dm .dmCard .left{display:flex;align-items:center;gap:12px}
     #dm .dmCard img{width:52px;height:52px;border-radius:50%;object-fit:cover;border:1px solid var(--line)}
     .badge{background:#ff3b30;color:#fff;font-size:12px;padding:2px 7px;border-radius:999px;min-width:22px;text-align:center}
 
-    #artistDM{position:relative}
-    .dmTop{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:8px;padding:8px 4px 10px;background:linear-gradient(180deg,rgba(245,247,255,.88),rgba(245,247,255,0))}
-    .dmTop .back{width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--card)}
-    .titleWrap{display:flex;flex-direction:column;gap:2px}
-    .titleWrap b{font-weight:900}
-    .titleWrap .note{font-size:12px;color:var(--ghost)}
-    .dmTop .ops{margin-left:auto;display:flex;align-items:center;gap:8px}
-    .iconBtn{width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--card)}
-    .menu{position:absolute;right:10px;top:56px;background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);display:none}
-    .menu button{display:block;width:240px;background:transparent;border:none;text-align:left;padding:10px 12px}
-    .menu button:hover{background:var(--hover)}
-
-    .dmBg{position:absolute;inset:0;z-index:-1;background-size:cover;background-position:center;opacity:.26;filter:blur(.5px)}
-    .thread{display:flex;flex-direction:column;gap:8px;height:calc(100vh - 210px);overflow-y:auto;padding:8px 2px}
-    .msg{display:flex;flex-direction:column;max-width:78%;margin:6px 0}
-    .msg.left{align-self:flex-start}.msg.right{align-self:flex-end}
-    .bubble{max-width:100%;padding:10px 12px;border-radius:14px;border:1px solid var(--line);background:#fff}
-    .msg.right .bubble{background:linear-gradient(180deg,var(--accent),var(--accent2));color:#fff;border-color:transparent}
-    .label{font-size:10px;color:#7b89a6;font-weight:900;margin-bottom:4px}
-    .quote{font-size:12px;opacity:.9;padding:8px;border-left:3px solid #c9d1ff;border-radius:8px;background:#f2f4ff;margin-bottom:6px}
-    .time{font-size:11px;color:var(--ghost);margin-top:4px}
-    .replyBar{position:sticky;bottom:120px;left:0;right:0;margin:0 6px;display:none}
-    .replyBar .inner{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px 10px;box-shadow:var(--shadow)}
-    .replyClose{border:none;background:transparent;font-size:18px;opacity:.6}
-    .inputBar{display:flex;gap:8px;padding:10px 0;border-top:1px solid var(--line);position:sticky;bottom:0;background:linear-gradient(180deg,rgba(255,255,255,.25),rgba(255,255,255,.95));backdrop-filter:blur(10px)}
-    .inputBar input{flex:1;border:1px solid var(--line);padding:12px;border-radius:14px;background:var(--hover)}
-    .inputBar button.send{min-width:60px;border:none;background:linear-gradient(180deg,var(--accent),var(--accent2));color:#fff;border-radius:12px;font-weight:900}
-
+    /* DM detail HUD */
     .artistTag{display:inline-flex;align-items:center;justify-content:center;padding:3px 8px;height:18px;border-radius:8px;font-size:10px;font-weight:900;letter-spacing:.7px;text-transform:uppercase;color:#2e2a6f;background:linear-gradient(90deg,#cbb9ff 0%,#8fb4ff 62%,#ffffff 100%);border:1px solid #ded6ff;box-shadow:0 2px 8px rgba(106,90,205,.20)}
-  /* ===== DM HUD（頂部） ===== */
-.chatHUD{display:flex;align-items:center;justify-content:space-between;padding:4px 2px 8px}
-.chatHUD .left{display:flex;align-items:center;gap:10px}
-.chatHUD .center{flex:1;min-width:0}
-.chatHUD .titleRow{display:flex;align-items:center;gap:8px;line-height:1}
-.chatHUD .subtitle{font-size:12px;color:#9aa0b4;margin-top:4px}
-.hudBtn{width:42px;height:42px;border-radius:12px;border:1px solid var(--line);background:var(--card);display:inline-flex;align-items:center;justify-content:center;cursor:pointer}
+    .chatHUD{display:flex;align-items:center;justify-content:space-between;padding:4px 2px 8px}
+    .hudBtn{width:42px;height:42px;border-radius:12px;border:1px solid var(--line);background:var(--card);display:inline-flex;align-items:center;justify-content:center;cursor:pointer}
+    .chatHUD .subtitle{font-size:12px;color:#9aa0b4;margin-top:4px}
 
-/* ===== DM reply（Quoted preview） ===== */
-.replyPreview{
-  max-width:260px; padding:8px 12px; border-radius:12px;
-  background:rgba(255,255,255,.75); border:1px solid var(--line);
-  font-size:12px; color:#556; backdrop-filter:blur(6px);
-  margin:8px 0 0;
-}
-.replyPreview.top{ margin:0 0 8px }  /* 粉絲視角用：放上方 */
-.replyTag{font-weight:900; margin-right:6px; color:#7a86b7}
+    /* DM thread & message */
+    .thread{display:flex;flex-direction:column;gap:8px;height:calc(100vh - 210px);overflow-y:auto;padding:8px 2px}
+    .dmMsg{display:flex;flex-direction:column;max-width:78%;margin:6px 0}
+    .dmMsg.left{align-self:flex-start}.dmMsg.right{align-self:flex-end}
+    .bubble{max-width:100%;padding:10px 12px;border-radius:14px;border:1px solid var(--line);background:#fff}
+    .dmMsg.right .bubble{background:linear-gradient(180deg,var(--accent),var(--accent2));color:#fff;border-color:transparent}
+    .label{font-size:10px;color:#7b89a6;font-weight:900;margin-bottom:4px}
+    .time{font-size:11px;color:var(--ghost);margin-top:4px}
 
-/* 氣泡右上角回覆鈕（粉絲訊息泡泡才有） */
-.replyBtn{
-  position:absolute; right:-12px; top:50%; transform:translateY(-50%);
-  width:28px;height:28px;border-radius:999px;border:1px solid var(--line);
-  background:var(--card); box-shadow:0 4px 12px rgba(0,0,0,.06);
-  font-size:14px; cursor:pointer;
-}
+    /* 回覆預覽 */
+    .replyPreview{max-width:260px;padding:8px 12px;border-radius:12px;background:rgba(255,255,255,.75);border:1px solid var(--line);font-size:12px;color:#556;backdrop-filter:blur(6px);margin:8px 0 0}
+    .replyPreview.top{margin:0 0 8px}
+    .replyTag{font-weight:900;margin-right:6px;color:#7a86b7}
 
-/* ===== DM 輸入列（去掉笑臉，iOS 泡泡感） ===== */
-.dmInputBar{
-  gap:10px; padding:12px; border-top:1px solid var(--line);
-  background:linear-gradient(180deg,rgba(255,255,255,.55),rgba(255,255,255,.98));
-}
-.dmInputBar .box{
-  flex:1; display:flex; align-items:center; gap:8px;
-  border:1px solid var(--line); background:#f4f6ff; border-radius:18px; padding:10px 14px;
-}
-.dmInputBar input{ border:none; background:transparent; padding:0; outline:none }
-.dmSend{min-width:56px;height:44px;border:none;border-radius:14px;
-  background:linear-gradient(180deg,var(--accent),var(--accent2));color:#fff;font-weight:900;cursor:pointer}
+    /* 粉絲泡泡右側 ↩︎ 鈕 */
+    .replyBtn{position:absolute;right:-12px;top:50%;transform:translateY(-50%);width:28px;height:28px;border-radius:999px;border:1px solid var(--line);background:var(--card);box-shadow:0 4px 12px rgba(0,0,0,.06);font-size:14px;cursor:pointer}
 
-/* 回覆 chip（輸入列上方顯示目前要回覆哪句） */
-.replyChip{display:none;align-items:center;gap:8px;margin:-6px 0 6px}
-.replyChip .x{border:none;background:transparent;cursor:pointer;color:#888}
+    /* 輸入列 */
+    .dmInputBar{gap:10px;padding:12px;border-top:1px solid var(--line);background:linear-gradient(180deg,rgba(255,255,255,.55),rgba(255,255,255,.98))}
+    .dmInputBar .box{flex:1;display:flex;align-items:center;gap:8px;border:1px solid var(--line);background:#f4f6ff;border-radius:18px;padding:10px 14px}
+    .dmInputBar input{border:none;background:transparent;padding:0;outline:none}
+    .dmSend{min-width:56px;height:44px;border:none;border-radius:14px;background:linear-gradient(180deg,var(--accent),var(--accent2));color:#fff;font-weight:900;cursor:pointer}
+    .replyChip{display:none;align-items:center;gap:8px;margin:-6px 0 6px}
+    .replyChip .x{border:none;background:transparent;cursor:pointer;color:#888}
 
-/* ===== DM 背景編輯器 ===== */
-#bgEditor{position:fixed;inset:0;z-index:80;display:none;background:rgba(0,0,0,.45)}
-#bgEditor .panel{
-  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
-  width:min(720px,92vw);background:var(--card);border:1px solid var(--line);
-  border-radius:18px;padding:14px;box-shadow:var(--shadow)
-}
-#bgPreview{
-  height:42vh;border:1px dashed var(--line);border-radius:12px;
-  background-size:var(--bgScale,cover);background-position:center;
-  background-repeat:no-repeat;position:relative;overflow:hidden
-}
-#bgOverlay{position:absolute;inset:0;background:rgba(0,0,0,var(--bgDim,.25));backdrop-filter:blur(var(--bgBlur,0px))}
-.rangeRow{display:flex;align-items:center;gap:10px;margin:10px 0}
-.rangeRow label{min-width:72px;color:#556}
+    /* 背景編輯器 */
+    #bgEditor{position:fixed;inset:0;z-index:80;display:none;background:rgba(0,0,0,.45)}
+    #bgEditor .panel{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(720px,92vw);background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px;box-shadow:var(--shadow)}
+    #bgPreview{height:42vh;border:1px dashed var(--line);border-radius:12px;background-size:var(--bgScale,cover);background-position:center;background-repeat:no-repeat;position:relative;overflow:hidden}
+    #bgOverlay{position:absolute;inset:0;background:rgba(0,0,0,var(--bgDim,.25));backdrop-filter:blur(var(--bgBlur,0px))}
+    .rangeRow{display:flex;align-items:center;gap:10px;margin:10px 0}
+    .rangeRow label{min-width:72px;color:#556}
   </style>
 </head>
 <body>
 
-  <!-- =============================== HOME（藝人端） =============================== -->
+  <!-- ===== Home（藝人端） ===== -->
   <section id="home" class="page active">
     <div id="homeHeader">
       <div class="me">
@@ -178,7 +128,7 @@
     <button class="fab" id="fabNew">＋</button>
   </section>
 
-  <!-- =============================== DM LIST =============================== -->
+  <!-- ===== DM list ===== -->
   <section id="dm" class="page">
     <div class="row" style="justify-content:space-between;margin:2px 0 10px">
       <b style="font-weight:900">訊息</b>
@@ -186,95 +136,84 @@
     <div id="dmList"></div>
   </section>
 
-  <!-- =============================== DM DETAIL（藝人群聊） =============================== -->
+  <!-- ===== DM detail（藝人群聊） ===== -->
   <section id="dmDetail" class="page">
-  <!-- 頂部 HUD -->
-  <div class="chatHUD">
-    <div class="left">
-      <button class="back" onclick="goBack()">←</button>
-    </div>
-    <div class="center">
-      <div class="titleRow">
-        <span class="artistTag">ARTIST</span>
-        <b id="dmTitle">Annie</b>
+    <div class="chatHUD">
+      <div class="left"><button class="hudBtn" onclick="goBack()">←</button></div>
+      <div class="center" style="flex:1;min-width:0">
+        <div class="row" style="gap:8px"><span class="artistTag">ARTIST</span><b id="dmTitle">Annie</b></div>
+        <div class="subtitle">1:多 群聊 · <span class="ghost">（點右上 … 設定背景/名稱）</span></div>
       </div>
-      <div class="subtitle" id="dmSub">1:多 群聊 · <span id="dmSubHint">（可點右上 … 設定背景/名稱）</span></div>
-    </div>
-    <div class="right">
-      <button class="hudBtn" title="搜尋" onclick="alert('先放位，之後做搜尋')">🔍</button>
-      <button class="hudBtn" title="更多" onclick="toggleDmMenu()">⋯</button>
-    </div>
-  </div>
-
-  <!-- DM Thread -->
-  <div id="dmThread" class="dmThread"></div>
-
-  <!-- 回覆 chip -->
-  <div id="replyChip" class="replyChip">
-    <span class="replyTag">回覆：</span><span id="replyChipText" class="ghost"></span>
-    <button class="x" onclick="clearReply()">✕ 取消</button>
-  </div>
-
-  <!-- 輸入列 -->
-  <div class="dmInputBar">
-    <div class="box">
-      <input id="dmMessageInput" placeholder="輸入訊息…" />
-    </div>
-    <button class="dmSend" id="dmSendBtn">➤</button>
-  </div>
-
-  <!-- 簡單的 … 選單 -->
-  <div id="dmMenu" class="card soft" style="position:fixed;right:12px;top:64px;display:none;z-index:70">
-    <div style="display:flex;flex-direction:column;gap:6px">
-      <button class="chip" onclick="renameChat()">更改聊天室名稱</button>
-      <button class="chip" onclick="openBgEditor()">更改背景</button>
-    </div>
-  </div>
-    <!-- 背景編輯器 -->
-<div id="bgEditor">
-  <div class="panel">
-    <b style="font-weight:900">背景設定</b>
-    <div id="bgPreview"><div id="bgOverlay"></div></div>
-    <div class="rangeRow"><label>縮放</label><input id="bgScale" type="range" min="100" max="220" value="140"></div>
-    <div class="rangeRow"><label>模糊</label><input id="bgBlur"  type="range" min="0"   max="8"   value="2"></div>
-    <div class="rangeRow"><label>暗度</label><input id="bgDim"   type="range" min="0"   max="70"  value="25"></div>
-    <div class="row" style="justify-content:space-between;gap:8px;margin-top:8px">
-      <input id="bgFile" type="file" accept="image/*">
-      <div class="row" style="gap:8px">
-        <button class="chip" onclick="closeBgEditor()">取消</button>
-        <button class="chip" onclick="applyBg()">套用</button>
+      <div class="right">
+        <button class="hudBtn" title="搜尋" onclick="alert('先放位，之後做搜尋')">🔍</button>
+        <button class="hudBtn" title="更多" onclick="toggleDmMenu()">⋯</button>
       </div>
     </div>
-  </div>
-</div>
 
-<!-- Composer（按首頁 + 打開；先做預覽草稿） -->
-<section id="composerArtist" class="page">
-  <div class="topbar" style="display:flex;align-items:center;gap:10px">
-    <button class="back" onclick="goBack()">←</button>
-    <b style="font-weight:900">NEXT ONE</b>
-    <span class="ghost" id="composerWho" style="margin-left:auto"></span>
-  </div>
-  <div class="soft card" style="min-height:40vh">
-    <textarea id="composeText" rows="4" placeholder="在想些什麼？" style="width:100%;border:none;outline:none"></textarea>
-    <div id="composePreview" class="row" style="flex-wrap:wrap;gap:8px;margin-top:8px"></div>
-  </div>
-  <div class="row" style="gap:10px;margin-top:12px">
-    <input id="composeMedia" type="file" multiple accept="image/*,video/*" onchange="previewComposeMedia(event)">
-    <button class="chip" onclick="publishDraft()">發佈（暫存流程）</button>
-  </div>
-</section>
+    <div id="dmThread" class="thread"></div>
+
+    <div id="replyChip" class="replyChip">
+      <span class="replyTag">回覆：</span><span id="replyChipText" class="ghost"></span>
+      <button class="x" onclick="clearReply()">✕ 取消</button>
+    </div>
+
+    <div class="dmInputBar">
+      <div class="box"><input id="dmMessageInput" placeholder="輸入訊息…" /></div>
+      <button class="dmSend" id="dmSendBtn">➤</button>
+    </div>
+
+    <div id="dmMenu" class="card soft" style="position:fixed;right:12px;top:64px;display:none;z-index:70">
+      <div class="row" style="flex-direction:column;gap:6px;align-items:stretch">
+        <button class="chip" onclick="renameChat()">更改聊天室名稱</button>
+        <button class="chip" onclick="openBgEditor()">更改背景</button>
+      </div>
+    </div>
   </section>
+
+  <!-- ===== Composer（＋ 打開） ===== -->
+  <section id="composerArtist" class="page">
+    <div class="row" style="gap:10px">
+      <button class="hudBtn" onclick="goBack()">←</button>
+      <b style="font-weight:900">NEXT ONE</b>
+      <span class="ghost" id="composerWho" style="margin-left:auto"></span>
+    </div>
+    <div class="soft card" style="min-height:40vh;margin-top:10px">
+      <textarea id="composeText" rows="4" placeholder="在想些什麼？" style="width:100%;border:none;outline:none"></textarea>
+      <div id="composePreview" class="row" style="flex-wrap:wrap;gap:8px;margin-top:8px"></div>
+    </div>
+    <div class="row" style="gap:10px;margin-top:12px">
+      <input id="composeMedia" type="file" multiple accept="image/*,video/*" onchange="previewComposeMedia(event)">
+      <button class="chip" onclick="publishDraft()">發佈（暫存流程）</button>
+    </div>
+  </section>
+
+  <!-- ===== 背景編輯器（overlay） ===== -->
+  <div id="bgEditor">
+    <div class="panel">
+      <b style="font-weight:900">背景設定</b>
+      <div id="bgPreview"><div id="bgOverlay"></div></div>
+      <div class="rangeRow"><label>縮放</label><input id="bgScale" type="range" min="100" max="220" value="140"></div>
+      <div class="rangeRow"><label>模糊</label><input id="bgBlur"  type="range" min="0" max="8" value="2"></div>
+      <div class="rangeRow"><label>暗度</label><input id="bgDim"   type="range" min="0" max="70" value="25"></div>
+      <div class="row" style="justify-content:space-between;gap:8px;margin-top:8px">
+        <input id="bgFile" type="file" accept="image/*">
+        <div class="row" style="gap:8px">
+          <button class="chip" onclick="closeBgEditor()">取消</button>
+          <button class="chip" onclick="applyBg()">套用</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <nav id="nav">
     <button id="tabHome" class="active" onclick="showPage('home')">首頁</button>
     <button id="tabDM" onclick="showPage('dm')">DM</button>
-    <button id="tabLive" onclick="showPage('live')">直播</button>
-    <button id="tabStore" onclick="showPage('store')">商店</button>
+    <button id="tabLive" onclick="alert('直播之後再接')">直播</button>
+    <button id="tabStore" onclick="alert('商店之後再接')">商店</button>
   </nav>
 
   <script>
-  /* ---------- 工具 ---------- */
+  /* ==== Utils ==== */
   function imgFallback(img){
     const svg = encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><rect width='100%' height='100%' fill='#eaeef8'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='#9aa0b4' font-family='sans-serif' font-size='20'>NO IMG</text></svg>`);
     img.src = 'data:image/svg+xml;charset=UTF-8,' + svg; img.onerror = null;
@@ -285,114 +224,95 @@
     getStr(k,def=''){ const v=localStorage.getItem(k); return v ?? def },
     setStr(k,v){ localStorage.setItem(k,v) }
   };
-  function escapeHtml(str){ return String(str).replace(/[&<>"']/g, s=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s])); }
-  function formatTime(ts){ return new Date(ts).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}); }
+  const escapeHtml = s => String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const fmtTime = ts => new Date(ts).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
 
-  /* ---------- 狀態 / 假資料 ---------- */
-  // 暱稱即聊天室名稱的唯一來源（預設用英文藝名）
-  const ME = {
-    id:'artist:annie',
-    name: LS.getStr('artistName','Annie'),
-    avatar: LS.getStr('artistAvatar','https://picsum.photos/80?u=artist')
-  };
+  /* ==== 全域狀態 ==== */
+  const ARTIST_MODE = true;
+  const HIDE_NAV_PAGES = ['dmDetail','composerArtist'];
+  const pageStack = ['home'];
+  function showPage(id){
+    document.querySelectorAll('section.page').forEach(s=>s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    const nav = document.getElementById('nav');
+    if(HIDE_NAV_PAGES.includes(id)) nav.classList.add('hidden'); else nav.classList.remove('hidden');
+    document.querySelectorAll('#nav button').forEach(b=>b.classList.remove('active'));
+    const map = {home:'tabHome', dm:'tabDM'};
+    if(map[id]) document.getElementById(map[id]).classList.add('active');
+    if(pageStack[pageStack.length-1] !== id) pageStack.push(id);
 
+    if(id==='home'){ renderStoryBar(); renderFeed(currentFilter); }
+    if(id==='dm'){ renderDmList(); }
+    if(id==='dmDetail'){ syncRoomTitleUI(); renderDmThread(); applyChatBg(); }
+    if(id==='composerArtist'){ document.getElementById('composerWho').textContent = ME.name; }
+  }
+  function goBack(){
+    if(pageStack.length>1) pageStack.pop();
+    const id = pageStack[pageStack.length-1] || 'home';
+    showPage(id);
+  }
+
+  /* ==== 假資料 / 狀態 ==== */
+  const ME = { id:'artist:annie', name:LS.getStr('artistName','Annie'), avatar:LS.getStr('artistAvatar','https://picsum.photos/80?u=artist') };
   const ARTISTS = [
-    {id:'me',  name:ME.name, avatar:ME.avatar},               // 固定第 1
-    {id:'all', name:'ALL',   avatar:'https://picsum.photos/80?u=all'}, // 固定第 2
+    {id:'me', name:ME.name, avatar:ME.avatar},
+    {id:'all', name:'ALL', avatar:'https://picsum.photos/80?u=all'},
     {id:'dohee', name:'Dohee', avatar:'https://picsum.photos/80?u=dh'},
-    {id:'woo',   name:'Woochan', avatar:'https://picsum.photos/80?u=wc'}
+    {id:'woo', name:'Woochan', avatar:'https://picsum.photos/80?u=wc'}
   ];
-
   const POSTS = LS.get('artistPosts', [
     { id:'p3', artistId:'dohee', artistName:'Dohee',   avatar:'https://picsum.photos/80?u=dh', text:'練舞練到爆汗 💃', img:'https://picsum.photos/1200?u=dh1', ts: Date.now()-1000*60*40 },
-    { id:'p2', artistId:'woo',   artistName:'Woochan', avatar:'https://picsum.photos/80?u=wc', text:'今天吃拉麵 🍜',   img:'https://picsum.photos/1200?u=wc1', ts: Date.now()-1000*60*50 },
+    { id:'p2', artistId:'woo',   artistName:'Woochan', avatar:'https://picsum.photos/80?u=wc', text:'今天吃拉麵 🍜',   img:'httpsum.photos/1200?u=wc1'.replace('httpsum','https://picsum'), ts: Date.now()-1000*60*50 },
     { id:'p1', artistId:'me',    artistName:ME.name,   avatar:ME.avatar, text:'大家好，我是 Annie ✨', img:'', ts: Date.now()-1000*60*60 }
   ]);
-
   const lastSeen = LS.get('lastSeen', {});
-
   const FANS = [
     {id:'f1', name:'粉絲 A', avatar:'https://picsum.photos/40?u=f1'},
     {id:'f2', name:'粉絲 B', avatar:'https://picsum.photos/40?u=f2'},
     {id:'f3', name:'粉絲 C', avatar:'https://picsum.photos/40?u=f3'}
   ];
-
   let GROUP_MSGS = LS.get('groupMsgs', [
     {id:'m1', from:'fan', fanId:'f1', text:'偶像好～', ts:Date.now()-1000*60*45},
     {id:'m2', from:'fan', fanId:'f2', text:'今天吃什麼？', ts:Date.now()-1000*60*43},
     {id:'m3', from:'artist', text:'我剛傳了一張自拍 📸', ts:Date.now()-1000*60*40, replyTo:{text:'今天吃什麼？'}}
   ]);
 
-  /* ---------- 導航 ---------- */
-  let CURRENT_PAGE = 'home';
-  function showPage(id){
-    CURRENT_PAGE = id;
-    document.querySelectorAll('section.page').forEach(s=>s.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
-    document.querySelectorAll('#nav button').forEach(b=>b.classList.remove('active'));
-    const map = {home:'tabHome', dm:'tabDM', live:'tabLive', store:'tabStore'};
-    if(map[id]) document.getElementById(map[id]).classList.add('active');
-
-    if(id==='home'){ renderStoryBar(); renderFeed(currentFilter); }
-    if(id==='dm'){ renderDmList(); }
-    if(id==='artistDM'){ renderThread(); applyDmBg(); syncRoomTitleUI(); }
-  }
-
-  /* ---------- Home：Story bar ---------- */
+  /* ==== Home：stories & feed ==== */
   let currentFilter = 'me';
-  function hasNewDots(artistId){
-    if(artistId==='me' || artistId==='all') return false;
-    const seen = lastSeen[artistId] || 0;
-    const latest = Math.max(0, ...POSTS.filter(p=>p.artistId===artistId).map(p=>p.ts));
-    return latest > seen;
+  function hasNewDots(id){
+    if(id==='me'||id==='all') return false;
+    const seen = lastSeen[id]||0;
+    const latest = Math.max(0,...POSTS.filter(p=>p.artistId===id).map(p=>p.ts));
+    return latest>seen;
   }
   function renderStoryBar(){
-    const bar = document.getElementById('storyBar');
-    const others = ARTISTS.filter(a=> a.id!=='me' && a.id!=='all');
-    others.sort((a,b)=>{
-      const la = Math.max(0,...POSTS.filter(p=>p.artistId===a.id).map(p=>p.ts));
-      const lb = Math.max(0,...POSTS.filter(p=>p.artistId===b.id).map(p=>p.ts));
-      return lb - la;
-    });
-    const order = [ARTISTS.find(a=>a.id==='me'), ARTISTS.find(a=>a.id==='all'), ...others];
-
-    bar.innerHTML = order.map(a=>{
-      const active = (currentFilter===a.id) ? 'active':'';
-      const pinned = (a.id==='me' || a.id==='all') ? 'pinned':'';
-      const dot = hasNewDots(a.id)? '<span class="dot"></span>':'';
-      return `<div class="story-item ${active} ${pinned}" data-id="${a.id}">
+    const bar=document.getElementById('storyBar');
+    const order=[ARTISTS.find(a=>a.id==='me'),ARTISTS.find(a=>a.id==='all'),
+      ...ARTISTS.filter(a=>a.id!=='me'&&a.id!=='all').sort((a,b)=>{
+        const la=Math.max(0,...POSTS.filter(p=>p.artistId===a.id).map(p=>p.ts));
+        const lb=Math.max(0,...POSTS.filter(p=>p.artistId===b.id).map(p=>p.ts));
+        return lb-la;
+      })];
+    bar.innerHTML=order.map(a=>{
+      const active=(currentFilter===a.id)?'active':'';
+      const dot=hasNewDots(a.id)?'<span class="dot"></span>':'';
+      return `<div class="story-item ${active}" data-id="${a.id}">
         <img src="${a.avatar}" onerror="imgFallback(this)">${dot}
-        <div class="name">${escapeHtml(a.name)}</div>
-      </div>`;
+        <div class="name">${escapeHtml(a.name)}</div></div>`;
     }).join('');
-
     bar.querySelectorAll('.story-item').forEach(el=>{
-      el.addEventListener('click', ()=>{
-        const id = el.dataset.id;
-        currentFilter = id;
-        if(id!=='all') lastSeen[id] = Date.now();
-        LS.set('lastSeen', lastSeen);
-        renderStoryBar();
-        renderFeed(currentFilter);
-        window.scrollTo({top:0,behavior:'smooth'});
-      });
+      el.onclick=()=>{ currentFilter=el.dataset.id; if(currentFilter!=='all') lastSeen[currentFilter]=Date.now(); LS.set('lastSeen',lastSeen); renderStoryBar(); renderFeed(currentFilter); window.scrollTo({top:0,behavior:'smooth'}); };
     });
   }
-
-  /* ---------- Home：Feed ---------- */
   function feedOf(filter){
     if(filter==='all') return POSTS.slice().sort((a,b)=>b.ts-a.ts);
     if(filter==='me')  return POSTS.filter(p=>p.artistId==='me').sort((a,b)=>b.ts-a.ts);
     return POSTS.filter(p=>p.artistId===filter).sort((a,b)=>b.ts-a.ts);
   }
   function renderFeed(filter='me'){
-    const wrap = document.getElementById('feedWrap');
-    const list = feedOf(filter);
-    if(!list.length){
-      wrap.innerHTML = `<div class="ghost" style="text-align:center;margin-top:20vh">尚無貼文</div>`;
-      return;
-    }
-    wrap.innerHTML = list.map(p=>`
+    const wrap=document.getElementById('feedWrap'); const list=feedOf(filter);
+    if(!list.length){ wrap.innerHTML=`<div class="ghost" style="text-align:center;margin-top:20vh">尚無貼文</div>`; return; }
+    wrap.innerHTML=list.map(p=>`
       <div class="card soft postCard">
         <div class="hdr">
           <img class="avatar" src="${p.avatar}" onerror="imgFallback(this)">
@@ -404,370 +324,174 @@
         <div class="body">
           <p>${escapeHtml(p.text)}</p>
           ${p.img? `<img class="hero" src="${p.img}" onerror="imgFallback(this)">` : ``}
-          <div class="actions">
-            <span class="chip ghost">💬 留言（關閉中）</span>
-            <span class="chip ghost">♡ 反應（關閉中）</span>
-          </div>
+          <div class="actions"><span class="chip ghost">💬 留言（關閉中）</span><span class="chip ghost">♡ 反應（關閉中）</span></div>
         </div>
       </div>
     `).join('');
   }
 
-  document.getElementById('fabNew').addEventListener('click', ()=>{
-    const text = prompt('輸入貼文文字（必填）'); if(!text) return;
-    const img = prompt('（可選）輸入圖片 URL');
-    const post = { id:'p'+Date.now(), artistId:'me', artistName:ME.name, avatar:ME.avatar, text, img: img? img.trim(): '', ts: Date.now() };
-    POSTS.unshift(post);
-    LS.set('artistPosts', POSTS);
-    currentFilter = 'me';
-    renderStoryBar(); renderFeed('me');
-  });
-
-  /* ---------- DM List ---------- */
-  function getRoomTitle(){ return LS.getStr('artistName','Annie'); } // 唯一來源
+  /* ==== DM list ==== */
+  function getRoomTitle(){ return LS.getStr('artistName','Annie'); }
   function renderDmList(){
-    const box = document.getElementById('dmList');
-    const last = GROUP_MSGS[GROUP_MSGS.length-1];
-    const unread = 0;
-    box.innerHTML = `
-      <div class="dmCard" onclick="openArtistRoom()">
+    const box=document.getElementById('dmList');
+    const last=GROUP_MSGS[GROUP_MSGS.length-1];
+    box.innerHTML=`
+      <div class="dmCard" onclick="showPage('dmDetail')">
         <div class="left">
           <img src="${ME.avatar}" onerror="imgFallback(this)">
           <div>
             <b>${escapeHtml(getRoomTitle())}</b>
-            <small class="ghost">${escapeHtml(last? last.text : '（無訊息）')}</small>
+            <small class="ghost">${escapeHtml(last?last.text:'（無訊息）')}</small>
           </div>
         </div>
-        ${unread>0? `<span class="badge">${unread}</span>`:''}
-      </div>
-    `;
+      </div>`;
   }
-  function openArtistRoom(){ showPage('artistDM'); }
-  function applyDmBg(){
-    const url = LS.getStr('artistDmBg','');
-    const node = document.getElementById('dmBg');
-    if(url){ node.style.backgroundImage = `url('${url}')`; node.style.opacity = .32; }
-    else { node.style.backgroundImage = ''; node.style.opacity = .0; }
+  function syncRoomTitleUI(){
+    document.getElementById('dmTitle').textContent = getRoomTitle();
   }
-  function toggleMenu(){
-    const m = document.getElementById('menu');
-    m.style.display = (m.style.display==='block')? 'none':'block';
-  }
-  function changeDmBg(){
-    toggleMenu();
-    const input = document.createElement('input'); input.type='file'; input.accept='image/*';
-    input.onchange = e=>{
-      const f = e.target.files[0]; if(!f) return;
-      const url = URL.createObjectURL(f); LS.setStr('artistDmBg', url); applyDmBg();
-    };
-    input.click();
-  }
-  function resetDmBg(){ LS.setStr('artistDmBg',''); applyDmBg(); toggleMenu(); }
 
-  /* ---------- DM：訊息串 / 引用回覆 ---------- */
-  let replyDraft = null; // { text }
-  function renderThread(){
-    const box = document.getElementById('thread'); box.innerHTML='';
+  /* ==== 暱稱＝聊天室名稱 ==== */
+  function propagateArtistName(n){
+    LS.setStr('artistName', n);
+    ME.name=n; const meItem=ARTISTS.find(a=>a.id==='me'); if(meItem) meItem.name=n;
+    POSTS.forEach(p=>{ if(p.artistId==='me') p.artistName=n; });
+    LS.set('artistPosts', POSTS);
+    document.getElementById('meNickname').textContent=n;
+    syncRoomTitleUI(); renderDmList(); renderStoryBar(); if(pageStack[pageStack.length-1]==='home') renderFeed(currentFilter);
+  }
+  function editArtistNickname(){
+    const cur=ME.name||'Annie';
+    const v=prompt('輸入新的暱稱（將同步成為聊天室名稱）',cur);
+    if(v&&v.trim()) propagateArtistName(v.trim());
+  }
+  function renameChat(){ editArtistNickname(); toggleDmMenu(); }
+
+  /* ==== DM：thread + reply ==== */
+  let replyTarget=null; // {text}
+  function toggleDmMenu(){
+    const m=document.getElementById('dmMenu');
+    m.style.display=(m.style.display==='block')?'none':'block';
+  }
+  function renderDmThread(){
+    const box=document.getElementById('dmThread'); box.innerHTML='';
     GROUP_MSGS.forEach(m=>{
-      const wrap = document.createElement('div');
-      wrap.className = 'msg ' + (m.from==='artist'?'right':'left');
+      const wrap=document.createElement('div'); wrap.className='dmMsg '+(m.from==='artist'?'right':'left');
 
-      let bubble = `<div class="bubble">`;
+      // 主泡泡
+      let bubble=`<div class="bubble">`;
       if(m.from==='fan'){
-        bubble += `<div class="label">FROM FAN</div>`;
-        bubble += `<div>${escapeHtml(m.text)}</div>`;
+        bubble+=`<div class="label">FROM FAN</div><div class="orig">${escapeHtml(m.text)}</div>`;
       }else{
-        if(m.replyTo && m.replyTo.text){ bubble += `<div class="quote">${escapeHtml(m.replyTo.text)}</div>`; }
-        bubble += `<div>${escapeHtml(m.text)}</div>`;
+        bubble+=`<div class="orig">${escapeHtml(m.text)}</div>`;
       }
-      bubble += `</div>`;
+      bubble+=`</div>`;
 
-      wrap.innerHTML = bubble + `<div class="time">${formatTime(m.ts)}</div>`;
-      if(m.from==='fan'){
-        wrap.addEventListener('click', ()=>{
-          replyDraft = { text: m.text };
-          showReplyBar();
-        });
+      // 回覆預覽
+      if(m.from==='artist' && m.replyTo && m.replyTo.text){
+        const prev=`<div class="replyPreview ${ARTIST_MODE?'bottom':'top'}"><span class="replyTag">FROM FAN</span>${escapeHtml(m.replyTo.text)}</div>`;
+        bubble = bubble + prev; // 藝人視角：放在下方
       }
+
+      // 包裝
+      const inner=document.createElement('div'); inner.style.position='relative'; inner.innerHTML=bubble;
+      if(m.from==='fan'){
+        const btn=document.createElement('button'); btn.className='replyBtn'; btn.title='回覆'; btn.textContent='↩︎';
+        btn.onclick=()=>{ replyTarget={text:m.text}; showReplyChip(); document.getElementById('dmMessageInput').focus(); };
+        inner.appendChild(btn);
+      }
+      wrap.appendChild(inner);
+      const t=document.createElement('div'); t.className='time'; t.textContent=fmtTime(m.ts); wrap.appendChild(t);
+
       box.appendChild(wrap);
     });
-    box.scrollTop = box.scrollHeight;
+    box.scrollTop=box.scrollHeight;
   }
-  function showReplyBar(){
-    const rb = document.getElementById('replyBar');
-    if(replyDraft){ document.getElementById('replyText').textContent = replyDraft.text; rb.style.display='block'; }
-    else rb.style.display='none';
+  function showReplyChip(){
+    const chip=document.getElementById('replyChip');
+    if(replyTarget){ chip.style.display='flex'; document.getElementById('replyChipText').textContent = replyTarget.text.slice(0,42); }
+    else chip.style.display='none';
   }
-  function clearReply(){ replyDraft=null; showReplyBar(); }
+  function clearReply(){ replyTarget=null; showReplyChip(); }
   function sendArtistMsg(){
-    const inp = document.getElementById('dmInput');
-    const t = (inp.value||'').trim(); if(!t) return;
-    GROUP_MSGS.push({ id:'u'+Date.now(), from:'artist', text:t, ts:Date.now(), replyTo: replyDraft? {text:replyDraft.text}: null });
+    const inp=document.getElementById('dmMessageInput');
+    const t=(inp.value||'').trim(); if(!t) return;
+    GROUP_MSGS.push({id:'u'+Date.now(), from:'artist', text:t, ts:Date.now(), replyTo: replyTarget? {text:replyTarget.text}: null});
     LS.set('groupMsgs', GROUP_MSGS);
-    inp.value=''; clearReply(); renderThread(); renderDmList();
+    inp.value=''; clearReply(); renderDmThread(); renderDmList();
   }
 
-  /* ---------- 暱稱＝聊天室名稱：同步更新 ---------- */
-  function syncRoomTitleUI(){
-    const el = document.getElementById('roomTitle');
-    if(el) el.textContent = getRoomTitle();
+  /* ==== DM 背景 ==== */
+  function openBgEditor(){
+    document.getElementById('bgEditor').style.display='block';
+    const url=LS.getStr('artistChatBg',''); const s=LS.getStr('artistChatBgScale','140'); const b=LS.getStr('artistChatBgBlur','2'); const d=LS.getStr('artistChatBgDim','25');
+    if(url) document.getElementById('bgPreview').style.backgroundImage=`url("${url}")`;
+    document.getElementById('bgScale').value=s; document.getElementById('bgBlur').value=b; document.getElementById('bgDim').value=d; updateBgPreview();
   }
-  function propagateArtistName(newName){
-    // 1) 存檔
-    LS.setStr('artistName', newName);
-    // 2) 更新本地狀態
-    ME.name = newName;
-    const meItem = ARTISTS.find(a=>a.id==='me'); if(meItem) meItem.name = newName;
-    // 3) 更新既有貼文作者名稱
-    POSTS.forEach(p=>{ if(p.artistId==='me'){ p.artistName = newName; } });
-    LS.set('artistPosts', POSTS);
-    // 4) 更新畫面
-    document.getElementById('meNickname').textContent = newName;
-    syncRoomTitleUI();
-    renderDmList();
-    renderStoryBar();
-    if(CURRENT_PAGE==='home'){ renderFeed(currentFilter); }
+  function closeBgEditor(){ document.getElementById('bgEditor').style.display='none'; }
+  function updateBgPreview(){
+    const s=document.getElementById('bgScale').value, b=document.getElementById('bgBlur').value, d=document.getElementById('bgDim').value;
+    document.getElementById('bgPreview').style.setProperty('--bgScale', `${s}%`);
+    document.getElementById('bgOverlay').style.setProperty('--bgBlur', `${b}px`);
+    document.getElementById('bgOverlay').style.setProperty('--bgDim',  `${d/100}`);
   }
-  function editArtistNickname(fromMenu=false){
-    const cur = ME.name || 'Annie';
-    const v = prompt('輸入新的暱稱（將同步成為聊天室名稱）', cur);
-    if(v && v.trim()){ propagateArtistName(v.trim()); }
-    if(fromMenu) toggleMenu();
+  ['bgScale','bgBlur','bgDim'].forEach(id=>{
+    document.addEventListener('input', e=>{ if(e.target && e.target.id===id) updateBgPreview(); }, {passive:true});
+  });
+  document.getElementById('bgFile').addEventListener('change', e=>{
+    const f=e.target.files[0]; if(!f) return;
+    const reader=new FileReader();
+    reader.onload=ev=>{ document.getElementById('bgPreview').style.backgroundImage=`url("${ev.target.result}")`; document.getElementById('bgPreview').dataset.url = ev.target.result; };
+    reader.readAsDataURL(f);
+  });
+  function applyBg(){
+    const url=document.getElementById('bgPreview').dataset.url || LS.getStr('artistChatBg','');
+    const s=document.getElementById('bgScale').value, b=document.getElementById('bgBlur').value, d=document.getElementById('bgDim').value;
+    if(url) LS.setStr('artistChatBg',url); LS.setStr('artistChatBgScale',s); LS.setStr('artistChatBgBlur',b); LS.setStr('artistChatBgDim',d);
+    applyChatBg(); closeBgEditor();
   }
-/* ===== 全域旗標：這份檔案是「藝人視角」 ===== */
-const ARTIST_MODE = true;
-
-/* ===== 導航隱藏：DM 與 Composer 都要藏底部 Nav ===== */
-const _HIDE_NAV_PAGES = ['postDetail','dmDetail','liveRoom','liveReplay','composerArtist'];
-
-/* 改造 showPage：用 _HIDE_NAV_PAGES 取代原本陣列 */
-function showPage(id){
-  CURRENT_PAGE = id;
-  document.querySelectorAll('section.page').forEach(s=>s.classList.remove('active'));
-  const page = document.getElementById(id); if(page) page.classList.add('active');
-  if(pageStack[pageStack.length-1] !== id) pageStack.push(id);
-
-  const nav = document.getElementById('nav');
-  if(_HIDE_NAV_PAGES.includes(id)) nav.classList.add('hidden'); else nav.classList.remove('hidden');
-
-  document.querySelectorAll('#nav button').forEach(b=>b.classList.remove('active'));
-  const map = {home:'tabHome', dm:'tabDM', liveList:'tabLive', store:'tabStore' };
-  if(map[id]) document.getElementById(map[id]).classList.add('active');
-
-  if(id==='dm') renderDMList();
-  if(id==='liveList') renderLives();
-  if(id==='profile'){ showFanProfile(); }
-  if(id==='home'){ renderFeed(currentFilter); restoreHomeScroll(); }
-  if(id==='composerArtist'){
-    document.getElementById('composerWho').textContent = LS.getStr('nickname','My Name');
-  }
-}
-
-/* ===== DM：回覆邏輯 ===== */
-let replyTarget = null; // {id,text}
-
-function chooseReply(msgId){
-  const list = dmMessages[currentChat] || [];
-  const m = list.find(x=>x.id===msgId);
-  if(!m) return;
-  replyTarget = { id: m.id, text: m.text };
-  const chip = document.getElementById('replyChip');
-  chip.style.display = 'flex';
-  document.getElementById('replyChipText').textContent = m.text.slice(0,42);
-  document.getElementById('dmMessageInput').focus();
-}
-function clearReply(){
-  replyTarget = null;
-  const chip = document.getElementById('replyChip');
-  if(chip) chip.style.display = 'none';
-}
-
-/* 改 sendDm：把 reply 帶出去，送完清除 chip */
-const _sendDm_orig = sendDm;
-sendDm = function(){
-  if(!currentChat) return;
-  const inp = document.getElementById('dmMessageInput');
-  const t = (inp.value||'').trim();
-  if(!t) return;
-
-  const arr = dmMessages[currentChat] || (dmMessages[currentChat]=[]);
-  const msg = { id:'u'+Date.now(), from:'right', text:t, ts:Date.now(), read:false };
-  if(replyTarget){ msg.reply = { id: replyTarget.id, text: replyTarget.text }; }
-
-  arr.push(msg);
-  const artist = DM_ARTISTS.find(a=>a.id===currentChat);
-  if(artist){ artist.lastMsg = t; artist.lastTs = msg.ts; }
-
-  inp.value=''; clearReply();
-  renderDmThread(currentChat);
-  renderDMList();
-};
-
-/* 改 renderDmThread：加回覆 preview、粉絲泡泡的 ↩ 按鈕 */
-const _renderDmThread_orig = renderDmThread;
-renderDmThread = function(chatId){
-  const box = document.getElementById('dmThread');
-  box.innerHTML = '';
-  markSeenByLatestLeft(chatId);
-  const list = dmMessages[chatId] || [];
-  const start = Math.max(0, list.length - 80);
-
-  list.slice(start).forEach(m=>{
-    const isLeft = (m.from==='left');
-    const timeStr = new Date(m.ts||Date.now()).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
-
-    // 氣泡
-    let bubble = `<div class="bubble"><div class="orig">${escapeHtml(m.text)}</div></div>`;
-
-    // 回覆預覽
-    if(m.reply && m.reply.text){
-      const prev = `<div class="replyPreview ${ARTIST_MODE?'bottom':'top'}"><span class="replyTag">FROM FAN</span>${escapeHtml(m.reply.text)}</div>`;
-      bubble = ARTIST_MODE ? (bubble + prev) : (prev + bubble);
+  function applyChatBg(){
+    const url=LS.getStr('artistChatBg',''); const s=LS.getStr('artistChatBgScale','140'); const b=LS.getStr('artistChatBgBlur','2'); const d=LS.getStr('artistChatBgDim','25');
+    const el=document.querySelector('#dmDetail');
+    if(!url){ el.style.background='none'; }
+    else{
+      el.style.backgroundImage=`url("${url}")`;
+      el.style.backgroundSize=`${s}%`;
+      el.style.backgroundPosition='center';
+      el.style.backgroundRepeat='no-repeat';
+      el.style.setProperty('--bgDim', d/100);
+      el.style.setProperty('--bgBlur', `${b}px`);
     }
-
-    // 外框
-    const wrap = document.createElement('div');
-    wrap.className = `dmMsg ${isLeft?'left':'right'}`;
-    // 粉絲訊息才有「回覆」鍵
-    let replyBtn = '';
-    if(isLeft){
-      replyBtn = `<button class="replyBtn" title="回覆" onclick="chooseReply('${m.id}')">↩︎</button>`;
-    }
-    wrap.innerHTML = `
-      <div class="dmRow">
-        <div style="position:relative">${bubble}${replyBtn}</div>
-        <div class="dmSide"><div class="dmSideRow"><span class="dmTime">${timeStr}</span></div></div>
-      </div>`;
-    box.appendChild(wrap);
-  });
-  box.scrollTop = box.scrollHeight;
-};
-
-/* ===== DM HUD：選單與改名 ===== */
-function toggleDmMenu(){
-  const m = document.getElementById('dmMenu');
-  m.style.display = (m.style.display==='none'||!m.style.display)?'block':'none';
-}
-function renameChat(){
-  const cur = document.getElementById('dmTitle').textContent || '';
-  const n = prompt('更改聊天室名稱', cur);
-  if(!n) return;
-  // 規則：藝人改暱稱 = 聊天室名稱同改（粉絲端若沒自訂，將看到同步的）
-  LS.setStr('artistNickname', n);
-  document.getElementById('dmTitle').textContent = n;
-  toggleDmMenu();
-}
-
-/* ===== DM 背景：開啟／預覽／套用 ===== */
-function openBgEditor(){
-  document.getElementById('bgEditor').style.display='block';
-  const url = LS.getStr('artistChatBg','');
-  const scale = LS.getStr('artistChatBgScale','140');
-  const blur  = LS.getStr('artistChatBgBlur','2');
-  const dim   = LS.getStr('artistChatBgDim','25');
-  if(url) document.getElementById('bgPreview').style.backgroundImage = `url("${url}")`;
-  document.getElementById('bgScale').value = scale;
-  document.getElementById('bgBlur').value  = blur;
-  document.getElementById('bgDim').value   = dim;
-  updateBgPreview();
-}
-function closeBgEditor(){ document.getElementById('bgEditor').style.display='none'; }
-function updateBgPreview(){
-  const s = document.getElementById('bgScale').value;
-  const b = document.getElementById('bgBlur').value;
-  const d = document.getElementById('bgDim').value;
-  document.getElementById('bgPreview').style.setProperty('--bgScale', `${s}%`);
-  document.getElementById('bgOverlay').style.setProperty('--bgBlur', `${b}px`);
-  document.getElementById('bgOverlay').style.setProperty('--bgDim',  `${d/100}`);
-}
-['bgScale','bgBlur','bgDim'].forEach(id=>{
-  document.addEventListener('input', e=>{
-    if(e.target && e.target.id===id) updateBgPreview();
-  }, {passive:true});
-});
-document.getElementById('bgFile').addEventListener('change', e=>{
-  const f = e.target.files[0]; if(!f) return;
-  const reader = new FileReader();
-  reader.onload = ev=>{
-    document.getElementById('bgPreview').style.backgroundImage = `url("${ev.target.result}")`;
-    document.getElementById('bgPreview').dataset.url = ev.target.result;
-  };
-  reader.readAsDataURL(f);
-});
-function applyBg(){
-  const url = document.getElementById('bgPreview').dataset.url || LS.getStr('artistChatBg','');
-  const scale = document.getElementById('bgScale').value;
-  const blur  = document.getElementById('bgBlur').value;
-  const dim   = document.getElementById('bgDim').value;
-
-  if(url) LS.setStr('artistChatBg', url);
-  LS.setStr('artistChatBgScale', scale);
-  LS.setStr('artistChatBgBlur',  blur);
-  LS.setStr('artistChatBgDim',   dim);
-
-  applyChatBg();
-  closeBgEditor();
-}
-function applyChatBg(){
-  const url = LS.getStr('artistChatBg','');
-  const scale = LS.getStr('artistChatBgScale','140');
-  const blur  = LS.getStr('artistChatBgBlur','2');
-  const dim   = LS.getStr('artistChatBgDim','25');
-  const el = document.querySelector('#dmDetail');
-  if(!el) return;
-  if(!url){
-    el.style.background='none';
-  }else{
-    el.style.backgroundImage = `url("${url}")`;
-    el.style.backgroundSize  = `${scale}%`;
-    el.style.backgroundPosition='center';
-    el.style.backgroundRepeat='no-repeat';
-    el.style.setProperty('--bgDim',  dim/100);
-    el.style.setProperty('--bgBlur', `${blur}px`);
-    // 透明覆蓋層
-    el.style.boxShadow = 'inset 0 0 0 9999px rgba(255,255,255,.0)'; // 占位
   }
-}
 
-/* ===== Composer（暫存） ===== */
-function previewComposeMedia(e){
-  const box = document.getElementById('composePreview');
-  box.innerHTML = '';
-  [...e.target.files].forEach(f=>{
-    const url = URL.createObjectURL(f);
-    const isVideo = f.type.startsWith('video/');
-    const el = document.createElement(isVideo?'video':'img');
-    el.src = url; el.style.width='110px'; el.style.height='110px'; el.style.objectFit='cover'; el.controls=isVideo;
-    el.onloadeddata = el.onload = ()=>URL.revokeObjectURL(url);
-    box.appendChild(el);
-  });
-}
-function publishDraft(){
-  alert('先存草稿＆預覽。發佈規則我們下一步接上首頁。');
-  goBack();
-}
+  /* ==== Composer ==== */
+  function previewComposeMedia(e){
+    const box=document.getElementById('composePreview'); box.innerHTML='';
+    [...e.target.files].forEach(f=>{
+      const url=URL.createObjectURL(f); const isVideo=f.type.startsWith('video/');
+      const el=document.createElement(isVideo?'video':'img');
+      el.src=url; el.style.width='110px'; el.style.height='110px'; el.style.objectFit='cover'; el.controls=isVideo;
+      el.onloadeddata = el.onload = ()=>URL.revokeObjectURL(url);
+      box.appendChild(el);
+    });
+  }
+  function publishDraft(){ alert('先存草稿＆預覽；之後接上真正發佈流程'); goBack(); }
 
-/* ===== 初始化補充：打開 DM 時套用背景、接發送 ===== */
-document.addEventListener('DOMContentLoaded', ()=>{
-  document.getElementById('dmSendBtn').addEventListener('click', sendDm);
-  document.getElementById('dmMessageInput').addEventListener('keydown', e=>{
-    if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); sendDm(); }
-  });
-  applyChatBg();
-
-  // 首頁 + 打開 Composer（你的 + 按鈕 id 可能不同，綁在現有 onclick 即可）
-  const fab = document.querySelector('button.fab, .post-fab, .plusFab'); // 試著抓常見 id/class
-  if(fab) fab.onclick = ()=> showPage('composerArtist');
-});
-  /* ---------- 啟動 ---------- */
+  /* ==== 啟動 ==== */
   document.addEventListener('DOMContentLoaded', ()=>{
-    document.getElementById('meNickname').textContent = ME.name;
-    document.getElementById('meId').textContent = 'ARTIST-00001';
-    const a = ME.avatar; if(a) document.getElementById('meAvatar').src = a;
+    // Home init
+    document.getElementById('meNickname').textContent=ME.name;
+    document.getElementById('meId').textContent='ARTIST-00001';
+    document.getElementById('meAvatar').src=ME.avatar;
 
-    syncRoomTitleUI();
     renderStoryBar(); renderFeed(currentFilter);
-    renderDmList(); applyDmBg();
+    renderDmList();
+
+    document.getElementById('fabNew').onclick=()=>{ showPage('composerArtist'); };
+
+    document.getElementById('dmSendBtn').onclick=sendArtistMsg;
+    document.getElementById('dmMessageInput').addEventListener('keydown', e=>{
+      if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); sendArtistMsg(); }
+    });
   });
   </script>
 </body>
