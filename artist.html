@@ -584,6 +584,590 @@
     reader.readAsDataURL(f);
   });
   function applyBg(){
+    const url = document.getElementById('<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>NEXT’S YOU — Fan App (單頁版)</title>
+
+  <style>
+    :root{
+      --bg:#f5f7ff; --card:#fff; --text:#1a1a1a; --sub:#667085; --line:#e7eaf3; --ghost:#9aa0b4;
+      --accent:#6a5acd; --accent2:#836fff; --ok:#10b981; --danger:#ff4d4f;
+      --radius:16px; --shadow:0 12px 34px rgba(18, 24, 40, .08);
+      --safe: env(safe-area-inset-bottom, 0px);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;background:var(--bg);color:var(--text);
+      font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial;
+      -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+      overflow-x:hidden
+    }
+    img{display:block;max-width:100%} a{text-decoration:none;color:inherit} button{font:inherit;cursor:pointer}
+    .ghost{color:var(--ghost)} .sub{color:var(--sub)} .soft{padding:16px} .row{display:flex;align-items:center;gap:10px}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+    .chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:#f3f5ff;border:1px solid var(--line);font-size:12px}
+
+    /* pages */
+    section.page{display:none;padding:12px 12px calc(76px + var(--safe))}
+    section.page.active{display:block;animation:fade .22s ease}
+    @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+    /* bottom nav */
+    nav#nav{
+      position:fixed;left:0;right:0;bottom:0;z-index:40;background:var(--card);border-top:1px solid var(--line);
+      display:flex;justify-content:space-around;gap:6px;padding:10px 8px calc(12px + var(--safe));backdrop-filter:saturate(140%) blur(10px);
+      transition:transform .25s ease;
+    }
+    nav#nav.hidden{transform:translateY(120%)}
+    nav#nav button{flex:1;border:none;background:transparent;padding:8px 0 6px;border-radius:12px;color:var(--sub);font-weight:800;font-size:13px}
+    nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid var(--line)}
+
+    /* header (home) */
+    #homeHeader{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:6px 6px 10px}
+    #homeHeader .me{display:flex;align-items:center;gap:10px}
+    #homeHeader .me img{width:44px;height:44px;border-radius:50%;object-fit:cover;border:1px solid var(--line)}
+    #homeHeader .me .id{font-size:12px;color:var(--ghost)}
+
+    /* story bar */
+    #storyWrap{position:sticky;top:0;z-index:5;background:linear-gradient(180deg,rgba(245,247,255,.96),rgba(245,247,255,.90));backdrop-filter:blur(6px)}
+    #storyBar{display:flex;gap:12px;overflow-x:auto;padding:10px 8px 12px;border-bottom:1px solid var(--line);scrollbar-width:none}
+    #storyBar::-webkit-scrollbar{display:none}
+    .story-item{flex:0 0 auto;width:64px;text-align:center;cursor:pointer;position:relative}
+    .story-item img{width:56px;height:56px;border-radius:50%;object-fit:cover;border:2px solid #d5d8f3}
+    .story-item .name{font-size:12px;margin-top:4px;color:#9aa1ad}
+    .story-item.active img{border-color:var(--accent);box-shadow:0 0 0 2px rgba(106,90,205,.18)}
+    .story-item.active .name{color:var(--accent);font-weight:700}
+    .story-item .dot{position:absolute;right:6px;top:2px;width:8px;height:8px;background:var(--danger);border-radius:50%;box-shadow:0 0 0 2px #fff}
+    .story-item.pinned img{border-color:#111}
+
+    /* post card */
+    .post{margin:12px 6px}
+    .post .hdr{display:flex;align-items:center;gap:10px}
+    .post .avatar{width:44px;height:44px;border-radius:50%;object-fit:cover;border:1px solid var(--line)}
+    .post .meta b{font-weight:900;display:flex;align-items:center;gap:6px}
+    .post .meta small{display:block;color:var(--ghost)}
+    .post .body{margin-top:8px}
+    .post .hero{width:100%;height:360px;object-fit:cover;border-radius:12px;border:1px solid var(--line)}
+
+    /* verify badge（藍勾） */
+    .verify{
+      display:inline-flex;align-items:center;justify-content:center;
+      width:18px;height:18px;border-radius:50%;
+      background:linear-gradient(180deg,#4ea1ff,#327dff);
+      color:#fff;font-weight:900;font-size:12px;box-shadow:0 0 0 2px #fff
+    }
+
+    /* floating + */
+    .fab{
+      position:fixed;right:16px;bottom:calc(86px + var(--safe));z-index:35;width:56px;height:56px;border-radius:50%;
+      display:flex;align-items:center;justify-content:center;border:1px solid var(--line);
+      background:linear-gradient(180deg,var(--accent),var(--accent2));color:#fff;font-weight:900;font-size:22px;box-shadow:0 12px 28px rgba(106,90,205,.28);
+    }
+
+    /* DM list */
+    #dm .dmCard{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px;border:1px solid var(--line);border-radius:14px;background:var(--card);margin:10px 0;cursor:pointer}
+    #dm .dmCard .left{display:flex;align-items:center;gap:12px}
+    #dm .dmCard img{width:52px;height:52px;border-radius:50%;object-fit:cover;border:1px solid var(--line)}
+    .badge{background:#ff3b30;color:#fff;font-size:12px;padding:2px 7px;border-radius:999px;min-width:22px;text-align:center}
+    .nameBlock{display:flex;flex-direction:column;gap:2px}
+    .nameBlock .artistTag{align-self:flex-start}
+    .nameBlock .nm{display:flex;align-items:center;gap:6px}
+    .artistTag{display:inline-flex;align-items:center;justify-content:center;padding:3px 8px;height:18px;border-radius:8px;font-size:10px;font-weight:900;letter-spacing:.7px;text-transform:uppercase;color:#2e2a6f;background:linear-gradient(90deg,#cbb9ff 0%,#8fb4ff 62%,#ffffff 100%);border:1px solid #ded6ff;box-shadow:0 2px 8px rgba(106,90,205,.20)}
+
+    /* ===== DM Detail（藝人） ===== */
+    .chatHUD{display:flex;align-items:center;justify-content:space-between;padding:4px 0 8px}
+    .chatHUD .left{display:flex;align-items:center;gap:8px}
+    .chatHUD .center{flex:1;min-width:0}
+    .chatHUD .titleRow{display:flex;align-items:center;gap:8px;line-height:1}
+    .chatHUD .subtitle{font-size:12px;color:#9aa0b4;margin-top:4px}
+    .hudBtn,.back{width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--card)}
+    .statusHint{margin-top:6px;font-size:12px;color:#b0b6c8}
+
+    /* 背景（可調） */
+    #dmDetail{position:relative}
+    #dmDetail::after{
+      content:""; position:fixed; inset:0; pointer-events:none;
+      background:rgba(255,255,255,var(--bgDim,.0)); backdrop-filter:blur(var(--bgBlur,0px));
+      z-index:-1;
+    }
+
+    /* thread */
+    .thread{display:flex;flex-direction:column;gap:8px;height:calc(100vh - 230px);overflow-y:auto;padding:8px 2px}
+    .msg{display:flex;flex-direction:column;max-width:78%;margin:6px 0}
+    .msg.left{align-self:flex-start}.msg.right{align-self:flex-end}
+    .bubble{max-width:100%;padding:10px 12px;border-radius:14px;border:1px solid var(--line);background:#fff;position:relative}
+    .msg.right .bubble{background:linear-gradient(180deg,var(--accent),var(--accent2));color:#fff;border-color:transparent}
+    .label{font-size:10px;color:#7b89a6;font-weight:900;margin-bottom:4px}
+    .time{font-size:11px;color:#8b93a7;margin-top:4px}
+
+    /* 回覆 preview（圖4樣式：泡泡外、半透明） */
+    .replyPreview{max-width:260px;padding:8px 12px;border-radius:12px;background:rgba(255,255,255,.75);border:1px solid var(--line);font-size:12px;color:#556;backdrop-filter:blur(6px);margin:8px 0 0}
+    .replyPreview.top{margin:0 0 8px}
+    .replyTag{font-weight:900;margin-right:6px;color:#7a86b7}
+
+    /* 粉絲泡泡右側回覆鈕（圖10） */
+    .replyBtn{
+      position:absolute; right:-12px; top:50%; transform:translateY(-50%);
+      width:30px;height:30px;border-radius:999px;border:1px solid var(--line);
+      background:#fff; box-shadow:0 6px 14px rgba(0,0,0,.08);
+      display:flex;align-items:center;justify-content:center; font-size:14px; color:#7b88a6;
+    }
+
+    /* 回覆 chip（輸入列上方） */
+    .replyChip{display:none;align-items:center;gap:10px;margin:0 2px 8px}
+    .replyChip b{color:#7a86b7}
+    .replyChip .x{border:none;background:transparent;color:#97a0b8}
+
+    /* 輸入列（白底、鎖底、安全區） */
+    .dmFooter{position:sticky;bottom:0;left:0;right:0;background:linear-gradient(180deg,rgba(255,255,255,.55),rgba(255,255,255,.98));backdrop-filter:blur(10px);padding:8px 0 calc(8px + var(--safe));border-top:1px solid var(--line)}
+    .dmInputBar{display:flex;align-items:center;gap:10px}
+    .dmInputBar .box{flex:1;min-width:0;display:flex;align-items:center;background:#fff;border:1px solid var(--line);border-radius:18px;padding:10px 14px}
+    .dmInputBar input{flex:1;border:none;outline:none;background:transparent;font-size:17px} /* 17px 防 iOS 自動放大 */
+    .dmSend{min-width:58px;height:44px;border:none;border-radius:14px;background:linear-gradient(180deg,var(--accent),var(--accent2));color:#fff;font-weight:900}
+
+    /* 背景編輯器 */
+    #bgEditor{position:fixed;inset:0;z-index:80;display:none;background:rgba(0,0,0,.45)}
+    #bgEditor .panel{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%); width:min(720px,92vw);background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px;box-shadow:var(--shadow)}
+    #bgPreview{height:42vh;border:1px dashed var(--line);border-radius:12px;background-size:var(--bgScale,cover);background-position:center;background-repeat:no-repeat;position:relative;overflow:hidden}
+    #bgOverlay{position:absolute;inset:0;background:rgba(0,0,0,var(--bgDim,.25));backdrop-filter:blur(var(--bgBlur,0px))}
+    .rangeRow{display:flex;align-items:center;gap:10px;margin:12px 0}
+    .rangeRow label{min-width:60px;color:#556}
+    .rangeRow output{margin-left:auto;color:#667;font-variant-numeric:tabular-nums}
+
+    /* composer */
+    #composerArtist .topbar{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+    #composerArtist .rightName{margin-left:auto;color:#9aa1ad;font-weight:800;letter-spacing:.3px}
+    #composeBox{min-height:42vh}
+    #composeText{width:100%;border:none;outline:none;font-size:16px}
+    #composePreview>img,#composePreview>video{width:110px;height:110px;object-fit:cover;border-radius:12px;border:1px solid var(--line)}
+    .btn-primary{background:linear-gradient(180deg,var(--accent),var(--accent2));color:#fff;border:none;border-radius:12px;padding:10px 14px;font-weight:900}
+    .btn{border:1px solid var(--line);border-radius:12px;padding:8px 12px;background:#fff}
+  </style>
+</head>
+<body>
+
+  <!-- ====================== HOME（藝人） ====================== -->
+  <section id="home" class="page active">
+    <div id="homeHeader">
+      <div class="me">
+        <img id="meAvatar" src="https://picsum.photos/80?u=artist" onerror="imgFallback(this)">
+        <div>
+          <div id="meNickname" style="font-weight:900">Annie</div>
+          <div class="id" id="meId">ARTIST-00001</div>
+        </div>
+      </div>
+      <button class="chip" id="btnEditNick">✏️ 更改我的暱稱</button>
+    </div>
+
+    <div id="storyWrap"><div id="storyBar"></div></div>
+    <div id="feedWrap"></div>
+
+    <button class="fab" id="fabNew">＋</button>
+  </section>
+
+  <!-- ====================== DM LIST ====================== -->
+  <section id="dm" class="page">
+    <div class="row" style="justify-content:space-between;margin:2px 0 10px">
+      <b style="font-weight:900">訊息</b>
+    </div>
+    <div id="dmList"></div>
+  </section>
+
+  <!-- ====================== DM DETAIL（藝人群聊） ====================== -->
+  <section id="dmDetail" class="page">
+    <!-- 頂部 HUD -->
+    <div class="chatHUD">
+      <div class="left">
+        <button class="back" onclick="goBack()">←</button>
+      </div>
+      <div class="center">
+        <div class="titleRow">
+          <span class="artistTag">ARTIST</span>
+          <b id="dmTitle">Annie</b>
+        </div>
+        <div class="statusHint" id="statusHint">（點右上「…」可更改聊天室名稱／背景）</div>
+      </div>
+      <div class="right">
+        <button class="hudBtn" title="更多" onclick="toggleDmMenu()">⋯</button>
+      </div>
+    </div>
+
+    <!-- DM Thread -->
+    <div id="dmThread" class="thread"></div>
+
+    <!-- 回覆 chip -->
+    <div id="replyChip" class="replyChip">
+      <b>回覆：</b><span id="replyChipText" class="ghost"></span>
+      <button class="x" onclick="clearReply()">× 取消</button>
+    </div>
+
+    <!-- Footer / Input -->
+    <div class="dmFooter">
+      <div class="dmInputBar">
+        <div class="box">
+          <input id="dmMessageInput" placeholder="輸入訊息…" />
+        </div>
+        <button class="dmSend" id="dmSendBtn">➤</button>
+      </div>
+    </div>
+
+    <!-- 右上 … 選單 -->
+    <div id="dmMenu" class="card soft" style="position:fixed;right:12px;top:64px;display:none;z-index:70">
+      <div class="row" style="flex-direction:column;gap:6px">
+        <button class="chip" onclick="renameChat()">更改聊天室名稱</button>
+        <button class="chip" onclick="openBgEditor()">更改背景</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================== 背景編輯器 ====================== -->
+  <div id="bgEditor">
+    <div class="panel">
+      <b style="font-weight:900">背景設定</b>
+      <div id="bgPreview"><div id="bgOverlay"></div></div>
+
+      <div class="rangeRow">
+        <label>縮放</label>
+        <input id="bgScale" type="range" min="100" max="220" value="140">
+        <output id="bgScaleOut">140%</output>
+      </div>
+      <div class="rangeRow">
+        <label>模糊</label>
+        <input id="bgBlur"  type="range" min="0" max="8" value="2">
+        <output id="bgBlurOut">2px</output>
+      </div>
+      <div class="rangeRow">
+        <label>暗度</label>
+        <input id="bgDim"   type="range" min="0" max="70" value="25">
+        <output id="bgDimOut">25%</output>
+      </div>
+
+      <div class="row" style="justify-content:space-between;gap:8px;margin-top:8px">
+        <input id="bgFile" type="file" accept="image/*">
+        <div class="row" style="gap:8px">
+          <button class="btn" onclick="closeBgEditor()">取消</button>
+          <button class="btn-primary" onclick="applyBg()">套用</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====================== Composer（＋） ====================== -->
+  <section id="composerArtist" class="page">
+    <div class="topbar">
+      <button class="back" onclick="goBack()">←</button>
+      <b style="font-weight:900">NEXT ONE</b>
+      <div class="rightName" id="composerWho">—</div>
+    </div>
+
+    <div id="composeBox" class="soft card">
+      <textarea id="composeText" rows="4" placeholder="在想些什麼？"></textarea>
+      <div id="composePreview" class="row" style="flex-wrap:wrap;gap:8px;margin-top:10px"></div>
+    </div>
+
+    <div class="row" style="gap:10px;margin-top:12px">
+      <label class="btn">
+        選擇檔案
+        <input id="composeMedia" type="file" multiple accept="image/*,video/*" onchange="previewComposeMedia(event)" style="display:none">
+      </label>
+      <span id="composeFilesHint" class="ghost">未選取檔案</span>
+      <button class="btn-primary" onclick="publishDraft()">發佈（暫存流程）</button>
+    </div>
+  </section>
+
+  <!-- ====================== Bottom Nav ====================== -->
+  <nav id="nav">
+    <button id="tabHome" class="active" onclick="showPage('home')">首頁</button>
+    <button id="tabDM" onclick="showPage('dm')">DM</button>
+    <button id="tabLive" onclick="showPage('live')">直播</button>
+    <button id="tabStore" onclick="showPage('store')">商店</button>
+  </nav>
+
+  <script>
+  /* ---------- 小工具 ---------- */
+  function imgFallback(img){
+    const svg = encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><rect width='100%' height='100%' fill='#eaeef8'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='#9aa0b4' font-family='sans-serif' font-size='20'>NO IMG</text></svg>`);
+    img.src = 'data:image/svg+xml;charset=UTF-8,' + svg; img.onerror = null;
+  }
+  const LS = {
+    get(k,def=null){ try{ const v=localStorage.getItem(k); return v? JSON.parse(v): def }catch(e){ return def } },
+    set(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)) }catch(e){} },
+    getStr(k,def=''){ const v=localStorage.getItem(k); return v ?? def },
+    setStr(k,v){ localStorage.setItem(k,v) }
+  };
+  const fmtTime = ts => new Date(ts).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+  const escapeHtml = s => String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+  /* ---------- 資料：舞台名（固定）vs 暱稱（可改） ---------- */
+  const STAGE_NAME = LS.getStr('artistStage','ANNIE');      // 永遠用於首頁/貼文（英文大寫）
+  let   NICKNAME   = LS.getStr('artistNickname','Annie');    // 聊天室名稱（藝人暱稱）
+  let   AVATAR     = LS.getStr('artistAvatar','https://picsum.photos/80?u=artist');
+
+  /* ---------- 假資料 ---------- */
+  const ARTISTS = [
+    {id:'me',  name:STAGE_NAME, avatar:AVATAR},
+    {id:'all', name:'ALL',   avatar:'https://picsum.photos/80?u=all'},
+    {id:'dohee', name:'DOHEE', avatar:'https://picsum.photos/80?u=dh'},
+    {id:'woo',   name:'WOOCHAN', avatar:'https://picsum.photos/80?u=wc'}
+  ];
+  const POSTS = LS.get('artistPosts', [
+    { id:'p3', artistId:'dohee', artistStage:'DOHEE',   avatar:'https://picsum.photos/80?u=dh', text:'練舞練到爆汗 💃', img:'https://picsum.photos/1200?u=dh1', ts: Date.now()-1000*60*40 },
+    { id:'p2', artistId:'woo',   artistStage:'WOOCHAN', avatar:'https://picsum.photos/80?u=wc', text:'今天吃拉麵 🍜',   img:'https://picsum.photos/1200?u=wc1', ts: Date.now()-1000*60*50 },
+    { id:'p1', artistId:'me',    artistStage:STAGE_NAME, avatar:AVATAR, text:'大家好，我是 Annie ✨', img:'', ts: Date.now()-1000*60*60 }
+  ]);
+
+  const FANS = [
+    {id:'f1', name:'粉絲 A', avatar:'https://picsum.photos/40?u=f1'},
+    {id:'f2', name:'粉絲 B', avatar:'https://picsum.photos/40?u=f2'}
+  ];
+  let GROUP_MSGS = LS.get('groupMsgs', [
+    {id:'m1', from:'fan', fanId:'f1', text:'偶像好～', ts:Date.now()-1000*60*45},
+    {id:'m2', from:'fan', fanId:'f2', text:'今天吃什麼？', ts:Date.now()-1000*60*43},
+    {id:'m3', from:'artist', text:'我午餐吃了沙拉 🥗', ts:Date.now()-1000*60*40, replyTo:{text:'今天吃什麼？'}}
+  ]);
+
+  const lastSeen = LS.get('lastSeen', {});
+
+  /* ---------- 導航 ---------- */
+  const HIDE_NAV_IN = ['dmDetail','composerArtist'];
+  let PAGE_STACK = ['home'];
+  function showPage(id){
+    document.querySelectorAll('section.page').forEach(s=>s.classList.remove('active'));
+    const page = document.getElementById(id); if(page) page.classList.add('active');
+    if(PAGE_STACK[PAGE_STACK.length-1]!==id) PAGE_STACK.push(id);
+
+    // nav tab
+    document.querySelectorAll('#nav button').forEach(b=>b.classList.remove('active'));
+    ({home:'tabHome', dm:'tabDM', live:'tabLive', store:'tabStore'}[id] || null) &&
+      document.getElementById({home:'tabHome', dm:'tabDM', live:'tabLive', store:'tabStore'}[id]).classList.add('active');
+
+    // hide nav?
+    const nav = document.getElementById('nav');
+    if(HIDE_NAV_IN.includes(id)) nav.classList.add('hidden'); else nav.classList.remove('hidden');
+
+    // per-page render
+    if(id==='home'){ renderStoryBar(); renderFeed(currentFilter); }
+    if(id==='dm'){ renderDmList(); }
+    if(id==='dmDetail'){ renderThread(); applyChatBg(); }
+    if(id==='composerArtist'){ document.getElementById('composerWho').textContent = NICKNAME; }
+  }
+  function goBack(){
+    PAGE_STACK.pop();
+    const prev = PAGE_STACK[PAGE_STACK.length-1] || 'home';
+    showPage(prev);
+  }
+
+  /* ---------- HOME：Story bar ---------- */
+  let currentFilter = 'me';
+  function hasNewDots(artistId){
+    if(artistId==='me' || artistId==='all') return false;
+    const seen = lastSeen[artistId] || 0;
+    const latest = Math.max(0, ...POSTS.filter(p=>p.artistId===artistId).map(p=>p.ts));
+    return latest > seen;
+  }
+  function renderStoryBar(){
+    const bar = document.getElementById('storyBar');
+    const others = ARTISTS.filter(a=> a.id!=='me' && a.id!=='all');
+    others.sort((a,b)=>{
+      const la = Math.max(0,...POSTS.filter(p=>p.artistId===a.id).map(p=>p.ts));
+      const lb = Math.max(0,...POSTS.filter(p=>p.artistId===b.id).map(p=>p.ts));
+      return lb - la;
+    });
+    const order = [ARTISTS.find(a=>a.id==='me'), ARTISTS.find(a=>a.id==='all'), ...others];
+    bar.innerHTML = order.map(a=>{
+      const active = (currentFilter===a.id) ? 'active':'';
+      const pinned = (a.id==='me' || a.id==='all') ? 'pinned':'';
+      const dot = hasNewDots(a.id)? '<span class="dot"></span>':'';
+      return `<div class="story-item ${active} ${pinned}" data-id="${a.id}">
+        <img src="${a.avatar}" onerror="imgFallback(this)">${dot}
+        <div class="name">${a.name}</div>
+      </div>`;
+    }).join('');
+    bar.querySelectorAll('.story-item').forEach(el=>{
+      el.addEventListener('click', ()=>{
+        const id = el.dataset.id;
+        currentFilter = id;
+        if(id!=='all') lastSeen[id] = Date.now();
+        LS.set('lastSeen', lastSeen);
+        renderStoryBar();
+        renderFeed(currentFilter);
+        window.scrollTo({top:0,behavior:'smooth'});
+      });
+    });
+  }
+
+  /* ---------- HOME：Feed（舞台名 + 藍勾） ---------- */
+  function feedOf(filter){
+    if(filter==='all') return POSTS.slice().sort((a,b)=>b.ts-a.ts);
+    if(filter==='me')  return POSTS.filter(p=>p.artistId==='me').sort((a,b)=>b.ts-a.ts);
+    return POSTS.filter(p=>p.artistId===filter).sort((a,b)=>b.ts-a.ts);
+  }
+  function renderFeed(filter='me'){
+    const wrap = document.getElementById('feedWrap');
+    const list = feedOf(filter);
+    if(!list.length){ wrap.innerHTML = `<div class="ghost" style="text-align:center;margin-top:20vh">尚無貼文</div>`; return; }
+    wrap.innerHTML = list.map(p=>`
+      <div class="card soft post">
+        <div class="hdr">
+          <img class="avatar" src="${p.avatar}" onerror="imgFallback(this)">
+          <div class="meta">
+            <b>${escapeHtml((p.artistStage || p.artistName || '').toString().toUpperCase())} <span class="verify">✓</span></b>
+            <small class="ghost">${new Date(p.ts).toLocaleString()}</small>
+          </div>
+        </div>
+        <div class="body">
+          <p>${escapeHtml(p.text)}</p>
+          ${p.img? `<img class="hero" src="${p.img}" onerror="imgFallback(this)">` : ``}
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // 新貼文（先做簡版，不影響舞台名）
+  document.getElementById('fabNew').addEventListener('click', ()=> showPage('composerArtist'));
+
+  /* ---------- DM List：徽章在上、名字在下 ---------- */
+  function getRoomTitle(){ return NICKNAME; } // DM 使用暱稱
+  function renderDmList(){
+    const box = document.getElementById('dmList');
+    const last = GROUP_MSGS[GROUP_MSGS.length-1];
+    const preview = last ? last.text : '（尚無訊息）';
+    box.innerHTML = `
+      <div class="dmCard" onclick="showPage('dmDetail')">
+        <div class="left">
+          <img src="${AVATAR}" onerror="imgFallback(this)">
+          <div class="nameBlock">
+            <span class="artistTag">ARTIST</span>
+            <div class="nm"><b>${escapeHtml(getRoomTitle())}</b></div>
+            <small class="ghost" style="display:block;max-width:62vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(preview)}</small>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  /* ---------- DM Thread（回覆＝圖4樣式、粉絲訊息右側 ↩︎） ---------- */
+  let replyDraft = null; // { text }
+  function renderThread(){
+    const box = document.getElementById('dmThread'); box.innerHTML='';
+    GROUP_MSGS.forEach(m=>{
+      const wrap = document.createElement('div');
+      wrap.className = 'msg ' + (m.from==='artist'?'right':'left');
+
+      const bubble = document.createElement('div');
+      bubble.className = 'bubble';
+
+      if(m.from==='fan'){
+        bubble.innerHTML = `<div class="label">FROM FAN</div><div>${escapeHtml(m.text)}</div>`;
+      }else{
+        bubble.innerHTML = `<div>${escapeHtml(m.text)}</div>`;
+      }
+
+      // 粉絲訊息才有回覆鍵（圓形箭頭）
+      if(m.from==='fan'){
+        const btn = document.createElement('button');
+        btn.className = 'replyBtn'; btn.innerHTML = '↩︎';
+        btn.onclick = ()=>{
+          replyDraft = { text: m.text };
+          const chip = document.getElementById('replyChip');
+          chip.style.display = 'flex';
+          document.getElementById('replyChipText').textContent = m.text.slice(0, 42);
+          document.getElementById('dmMessageInput').focus();
+        };
+        bubble.appendChild(btn);
+      }
+
+      wrap.appendChild(bubble);
+
+      // 藝人回覆 preview（泡泡外，下方）
+      if(m.from==='artist' && m.replyTo && m.replyTo.text){
+        const prev = document.createElement('div');
+        prev.className = 'replyPreview bottom';
+        prev.innerHTML = `<span class="replyTag">FROM FAN</span>${escapeHtml(m.replyTo.text)}`;
+        wrap.appendChild(prev);
+      }
+
+      const t = document.createElement('div');
+      t.className = 'time'; t.textContent = fmtTime(m.ts);
+      wrap.appendChild(t);
+
+      box.appendChild(wrap);
+    });
+    box.scrollTop = box.scrollHeight;
+  }
+  function clearReply(){ replyDraft = null; document.getElementById('replyChip').style.display='none'; }
+  function sendArtistMsg(){
+    const inp = document.getElementById('dmMessageInput');
+    const t = (inp.value||'').trim(); if(!t) return;
+    GROUP_MSGS.push({ id:'u'+Date.now(), from:'artist', text:t, ts:Date.now(), replyTo: replyDraft? {text:replyDraft.text}: null });
+    LS.set('groupMsgs', GROUP_MSGS);
+    inp.value=''; clearReply(); renderThread(); renderDmList();
+  }
+  document.getElementById('dmSendBtn').addEventListener('click', sendArtistMsg);
+  document.getElementById('dmMessageInput').addEventListener('keydown', e=>{
+    if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); sendArtistMsg(); }
+  });
+
+  /* ---------- DM 菜單、改名（只影響暱稱/聊天室） ---------- */
+  function toggleDmMenu(){
+    const m = document.getElementById('dmMenu');
+    m.style.display = (m.style.display==='none'||!m.style.display)?'block':'none';
+  }
+  function renameChat(){
+    const cur = getRoomTitle();
+    const n = prompt('更改聊天室名稱（同：藝人暱稱）', cur);
+    if(!n) return;
+    NICKNAME = n.trim() || cur;
+    LS.setStr('artistNickname', NICKNAME);
+    document.getElementById('dmTitle').textContent = NICKNAME;
+    document.getElementById('meNickname').textContent = NICKNAME;
+    document.getElementById('composerWho').textContent = NICKNAME;
+    renderDmList();
+    toggleDmMenu();
+  }
+
+  /* ---------- DM 背景：開啟／預覽／套用 ---------- */
+  function openBgEditor(){
+    document.getElementById('bgEditor').style.display='block';
+    const url = LS.getStr('artistChatBg','');
+    const scale = LS.getStr('artistChatBgScale','140');
+    const blur  = LS.getStr('artistChatBgBlur','2');
+    const dim   = LS.getStr('artistChatBgDim','25');
+    if(url) document.getElementById('bgPreview').style.backgroundImage = `url("${url}")`;
+    document.getElementById('bgScale').value = scale;
+    document.getElementById('bgBlur').value  = blur;
+    document.getElementById('bgDim').value   = dim;
+    updateBgPreview();
+  }
+  function closeBgEditor(){ document.getElementById('bgEditor').style.display='none'; }
+  function updateBgPreview(){
+    const s = document.getElementById('bgScale').value;
+    const b = document.getElementById('bgBlur').value;
+    const d = document.getElementById('bgDim').value;
+    document.getElementById('bgPreview').style.setProperty('--bgScale', `${s}%`);
+    document.getElementById('bgOverlay').style.setProperty('--bgBlur', `${b}px`);
+    document.getElementById('bgOverlay').style.setProperty('--bgDim',  `${d/100}`);
+    document.getElementById('bgScaleOut').value = s+'%';
+    document.getElementById('bgBlurOut').value  = b+'px';
+    document.getElementById('bgDimOut').value   = d+'%';
+  }
+  ['bgScale','bgBlur','bgDim'].forEach(id=>{
+    document.getElementById(id).addEventListener('input', updateBgPreview, {passive:true});
+  });
+  document.getElementById('bgFile').addEventListener('change', e=>{
+    const f = e.target.files[0]; if(!f) return;
+    const reader = new FileReader();
+    reader.onload = ev=>{
+      document.getElementById('bgPreview').style.backgroundImage = `url("${ev.target.result}")`;
+      document.getElementById('bgPreview').dataset.url = ev.target.result;
+    };
+    reader.readAsDataURL(f);
+  });
+  function applyBg(){
     const url = document.getElementById('bgPreview').dataset.url || LS.getStr('artistChatBg','');
     const scale = document.getElementById('bgScale').value;
     const blur  = document.getElementById('bgBlur').value;
