@@ -152,6 +152,29 @@
     #composePreview>img,#composePreview>video{width:110px;height:110px;object-fit:cover;border-radius:12px;border:1px solid var(--line)}
     .btn-primary{background:linear-gradient(180deg,var(--accent),var(--accent2));color:#fff;border:none;border-radius:12px;padding:10px 14px;font-weight:900}
     .btn{border:1px solid var(--line);border-radius:12px;padding:8px 12px;background:#fff}
+ /* 藍勾勾（首頁貼文作者用） */
+.verify{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:18px;height:18px;border-radius:50%;
+  background:linear-gradient(180deg,#4ea1ff,#327dff);
+  color:#fff;font-weight:900;font-size:12px;box-shadow:0 0 0 2px #fff;
+}
+
+/* DM 列表：徽章在上、名字在下 需要的容器 */
+.nameBlock{display:flex;flex-direction:column;gap:2px}
+.nameBlock .artistTag{align-self:flex-start}
+.nameBlock .nm{display:flex;align-items:center;gap:6px}
+
+/* DM 輸入列：鎖在底部 + iOS 鍵盤不再自動放大 */
+.dmInputBar{
+  position:sticky; bottom:0; left:0; right:0;
+  gap:10px; padding:12px 12px calc(12px + env(safe-area-inset-bottom,0px));
+  border-top:1px solid var(--line);
+  background:linear-gradient(180deg,rgba(255,255,255,.55),rgba(255,255,255,.98));
+  backdrop-filter:blur(10px);
+}
+.dmInputBar input{font-size:17px} /* >=16px 可避免 iOS 自動放大 */
+
   </style>
 </head>
 <body>
@@ -195,7 +218,6 @@
           <span class="artistTag">ARTIST</span>
           <b id="dmTitle">Annie</b>
         </div>
-        <div class="subtitle">1:多 群聊</div>
         <div class="statusHint" id="statusHint">（點右上「…」可更改聊天室名稱／背景）</div>
       </div>
       <div class="right">
@@ -240,19 +262,17 @@
         <label>縮放</label><input id="bgScale" type="range" min="100" max="220" value="140">
         <output id="bgScaleOut">140%</output>
       </div>
-      <div class="rangeRow">
-        <label>模糊</label><input id="bgBlur"  type="range" min="0" max="8" value="2">
-        <output id="bgBlurOut">2px</output>
-      </div>
-      <div class="rangeRow">
-        <label>暗度</label><input id="bgDim"   type="range" min="0" max="70" value="25">
-        <output id="bgDimOut">25%</output>
-      </div>
-      <div class="row" style="justify-content:space-between;gap:8px;margin-top:8px">
-        <input id="bgFile" type="file" accept="image/*">
-        <div class="row" style="gap:8px">
-          <button class="btn" onclick="closeBgEditor()">取消</button>
-          <button class="btn-primary" onclick="applyBg()">套用</button>
+      <div class="rangeRow"><label>縮放</label>
+  <input id="bgScale" type="range" min="100" max="220" value="140">
+  <output id="bgScaleOut">140%</output>
+</div>
+<div class="rangeRow"><label>模糊</label>
+  <input id="bgBlur"  type="range" min="0" max="8" value="2">
+  <output id="bgBlurOut">2px</output>
+</div>
+<div class="rangeRow"><label>暗度</label>
+  <input id="bgDim"   type="range" min="0" max="70" value="25">
+  <output id="bgDimOut">25%</output>
         </div>
       </div>
     </div>
@@ -303,8 +323,8 @@
   };
   const fmtTime = ts => new Date(ts).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
 
-  /* ---------- 資料：舞台名（固定）vs 暱稱（可改） ---------- */
-  const STAGE_NAME = LS.getStr('artistStage','ANNIE');      // 永遠用於首頁/貼文等（顯示大寫+藍勾）
+// 系統舞台名：固定、英文大寫（不受暱稱影響）
+  const STAGE_NAME = LS.getStr('artistStage','ANNIE');
   let   NICKNAME   = LS.getStr('artistNickname','Annie');    // = 聊天室名稱（DM 專用）
   let   AVATAR     = LS.getStr('artistAvatar','https://picsum.photos/80?u=artist');
 
@@ -316,10 +336,10 @@
     {id:'woo',   name:'WOOCHAN', avatar:'https://picsum.photos/80?u=wc'}
   ];
   const POSTS = LS.get('artistPosts', [
-    { id:'p3', artistId:'dohee', artistStage:'DOHEE',   avatar:'https://picsum.photos/80?u=dh', text:'練舞練到爆汗 💃', img:'https://picsum.photos/1200?u=dh1', ts: Date.now()-1000*60*40 },
-    { id:'p2', artistId:'woo',   artistStage:'WOOCHAN', avatar:'https://picsum.photos/80?u=wc', text:'今天吃拉麵 🍜',   img:'https://picsum.photos/1200?u=wc1', ts: Date.now()-1000*60*50 },
-    { id:'p1', artistId:'me',    artistStage:STAGE_NAME, avatar:AVATAR, text:'大家好，我是 Annie ✨', img:'', ts: Date.now()-1000*60*60 }
-  ]);
+  { id:'p3', artistId:'dohee', artistStage:'DOHEE',   avatar:'https://picsum.photos/80?u=dh', text:'練舞練到爆汗 💃', img:'https://picsum.photos/1200?u=dh1', ts: Date.now()-1000*60*40 },
+  { id:'p2', artistId:'woo',   artistStage:'WOOCHAN', avatar:'https://picsum.photos/80?u=wc', text:'今天吃拉麵 🍜',   img:'https://picsum.photos/1200?u=wc1', ts: Date.now()-1000*60*50 },
+  { id:'p1', artistId:'me',    artistStage:STAGE_NAME, avatar:ME.avatar, text:'大家好，我是 Annie ✨', img:'', ts: Date.now()-1000*60*60 }
+]);
 
   const FANS = [
     {id:'f1', name:'粉絲 A', avatar:'https://picsum.photos/40?u=f1'},
@@ -416,7 +436,7 @@
         <div class="hdr">
           <img class="avatar" src="${p.avatar}" onerror="imgFallback(this)">
           <div class="meta">
-            <b>${p.artistStage} <span class="verify">✓</span></b>
+            <b>${escapeHtml((p.artistStage || p.artistName || '').toString().toUpperCase())} <span class="verify">✓</span></b>
             <small class="ghost">${new Date(p.ts).toLocaleString()}</small>
           </div>
         </div>
@@ -434,22 +454,23 @@
   /* ---------- DM List：徽章在上、名字在下 ---------- */
   function getRoomTitle(){ return NICKNAME; } // DM 使用暱稱
   function renderDmList(){
-    const box = document.getElementById('dmList');
-    const last = GROUP_MSGS[GROUP_MSGS.length-1];
-    const preview = last ? last.text : '（尚無訊息）';
-    box.innerHTML = `
-      <div class="dmCard" onclick="openArtistRoom()">
-        <div class="left">
-          <img src="${AVATAR}" onerror="imgFallback(this)">
-          <div class="nameBlock">
-            <span class="artistTag">ARTIST</span>
-            <div class="nm"><b>${getRoomTitle()}</b></div>
-            <small class="ghost" style="display:block;max-width:62vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${preview}</small>
-          </div>
+  const box=document.getElementById('dmList');
+  const last=GROUP_MSGS[GROUP_MSGS.length-1];
+  box.innerHTML=`
+    <div class="dmCard" onclick="showPage('dmDetail')">
+      <div class="left">
+        <img src="${ME.avatar}" onerror="imgFallback(this)">
+        <div class="nameBlock">
+          <span class="artistTag">ARTIST</span>
+          <div class="nm"><b>${escapeHtml(getRoomTitle())}</b></div>
+          <small class="ghost" style="display:block;max-width:62vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+            ${escapeHtml(last?last.text:'（無訊息）')}
+          </small>
         </div>
       </div>
-    `;
-  }
+    </div>`;
+}
+
   function openArtistRoom(){ showPage('dmDetail'); }
 
   /* ---------- DM Thread（回覆、箭頭、規則） ---------- */
@@ -538,16 +559,18 @@
   }
   function closeBgEditor(){ document.getElementById('bgEditor').style.display='none'; }
   function updateBgPreview(){
-    const s = document.getElementById('bgScale').value;
-    const b = document.getElementById('bgBlur').value;
-    const d = document.getElementById('bgDim').value;
-    document.getElementById('bgPreview').style.setProperty('--bgScale', `${s}%`);
-    document.getElementById('bgOverlay').style.setProperty('--bgBlur', `${b}px`);
-    document.getElementById('bgOverlay').style.setProperty('--bgDim',  `${d/100}`);
-    document.getElementById('bgScaleOut').value = s+'%';
-    document.getElementById('bgBlurOut').value  = b+'px';
-    document.getElementById('bgDimOut').value   = d+'%';
-  }
+  const s=document.getElementById('bgScale').value;
+  const b=document.getElementById('bgBlur').value;
+  const d=document.getElementById('bgDim').value;
+  document.getElementById('bgPreview').style.setProperty('--bgScale', `${s}%`);
+  document.getElementById('bgOverlay').style.setProperty('--bgBlur', `${b}px`);
+  document.getElementById('bgOverlay').style.setProperty('--bgDim',  `${d/100}`);
+  // ➜ 右側數字
+  const so=document.getElementById('bgScaleOut'), bo=document.getElementById('bgBlurOut'), doo=document.getElementById('bgDimOut');
+  if(so) so.value = s+'%';
+  if(bo) bo.value = b+'px';
+  if(doo) doo.value = d+'%';
+}
   ['bgScale','bgBlur','bgDim'].forEach(id=>{
     document.getElementById(id).addEventListener('input', updateBgPreview, {passive:true});
   });
