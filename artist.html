@@ -1,207 +1,179 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>NEXT’S YOU — Fan App（完整單頁）</title>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<title>NEXT’S YOU — Fan App (單頁版·完整修正版)</title>
 <style>
-:root{
-  --bg:#f5f7ff; --card:#fff; --text:#1a1a1a; --sub:#667085; --line:#e7eaf3; --ghost:#9aa0b4;
-  --accent:#6a5acd; --accent2:#836fff; --ok:#10b981; --danger:#ff4d4f;
-  --radius:16px; --shadow:0 12px 34px rgba(18,24,40,.08);
-  --safe-b: env(safe-area-inset-bottom,0px);
-  --safe-l: env(safe-area-inset-left,0px);
-  --safe-r: env(safe-area-inset-right,0px);
-}
-*{box-sizing:border-box}
-html,body{height:100%}
-body{
-  margin:0;background:var(--bg);color:var(--text);
-  font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial;
-  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;overflow-x:hidden
-}
-img{display:block;max-width:100%}
-a{text-decoration:none;color:inherit}
-button{font:inherit;cursor:pointer}
+  :root{
+    --bg:#f5f7ff; --card:#fff; --text:#1a1a1a; --sub:#667085; --line:#e7eaf3; --ghost:#9aa0b4;
+    --accent:#6a5acd; --accent2:#836fff; --ok:#10b981; --danger:#ff4d4f;
+    --radius:16px; --shadow:0 12px 34px rgba(18,24,40,.08);
+    --safe: env(safe-area-inset-bottom, 0px);
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;background:var(--bg);color:var(--text);
+    font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial;
+    -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+    overflow-x:hidden
+  }
+  img{display:block;max-width:100%} a{text-decoration:none;color:inherit} button{font:inherit;cursor:pointer}
+  .ghost{color:var(--ghost)} .sub{color:var(--sub)} .soft{padding:16px} .row{display:flex;align-items:center;gap:10px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+  .chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:10px;background:#f3f5ff;border:1px solid var(--line);font-size:12px}
 
-.ghost{color:var(--ghost)} .sub{color:var(--sub)} .soft{padding:16px}
-.row{display:flex;align-items:center;gap:10px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
-.chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:#f3f5ff;border:1px solid var(--line);font-size:12px}
+  /* pages */
+  section.page{display:none;padding:12px 12px calc(76px + var(--safe))}
+  section.page.active{display:block;animation:fade .22s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 
-/* pages */
-section.page{display:none;padding:12px 12px calc(76px + var(--safe-b))}
-section.page.active{display:block;animation:fade .22s ease}
-@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  /* bottom nav */
+  nav#nav{
+    position:fixed;left:0;right:0;bottom:0;z-index:40;background:var(--card);border-top:1px solid var(--line);
+    display:flex;justify-content:space-around;gap:6px;padding:10px 8px calc(12px + var(--safe));backdrop-filter:saturate(140%) blur(10px);
+    transition:transform .25s ease;
+  }
+  nav#nav.hidden{transform:translateY(120%)}
+  nav#nav button{flex:1;border:none;background:transparent;padding:8px 0 6px;border-radius:12px;color:var(--sub);font-weight:800;font-size:13px}
+  nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid var(--line)}
 
-/* bottom nav */
-nav#nav{
-  position:fixed;left:0;right:0;bottom:0;z-index:40;background:var(--card);border-top:1px solid var(--line);
-  display:flex;justify-content:space-around;gap:6px;padding:10px 8px calc(12px + var(--safe-b));backdrop-filter:saturate(140%) blur(10px);
-  transition:transform .25s ease;
-}
-nav#nav.hidden{transform:translateY(120%)}
-nav#nav button{flex:1;border:none;background:transparent;padding:8px 0 6px;border-radius:12px;color:var(--sub);font-weight:800;font-size:13px}
-nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid var(--line)}
+  /* header (home) */
+  #homeHeader{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:6px 6px 10px}
+  #homeHeader .me{display:flex;align-items:center;gap:10px}
+  #homeHeader .me img{width:44px;height:44px;border-radius:50%;object-fit:cover;border:1px solid var(--line)}
+  #homeHeader .me .id{font-size:12px;color:var(--ghost)}
 
-/* header (home) */
-#homeHeader{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:6px 6px 10px}
-#homeHeader .me{display:flex;align-items:center;gap:10px}
-#homeHeader .me img{width:44px;height:44px;border-radius:50%;object-fit:cover;border:1px solid var(--line)}
-#homeHeader .me .id{font-size:12px;color:var(--ghost)}
+  /* story bar */
+  #storyWrap{position:sticky;top:0;z-index:5;background:linear-gradient(180deg,rgba(245,247,255,.96),rgba(245,247,255,.90));backdrop-filter:blur(6px)}
+  #storyBar{display:flex;gap:12px;overflow-x:auto;padding:10px 8px 12px;border-bottom:1px solid var(--line);scrollbar-width:none}
+  #storyBar::-webkit-scrollbar{display:none}
+  .story-item{flex:0 0 auto;width:64px;text-align:center;cursor:pointer;position:relative}
+  .story-item img{width:56px;height:56px;border-radius:50%;object-fit:cover;border:2px solid #d5d8f3}
+  .story-item .name{font-size:12px;margin-top:4px;color:#9aa1ad}
+  .story-item.active img{border-color:var(--accent);box-shadow:0 0 0 2px rgba(106,90,205,.18)}
+  .story-item.active .name{color:var(--accent);font-weight:700}
+  .story-item .dot{position:absolute;right:6px;top:2px;width:8px;height:8px;background:var(--danger);border-radius:50%;box-shadow:0 0 0 2px #fff}
+  .story-item.pinned img{border-color:#111}
 
-/* story bar */
-#storyWrap{position:sticky;top:0;z-index:5;background:linear-gradient(180deg,rgba(245,247,255,.96),rgba(245,247,255,.90));backdrop-filter:blur(6px)}
-#storyBar{display:flex;gap:12px;overflow-x:auto;padding:10px 8px 12px;border-bottom:1px solid var(--line);scrollbar-width:none}
-#storyBar::-webkit-scrollbar{display:none}
-.story-item{flex:0 0 auto;width:64px;text-align:center;cursor:pointer;position:relative}
-.story-item img{width:56px;height:56px;border-radius:50%;object-fit:cover;border:2px solid #d5d8f3}
-.story-item .name{font-size:12px;margin-top:4px;color:#9aa1ad}
-.story-item.active img{border-color:var(--accent);box-shadow:0 0 0 2px rgba(106,90,205,.18)}
-.story-item.active .name{color:var(--accent);font-weight:700}
-.story-item .dot{position:absolute;right:6px;top:2px;width:8px;height:8px;background:var(--danger);border-radius:50%;box-shadow:0 0 0 2px #fff}
-.story-item.pinned img{border-color:#111}
+  /* post card */
+  .post{margin:12px 6px}
+  .post .hdr{display:flex;align-items:center;gap:10px}
+  .post .avatar{width:44px;height:44px;border-radius:50%;object-fit:cover;border:1px solid var(--line)}
+  .post .meta b{font-weight:900;display:flex;align-items:center;gap:6px}
+  .post .meta small{display:block;color:var(--ghost)}
+  .post .body{margin-top:8px}
+  .post .hero{width:100%;height:360px;object-fit:cover;border-radius:12px;border:1px solid var(--line)}
 
-/* post card */
-.post{margin:12px 6px}
-.post .hdr{display:flex;align-items:center;gap:10px}
-.post .avatar{width:44px;height:44px;border-radius:50%;object-fit:cover;border:1px solid var(--line)}
-.post .meta b{font-weight:900;display:flex;align-items:center;gap:6px}
-.post .meta small{display:block;color:var(--ghost)}
-.post .body{margin-top:8px}
-.post .hero{width:100%;height:360px;object-fit:cover;border-radius:12px;border:1px solid var(--line)}
+  /* verify（新版） */
+  .verify{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:16px;height:16px;border-radius:5px;
+    background:linear-gradient(180deg,#8ea2ff,#6a5acd);
+    color:#fff;font-size:11px;font-weight:900;
+    box-shadow:0 0 0 2px #fff;
+  }
 
-/* verify badge（藍勾）：更像你圖 */
-.verify{
-  display:inline-flex;align-items:center;justify-content:center;
-  width:16px;height:16px;border-radius:50%;
-  background:linear-gradient(180deg,#7a86ff,#5f6bff);
-  color:#fff;font-weight:900;font-size:11px;
-  box-shadow:0 0 0 2px #fff, 0 2px 8px rgba(100,92,255,.32);
-}
+  /* DM list */
+  #dm .dmCard{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px;border:1px solid var(--line);border-radius:14px;background:var(--card);margin:10px 0;cursor:pointer}
+  #dm .dmCard .left{display:flex;align-items:center;gap:12px}
+  #dm .dmCard img{width:52px;height:52px;border-radius:50%;object-fit:cover;border:1px solid var(--line)}
+  .nameBlock{display:flex;flex-direction:column;gap:4px}
+  .nm{display:flex;align-items:center;gap:8px}
+  .nm b{font-size:18px;letter-spacing:.4px}
+  /* ARTIST 徽章（方框） */
+  .artistTag{
+    display:inline-flex;align-items:center;justify-content:center;
+    padding:4px 10px;border-radius:8px;border:1px solid #ded6ff;
+    background:linear-gradient(90deg,#cbb9ff 0%,#8fb4ff 62%,#ffffff 100%);
+    color:#2e2a6f;font-size:11px;font-weight:900;letter-spacing:.7px;
+    box-shadow:0 4px 12px rgba(106,90,205,.20)
+  }
 
-/* ===== DM header ===== */
-.chatHUD{display:flex;align-items:center;justify-content:space-between;padding:4px 0 8px}
-.chatHUD .left{display:flex;align-items:center;gap:8px}
-.chatHUD .center{flex:1;min-width:0}
-.chatHUD .titleRow{display:flex;align-items:center;gap:8px;line-height:1}
-.chatHUD .titleRow b{font-weight:900;letter-spacing:.3px;text-transform:uppercase}
-.hudBtn,.back{width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--card)}
-.statusHint{margin-top:6px;font-size:12px;color:#b0b6c8}
+  /* ===== DM Detail ===== */
+  #dmDetail{
+    position:relative; min-height:100vh; padding:12px 12px calc(80px + var(--safe));
+    background-attachment:fixed; background-position:center; background-repeat:no-repeat; background-size:cover;
+  }
+  /* 背景泛光覆層（固定不跟著捲動） */
+  #dmDetail::after{
+    content:""; position:fixed; inset:0; pointer-events:none; z-index:0;
+    background:rgba(0,0,0,var(--bgDim,.0)); backdrop-filter:blur(var(--bgBlur,0px));
+  }
+  .chatHUD{position:relative; z-index:1; display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .hudBtn,.back{width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--card)}
+  .titleRow{display:flex;align-items:center;gap:8px}
+  .statusHint{font-size:12px;color:#9aa0b4;margin-top:4px}
 
-/* ARTIST 勳章（方框感） */
-.artistTag{
-  display:inline-flex;align-items:center;justify-content:center;padding:3px 8px;height:18px;border-radius:6px;
-  font-size:10px;font-weight:900;letter-spacing:.7px;text-transform:uppercase;color:#2e2a6f;
-  background:linear-gradient(90deg,#cbb9ff 0%,#8fb4ff 62%,#ffffff 100%);
-  border:1px solid #ded6ff;box-shadow:0 2px 8px rgba(106,90,205,.18)
-}
+  /* thread */
+  .thread{position:relative; z-index:1; display:flex;flex-direction:column;gap:10px;height:calc(100vh - 220px);overflow-y:auto;padding:8px 2px}
+  .msg{position:relative; display:flex;flex-direction:column;max-width:78%;margin:6px 0}
+  .msg.left{align-self:flex-start}
+  .msg.right{align-self:flex-end}
+  .bubble{max-width:100%;padding:12px 14px;border-radius:18px;border:1px solid var(--line);background:#fff;position:relative}
+  .msg.right .bubble{background:linear-gradient(180deg,var(--accent),var(--accent2));color:#fff;border-color:transparent}
+  .labelBox{margin:-6px 0 8px}
+  .labelBox .l1{font-size:12px;font-weight:900;color:#7a88b0}
+  .labelBox .l2{font-size:11px;color:#a3adc5}
+  .quote{font-size:13px;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.85);color:#394360;border:1px solid #e6e9f7}
+  .msg.right .quote{background:rgba(255,255,255,.88);color:#394360}
+  /* 時間：左訊息放左側、右訊息放右側 */
+  .time{position:absolute;bottom:-18px;font-size:11px;color:rgba(255,255,255,.90)}
+  .msg.left  .time{left:0;transform:translateX(calc(-100% - 6px)); color:rgba(0,0,0,.45)}
+  .msg.right .time{right:0;transform:translateX(calc(100% + 6px)); color:rgba(255,255,255,.85)}
 
-/* ===== DM 背景固定（不跟內容滾） ===== */
-#dmDetail{position:relative; --chatBgImage:none; --chatBgSize:cover; --chatBgPosX:50%; --chatBgPosY:50%; --bgDim:.0; --bgBlur:0px}
-#dmDetail::before{
-  content:"";position:fixed;inset:0;z-index:-2;
-  background-image:var(--chatBgImage);background-size:var(--chatBgSize);
-  background-position:var(--chatBgPosX) var(--chatBgPosY);background-repeat:no-repeat
-}
-#dmDetail::after{
-  content:""; position:fixed; inset:0; pointer-events:none;
-  background:rgba(255,255,255,var(--bgDim)); backdrop-filter:blur(var(--bgBlur)); z-index:-1
-}
+  /* 回覆箭頭（圓形半透明） */
+  .replyBtn{
+    position:absolute; right:-42px; top:50%; transform:translateY(-50%);
+    width:36px;height:36px;border-radius:999px;border:1px solid rgba(255,255,255,.5);
+    background:rgba(255,255,255,.55); backdrop-filter:blur(6px);
+    display:flex;align-items:center;justify-content:center; font-size:16px; color:#59627c;
+  }
 
-/* ===== Thread ===== */
-.thread{display:flex;flex-direction:column;gap:10px;height:calc(100vh - 230px);overflow-y:auto;padding:8px 2px}
-.msg{display:flex;align-items:flex-end;gap:6px;max-width:86%;margin:6px 0}
-.msg.left{align-self:flex-start;flex-direction:row}
-.msg.right{align-self:flex-end;flex-direction:row-reverse}
+  /* 回覆 chip（輸入列上方） */
+  .replyChip{display:none;align-items:center;gap:8px;margin:0 12px 8px}
+  .replyPill{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.72);border:1px solid #dfe3fb;border-radius:12px;padding:6px 10px}
+  .replyPill .tag{font-size:12px;font-weight:900;color:#7a86b7}
+  .replyPill .txt{font-size:12px;color:#6c7696;max-width:62vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .replyPill .x{border:none;background:transparent;color:#97a0b8;font-size:16px}
 
-.time{font-size:11px;color:#8b93a7;white-space:nowrap;margin:0 4px}
-.bubble{max-width:100%;padding:10px 12px;border-radius:14px;border:1px solid var(--line);background:#fff;position:relative}
-.msg.right .bubble{background:linear-gradient(180deg,var(--accent),var(--accent2));color:#fff;border-color:transparent}
+  /* 輸入列（滿版、固定底部、較小） */
+  .dmFooter{
+    position:sticky;left:0;right:0;bottom:0;z-index:5;
+    padding:8px 12px calc(8px + var(--safe));
+    background:linear-gradient(180deg,rgba(255,255,255,0),rgba(255,255,255,.92));
+    backdrop-filter:blur(6px); border-top:1px solid rgba(255,255,255,.35);
+  }
+  .dmInputBar{display:flex;align-items:center;gap:10px;width:100%}
+  .dmInputBar .box{flex:1;min-width:0;display:flex;align-items:center;background:#fff;border:1px solid var(--line);border-radius:999px;padding:0 14px;height:44px}
+  .dmInputBar input{flex:1;border:none;outline:none;background:transparent;font-size:16px}
+  .dmSend{min-width:56px;height:44px;border:none;border-radius:14px;background:linear-gradient(180deg,var(--accent),var(--accent2));color:#fff;font-weight:900}
 
-/* FROM FAN：兩行獨立卡 */
-.fanTag{position:absolute;left:-8px;top:-20px;display:flex;flex-direction:column;gap:2px}
-.fanTag .en{
-  font-weight:900;font-size:12px;color:#6d7390;background:rgba(255,255,255,.92);
-  border:1px solid var(--line);border-radius:12px;padding:6px 10px;box-shadow:0 4px 10px rgba(0,0,0,.06)
-}
-.fanTag .sub{font-size:11px;color:#9aa3bd;padding-left:2px}
+  /* 右上 … 選單 */
+  #dmMenu{position:fixed;right:12px;top:64px;display:none;z-index:70}
+  #dmMenu .chip{width:100%;justify-content:center}
 
-/* 引用卡（玻璃、半透明） */
-.quote{
-  font-size:12px;opacity:.98;padding:8px;border:1px solid rgba(255,255,255,.55);
-  border-radius:10px;background:rgba(255,255,255,.72);margin-top:8px;color:#354
-}
-.msg.right .quote{color:#223}
-.msg.right .bubble .quote{background:rgba(255,255,255,.28);border-color:rgba(255,255,255,.4)}
+  /* 背景編輯器 */
+  #bgEditor{position:fixed;inset:0;z-index:80;display:none;background:rgba(0,0,0,.45)}
+  #bgEditor .panel{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%); width:min(720px,92vw);background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px;box-shadow:var(--shadow)}
+  #bgPreview{height:42vh;border:1px dashed var(--line);border-radius:12px;background-size:var(--bgScale,cover);background-position:center;background-repeat:no-repeat;position:relative;overflow:hidden}
+  #bgOverlay{position:absolute;inset:0;background:rgba(0,0,0,var(--bgDim,.25));backdrop-filter:blur(var(--bgBlur,0px))}
+  .rangeRow{display:flex;align-items:center;gap:10px;margin:12px 0}
+  .rangeRow label{min-width:60px;color:#556}
+  .rangeRow output{margin-left:auto;color:#667;font-variant-numeric:tabular-nums}
 
-/* 回覆箭頭（半透明圓鈕，離泡泡遠一點） */
-.replyBtn{
-  position:absolute; right:-52px; top:50%; transform:translateY(-50%);
-  width:36px;height:36px;border-radius:999px;border:1px solid #e6e8f3;
-  background:rgba(255,255,255,.82); backdrop-filter:blur(6px);
-  box-shadow:0 6px 14px rgba(0,0,0,.08);
-  display:flex;align-items:center;justify-content:center;font-size:16px;color:#7b88a6
-}
-
-/* Footer / Text Bar（小、高 40px、滿版） */
-.dmFooter{
-  position:sticky;bottom:0;left:0;right:0;border-top:1px solid var(--line);
-  background:linear-gradient(180deg,rgba(255,255,255,.55),rgba(255,255,255,.98)); backdrop-filter:blur(10px);
-  padding:8px max(8px,var(--safe-r)) calc(8px + var(--safe-b)) max(8px,var(--safe-l))
-}
-.dmInputBar{display:flex;align-items:center;gap:8px}
-.dmInputBar .box{flex:1;min-width:0;display:flex;align-items:center;background:#fff;border:1px solid var(--line);border-radius:20px;padding:8px 14px;height:40px}
-.dmInputBar input{flex:1;border:none;outline:none;background:transparent;font-size:16px}
-.dmSend{min-width:52px;height:40px;border:none;border-radius:14px;background:linear-gradient(180deg,var(--accent),var(--accent2));color:#fff;font-weight:900;display:flex;align-items:center;justify-content:center}
-.dmSend svg{width:20px;height:20px;display:block}
-
-/* 回覆 chip（玻璃） */
-.replyChip{
-  display:none;align-items:center;gap:10px;margin:0 2px 8px;
-  background:rgba(255,255,255,.65);backdrop-filter:blur(8px);border:1px solid var(--line);
-  border-radius:12px;padding:6px 10px
-}
-.replyChip b{color:#7a86b7}
-.replyChip .x{border:none;background:transparent;color:#97a0b8}
-
-/* DM List */
-#dm .dmCard{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px;border:1px solid var(--line);border-radius:14px;background:var(--card);margin:10px 0;cursor:pointer}
-#dm .dmCard img{width:52px;height:52px;border-radius:50%;object-fit:cover;border:1px solid var(--line)}
-.nameBlock{display:flex;flex-direction:column;gap:2px}
-.nameBlock .nm{display:flex;align-items:center;gap:6px}
-
-/* 右上更多選單 */
-#dmMenu{position:fixed;right:12px;top:64px;display:none;z-index:70}
-
-/* ===== 背景裁切 / 預覽 ===== */
-#bgCropper,#bgPreviewSheet{
-  position:fixed;inset:0;z-index:120;display:none;background:#000
-}
-#bgCropper .bar,#bgPreviewSheet .bar{
-  position:absolute;left:0;right:0;top:0;height:56px;display:flex;align-items:center;justify-content:space-between;
-  padding:0 12px;color:#fff;background:linear-gradient(180deg,rgba(0,0,0,.72),rgba(0,0,0,.1))
-}
-#bgCropper .stage{
-  position:absolute;left:0;right:0;top:56px;bottom:84px;overflow:hidden;touch-action:none
-}
-#bgCropImg{
-  position:absolute;left:50%;top:50%;transform-origin:center center;user-select:none;pointer-events:auto
-}
-#bgCropper .ctrl{
-  position:absolute;left:0;right:0;bottom:0;height:84px;padding:10px 14px;background:linear-gradient(0deg,rgba(0,0,0,.72),rgba(0,0,0,.1));color:#fff
-}
-#bgPreviewSheet .preview{
-  position:absolute;left:0;right:0;top:56px;bottom:70px;background:#000
-}
-#bgPreviewSheet .btns{position:absolute;left:0;right:0;bottom:0;padding:10px 14px;display:flex;gap:10px;justify-content:flex-end;background:linear-gradient(0deg,rgba(0,0,0,.6),transparent)}
-.btn{border:1px solid var(--line);border-radius:12px;padding:8px 12px;background:#fff}
-.btn-primary{background:linear-gradient(180deg,var(--accent),var(--accent2));color:#fff;border:none;border-radius:12px;padding:10px 14px;font-weight:900}
+  /* composer */
+  #composerArtist .topbar{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+  #composerArtist .rightName{margin-left:auto;color:#9aa1ad;font-weight:800;letter-spacing:.3px}
+  #composeBox{min-height:42vh}
+  #composeText{width:100%;border:none;outline:none;font-size:16px}
+  #composePreview>img,#composePreview>video{width:110px;height:110px;object-fit:cover;border-radius:12px;border:1px solid var(--line)}
 </style>
 </head>
 <body>
 
-<!-- ==================== HOME（藝人） ==================== -->
+<!-- ====================== HOME（藝人） ====================== -->
 <section id="home" class="page active">
   <div id="homeHeader">
     <div class="me">
@@ -217,10 +189,10 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
   <div id="storyWrap"><div id="storyBar"></div></div>
   <div id="feedWrap"></div>
 
-  <button class="fab" id="fabNew" style="position:fixed;right:16px;bottom:calc(86px + var(--safe-b));z-index:35;width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:1px solid var(--line);background:linear-gradient(180deg,var(--accent),var(--accent2));color:#fff;font-weight:900;font-size:22px;box-shadow:0 12px 28px rgba(106,90,205,.28);">＋</button>
+  <button class="dmSend" id="fabNew" style="position:fixed;right:16px;bottom:calc(86px + var(--safe));z-index:35;width:56px;border-radius:50%">＋</button>
 </section>
 
-<!-- ==================== DM LIST ==================== -->
+<!-- ====================== DM LIST ====================== -->
 <section id="dm" class="page">
   <div class="row" style="justify-content:space-between;margin:2px 0 10px">
     <b style="font-weight:900">訊息</b>
@@ -228,13 +200,16 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
   <div id="dmList"></div>
 </section>
 
-<!-- ==================== DM DETAIL ==================== -->
+<!-- ====================== DM DETAIL（藝人群聊） ====================== -->
 <section id="dmDetail" class="page">
   <!-- 頂部 HUD -->
   <div class="chatHUD">
     <div class="left"><button class="back" onclick="goBack()">←</button></div>
     <div class="center">
-      <div class="titleRow"><span class="artistTag">ARTIST</span><b id="dmTitle">ANNIE</b></div>
+      <div class="titleRow">
+        <span class="artistTag">ARTIST</span>
+        <b id="dmTitle" style="letter-spacing:.6px">ANNIE</b>
+      </div>
       <div class="statusHint" id="statusHint">（點右上「…」可更改聊天室名稱／背景）</div>
     </div>
     <div class="right"><button class="hudBtn" title="更多" onclick="toggleDmMenu()">⋯</button></div>
@@ -245,97 +220,70 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 
   <!-- 回覆 chip -->
   <div id="replyChip" class="replyChip">
-    <b>回覆：</b><span id="replyChipText" class="ghost"></span>
-    <button class="x" onclick="clearReply()">× 取消</button>
+    <div class="replyPill">
+      <span class="tag">回覆</span>
+      <span id="replyChipText" class="txt"></span>
+      <button class="x" onclick="clearReply()">×</button>
+    </div>
   </div>
 
   <!-- Footer / Input -->
   <div class="dmFooter">
     <div class="dmInputBar">
       <div class="box"><input id="dmMessageInput" placeholder="輸入訊息…" /></div>
-      <button class="dmSend" id="dmSendBtn" aria-label="送出">
-        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M3.3 20.7L21 12 3.3 3.3 5.9 11.1 14 12 5.9 12.9 3.3 20.7Z" fill="currentColor"/>
-        </svg>
-      </button>
+      <button class="dmSend" id="dmSendBtn" title="送出">✈︎</button>
     </div>
   </div>
 
   <!-- 右上 … 選單 -->
   <div id="dmMenu" class="card soft">
     <div class="row" style="flex-direction:column;gap:6px">
-      <button class="chip" onclick="renameChat()">更改聊天室名稱</button>
-      <button class="chip" onclick="openBgPicker()">更改背景</button>
+      <button class="chip" onclick="renameChat(); closeDmMenu()">更改聊天室名稱</button>
+      <button class="chip" onclick="triggerBgPicker()">更改背景</button>
     </div>
   </div>
+  <input id="bgFile" type="file" accept="image/*" style="display:none">
 </section>
 
-<!-- ==================== Composer（＋） ==================== -->
+<!-- ====================== 背景編輯器 ====================== -->
+<div id="bgEditor">
+  <div class="panel">
+    <b style="font-weight:900">背景設定</b>
+    <div id="bgPreview"><div id="bgOverlay"></div></div>
+    <div class="rangeRow"><label>縮放</label><input id="bgScale" type="range" min="100" max="220" value="140"><output id="bgScaleOut">140%</output></div>
+    <div class="rangeRow"><label>模糊</label><input id="bgBlur" type="range" min="0" max="8" value="2"><output id="bgBlurOut">2px</output></div>
+    <div class="rangeRow"><label>暗度</label><input id="bgDim" type="range" min="0" max="70" value="25"><output id="bgDimOut">25%</output></div>
+    <div class="row" style="justify-content:flex-end">
+      <button class="chip" onclick="closeBgEditor()">取消</button>
+      <button class="chip" onclick="previewApplyBg()">預覽</button>
+      <button class="dmSend" style="width:auto;padding:8px 14px;border-radius:10px" onclick="applyBg()">確認</button>
+    </div>
+  </div>
+</div>
+
+<!-- ====================== Composer（＋） ====================== -->
 <section id="composerArtist" class="page">
-  <div class="topbar row" style="justify-content:space-between;margin-bottom:10px">
+  <div class="topbar">
     <button class="back" onclick="goBack()">←</button>
     <b style="font-weight:900">NEXT ONE</b>
-    <div class="rightName ghost" id="composerWho">—</div>
+    <div class="rightName" id="composerWho">—</div>
   </div>
 
   <div id="composeBox" class="soft card">
-    <textarea id="composeText" rows="4" placeholder="在想些什麼？" style="width:100%;border:none;outline:none;font-size:16px"></textarea>
+    <textarea id="composeText" rows="4" placeholder="在想些什麼？"></textarea>
     <div id="composePreview" class="row" style="flex-wrap:wrap;gap:8px;margin-top:10px"></div>
   </div>
 
   <div class="row" style="gap:10px;margin-top:12px">
-    <label class="btn">選擇檔案
+    <label class="chip">選擇檔案
       <input id="composeMedia" type="file" multiple accept="image/*,video/*" onchange="previewComposeMedia(event)" style="display:none">
     </label>
     <span id="composeFilesHint" class="ghost">未選取檔案</span>
-    <button class="btn-primary" onclick="publishDraft()">發佈（暫存流程）</button>
+    <button class="dmSend" style="border-radius:10px" onclick="publishDraft()">發佈（暫存流程）</button>
   </div>
 </section>
 
-<!-- ===== 背景裁切器 ===== -->
-<div id="bgCropper" role="dialog" aria-modal="true">
-  <div class="bar">
-    <button class="btn" onclick="closeCropper()">取消</button>
-    <div>調整背景</div>
-    <button class="btn-primary" onclick="goPreviewBg()">下一步</button>
-  </div>
-  <div class="stage" id="cropStage">
-    <img id="bgCropImg" src="" alt="crop" />
-  </div>
-  <div class="ctrl">
-    <div class="row" style="justify-content:space-between">
-      <div>縮放</div>
-      <div class="row" style="gap:8px">
-        <button class="btn" onclick="rotateBg()">↻ 90°</button>
-        <output id="zoomOut" style="min-width:48px;text-align:right">140%</output>
-      </div>
-    </div>
-    <input id="zoomRange" type="range" min="100" max="220" value="140" style="width:100%">
-    <div class="ghost" style="margin-top:6px">提示：拖曳圖片可移動位置</div>
-  </div>
-</div>
-
-<!-- ===== 背景預覽 ===== -->
-<div id="bgPreviewSheet" role="dialog" aria-modal="true">
-  <div class="bar">
-    <button class="btn" onclick="backToCrop()">返回</button>
-    <div>預覽</div>
-    <div></div>
-  </div>
-  <div class="preview" id="bgPreviewDM" style="position:relative">
-    <!-- 簡單模擬 DM 背景（只為預覽） -->
-    <div style="position:absolute;inset:0;--chatBgImage:var(--tmpImage);--chatBgSize:var(--tmpSize);--chatBgPosX:var(--tmpPosX);--chatBgPosY:var(--tmpPosY)"></div>
-  </div>
-  <div class="btns">
-    <button class="btn" onclick="closePreview()">取消</button>
-    <button class="btn-primary" onclick="applyBgAndClose()">確認</button>
-  </div>
-</div>
-
-<!-- 隱藏檔案挑選器 -->
-<input id="bgPicker" type="file" accept="image/*" style="display:none">
-
-<!-- ==================== Bottom Nav ==================== -->
+<!-- ====================== Bottom Nav ====================== -->
 <nav id="nav">
   <button id="tabHome" class="active" onclick="showPage('home')">首頁</button>
   <button id="tabDM" onclick="showPage('dm')">DM</button>
@@ -344,39 +292,47 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 </nav>
 
 <script>
-/* ---------- 基本工具 ---------- */
+/* ---------- 小工具 ---------- */
 function imgFallback(img){
   const svg = encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><rect width='100%' height='100%' fill='#eaeef8'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='#9aa0b4' font-family='sans-serif' font-size='20'>NO IMG</text></svg>`);
   img.src = 'data:image/svg+xml;charset=UTF-8,' + svg; img.onerror = null;
 }
-function escapeHtml(s){return (s||'').toString().replace(/[&<>"']/g,m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]))}
 const LS = {
   get(k,def=null){ try{ const v=localStorage.getItem(k); return v? JSON.parse(v): def }catch(e){ return def } },
   set(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)) }catch(e){} },
   getStr(k,def=''){ const v=localStorage.getItem(k); return v ?? def },
   setStr(k,v){ localStorage.setItem(k,v) }
 };
-const fmtTime = ts => new Date(ts).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+const fmtTime = ts => {
+  const d=new Date(ts);
+  const h=d.getHours(); const m=('0'+d.getMinutes()).slice(-2);
+  const ap= h>=12?'下午':'上午'; const hr=(h%12)||12;
+  return `${ap}${hr}:${m}`;
+};
+function escapeHtml(s){return (s||'').replace(/[&<>"']/g, m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]))}
 
-/* ---------- 狀態 ---------- */
+/* 系統舞台名（不受暱稱影響） */
 const STAGE_NAME = LS.getStr('artistStage','ANNIE');
-let   NICKNAME   = LS.getStr('artistNickname','Annie');
+let   NICKNAME   = LS.getStr('artistNickname','Annie'); // DM 顯示暱稱
 let   AVATAR     = LS.getStr('artistAvatar','https://picsum.photos/80?u=artist');
-const ME         = { id:'me', name:STAGE_NAME, avatar:AVATAR };
-const FAN_NAME   = LS.getStr('fanMyName','Michelle');
 
 /* ---------- 假資料 ---------- */
+const ME = { id:'me', name:STAGE_NAME, avatar:AVATAR };
 const ARTISTS = [
-  {id:'me',  name:STAGE_NAME, avatar:AVATAR},
-  {id:'all', name:'ALL',   avatar:'https://picsum.photos/80?u=all'},
+  {id:'me', name:STAGE_NAME, avatar:AVATAR},
+  {id:'all', name:'ALL', avatar:'https://picsum.photos/80?u=all'},
   {id:'dohee', name:'DOHEE', avatar:'https://picsum.photos/80?u=dh'},
-  {id:'woo',   name:'WOOCHAN', avatar:'https://picsum.photos/80?u=wc'}
+  {id:'woo', name:'WOOCHAN', avatar:'https://picsum.photos/80?u=wc'}
 ];
 const POSTS = LS.get('artistPosts', [
   { id:'p3', artistId:'dohee', artistStage:'DOHEE',   avatar:'https://picsum.photos/80?u=dh', text:'練舞練到爆汗 💃', img:'https://picsum.photos/1200?u=dh1', ts: Date.now()-1000*60*40 },
   { id:'p2', artistId:'woo',   artistStage:'WOOCHAN', avatar:'https://picsum.photos/80?u=wc', text:'今天吃拉麵 🍜',   img:'https://picsum.photos/1200?u=wc1', ts: Date.now()-1000*60*50 },
   { id:'p1', artistId:'me',    artistStage:STAGE_NAME, avatar:ME.avatar, text:'大家好，我是 Annie ✨', img:'', ts: Date.now()-1000*60*60 }
 ]);
+const FANS = [
+  {id:'f1', name:'Michelle', avatar:'https://picsum.photos/40?u=f1'},
+  {id:'f2', name:'粉絲 B',   avatar:'https://picsum.photos/40?u=f2'}
+];
 let GROUP_MSGS = LS.get('groupMsgs', [
   {id:'m1', from:'fan', fanId:'f1', text:'偶像好～', ts:Date.now()-1000*60*45},
   {id:'m2', from:'fan', fanId:'f2', text:'今天吃什麼？', ts:Date.now()-1000*60*43},
@@ -392,7 +348,7 @@ function showPage(id){
   const page = document.getElementById(id); if(page) page.classList.add('active');
   if(PAGE_STACK[PAGE_STACK.length-1]!==id) PAGE_STACK.push(id);
 
-  // tabs
+  // nav tab
   document.querySelectorAll('#nav button').forEach(b=>b.classList.remove('active'));
   ({home:'tabHome', dm:'tabDM', live:'tabLive', store:'tabStore'}[id] || null) &&
     document.getElementById({home:'tabHome', dm:'tabDM', live:'tabLive', store:'tabStore'}[id]).classList.add('active');
@@ -431,7 +387,8 @@ function renderStoryBar(){
   });
   const order = [ARTISTS.find(a=>a.id==='me'), ARTISTS.find(a=>a.id==='all'), ...others];
   bar.innerHTML = order.map(a=>{
-    const active = (currentFilter===a.id) ? 'active':''; const pinned = (a.id==='me' || a.id==='all') ? 'pinned':'';
+    const active = (currentFilter===a.id) ? 'active':'';
+    const pinned = (a.id==='me' || a.id==='all') ? 'pinned':'';
     const dot = hasNewDots(a.id)? '<span class="dot"></span>':'';
     return `<div class="story-item ${active} ${pinned}" data-id="${a.id}">
       <img src="${a.avatar}" onerror="imgFallback(this)">${dot}
@@ -444,13 +401,14 @@ function renderStoryBar(){
       currentFilter = id;
       if(id!=='all') lastSeen[id] = Date.now();
       LS.set('lastSeen', lastSeen);
-      renderStoryBar(); renderFeed(currentFilter);
+      renderStoryBar();
+      renderFeed(currentFilter);
       window.scrollTo({top:0,behavior:'smooth'});
     });
   });
 }
 
-/* ---------- HOME：Feed ---------- */
+/* ---------- HOME：Feed（舞台名 + 藍勾） ---------- */
 function feedOf(filter){
   if(filter==='all') return POSTS.slice().sort((a,b)=>b.ts-a.ts);
   if(filter==='me')  return POSTS.filter(p=>p.artistId==='me').sort((a,b)=>b.ts-a.ts);
@@ -476,12 +434,10 @@ function renderFeed(filter='me'){
     </div>
   `).join('');
 }
-
-/* ---------- 新貼文 ---------- */
 document.getElementById('fabNew').addEventListener('click', ()=> showPage('composerArtist'));
 
 /* ---------- DM List ---------- */
-function getRoomTitle(){ return NICKNAME; }
+function getRoomTitle(){ return NICKNAME.toUpperCase(); }
 function renderDmList(){
   const box=document.getElementById('dmList');
   const last=GROUP_MSGS[GROUP_MSGS.length-1];
@@ -491,10 +447,8 @@ function renderDmList(){
         <img src="${ME.avatar}" onerror="imgFallback(this)">
         <div class="nameBlock">
           <span class="artistTag">ARTIST</span>
-          <div class="nm"><b>${escapeHtml(getRoomTitle().toUpperCase())}</b></div>
-          <small class="ghost" style="display:block;max-width:62vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
-            ${escapeHtml(last?last.text:'（無訊息）')}
-          </small>
+          <div class="nm"><b>${escapeHtml(getRoomTitle())}</b></div>
+          <small class="ghost" style="display:block;max-width:62vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(last?last.text:'（無訊息）')}</small>
         </div>
       </div>
     </div>`;
@@ -508,27 +462,31 @@ function renderThread(){
     const wrap = document.createElement('div');
     wrap.className = 'msg ' + (m.from==='artist'?'right':'left');
 
-    // time element
-    const tEl = `<div class="time">${fmtTime(m.ts)}</div>`;
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble';
 
-    // bubble
-    let bubble = `<div class="bubble">`;
     if(m.from==='fan'){
-      // FROM FAN 兩行卡
-      bubble += `<div class="fanTag"><div class="en">FROM FAN</div><div class="sub">（粉絲的訊息）</div></div>`;
-      bubble += `<div>${escapeHtml(m.text)}</div>`;
+      const lb = document.createElement('div');
+      lb.className='labelBox';
+      lb.innerHTML = `<div class="l1">FROM FAN</div><div class="l2">（粉絲的訊息）</div>`;
+      bubble.appendChild(lb);
+      bubble.insertAdjacentHTML('beforeend', `<div>${escapeHtml(m.text)}</div>`);
     }else{
-      bubble += `<div>${escapeHtml(m.text)}</div>`;
+      bubble.insertAdjacentHTML('beforeend', `<div>${escapeHtml(m.text)}</div>`);
       if(m.replyTo && m.replyTo.text){
-        bubble += `<div class="quote"><b class="ghost">FROM FAN：</b>${escapeHtml(m.replyTo.text)}</div>`;
+        bubble.insertAdjacentHTML('beforeend', `<div class="quote"><b class="ghost">FROM FAN：</b>${escapeHtml(m.replyTo.text)}</div>`);
       }
     }
-    bubble += `</div>`;
 
-    // 時間左右同列
-    wrap.innerHTML = (m.from==='artist') ? (bubble + tEl) : (tEl + bubble);
+    wrap.appendChild(bubble);
 
-    // 粉絲訊息回覆鍵
+    // 時間（左右各自靠外側）
+    const t = document.createElement('div');
+    t.className='time';
+    t.textContent = fmtTime(m.ts);
+    wrap.appendChild(t);
+
+    // 粉絲訊息才有回覆鍵
     if(m.from==='fan'){
       const btn = document.createElement('button');
       btn.className = 'replyBtn'; btn.innerHTML = '→';
@@ -536,11 +494,12 @@ function renderThread(){
         replyDraft = { text: m.text };
         const chip = document.getElementById('replyChip');
         chip.style.display = 'flex';
-        document.getElementById('replyChipText').textContent = m.text.slice(0, 42);
+        document.getElementById('replyChipText').textContent = m.text;
         document.getElementById('dmMessageInput').focus();
       };
-      wrap.querySelector('.bubble').appendChild(btn);
+      bubble.appendChild(btn);
     }
+
     box.appendChild(wrap);
   });
   box.scrollTop = box.scrollHeight;
@@ -549,7 +508,11 @@ function clearReply(){ replyDraft = null; document.getElementById('replyChip').s
 function sendArtistMsg(){
   const inp = document.getElementById('dmMessageInput');
   let t = (inp.value||'').trim(); if(!t) return;
-  t = t.replace(/@@@/g, FAN_NAME); // @@@ 代粉絲名
+
+  // @@@ -> 自動帶入粉絲名（示範取第一位粉絲）
+  const firstFan = FANS[0]?.name || '粉絲';
+  t = t.replaceAll('@@@', firstFan);
+
   GROUP_MSGS.push({ id:'u'+Date.now(), from:'artist', text:t, ts:Date.now(), replyTo: replyDraft? {text:replyDraft.text}: null });
   LS.set('groupMsgs', GROUP_MSGS);
   inp.value=''; clearReply(); renderThread(); renderDmList();
@@ -559,20 +522,24 @@ document.getElementById('dmMessageInput').addEventListener('keydown', e=>{
   if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); sendArtistMsg(); }
 });
 
-/* ---------- DM 菜單（點外面自收） ---------- */
+/* ---------- DM 菜單 ---------- */
 function toggleDmMenu(){
   const m = document.getElementById('dmMenu');
-  m.style.display = (m.style.display==='none'||!m.style.display)?'block':'none';
+  const show = (m.style.display==='none'||!m.style.display);
+  m.style.display = show?'block':'none';
+  if(show){
+    // 點外面自動收
+    setTimeout(()=>{
+      const closer = (ev)=>{
+        if(!m.contains(ev.target) && ev.target.id!=='hudBtn'){ closeDmMenu(); document.removeEventListener('click', closer); }
+      };
+      document.addEventListener('click', closer);
+    },0);
+  }
 }
-document.addEventListener('click', (e)=>{
-  const menu = document.getElementById('dmMenu'); if(!menu) return;
-  const clickedBtn = e.target.closest('.hudBtn'); // 交給按鈕自己切
-  if(clickedBtn) return;
-  if(menu.style.display==='block' && !menu.contains(e.target)){ menu.style.display='none'; }
-}, {passive:true});
-
+function closeDmMenu(){ document.getElementById('dmMenu').style.display='none'; }
 function renameChat(){
-  const cur = getRoomTitle();
+  const cur = NICKNAME;
   const n = prompt('更改聊天室名稱（同：藝人暱稱）', cur);
   if(!n) return;
   NICKNAME = n.trim() || cur;
@@ -581,135 +548,70 @@ function renameChat(){
   document.getElementById('meNickname').textContent = NICKNAME;
   document.getElementById('composerWho').textContent = NICKNAME;
   renderDmList();
-  document.getElementById('dmMenu').style.display='none';
 }
 
-/* ---------- 背景：挑圖 → 裁切/縮放/旋轉 → 預覽 → 套用 ---------- */
-const picker = document.getElementById('bgPicker');
-function openBgPicker(){ picker.click(); }
-picker.addEventListener('change', e=>{
+/* ---------- 背景：挑選 -> 編輯 -> 套用 ---------- */
+function triggerBgPicker(){ closeDmMenu(); document.getElementById('bgFile').click(); }
+document.getElementById('bgFile').addEventListener('change', e=>{
   const f = e.target.files[0]; if(!f) return;
   const reader = new FileReader();
-  reader.onload = ev=> openCropper(ev.target.result);
+  reader.onload = ev=>{
+    document.getElementById('bgPreview').style.backgroundImage = `url("${ev.target.result}")`;
+    document.getElementById('bgPreview').dataset.url = ev.target.result;
+    openBgEditor(); updateBgPreview();
+  };
   reader.readAsDataURL(f);
-  e.target.value = '';
 });
-
-/* 裁切狀態 */
-let crop = { imgSrc:'', zoom:140, rot:0, x:0, y:0, stage:null, imgEl:null, dragging:false, startX:0, startY:0 };
-function openCropper(src){
-  crop.imgSrc = src; crop.zoom = 140; crop.rot = 0; crop.x = 0; crop.y = 0;
-  const dlg = document.getElementById('bgCropper');
-  const img = document.getElementById('bgCropImg'); crop.imgEl = img;
-  img.src = src; dlg.style.display='block';
-  document.getElementById('zoomRange').value = crop.zoom;
-  document.getElementById('zoomOut').value = crop.zoom+'%';
-  crop.stage = document.getElementById('cropStage');
-  centerImage();
-  bindDrag();
+function openBgEditor(){
+  document.getElementById('bgEditor').style.display='block';
+  const url = document.getElementById('bgPreview').dataset.url || LS.getStr('artistChatBg','');
+  if(url) document.getElementById('bgPreview').style.backgroundImage = `url("${url}")`;
+  document.getElementById('bgScale').value = LS.getStr('artistChatBgScale','140');
+  document.getElementById('bgBlur').value  = LS.getStr('artistChatBgBlur','2');
+  document.getElementById('bgDim').value   = LS.getStr('artistChatBgDim','25');
+  updateBgPreview();
 }
-function closeCropper(){ document.getElementById('bgCropper').style.display='none'; }
-function rotateBg(){ crop.rot = (crop.rot + 90) % 360; applyTransform(); }
-document.getElementById('zoomRange').addEventListener('input', e=>{
-  crop.zoom = +e.target.value; document.getElementById('zoomOut').value = crop.zoom+'%'; applyTransform();
-},{passive:true});
-
-function bindDrag(){
-  const st = crop.stage; const img = crop.imgEl;
-  const onDown = (ev)=>{
-    crop.dragging = true;
-    const p = getPoint(ev);
-    crop.startX = p.x - crop.x; crop.startY = p.y - crop.y;
-  };
-  const onMove = (ev)=>{
-    if(!crop.dragging) return;
-    const p = getPoint(ev);
-    crop.x = p.x - crop.startX; crop.y = p.y - crop.startY;
-    applyTransform();
-  };
-  const onUp = ()=>{ crop.dragging = false; };
-  st.onpointerdown = onDown; st.onpointermove = onMove; st.onpointerup = onUp; st.onpointercancel = onUp; st.onpointerleave = onUp;
-  img.style.touchAction = 'none';
+function closeBgEditor(){ document.getElementById('bgEditor').style.display='none'; }
+function updateBgPreview(){
+  const s=document.getElementById('bgScale').value;
+  const b=document.getElementById('bgBlur').value;
+  const d=document.getElementById('bgDim').value;
+  document.getElementById('bgPreview').style.setProperty('--bgScale', `${s}%`);
+  document.getElementById('bgOverlay').style.setProperty('--bgBlur', `${b}px`);
+  document.getElementById('bgOverlay').style.setProperty('--bgDim',  `${d/100}`);
+  document.getElementById('bgScaleOut').value = s+'%';
+  document.getElementById('bgBlurOut').value  = b+'px';
+  document.getElementById('bgDimOut').value   = d+'%';
 }
-function getPoint(ev){ return {x: ev.clientX, y: ev.clientY}; }
-function centerImage(){
-  // 將圖片置中
-  const rect = crop.stage.getBoundingClientRect();
-  crop.x = 0; crop.y = 0;
-  applyTransform();
-}
-function applyTransform(){
-  const img = crop.imgEl;
-  img.style.transform = `translate(-50%,-50%) translate(${crop.x}px,${crop.y}px) rotate(${crop.rot}deg) scale(${crop.zoom/100})`;
-}
-
-/* 預覽：只是以 CSS 變數呈現與之對應的 size/pos（X/Y 轉成百分比） */
-function goPreviewBg(){
-  document.getElementById('bgCropper').style.display='none';
-  const pv = document.getElementById('bgPreviewSheet'); pv.style.display='block';
-
-  // 計算百分比位置（以視窗中心為基準粗略換算）
-  const rect = crop.stage.getBoundingClientRect();
-  const px = 50 + (crop.x / rect.width) * 100;
-  const py = 50 + (crop.y / rect.height) * 100;
-
-  pv.style.setProperty('--tmpImage', `url("${crop.imgSrc}")`);
-  pv.style.setProperty('--tmpSize',  `${crop.zoom}%`);
-  pv.style.setProperty('--tmpPosX', `${px}%`);
-  pv.style.setProperty('--tmpPosY', `${py}%`);
-
-  // 暫存到 window，供「確認」時使用
-  window.__bgTmp = { src:crop.imgSrc, zoom:crop.zoom, posX:px, posY:py, rot:crop.rot };
-}
-function backToCrop(){ document.getElementById('bgPreviewSheet').style.display='none'; document.getElementById('bgCropper').style.display='block'; }
-function closePreview(){ document.getElementById('bgPreviewSheet').style.display='none'; }
-
-/* 旋轉用 canvas 將圖轉正後存，再套用 zoom/pos 作為背景屬性 */
-function applyBgAndClose(){
-  const tmp = window.__bgTmp; if(!tmp){ closePreview(); return; }
-  if(tmp.rot % 360 !== 0){
-    const img = new Image(); img.onload = ()=>{
-      const r = tmp.rot % 360; const rad = r*Math.PI/180;
-      let w = img.width, h = img.height, cw=w, ch=h;
-      if(r===90 || r===270){ cw=h; ch=w; }
-      const c = document.createElement('canvas'); c.width=cw; c.height=ch;
-      const ctx = c.getContext('2d');
-      ctx.translate(cw/2, ch/2); ctx.rotate(rad);
-      ctx.drawImage(img, -w/2, -h/2);
-      const data = c.toDataURL('image/jpeg', .9);
-      saveBg(data, tmp.zoom, tmp.posX, tmp.posY);
-    };
-    img.src = tmp.src;
-  }else{
-    saveBg(tmp.src, tmp.zoom, tmp.posX, tmp.posY);
-  }
-  document.getElementById('bgPreviewSheet').style.display='none';
-}
-function saveBg(data, zoom, posX, posY){
-  LS.setStr('artistChatBg', data);
-  LS.setStr('artistChatBgScale', String(zoom));
-  LS.setStr('artistChatBgPosX', String(posX));
-  LS.setStr('artistChatBgPosY', String(posY));
-  LS.setStr('artistChatBgBlur','2');
-  LS.setStr('artistChatBgDim','25');
-  applyChatBg();
+['bgScale','bgBlur','bgDim'].forEach(id=>{
+  document.getElementById(id).addEventListener('input', updateBgPreview, {passive:true});
+});
+function previewApplyBg(){ applyChatBg(); }
+function applyBg(){
+  const url = document.getElementById('bgPreview').dataset.url || LS.getStr('artistChatBg','');
+  const scale = document.getElementById('bgScale').value;
+  const blur  = document.getElementById('bgBlur').value;
+  const dim   = document.getElementById('bgDim').value;
+  if(url) LS.setStr('artistChatBg', url);
+  LS.setStr('artistChatBgScale', scale);
+  LS.setStr('artistChatBgBlur',  blur);
+  LS.setStr('artistChatBgDim',   dim);
+  applyChatBg(); closeBgEditor();
 }
 function applyChatBg(){
-  const url   = LS.getStr('artistChatBg','');
+  const url = LS.getStr('artistChatBg','');
   const scale = LS.getStr('artistChatBgScale','140');
   const blur  = LS.getStr('artistChatBgBlur','2');
   const dim   = LS.getStr('artistChatBgDim','25');
-  const px    = LS.getStr('artistChatBgPosX','50');
-  const py    = LS.getStr('artistChatBgPosY','50');
   const el = document.getElementById('dmDetail');
   if(!url){
-    el.style.setProperty('--chatBgImage','none');
+    el.style.background='none';
     el.style.setProperty('--bgDim','0'); el.style.setProperty('--bgBlur','0px');
   }else{
-    el.style.setProperty('--chatBgImage', `url("${url}")`);
-    el.style.setProperty('--chatBgSize',  `${scale}%`);
-    el.style.setProperty('--chatBgPosX', `${px}%`);
-    el.style.setProperty('--chatBgPosY', `${py}%`);
+    el.style.backgroundImage = `url("${url}")`;
+    el.style.backgroundSize  = `${scale}%`;
+    el.style.backgroundPosition='center';
+    el.style.backgroundRepeat='no-repeat';
     el.style.setProperty('--bgDim',  dim/100);
     el.style.setProperty('--bgBlur', `${blur}px`);
   }
@@ -728,13 +630,15 @@ function previewComposeMedia(e){
     const el = document.createElement(isVideo?'video':'img');
     el.src = url; el.controls = isVideo;
     el.onload = el.onloadeddata = ()=>URL.revokeObjectURL(url);
-    el.style.width='110px'; el.style.height='110px'; el.style.objectFit='cover'; el.style.borderRadius='12px'; el.style.border='1px solid var(--line)';
     box.appendChild(el);
   });
 }
-function publishDraft(){ alert('先存草稿＆預覽；發佈規則等我們接首頁串流。'); showPage('home'); }
+function publishDraft(){
+  alert('先存草稿＆預覽；發佈規則等我們接首頁串流。');
+  showPage('home');
+}
 
-/* ---------- 暱稱 = 聊天室名稱 ---------- */
+/* ---------- 暱稱 = 聊天室名稱（不影響舞台名） ---------- */
 document.getElementById('btnEditNick').addEventListener('click', ()=>{
   const v = prompt('輸入新的暱稱（= 聊天室名稱）', NICKNAME);
   if(v && v.trim()){
@@ -749,13 +653,18 @@ document.getElementById('btnEditNick').addEventListener('click', ()=>{
 
 /* ---------- 啟動 ---------- */
 document.addEventListener('DOMContentLoaded', ()=>{
+  // 頭像/暱稱/ID
   document.getElementById('meNickname').textContent = NICKNAME;
   document.getElementById('dmTitle').textContent = NICKNAME.toUpperCase();
   document.getElementById('composerWho').textContent = NICKNAME;
   document.getElementById('meId').textContent = 'ARTIST-00001';
   document.getElementById('meAvatar').src = AVATAR;
 
-  renderStoryBar(); renderFeed(currentFilter); renderDmList();
+  renderStoryBar(); renderFeed(currentFilter);
+  renderDmList();
+
+  // 點背景編輯器外框可關閉
+  document.getElementById('bgEditor').addEventListener('click', (e)=>{ if(e.target.id==='bgEditor') closeBgEditor(); });
 });
 </script>
 </body>
