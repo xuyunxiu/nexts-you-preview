@@ -187,56 +187,83 @@
   </section>
 
   <!-- =============================== DM DETAIL（藝人群聊） =============================== -->
-  <section id="artistDM" class="page">
-    <div id="dmBg" class="dmBg"></div>
-
-    <div class="dmTop">
-      <button class="back" onclick="showPage('dm')">←</button>
-      <div class="titleWrap">
+  <section id="dmDetail" class="page">
+  <!-- 頂部 HUD -->
+  <div class="chatHUD">
+    <div class="left">
+      <button class="back" onclick="goBack()">←</button>
+    </div>
+    <div class="center">
+      <div class="titleRow">
         <span class="artistTag">ARTIST</span>
-        <b id="roomTitle">Annie</b>
-        <div class="note ghost" id="roomSub">1:多 群聊</div>
+        <b id="dmTitle">Annie</b>
       </div>
-      <div class="ops">
-        <button class="iconBtn" title="搜尋（預留）">🔍</button>
-        <button class="iconBtn" title="更多" onclick="toggleMenu()">⋯</button>
+      <div class="subtitle" id="dmSub">1:多 群聊 · <span id="dmSubHint">（可點右上 … 設定背景/名稱）</span></div>
+    </div>
+    <div class="right">
+      <button class="hudBtn" title="搜尋" onclick="alert('先放位，之後做搜尋')">🔍</button>
+      <button class="hudBtn" title="更多" onclick="toggleDmMenu()">⋯</button>
+    </div>
+  </div>
+
+  <!-- DM Thread -->
+  <div id="dmThread" class="dmThread"></div>
+
+  <!-- 回覆 chip -->
+  <div id="replyChip" class="replyChip">
+    <span class="replyTag">回覆：</span><span id="replyChipText" class="ghost"></span>
+    <button class="x" onclick="clearReply()">✕ 取消</button>
+  </div>
+
+  <!-- 輸入列 -->
+  <div class="dmInputBar">
+    <div class="box">
+      <input id="dmMessageInput" placeholder="輸入訊息…" />
+    </div>
+    <button class="dmSend" id="dmSendBtn">➤</button>
+  </div>
+
+  <!-- 簡單的 … 選單 -->
+  <div id="dmMenu" class="card soft" style="position:fixed;right:12px;top:64px;display:none;z-index:70">
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <button class="chip" onclick="renameChat()">更改聊天室名稱</button>
+      <button class="chip" onclick="openBgEditor()">更改背景</button>
+    </div>
+  </div>
+    <!-- 背景編輯器 -->
+<div id="bgEditor">
+  <div class="panel">
+    <b style="font-weight:900">背景設定</b>
+    <div id="bgPreview"><div id="bgOverlay"></div></div>
+    <div class="rangeRow"><label>縮放</label><input id="bgScale" type="range" min="100" max="220" value="140"></div>
+    <div class="rangeRow"><label>模糊</label><input id="bgBlur"  type="range" min="0"   max="8"   value="2"></div>
+    <div class="rangeRow"><label>暗度</label><input id="bgDim"   type="range" min="0"   max="70"  value="25"></div>
+    <div class="row" style="justify-content:space-between;gap:8px;margin-top:8px">
+      <input id="bgFile" type="file" accept="image/*">
+      <div class="row" style="gap:8px">
+        <button class="chip" onclick="closeBgEditor()">取消</button>
+        <button class="chip" onclick="applyBg()">套用</button>
       </div>
-      <div id="menu" class="menu">
-        <button onclick="editArtistNickname(true)">更改我的暱稱（＝聊天室名稱）</button>
-        <button onclick="changeDmBg()">更改聊天室背景</button>
-        <button onclick="resetDmBg()">恢復預設背景</button>
-      </div>
     </div>
+  </div>
+</div>
 
-    <div id="replyBar" class="replyBar">
-      <div class="inner">
-        <button class="replyClose" onclick="clearReply()">×</button>
-        <div class="ghost" style="font-weight:900">回覆：</div>
-        <div id="replyText" class="sub" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:70vw"></div>
-      </div>
-    </div>
-
-    <div id="thread" class="thread"></div>
-
-    <div class="inputBar">
-      <input id="dmInput" placeholder="輸入訊息…">
-      <button class="send" onclick="sendArtistMsg()">➤</button>
-    </div>
-  </section>
-
-  <!-- =============================== 其他頁（預留） =============================== -->
-  <section id="live" class="page">
-    <div class="row" style="justify-content:space-between;margin:2px 0 10px">
-      <b style="font-weight:900">直播（之後再接）</b>
-    </div>
-    <div class="card soft ghost">這裡先空著，我們先專注首頁與 DM。</div>
-  </section>
-
-  <section id="store" class="page">
-    <div class="row" style="justify-content:space-between;margin:2px 0 10px">
-      <b style="font-weight:900">商店（之後再接）</b>
-    </div>
-    <div class="card soft ghost">這裡先空著。</div>
+<!-- Composer（按首頁 + 打開；先做預覽草稿） -->
+<section id="composerArtist" class="page">
+  <div class="topbar" style="display:flex;align-items:center;gap:10px">
+    <button class="back" onclick="goBack()">←</button>
+    <b style="font-weight:900">NEXT ONE</b>
+    <span class="ghost" id="composerWho" style="margin-left:auto"></span>
+  </div>
+  <div class="soft card" style="min-height:40vh">
+    <textarea id="composeText" rows="4" placeholder="在想些什麼？" style="width:100%;border:none;outline:none"></textarea>
+    <div id="composePreview" class="row" style="flex-wrap:wrap;gap:8px;margin-top:8px"></div>
+  </div>
+  <div class="row" style="gap:10px;margin-top:12px">
+    <input id="composeMedia" type="file" multiple accept="image/*,video/*" onchange="previewComposeMedia(event)">
+    <button class="chip" onclick="publishDraft()">發佈（暫存流程）</button>
+  </div>
+</section>
   </section>
 
   <nav id="nav">
@@ -507,7 +534,231 @@
     if(v && v.trim()){ propagateArtistName(v.trim()); }
     if(fromMenu) toggleMenu();
   }
+/* ===== 全域旗標：這份檔案是「藝人視角」 ===== */
+const ARTIST_MODE = true;
 
+/* ===== 導航隱藏：DM 與 Composer 都要藏底部 Nav ===== */
+const _HIDE_NAV_PAGES = ['postDetail','dmDetail','liveRoom','liveReplay','composerArtist'];
+
+/* 改造 showPage：用 _HIDE_NAV_PAGES 取代原本陣列 */
+function showPage(id){
+  CURRENT_PAGE = id;
+  document.querySelectorAll('section.page').forEach(s=>s.classList.remove('active'));
+  const page = document.getElementById(id); if(page) page.classList.add('active');
+  if(pageStack[pageStack.length-1] !== id) pageStack.push(id);
+
+  const nav = document.getElementById('nav');
+  if(_HIDE_NAV_PAGES.includes(id)) nav.classList.add('hidden'); else nav.classList.remove('hidden');
+
+  document.querySelectorAll('#nav button').forEach(b=>b.classList.remove('active'));
+  const map = {home:'tabHome', dm:'tabDM', liveList:'tabLive', store:'tabStore' };
+  if(map[id]) document.getElementById(map[id]).classList.add('active');
+
+  if(id==='dm') renderDMList();
+  if(id==='liveList') renderLives();
+  if(id==='profile'){ showFanProfile(); }
+  if(id==='home'){ renderFeed(currentFilter); restoreHomeScroll(); }
+  if(id==='composerArtist'){
+    document.getElementById('composerWho').textContent = LS.getStr('nickname','My Name');
+  }
+}
+
+/* ===== DM：回覆邏輯 ===== */
+let replyTarget = null; // {id,text}
+
+function chooseReply(msgId){
+  const list = dmMessages[currentChat] || [];
+  const m = list.find(x=>x.id===msgId);
+  if(!m) return;
+  replyTarget = { id: m.id, text: m.text };
+  const chip = document.getElementById('replyChip');
+  chip.style.display = 'flex';
+  document.getElementById('replyChipText').textContent = m.text.slice(0,42);
+  document.getElementById('dmMessageInput').focus();
+}
+function clearReply(){
+  replyTarget = null;
+  const chip = document.getElementById('replyChip');
+  if(chip) chip.style.display = 'none';
+}
+
+/* 改 sendDm：把 reply 帶出去，送完清除 chip */
+const _sendDm_orig = sendDm;
+sendDm = function(){
+  if(!currentChat) return;
+  const inp = document.getElementById('dmMessageInput');
+  const t = (inp.value||'').trim();
+  if(!t) return;
+
+  const arr = dmMessages[currentChat] || (dmMessages[currentChat]=[]);
+  const msg = { id:'u'+Date.now(), from:'right', text:t, ts:Date.now(), read:false };
+  if(replyTarget){ msg.reply = { id: replyTarget.id, text: replyTarget.text }; }
+
+  arr.push(msg);
+  const artist = DM_ARTISTS.find(a=>a.id===currentChat);
+  if(artist){ artist.lastMsg = t; artist.lastTs = msg.ts; }
+
+  inp.value=''; clearReply();
+  renderDmThread(currentChat);
+  renderDMList();
+};
+
+/* 改 renderDmThread：加回覆 preview、粉絲泡泡的 ↩ 按鈕 */
+const _renderDmThread_orig = renderDmThread;
+renderDmThread = function(chatId){
+  const box = document.getElementById('dmThread');
+  box.innerHTML = '';
+  markSeenByLatestLeft(chatId);
+  const list = dmMessages[chatId] || [];
+  const start = Math.max(0, list.length - 80);
+
+  list.slice(start).forEach(m=>{
+    const isLeft = (m.from==='left');
+    const timeStr = new Date(m.ts||Date.now()).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+
+    // 氣泡
+    let bubble = `<div class="bubble"><div class="orig">${escapeHtml(m.text)}</div></div>`;
+
+    // 回覆預覽
+    if(m.reply && m.reply.text){
+      const prev = `<div class="replyPreview ${ARTIST_MODE?'bottom':'top'}"><span class="replyTag">FROM FAN</span>${escapeHtml(m.reply.text)}</div>`;
+      bubble = ARTIST_MODE ? (bubble + prev) : (prev + bubble);
+    }
+
+    // 外框
+    const wrap = document.createElement('div');
+    wrap.className = `dmMsg ${isLeft?'left':'right'}`;
+    // 粉絲訊息才有「回覆」鍵
+    let replyBtn = '';
+    if(isLeft){
+      replyBtn = `<button class="replyBtn" title="回覆" onclick="chooseReply('${m.id}')">↩︎</button>`;
+    }
+    wrap.innerHTML = `
+      <div class="dmRow">
+        <div style="position:relative">${bubble}${replyBtn}</div>
+        <div class="dmSide"><div class="dmSideRow"><span class="dmTime">${timeStr}</span></div></div>
+      </div>`;
+    box.appendChild(wrap);
+  });
+  box.scrollTop = box.scrollHeight;
+};
+
+/* ===== DM HUD：選單與改名 ===== */
+function toggleDmMenu(){
+  const m = document.getElementById('dmMenu');
+  m.style.display = (m.style.display==='none'||!m.style.display)?'block':'none';
+}
+function renameChat(){
+  const cur = document.getElementById('dmTitle').textContent || '';
+  const n = prompt('更改聊天室名稱', cur);
+  if(!n) return;
+  // 規則：藝人改暱稱 = 聊天室名稱同改（粉絲端若沒自訂，將看到同步的）
+  LS.setStr('artistNickname', n);
+  document.getElementById('dmTitle').textContent = n;
+  toggleDmMenu();
+}
+
+/* ===== DM 背景：開啟／預覽／套用 ===== */
+function openBgEditor(){
+  document.getElementById('bgEditor').style.display='block';
+  const url = LS.getStr('artistChatBg','');
+  const scale = LS.getStr('artistChatBgScale','140');
+  const blur  = LS.getStr('artistChatBgBlur','2');
+  const dim   = LS.getStr('artistChatBgDim','25');
+  if(url) document.getElementById('bgPreview').style.backgroundImage = `url("${url}")`;
+  document.getElementById('bgScale').value = scale;
+  document.getElementById('bgBlur').value  = blur;
+  document.getElementById('bgDim').value   = dim;
+  updateBgPreview();
+}
+function closeBgEditor(){ document.getElementById('bgEditor').style.display='none'; }
+function updateBgPreview(){
+  const s = document.getElementById('bgScale').value;
+  const b = document.getElementById('bgBlur').value;
+  const d = document.getElementById('bgDim').value;
+  document.getElementById('bgPreview').style.setProperty('--bgScale', `${s}%`);
+  document.getElementById('bgOverlay').style.setProperty('--bgBlur', `${b}px`);
+  document.getElementById('bgOverlay').style.setProperty('--bgDim',  `${d/100}`);
+}
+['bgScale','bgBlur','bgDim'].forEach(id=>{
+  document.addEventListener('input', e=>{
+    if(e.target && e.target.id===id) updateBgPreview();
+  }, {passive:true});
+});
+document.getElementById('bgFile').addEventListener('change', e=>{
+  const f = e.target.files[0]; if(!f) return;
+  const reader = new FileReader();
+  reader.onload = ev=>{
+    document.getElementById('bgPreview').style.backgroundImage = `url("${ev.target.result}")`;
+    document.getElementById('bgPreview').dataset.url = ev.target.result;
+  };
+  reader.readAsDataURL(f);
+});
+function applyBg(){
+  const url = document.getElementById('bgPreview').dataset.url || LS.getStr('artistChatBg','');
+  const scale = document.getElementById('bgScale').value;
+  const blur  = document.getElementById('bgBlur').value;
+  const dim   = document.getElementById('bgDim').value;
+
+  if(url) LS.setStr('artistChatBg', url);
+  LS.setStr('artistChatBgScale', scale);
+  LS.setStr('artistChatBgBlur',  blur);
+  LS.setStr('artistChatBgDim',   dim);
+
+  applyChatBg();
+  closeBgEditor();
+}
+function applyChatBg(){
+  const url = LS.getStr('artistChatBg','');
+  const scale = LS.getStr('artistChatBgScale','140');
+  const blur  = LS.getStr('artistChatBgBlur','2');
+  const dim   = LS.getStr('artistChatBgDim','25');
+  const el = document.querySelector('#dmDetail');
+  if(!el) return;
+  if(!url){
+    el.style.background='none';
+  }else{
+    el.style.backgroundImage = `url("${url}")`;
+    el.style.backgroundSize  = `${scale}%`;
+    el.style.backgroundPosition='center';
+    el.style.backgroundRepeat='no-repeat';
+    el.style.setProperty('--bgDim',  dim/100);
+    el.style.setProperty('--bgBlur', `${blur}px`);
+    // 透明覆蓋層
+    el.style.boxShadow = 'inset 0 0 0 9999px rgba(255,255,255,.0)'; // 占位
+  }
+}
+
+/* ===== Composer（暫存） ===== */
+function previewComposeMedia(e){
+  const box = document.getElementById('composePreview');
+  box.innerHTML = '';
+  [...e.target.files].forEach(f=>{
+    const url = URL.createObjectURL(f);
+    const isVideo = f.type.startsWith('video/');
+    const el = document.createElement(isVideo?'video':'img');
+    el.src = url; el.style.width='110px'; el.style.height='110px'; el.style.objectFit='cover'; el.controls=isVideo;
+    el.onloadeddata = el.onload = ()=>URL.revokeObjectURL(url);
+    box.appendChild(el);
+  });
+}
+function publishDraft(){
+  alert('先存草稿＆預覽。發佈規則我們下一步接上首頁。');
+  goBack();
+}
+
+/* ===== 初始化補充：打開 DM 時套用背景、接發送 ===== */
+document.addEventListener('DOMContentLoaded', ()=>{
+  document.getElementById('dmSendBtn').addEventListener('click', sendDm);
+  document.getElementById('dmMessageInput').addEventListener('keydown', e=>{
+    if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); sendDm(); }
+  });
+  applyChatBg();
+
+  // 首頁 + 打開 Composer（你的 + 按鈕 id 可能不同，綁在現有 onclick 即可）
+  const fab = document.querySelector('button.fab, .post-fab, .plusFab'); // 試著抓常見 id/class
+  if(fab) fab.onclick = ()=> showPage('composerArtist');
+});
   /* ---------- 啟動 ---------- */
   document.addEventListener('DOMContentLoaded', ()=>{
     document.getElementById('meNickname').textContent = ME.name;
