@@ -2,15 +2,15 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>NEXT’S YOU — Fan App (單頁版)</title>
 
   <style>
     :root{
       --bg:#f5f7ff; --card:#fff; --text:#1a1a1a; --sub:#667085; --line:#e7eaf3; --ghost:#9aa0b4;
-      --accent:#6a5acd; --accent2:#836fff; --ok:#10b981; --danger:#ff4d4f;
-      --radius:16px; --shadow:0 12px 34px rgba(18, 24, 40, .08);
-      --safe: env(safe-area-inset-bottom, 0px);
+      --accent:#6a5acd; --accent2:#836fff; --danger:#ff4d4f;
+      --radius:16px; --shadow:0 12px 34px rgba(18,24,40,.08);
+      --safe: env(safe-area-inset-bottom,0px);
     }
     *{box-sizing:border-box}
     html,body{height:100%}
@@ -18,10 +18,11 @@
       margin:0;background:var(--bg);color:var(--text);
       font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial;
       -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
-      -webkit-text-size-adjust:100%;
       overflow-x:hidden
     }
-    img{display:block;max-width:100%} a{text-decoration:none;color:inherit} button{font:inherit;cursor:pointer}
+    img{display:block;max-width:100%}
+    button{font:inherit;cursor:pointer;border:none;background:transparent}
+    a{text-decoration:none;color:inherit}
     .ghost{color:var(--ghost)} .sub{color:var(--sub)} .soft{padding:16px} .row{display:flex;align-items:center;gap:10px}
     .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
     .chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:#f3f5ff;border:1px solid var(--line);font-size:12px}
@@ -38,7 +39,7 @@
       transition:transform .25s ease;
     }
     nav#nav.hidden{transform:translateY(120%)}
-    nav#nav button{flex:1;border:none;background:transparent;padding:8px 0 6px;border-radius:12px;color:var(--sub);font-weight:800;font-size:13px}
+    nav#nav button{flex:1;background:transparent;padding:8px 0 6px;border-radius:12px;color:var(--sub);font-weight:800;font-size:13px}
     nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid var(--line)}
 
     /* header (home) */
@@ -68,9 +69,12 @@
     .post .body{margin-top:8px}
     .post .hero{width:100%;height:360px;object-fit:cover;border-radius:12px;border:1px solid var(--line)}
 
-    /* verify badge（藍勾） */
-    .verify{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;
-      background:linear-gradient(180deg,#4ea1ff,#327dff);color:#fff;font-weight:900;font-size:12px;box-shadow:0 0 0 2px #fff}
+    /* 藍勾（照你要的乾淨版） */
+    .verify{
+      display:inline-flex;align-items:center;justify-content:center;
+      width:16px;height:16px;border-radius:50%;
+      background:#3b82f6;color:#fff;font-size:12px;line-height:1;box-shadow:0 0 0 2px #fff;
+    }
 
     /* floating + */
     .fab{
@@ -83,19 +87,18 @@
     #dm .dmCard{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px;border:1px solid var(--line);border-radius:14px;background:var(--card);margin:10px 0;cursor:pointer}
     #dm .dmCard .left{display:flex;align-items:center;gap:12px}
     #dm .dmCard img{width:52px;height:52px;border-radius:50%;object-fit:cover;border:1px solid var(--line)}
-    .nameBlock{display:flex;flex-direction:column;gap:4px;align-items:flex-start}
-    .nameBlock .nm{display:flex;align-items:center;gap:6px}
+    .nameBlock{display:flex;flex-direction:column;gap:4px}
+    .nameBlock .nm{display:flex;align-items:center;gap:8px;line-height:1}
     .artistTag{display:inline-flex;align-items:center;justify-content:center;padding:3px 8px;height:18px;border-radius:8px;font-size:10px;font-weight:900;letter-spacing:.7px;text-transform:uppercase;color:#2e2a6f;background:linear-gradient(90deg,#cbb9ff 0%,#8fb4ff 62%,#ffffff 100%);border:1px solid #ded6ff;box-shadow:0 2px 8px rgba(106,90,205,.20)}
 
     /* ===== DM Detail（藝人） ===== */
-    .chatHUD{display:flex;align-items:center;justify-content:space-between;padding:4px 0 8px}
+    .chatHUD{display:flex;align-items:center;justify-content:space-between;padding:8px 0 10px}
     .chatHUD .left{display:flex;align-items:center;gap:8px}
     .chatHUD .center{flex:1;min-width:0}
-    .chatHUD .titleRow{display:flex;align-items:center;gap:8px;line-height:1}
-    .hudBtn,.back{width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--card)}
-
-    /* 背景（可調） */
+    .titleRow{display:flex;align-items:center;gap:8px}
+    .back,.hudBtn{width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--card)}
     #dmDetail{position:relative}
+    #dmDetail{background-size:cover;background-position:center;background-repeat:no-repeat}
     #dmDetail::after{
       content:""; position:fixed; inset:0; pointer-events:none;
       background:rgba(255,255,255,var(--bgDim,.0)); backdrop-filter:blur(var(--bgBlur,0px));
@@ -104,61 +107,72 @@
 
     /* thread */
     .thread{display:flex;flex-direction:column;gap:10px;height:calc(100vh - 230px);overflow-y:auto;padding:8px 2px}
-    .msg{display:flex;flex-direction:column;max-width:88%;margin:4px 0}
-    .bubbleRow{display:flex;align-items:flex-end;gap:6px}
-    .msg.left  .bubbleRow{justify-content:flex-start}
-    .msg.right .bubbleRow{justify-content:flex-end}
-    .bubble{max-width:100%;padding:10px 12px;border-radius:14px;border:1px solid var(--line);background:#fff;position:relative}
+    .msg{max-width:78%}
+    .msg.left{align-self:flex-start}
+    .msg.right{align-self:flex-end}
+    .bubble{display:inline-block;max-width:100%;padding:10px 12px;border-radius:14px;border:1px solid var(--line);background:#fff;position:relative}
     .msg.right .bubble{background:linear-gradient(180deg,var(--accent),var(--accent2));color:#fff;border-color:transparent}
-    .labelPill{display:inline-block;font-size:10px;font-weight:900;color:#5f6aa0;background:#eef1ff;border:1px solid #dfe4ff;border-radius:10px;padding:3px 8px;margin-bottom:6px}
-    .time{font-size:11px;color:#8b93a7;min-width:42px;text-align:right;margin-bottom:2px}
-    .msg.right .time{color:#aeb6c9}
-    .quote{font-size:12px;opacity:.95;padding:8px;border-left:3px solid #c9d1ff;border-radius:8px;background:#f2f4ff;margin-top:8px;color:#445}
 
-    /* 粉絲泡泡右側「回覆」鈕（圓形箭頭，細描邊） */
+    /* FROM FAN 標籤（與文字分行） */
+    .ff-label{
+      display:inline-block;margin-bottom:6px;
+      padding:4px 10px;border-radius:10px;background:#eef1ff;border:1px solid #dfe4ff;
+      color:#6a5acd;font-weight:900;font-size:12px;letter-spacing:.5px;
+    }
+
+    /* 回覆箭頭（你要的圓形半透明） */
     .replyBtn{
-      position:absolute; right:-12px; top:50%; transform:translateY(-50%);
-      width:30px;height:30px;border-radius:999px;border:1px solid var(--line);
-      background:#fff; box-shadow:0 6px 14px rgba(0,0,0,.08);
-      display:flex;align-items:center;justify-content:center; font-size:14px; color:#7b88a6;
+      position:absolute; right:-14px; top:50%; transform:translateY(-50%);
+      width:32px;height:32px;border-radius:999px;background:rgba(255,255,255,.9);
+      box-shadow:0 6px 18px rgba(0,0,0,.12); display:flex;align-items:center;justify-content:center;
     }
+    .replyBtn svg{width:16px;height:16px;opacity:.9}
 
-    /* 回覆條（更好看版本） */
-    .replyBar{display:none;align-items:center;gap:10px;margin:6px 2px 8px;padding:8px 10px;border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.85);backdrop-filter:blur(6px)}
-    .replyBar .lead{width:3px;height:18px;border-radius:2px;background:#bfc7ff}
-    .replyBar .txt{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#556}
-    .replyBar .x{border:none;background:transparent;color:#97a0b8}
+    /* 時間在同一行，左右各就各位 */
+    .rowLine{display:flex;align-items:flex-end;gap:8px}
+    .time{font-size:11px;color:rgba(0,0,0,.35)}
+    .msg.left .rowLine{flex-direction:row}      /* [time][bubble] */
+    .msg.right .rowLine{flex-direction:row-reverse} /* [bubble][time] */
+    .msg.right .time{color:rgba(255,255,255,.85)}
 
-    /* 輸入列（滿版、鎖底、安全區） */
-    .dmFooter{position:sticky;bottom:0;left:0;right:0;background:linear-gradient(180deg,rgba(255,255,255,.55),rgba(255,255,255,.98));backdrop-filter:blur(10px);padding:8px 12px calc(8px + var(--safe));border-top:1px solid var(--line)}
-    .dmInputBar{display:flex;align-items:center;gap:10px}
-    .inputWrap{position:relative;flex:1;min-width:0}
-    .box{display:flex;align-items:center;background:#fff;border:1px solid var(--line);border-radius:18px;padding:10px 14px;padding-right:64px}
-    .box input{flex:1;border:none;outline:none;background:transparent;font-size:17px} /* 17px 防 iOS 自動放大 */
+    /* 回覆 chip（輸入列上方，半透明卡片） */
+    .replyChip{
+      display:none; align-items:center; gap:8px;
+      margin:0 0 8px 0; padding:8px 12px; border-radius:12px;
+      background:rgba(255,255,255,.75); border:1px solid var(--line); backdrop-filter:blur(6px);
+      font-size:13px; color:#556;
+    }
+    .replyChip b{color:#7a86b7}
+    .replyChip .x{color:#97a0b8}
+
+    /* 底部輸入列（滿版） */
+    .dmFooter{
+      position:fixed; left:0; right:0; bottom:0; z-index:50;
+      background:linear-gradient(180deg,rgba(255,255,255,.55),rgba(255,255,255,.98));
+      backdrop-filter:blur(10px); border-top:1px solid var(--line);
+      padding:10px 12px calc(10px + var(--safe));
+    }
+    .dmBar{display:flex;align-items:center;gap:10px; width:100%}
+    .dmBar .box{flex:1; display:flex; align-items:center; background:#fff; border:1px solid var(--line); border-radius:22px; padding:10px 14px}
+    .dmBar input{flex:1;border:none;background:transparent;outline:none;font-size:16px}
     .dmSend{
-      position:absolute;right:6px;top:50%;transform:translateY(-50%);
-      width:50px;height:44px;border:none;border-radius:14px;
-      background:linear-gradient(180deg,var(--accent),var(--accent2));color:#fff;font-weight:900;
-      display:flex;align-items:center;justify-content:center;
+      width:48px;height:48px;border-radius:14px;
+      background:linear-gradient(180deg,var(--accent),var(--accent2)); color:#fff; display:flex;align-items:center;justify-content:center;
+      box-shadow:0 8px 18px rgba(106,90,205,.28);
     }
+    .dmSend svg{width:20px;height:20px}
 
-    /* 背景編輯器 */
-    #bgEditor{position:fixed;inset:0;z-index:80;display:none;background:rgba(0,0,0,.45)}
-    #bgEditor .panel{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%); width:min(720px,92vw);background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px;box-shadow:var(--shadow)}
+    /* BG 選擇/裁切/預覽 */
+    #bgPicker{display:none}
+    #bgEditor,#bgPreviewSheet{position:fixed;inset:0;z-index:80;display:none;background:rgba(0,0,0,.45)}
+    #bgEditor .panel,#bgPreviewSheet .panel{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%); width:min(720px,92vw);background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px;box-shadow:var(--shadow)}
     #bgPreview{height:42vh;border:1px dashed var(--line);border-radius:12px;background-size:var(--bgScale,cover);background-position:center;background-repeat:no-repeat;position:relative;overflow:hidden}
     #bgOverlay{position:absolute;inset:0;background:rgba(0,0,0,var(--bgDim,.25));backdrop-filter:blur(var(--bgBlur,0px))}
     .rangeRow{display:flex;align-items:center;gap:10px;margin:12px 0}
     .rangeRow label{min-width:60px;color:#556}
     .rangeRow output{margin-left:auto;color:#667;font-variant-numeric:tabular-nums}
-
-    /* composer */
-    #composerArtist .topbar{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-    #composerArtist .rightName{margin-left:auto;color:#9aa1ad;font-weight:800;letter-spacing:.3px}
-    #composeBox{min-height:42vh}
-    #composeText{width:100%;border:none;outline:none;font-size:16px}
-    #composePreview>img,#composePreview>video{width:110px;height:110px;object-fit:cover;border-radius:12px;border:1px solid var(--line)}
-    .btn-primary{background:linear-gradient(180deg,var(--accent),var(--accent2));color:#fff;border:none;border-radius:12px;padding:10px 14px;font-weight:900}
     .btn{border:1px solid var(--line);border-radius:12px;padding:8px 12px;background:#fff}
+    .btn-primary{background:linear-gradient(180deg,var(--accent),var(--accent2));color:#fff;border:none;border-radius:12px;padding:10px 14px;font-weight:900}
   </style>
 </head>
 <body>
@@ -194,92 +208,101 @@
   <section id="dmDetail" class="page">
     <!-- 頂部 HUD -->
     <div class="chatHUD">
-      <div class="left">
-        <button class="back" onclick="goBack()">←</button>
-      </div>
+      <div class="left"><button class="back" onclick="goBack()">←</button></div>
       <div class="center">
         <div class="titleRow">
           <span class="artistTag">ARTIST</span>
           <b id="dmTitle">Annie</b>
         </div>
       </div>
-      <div class="right">
-        <button class="hudBtn" id="moreBtn" title="更多" onclick="toggleDmMenu()">⋯</button>
-      </div>
+      <div class="right"><button class="hudBtn" title="更多" onclick="toggleDmMenu()">⋯</button></div>
     </div>
 
-    <!-- Thread -->
+    <!-- DM Thread -->
     <div id="dmThread" class="thread"></div>
 
-    <!-- 回覆條（更好看版本） -->
-    <div id="replyBar" class="replyBar">
-      <div class="lead"></div>
-      <div class="txt" id="replyBarText"></div>
+    <!-- 回覆 chip -->
+    <div id="replyChip" class="replyChip">
+      <b>回覆：</b><span id="replyChipText" class="ghost"></span>
       <button class="x" onclick="clearReply()">× 取消</button>
     </div>
 
-    <!-- Footer / Input（滿版＋紙飛機） -->
+    <!-- Footer / Input（滿版） -->
     <div class="dmFooter">
-      <div class="dmInputBar">
-        <div class="inputWrap">
-          <div class="box"><input id="dmMessageInput" placeholder="輸入訊息…" /></div>
-          <button class="dmSend" id="dmSendBtn">➤</button>
+      <div class="dmBar">
+        <div class="box">
+          <input id="dmMessageInput" placeholder="輸入訊息…" />
         </div>
+        <button class="dmSend" id="dmSendBtn" title="送出">
+          <!-- 紙飛機 SVG -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 2L11 13"/>
+            <path d="M22 2L15 22l-4-9-9-4 20-7z"/>
+          </svg>
+        </button>
       </div>
     </div>
 
     <!-- 右上 … 選單 -->
-    <div id="dmMenu" class="card soft" style="position:fixed;right:12px;top:64px;display:none;z-index:70">
+    <div id="dmMenu" class="card soft" style="position:fixed;right:12px;top:64px;display:none;z-index:90">
       <div class="row" style="flex-direction:column;gap:6px">
-        <button class="chip dmMenuItem" onclick="renameChat()">更改聊天室名稱</button>
-        <button class="chip dmMenuItem" onclick="openBgEditor()">更改背景</button>
+        <button class="chip" onclick="renameChat(); autoHideMenu()">更改聊天室名稱</button>
+        <button class="chip" onclick="startChangeBg(); autoHideMenu()">更改背景</button>
       </div>
     </div>
   </section>
 
-  <!-- ====================== 背景編輯器 ====================== -->
+  <!-- ====================== 背景：裁切 ====================== -->
+  <input id="bgPicker" type="file" accept="image/*">
   <div id="bgEditor">
     <div class="panel">
-      <b style="font-weight:900">背景設定</b>
+      <b style="font-weight:900">背景裁切</b>
       <div id="bgPreview"><div id="bgOverlay"></div></div>
       <div class="rangeRow">
-        <label>縮放</label><input id="bgScale" type="range" min="100" max="220" value="140">
-        <output id="bgScaleOut">140%</output>
+        <label>縮放</label><input id="bgScale" type="range" min="100" max="220" value="140"><output id="bgScaleOut">140%</output>
       </div>
       <div class="rangeRow">
-        <label>模糊</label><input id="bgBlur"  type="range" min="0" max="8" value="2">
-        <output id="bgBlurOut">2px</output>
+        <label>模糊</label><input id="bgBlur"  type="range" min="0" max="8" value="2"><output id="bgBlurOut">2px</output>
       </div>
       <div class="rangeRow">
-        <label>暗度</label><input id="bgDim"   type="range" min="0" max="70" value="25">
-        <output id="bgDimOut">25%</output>
+        <label>暗度</label><input id="bgDim"   type="range" min="0" max="70" value="25"><output id="bgDimOut">25%</output>
       </div>
-      <div class="row" style="justify-content:space-between;gap:8px;margin-top:8px">
-        <input id="bgFile" type="file" accept="image/*">
-        <div class="row" style="gap:8px">
-          <button class="btn" onclick="closeBgEditor()">取消</button>
-          <button class="btn-primary" onclick="applyBg()">套用</button>
-        </div>
+      <div class="row" style="justify-content:flex-end;gap:8px;margin-top:8px">
+        <button class="btn" onclick="closeBgEditor()">取消</button>
+        <button class="btn-primary" onclick="openBgPreview()">預覽</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====================== 背景：預覽 ====================== -->
+  <div id="bgPreviewSheet">
+    <div class="panel">
+      <b style="font-weight:900">背景預覽</b>
+      <div style="height:48vh;border:1px solid var(--line);border-radius:12px;overflow:hidden">
+        <div style="height:100%;background-position:center;background-repeat:no-repeat;background-size:cover" id="bgPreviewLive"></div>
+      </div>
+      <div class="row" style="justify-content:flex-end;gap:8px;margin-top:10px">
+        <button class="btn" onclick="closeBgPreview()">返回</button>
+        <button class="btn-primary" onclick="applyBg()">確認</button>
       </div>
     </div>
   </div>
 
   <!-- ====================== Composer（＋） ====================== -->
   <section id="composerArtist" class="page">
-    <div class="topbar">
+    <div class="row" style="gap:10px;margin-bottom:10px">
       <button class="back" onclick="goBack()">←</button>
       <b style="font-weight:900">NEXT ONE</b>
-      <div class="rightName" id="composerWho">—</div>
+      <div class="ghost" id="composerWho" style="margin-left:auto">—</div>
     </div>
 
     <div id="composeBox" class="soft card">
-      <textarea id="composeText" rows="4" placeholder="在想些什麼？"></textarea>
+      <textarea id="composeText" rows="4" placeholder="在想些什麼？" style="width:100%;border:none;outline:none;font-size:16px"></textarea>
       <div id="composePreview" class="row" style="flex-wrap:wrap;gap:8px;margin-top:10px"></div>
     </div>
 
     <div class="row" style="gap:10px;margin-top:12px">
-      <label class="btn">
-        選擇檔案
+      <label class="btn">選擇檔案
         <input id="composeMedia" type="file" multiple accept="image/*,video/*" onchange="previewComposeMedia(event)" style="display:none">
       </label>
       <span id="composeFilesHint" class="ghost">未選取檔案</span>
@@ -310,10 +333,11 @@
   const escapeHtml = s => String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const fmtTime = ts => new Date(ts).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
 
-  // 系統舞台名：固定、英文大寫（不受暱稱影響）
+  /* ---------- 系統舞台名（固定）與暱稱（可改） ---------- */
   const STAGE_NAME = LS.getStr('artistStage','ANNIE');
-  let   NICKNAME   = LS.getStr('artistNickname','Annie');    // = 聊天室名稱（DM 專用）
+  let   NICKNAME   = LS.getStr('artistNickname','Annie');
   let   AVATAR     = LS.getStr('artistAvatar','https://picsum.photos/80?u=artist');
+  const ME = { id:'artist:annie', stage:STAGE_NAME, nick:NICKNAME, avatar:AVATAR };
 
   /* ---------- 假資料 ---------- */
   const ARTISTS = [
@@ -337,7 +361,6 @@
     {id:'m2', from:'fan', fanId:'f2', text:'今天吃什麼？', ts:Date.now()-1000*60*43},
     {id:'m3', from:'artist', text:'我午餐吃了沙拉 🥗', ts:Date.now()-1000*60*40, replyTo:{text:'今天吃什麼？'}}
   ]);
-
   const lastSeen = LS.get('lastSeen', {});
 
   /* ---------- 導航 ---------- */
@@ -348,16 +371,13 @@
     const page = document.getElementById(id); if(page) page.classList.add('active');
     if(PAGE_STACK[PAGE_STACK.length-1]!==id) PAGE_STACK.push(id);
 
-    // nav tab
     document.querySelectorAll('#nav button').forEach(b=>b.classList.remove('active'));
     ({home:'tabHome', dm:'tabDM', live:'tabLive', store:'tabStore'}[id] || null) &&
       document.getElementById({home:'tabHome', dm:'tabDM', live:'tabLive', store:'tabStore'}[id]).classList.add('active');
 
-    // hide nav?
     const nav = document.getElementById('nav');
     if(HIDE_NAV_IN.includes(id)) nav.classList.add('hidden'); else nav.classList.remove('hidden');
 
-    // per-page render
     if(id==='home'){ renderStoryBar(); renderFeed(currentFilter); }
     if(id==='dm'){ renderDmList(); }
     if(id==='dmDetail'){ renderThread(); applyChatBg(); }
@@ -387,8 +407,7 @@
     });
     const order = [ARTISTS.find(a=>a.id==='me'), ARTISTS.find(a=>a.id==='all'), ...others];
     bar.innerHTML = order.map(a=>{
-      const active = (currentFilter===a.id) ? 'active':'';
-      const pinned = (a.id==='me' || a.id==='all') ? 'pinned':'';
+      const active = (currentFilter===a.id) ? 'active':''; const pinned=(a.id==='me'||a.id==='all')?'pinned':'';
       const dot = hasNewDots(a.id)? '<span class="dot"></span>':'';
       return `<div class="story-item ${active} ${pinned}" data-id="${a.id}">
         <img src="${a.avatar}" onerror="imgFallback(this)">${dot}
@@ -399,11 +418,8 @@
       el.addEventListener('click', ()=>{
         const id = el.dataset.id;
         currentFilter = id;
-        if(id!=='all') lastSeen[id] = Date.now();
-        LS.set('lastSeen', lastSeen);
-        renderStoryBar();
-        renderFeed(currentFilter);
-        window.scrollTo({top:0,behavior:'smooth'});
+        if(id!=='all') lastSeen[id] = Date.now(), LS.set('lastSeen', lastSeen);
+        renderStoryBar(); renderFeed(currentFilter); window.scrollTo({top:0,behavior:'smooth'});
       });
     });
   }
@@ -423,7 +439,7 @@
         <div class="hdr">
           <img class="avatar" src="${p.avatar}" onerror="imgFallback(this)">
           <div class="meta">
-            <b>${escapeHtml((p.artistStage || p.artistName || '').toString().toUpperCase())} <span class="verify">✓</span></b>
+            <b>${escapeHtml((p.artistStage||p.artistName||'').toString().toUpperCase())} <span class="verify">✓</span></b>
             <small class="ghost">${new Date(p.ts).toLocaleString()}</small>
           </div>
         </div>
@@ -435,77 +451,78 @@
     `).join('');
   }
 
-  // 新貼文（先做簡版，不影響舞台名）
+  // 新貼文
   document.getElementById('fabNew').addEventListener('click', ()=> showPage('composerArtist'));
 
-  /* ---------- DM List：徽章在上、名字在下，左緣對齊 ---------- */
-  function getRoomTitle(){ return NICKNAME; } // DM 使用暱稱
+  /* ---------- DM List（徽章在上 + 名稱對齊） ---------- */
+  function getRoomTitle(){ return NICKNAME; }
   function renderDmList(){
-    const box=document.getElementById('dmList');
-    const last=GROUP_MSGS[GROUP_MSGS.length-1];
-    box.innerHTML=`
+    const box = document.getElementById('dmList');
+    const last = GROUP_MSGS[GROUP_MSGS.length-1];
+    const preview = last ? last.text : '（無訊息）';
+    box.innerHTML = `
       <div class="dmCard" onclick="showPage('dmDetail')">
         <div class="left">
           <img src="${AVATAR}" onerror="imgFallback(this)">
           <div class="nameBlock">
-            <span class="artistTag">ARTIST</span>
-            <div class="nm"><b>${escapeHtml(getRoomTitle())}</b></div>
-            <small class="ghost" style="display:block;max-width:62vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
-              ${escapeHtml(last?last.text:'（無訊息）')}
-            </small>
+            <div class="nm"><span class="artistTag">ARTIST</span><b>${escapeHtml(getRoomTitle())}</b></div>
+            <small class="ghost" style="display:block;max-width:62vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(preview)}</small>
           </div>
         </div>
       </div>`;
   }
 
-  /* ---------- DM Thread（時間在左、FROM FAN 獨立一行、回覆箭頭） ---------- */
-  let replyDraft = null; // { text }
+  /* ---------- DM Thread：時間左右、FROM FAN 標籤、回覆箭頭 ---------- */
+  let replyDraft = null; // {text}
   function renderThread(){
     const box = document.getElementById('dmThread'); box.innerHTML='';
     GROUP_MSGS.forEach(m=>{
-      const wrap = document.createElement('div');
-      wrap.className = 'msg ' + (m.from==='artist'?'right':'left');
+      const msg = document.createElement('div'); msg.className = 'msg ' + (m.from==='artist'?'right':'left');
 
-      // time + bubble 成一個 row，時間永遠在泡泡左側
-      const row = document.createElement('div'); row.className='bubbleRow';
-
-      const t = document.createElement('div'); t.className='time'; t.textContent=fmtTime(m.ts);
-      row.appendChild(t);
-
-      const bubble = document.createElement('div'); bubble.className='bubble';
+      // bubble
+      let inner = '';
       if(m.from==='fan'){
-        bubble.innerHTML = `<div class="labelPill">FROM FAN</div><div>${escapeHtml(m.text)}</div>`;
+        inner += `<span class="ff-label">FROM FAN</span>`;
+        inner += `<div>${escapeHtml(m.text)}</div>`;
       }else{
-        bubble.innerHTML = `<div>${escapeHtml(m.text)}</div>`;
+        inner += `<div>${escapeHtml(m.text)}</div>`;
         if(m.replyTo && m.replyTo.text){
-          bubble.innerHTML += `<div class="quote"><b class="ghost">FROM FAN：</b>${escapeHtml(m.replyTo.text)}</div>`;
+          inner += `<div class="card" style="margin-top:8px;background:rgba(255,255,255,.80);border-color:#e5e8ff">
+                      <div class="soft" style="padding:10px 12px"><b class="ghost" style="margin-right:6px">FROM FAN：</b>${escapeHtml(m.replyTo.text)}</div>
+                    </div>`;
         }
       }
+      const bubble = `<div class="bubble">${inner}</div>`;
 
-      // 粉絲訊息才有回覆鍵（圓形箭頭）
+      // 一行：時間 + 泡泡（左右互換）
+      const row = document.createElement('div'); row.className='rowLine';
+      row.innerHTML = `<div class="time">${fmtTime(m.ts)}</div>${bubble}`;
+      msg.appendChild(row);
+
+      // 粉絲訊息右側回覆鍵
       if(m.from==='fan'){
         const btn = document.createElement('button');
-        btn.className = 'replyBtn'; btn.innerHTML = '↩︎';
-        btn.onclick = ()=>{
-          replyDraft = { text: m.text };
-          const bar = document.getElementById('replyBar');
-          bar.style.display = 'flex';
-          document.getElementById('replyBarText').textContent = m.text;
+        btn.className='replyBtn';
+        btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="#7b88a6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>`;
+        btn.onclick=()=>{
+          replyDraft={text:m.text};
+          const chip=document.getElementById('replyChip');
+          chip.style.display='flex';
+          document.getElementById('replyChipText').textContent=m.text.slice(0,42);
           document.getElementById('dmMessageInput').focus();
         };
-        bubble.appendChild(btn);
+        // 放在泡泡上以靠右
+        setTimeout(()=>{ msg.querySelector('.bubble').appendChild(btn); },0);
       }
 
-      row.appendChild(bubble);
-      wrap.appendChild(row);
-      box.appendChild(wrap);
+      box.appendChild(msg);
     });
     box.scrollTop = box.scrollHeight;
   }
-  function clearReply(){ replyDraft = null; document.getElementById('replyBar').style.display='none'; }
+  function clearReply(){ replyDraft=null; document.getElementById('replyChip').style.display='none'; }
   function sendArtistMsg(){
-    const inp = document.getElementById('dmMessageInput');
-    const t = (inp.value||'').trim(); if(!t) return;
+    const inp=document.getElementById('dmMessageInput');
+    const t=(inp.value||'').trim(); if(!t) return;
     GROUP_MSGS.push({ id:'u'+Date.now(), from:'artist', text:t, ts:Date.now(), replyTo: replyDraft? {text:replyDraft.text}: null });
     LS.set('groupMsgs', GROUP_MSGS);
     inp.value=''; clearReply(); renderThread(); renderDmList();
@@ -515,53 +532,53 @@
     if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); sendArtistMsg(); }
   });
 
-  /* ---------- DM 菜單（外點自動收、點項目自動收） ---------- */
+  /* ---------- DM 菜單：點外面自動收合 ---------- */
   function toggleDmMenu(){
-    const m = document.getElementById('dmMenu');
-    m.style.display = (m.style.display==='none'||!m.style.display)?'block':'none';
+    const m=document.getElementById('dmMenu');
+    m.style.display=(m.style.display==='none'||!m.style.display)?'block':'none';
   }
+  function autoHideMenu(){ document.getElementById('dmMenu').style.display='none'; }
   document.addEventListener('click', (e)=>{
     const menu = document.getElementById('dmMenu');
-    const more = document.getElementById('moreBtn');
-    if(menu.style.display==='block' && !menu.contains(e.target) && e.target!==more){
-      menu.style.display='none';
-    }
-  });
-  // 點任一選單項目後自動收
-  document.querySelectorAll('.dmMenuItem').forEach(btn=>{
-    btn.addEventListener('click', ()=>{ document.getElementById('dmMenu').style.display='none'; });
+    if(!menu || menu.style.display!=='block') return;
+    if(!menu.contains(e.target) && !e.target.closest('.hudBtn')) menu.style.display='none';
   });
 
+  /* ---------- 更名（暱稱=聊天室名稱） ---------- */
   function renameChat(){
-    const cur = getRoomTitle();
-    const n = prompt('更改聊天室名稱（同：藝人暱稱）', cur);
+    const cur=getRoomTitle();
+    const n=prompt('更改聊天室名稱（同：藝人暱稱）',cur);
     if(!n) return;
     NICKNAME = n.trim() || cur;
     LS.setStr('artistNickname', NICKNAME);
-    document.getElementById('dmTitle').textContent = NICKNAME;
-    document.getElementById('meNickname').textContent = NICKNAME;
-    document.getElementById('composerWho').textContent = NICKNAME;
+    document.getElementById('dmTitle').textContent=NICKNAME;
+    document.getElementById('meNickname').textContent=NICKNAME;
+    document.getElementById('composerWho').textContent=NICKNAME;
     renderDmList();
   }
+  document.getElementById('btnEditNick').addEventListener('click', ()=>{
+    renameChat();
+  });
 
-  /* ---------- DM 背景：開啟／預覽／套用 ---------- */
-  function openBgEditor(){
-    document.getElementById('bgEditor').style.display='block';
-    const url = LS.getStr('artistChatBg','');
-    const scale = LS.getStr('artistChatBgScale','140');
-    const blur  = LS.getStr('artistChatBgBlur','2');
-    const dim   = LS.getStr('artistChatBgDim','25');
-    if(url) document.getElementById('bgPreview').style.backgroundImage = `url("${url}")`;
-    document.getElementById('bgScale').value = scale;
-    document.getElementById('bgBlur').value  = blur;
-    document.getElementById('bgDim').value   = dim;
-    updateBgPreview();
-  }
+  /* ---------- 背景流程：挑選 → 裁切 → 預覽 → 套用 ---------- */
+  const picker = document.getElementById('bgPicker');
+  function startChangeBg(){ picker.click(); }
+  picker.addEventListener('change', e=>{
+    const f=e.target.files[0]; if(!f) return;
+    const reader = new FileReader();
+    reader.onload = ev=>{
+      document.getElementById('bgPreview').style.backgroundImage = `url("${ev.target.result}")`;
+      document.getElementById('bgPreview').dataset.url = ev.target.result;
+      openBgEditor(); updateBgPreview();
+    };
+    reader.readAsDataURL(f);
+  });
+  function openBgEditor(){ document.getElementById('bgEditor').style.display='block'; }
   function closeBgEditor(){ document.getElementById('bgEditor').style.display='none'; }
   function updateBgPreview(){
-    const s = document.getElementById('bgScale').value;
-    const b = document.getElementById('bgBlur').value;
-    const d = document.getElementById('bgDim').value;
+    const s=document.getElementById('bgScale').value;
+    const b=document.getElementById('bgBlur').value;
+    const d=document.getElementById('bgDim').value;
     document.getElementById('bgPreview').style.setProperty('--bgScale', `${s}%`);
     document.getElementById('bgOverlay').style.setProperty('--bgBlur', `${b}px`);
     document.getElementById('bgOverlay').style.setProperty('--bgDim',  `${d/100}`);
@@ -572,40 +589,44 @@
   ['bgScale','bgBlur','bgDim'].forEach(id=>{
     document.getElementById(id).addEventListener('input', updateBgPreview, {passive:true});
   });
-  document.getElementById('bgFile').addEventListener('change', e=>{
-    const f = e.target.files[0]; if(!f) return;
-    const reader = new FileReader();
-    reader.onload = ev=>{
-      document.getElementById('bgPreview').style.backgroundImage = `url("${ev.target.result}")`;
-      document.getElementById('bgPreview').dataset.url = ev.target.result;
-    };
-    reader.readAsDataURL(f);
-  });
+  function openBgPreview(){
+    const url = document.getElementById('bgPreview').dataset.url; if(!url) return;
+    const s=document.getElementById('bgScale').value;
+    const b=document.getElementById('bgBlur').value;
+    const d=document.getElementById('bgDim').value;
+    const live=document.getElementById('bgPreviewLive');
+    live.style.backgroundImage=`url("${url}")`;
+    live.style.filter=`blur(${b}px) brightness(${1 - (d/100) + 1})`; // 看起來接近暗度效果
+    live.style.backgroundSize=`${s}%`;
+    document.getElementById('bgPreviewSheet').style.display='block';
+  }
+  function closeBgPreview(){ document.getElementById('bgPreviewSheet').style.display='none'; }
   function applyBg(){
+    // 以裁切數值寫入 LS，聊天背景使用 cover 滿版 + 自定遮罩值
     const url = document.getElementById('bgPreview').dataset.url || LS.getStr('artistChatBg','');
-    const scale = document.getElementById('bgScale').value;
-    const blur  = document.getElementById('bgBlur').value;
-    const dim   = document.getElementById('bgDim').value;
+    const s=document.getElementById('bgScale').value;
+    const b=document.getElementById('bgBlur').value;
+    const d=document.getElementById('bgDim').value;
     if(url) LS.setStr('artistChatBg', url);
-    LS.setStr('artistChatBgScale', scale);
-    LS.setStr('artistChatBgBlur',  blur);
-    LS.setStr('artistChatBgDim',   dim);
-    applyChatBg(); closeBgEditor();
+    LS.setStr('artistChatBgScale', s);
+    LS.setStr('artistChatBgBlur',  b);
+    LS.setStr('artistChatBgDim',   d);
+    applyChatBg();
+    closeBgPreview(); closeBgEditor();
   }
   function applyChatBg(){
     const url = LS.getStr('artistChatBg','');
-    const scale = LS.getStr('artistChatBgScale','140');
-    const blur  = LS.getStr('artistChatBgBlur','2');
-    const dim   = LS.getStr('artistChatBgDim','25');
+    const s   = LS.getStr('artistChatBgScale','140');
+    const b   = LS.getStr('artistChatBgBlur','2');
+    const d   = LS.getStr('artistChatBgDim','25');
     const el = document.getElementById('dmDetail');
-    if(!url){ el.style.background='none'; el.style.setProperty('--bgDim','0'); el.style.setProperty('--bgBlur','0px'); }
-    else{
-      el.style.backgroundImage = `url("${url}")`;
-      el.style.backgroundSize  = `${scale}%`;
-      el.style.backgroundPosition='center';
-      el.style.backgroundRepeat='no-repeat';
-      el.style.setProperty('--bgDim',  dim/100);
-      el.style.setProperty('--bgBlur', `${blur}px`);
+    if(!url){
+      el.style.background='none'; el.style.setProperty('--bgDim','0'); el.style.setProperty('--bgBlur','0px');
+    }else{
+      el.style.backgroundImage=`url("${url}")`;
+      el.style.backgroundSize='cover'; // 滿版
+      el.style.setProperty('--bgDim',  d/100);
+      el.style.setProperty('--bgBlur', `${b}px`);
     }
   }
 
@@ -621,6 +642,7 @@
       const isVideo = f.type.startsWith('video/');
       const el = document.createElement(isVideo?'video':'img');
       el.src = url; el.controls = isVideo;
+      el.style.width='110px'; el.style.height='110px'; el.style.objectFit='cover'; el.style.border='1px solid var(--line)'; el.style.borderRadius='12px';
       el.onload = el.onloadeddata = ()=>URL.revokeObjectURL(url);
       box.appendChild(el);
     });
@@ -630,21 +652,9 @@
     showPage('home');
   }
 
-  /* ---------- 暱稱 = 聊天室名稱（不影響舞台名） ---------- */
-  document.getElementById('btnEditNick').addEventListener('click', ()=>{
-    const v = prompt('輸入新的暱稱（= 聊天室名稱）', NICKNAME);
-    if(v && v.trim()){
-      NICKNAME = v.trim();
-      LS.setStr('artistNickname', NICKNAME);
-      document.getElementById('meNickname').textContent = NICKNAME;
-      document.getElementById('dmTitle').textContent = NICKNAME;
-      document.getElementById('composerWho').textContent = NICKNAME;
-      renderDmList();
-    }
-  });
-
   /* ---------- 啟動 ---------- */
   document.addEventListener('DOMContentLoaded', ()=>{
+    // 頭像/暱稱/ID
     document.getElementById('meNickname').textContent = NICKNAME;
     document.getElementById('dmTitle').textContent = NICKNAME;
     document.getElementById('composerWho').textContent = NICKNAME;
@@ -652,7 +662,7 @@
     document.getElementById('meAvatar').src = AVATAR;
 
     renderStoryBar(); renderFeed(currentFilter);
-    renderDmList();
+    renderDmList(); applyChatBg();
   });
   </script>
 </body>
