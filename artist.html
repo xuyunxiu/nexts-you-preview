@@ -2,7 +2,7 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no" />
   <title>NEXT’S YOU — Fan App (單頁版)</title>
 
   <style>
@@ -18,6 +18,7 @@
       margin:0;background:var(--bg);color:var(--text);
       font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial;
       -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+      -webkit-text-size-adjust:100%;
       overflow-x:hidden
     }
     img{display:block;max-width:100%} a{text-decoration:none;color:inherit} button{font:inherit;cursor:pointer}
@@ -68,12 +69,8 @@
     .post .hero{width:100%;height:360px;object-fit:cover;border-radius:12px;border:1px solid var(--line)}
 
     /* verify badge（藍勾） */
-    .verify{
-      display:inline-flex;align-items:center;justify-content:center;
-      width:18px;height:18px;border-radius:50%;
-      background:linear-gradient(180deg,#4ea1ff,#327dff);
-      color:#fff;font-weight:900;font-size:12px;box-shadow:0 0 0 2px #fff
-    }
+    .verify{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;
+      background:linear-gradient(180deg,#4ea1ff,#327dff);color:#fff;font-weight:900;font-size:12px;box-shadow:0 0 0 2px #fff}
 
     /* floating + */
     .fab{
@@ -86,9 +83,7 @@
     #dm .dmCard{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px;border:1px solid var(--line);border-radius:14px;background:var(--card);margin:10px 0;cursor:pointer}
     #dm .dmCard .left{display:flex;align-items:center;gap:12px}
     #dm .dmCard img{width:52px;height:52px;border-radius:50%;object-fit:cover;border:1px solid var(--line)}
-    .badge{background:#ff3b30;color:#fff;font-size:12px;padding:2px 7px;border-radius:999px;min-width:22px;text-align:center}
-    .nameBlock{display:flex;flex-direction:column;gap:2px}
-    .nameBlock .artistTag{align-self:flex-start}
+    .nameBlock{display:flex;flex-direction:column;gap:4px;align-items:flex-start}
     .nameBlock .nm{display:flex;align-items:center;gap:6px}
     .artistTag{display:inline-flex;align-items:center;justify-content:center;padding:3px 8px;height:18px;border-radius:8px;font-size:10px;font-weight:900;letter-spacing:.7px;text-transform:uppercase;color:#2e2a6f;background:linear-gradient(90deg,#cbb9ff 0%,#8fb4ff 62%,#ffffff 100%);border:1px solid #ded6ff;box-shadow:0 2px 8px rgba(106,90,205,.20)}
 
@@ -97,9 +92,7 @@
     .chatHUD .left{display:flex;align-items:center;gap:8px}
     .chatHUD .center{flex:1;min-width:0}
     .chatHUD .titleRow{display:flex;align-items:center;gap:8px;line-height:1}
-    .chatHUD .subtitle{font-size:12px;color:#9aa0b4;margin-top:4px}
     .hudBtn,.back{width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--card)}
-    .statusHint{margin-top:6px;font-size:12px;color:#b0b6c8}
 
     /* 背景（可調） */
     #dmDetail{position:relative}
@@ -110,20 +103,19 @@
     }
 
     /* thread */
-    .thread{display:flex;flex-direction:column;gap:8px;height:calc(100vh - 230px);overflow-y:auto;padding:8px 2px}
-    .msg{display:flex;flex-direction:column;max-width:78%;margin:6px 0}
-    .msg.left{align-self:flex-start}.msg.right{align-self:flex-end}
+    .thread{display:flex;flex-direction:column;gap:10px;height:calc(100vh - 230px);overflow-y:auto;padding:8px 2px}
+    .msg{display:flex;flex-direction:column;max-width:88%;margin:4px 0}
+    .bubbleRow{display:flex;align-items:flex-end;gap:6px}
+    .msg.left  .bubbleRow{justify-content:flex-start}
+    .msg.right .bubbleRow{justify-content:flex-end}
     .bubble{max-width:100%;padding:10px 12px;border-radius:14px;border:1px solid var(--line);background:#fff;position:relative}
     .msg.right .bubble{background:linear-gradient(180deg,var(--accent),var(--accent2));color:#fff;border-color:transparent}
-    .label{font-size:10px;color:#7b89a6;font-weight:900;margin-bottom:4px}
-    .time{font-size:11px;color:#8b93a7;margin-top:4px}
+    .labelPill{display:inline-block;font-size:10px;font-weight:900;color:#5f6aa0;background:#eef1ff;border:1px solid #dfe4ff;border-radius:10px;padding:3px 8px;margin-bottom:6px}
+    .time{font-size:11px;color:#8b93a7;min-width:42px;text-align:right;margin-bottom:2px}
+    .msg.right .time{color:#aeb6c9}
+    .quote{font-size:12px;opacity:.95;padding:8px;border-left:3px solid #c9d1ff;border-radius:8px;background:#f2f4ff;margin-top:8px;color:#445}
 
-    /* 回覆 preview（圖4樣式：泡泡外、半透明） */
-    .replyPreview{max-width:260px;padding:8px 12px;border-radius:12px;background:rgba(255,255,255,.75);border:1px solid var(--line);font-size:12px;color:#556;backdrop-filter:blur(6px);margin:8px 0 0}
-    .replyPreview.top{margin:0 0 8px}
-    .replyTag{font-weight:900;margin-right:6px;color:#7a86b7}
-
-    /* 粉絲泡泡右側回覆鈕（圖10） */
+    /* 粉絲泡泡右側「回覆」鈕（圓形箭頭，細描邊） */
     .replyBtn{
       position:absolute; right:-12px; top:50%; transform:translateY(-50%);
       width:30px;height:30px;border-radius:999px;border:1px solid var(--line);
@@ -131,17 +123,24 @@
       display:flex;align-items:center;justify-content:center; font-size:14px; color:#7b88a6;
     }
 
-    /* 回覆 chip（輸入列上方） */
-    .replyChip{display:none;align-items:center;gap:10px;margin:0 2px 8px}
-    .replyChip b{color:#7a86b7}
-    .replyChip .x{border:none;background:transparent;color:#97a0b8}
+    /* 回覆條（更好看版本） */
+    .replyBar{display:none;align-items:center;gap:10px;margin:6px 2px 8px;padding:8px 10px;border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.85);backdrop-filter:blur(6px)}
+    .replyBar .lead{width:3px;height:18px;border-radius:2px;background:#bfc7ff}
+    .replyBar .txt{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#556}
+    .replyBar .x{border:none;background:transparent;color:#97a0b8}
 
-    /* 輸入列（白底、鎖底、安全區） */
-    .dmFooter{position:sticky;bottom:0;left:0;right:0;background:linear-gradient(180deg,rgba(255,255,255,.55),rgba(255,255,255,.98));backdrop-filter:blur(10px);padding:8px 0 calc(8px + var(--safe));border-top:1px solid var(--line)}
+    /* 輸入列（滿版、鎖底、安全區） */
+    .dmFooter{position:sticky;bottom:0;left:0;right:0;background:linear-gradient(180deg,rgba(255,255,255,.55),rgba(255,255,255,.98));backdrop-filter:blur(10px);padding:8px 12px calc(8px + var(--safe));border-top:1px solid var(--line)}
     .dmInputBar{display:flex;align-items:center;gap:10px}
-    .dmInputBar .box{flex:1;min-width:0;display:flex;align-items:center;background:#fff;border:1px solid var(--line);border-radius:18px;padding:10px 14px}
-    .dmInputBar input{flex:1;border:none;outline:none;background:transparent;font-size:17px} /* 17px 防 iOS 自動放大 */
-    .dmSend{min-width:58px;height:44px;border:none;border-radius:14px;background:linear-gradient(180deg,var(--accent),var(--accent2));color:#fff;font-weight:900}
+    .inputWrap{position:relative;flex:1;min-width:0}
+    .box{display:flex;align-items:center;background:#fff;border:1px solid var(--line);border-radius:18px;padding:10px 14px;padding-right:64px}
+    .box input{flex:1;border:none;outline:none;background:transparent;font-size:17px} /* 17px 防 iOS 自動放大 */
+    .dmSend{
+      position:absolute;right:6px;top:50%;transform:translateY(-50%);
+      width:50px;height:44px;border:none;border-radius:14px;
+      background:linear-gradient(180deg,var(--accent),var(--accent2));color:#fff;font-weight:900;
+      display:flex;align-items:center;justify-content:center;
+    }
 
     /* 背景編輯器 */
     #bgEditor{position:fixed;inset:0;z-index:80;display:none;background:rgba(0,0,0,.45)}
@@ -203,37 +202,37 @@
           <span class="artistTag">ARTIST</span>
           <b id="dmTitle">Annie</b>
         </div>
-        <div class="statusHint" id="statusHint">（點右上「…」可更改聊天室名稱／背景）</div>
       </div>
       <div class="right">
-        <button class="hudBtn" title="更多" onclick="toggleDmMenu()">⋯</button>
+        <button class="hudBtn" id="moreBtn" title="更多" onclick="toggleDmMenu()">⋯</button>
       </div>
     </div>
 
-    <!-- DM Thread -->
+    <!-- Thread -->
     <div id="dmThread" class="thread"></div>
 
-    <!-- 回覆 chip -->
-    <div id="replyChip" class="replyChip">
-      <b>回覆：</b><span id="replyChipText" class="ghost"></span>
+    <!-- 回覆條（更好看版本） -->
+    <div id="replyBar" class="replyBar">
+      <div class="lead"></div>
+      <div class="txt" id="replyBarText"></div>
       <button class="x" onclick="clearReply()">× 取消</button>
     </div>
 
-    <!-- Footer / Input -->
+    <!-- Footer / Input（滿版＋紙飛機） -->
     <div class="dmFooter">
       <div class="dmInputBar">
-        <div class="box">
-          <input id="dmMessageInput" placeholder="輸入訊息…" />
+        <div class="inputWrap">
+          <div class="box"><input id="dmMessageInput" placeholder="輸入訊息…" /></div>
+          <button class="dmSend" id="dmSendBtn">➤</button>
         </div>
-        <button class="dmSend" id="dmSendBtn">➤</button>
       </div>
     </div>
 
     <!-- 右上 … 選單 -->
     <div id="dmMenu" class="card soft" style="position:fixed;right:12px;top:64px;display:none;z-index:70">
       <div class="row" style="flex-direction:column;gap:6px">
-        <button class="chip" onclick="renameChat()">更改聊天室名稱</button>
-        <button class="chip" onclick="openBgEditor()">更改背景</button>
+        <button class="chip dmMenuItem" onclick="renameChat()">更改聊天室名稱</button>
+        <button class="chip dmMenuItem" onclick="openBgEditor()">更改背景</button>
       </div>
     </div>
   </section>
@@ -243,23 +242,18 @@
     <div class="panel">
       <b style="font-weight:900">背景設定</b>
       <div id="bgPreview"><div id="bgOverlay"></div></div>
-
       <div class="rangeRow">
-        <label>縮放</label>
-        <input id="bgScale" type="range" min="100" max="220" value="140">
+        <label>縮放</label><input id="bgScale" type="range" min="100" max="220" value="140">
         <output id="bgScaleOut">140%</output>
       </div>
       <div class="rangeRow">
-        <label>模糊</label>
-        <input id="bgBlur"  type="range" min="0" max="8" value="2">
+        <label>模糊</label><input id="bgBlur"  type="range" min="0" max="8" value="2">
         <output id="bgBlurOut">2px</output>
       </div>
       <div class="rangeRow">
-        <label>暗度</label>
-        <input id="bgDim"   type="range" min="0" max="70" value="25">
+        <label>暗度</label><input id="bgDim"   type="range" min="0" max="70" value="25">
         <output id="bgDimOut">25%</output>
       </div>
-
       <div class="row" style="justify-content:space-between;gap:8px;margin-top:8px">
         <input id="bgFile" type="file" accept="image/*">
         <div class="row" style="gap:8px">
@@ -313,12 +307,12 @@
     getStr(k,def=''){ const v=localStorage.getItem(k); return v ?? def },
     setStr(k,v){ localStorage.setItem(k,v) }
   };
-  const fmtTime = ts => new Date(ts).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
   const escapeHtml = s => String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const fmtTime = ts => new Date(ts).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
 
-  /* ---------- 資料：舞台名（固定）vs 暱稱（可改） ---------- */
-  const STAGE_NAME = LS.getStr('artistStage','ANNIE');      // 永遠用於首頁/貼文（英文大寫）
-  let   NICKNAME   = LS.getStr('artistNickname','Annie');    // 聊天室名稱（藝人暱稱）
+  // 系統舞台名：固定、英文大寫（不受暱稱影響）
+  const STAGE_NAME = LS.getStr('artistStage','ANNIE');
+  let   NICKNAME   = LS.getStr('artistNickname','Annie');    // = 聊天室名稱（DM 專用）
   let   AVATAR     = LS.getStr('artistAvatar','https://picsum.photos/80?u=artist');
 
   /* ---------- 假資料 ---------- */
@@ -444,27 +438,27 @@
   // 新貼文（先做簡版，不影響舞台名）
   document.getElementById('fabNew').addEventListener('click', ()=> showPage('composerArtist'));
 
-  /* ---------- DM List：徽章在上、名字在下 ---------- */
+  /* ---------- DM List：徽章在上、名字在下，左緣對齊 ---------- */
   function getRoomTitle(){ return NICKNAME; } // DM 使用暱稱
   function renderDmList(){
-    const box = document.getElementById('dmList');
-    const last = GROUP_MSGS[GROUP_MSGS.length-1];
-    const preview = last ? last.text : '（尚無訊息）';
-    box.innerHTML = `
+    const box=document.getElementById('dmList');
+    const last=GROUP_MSGS[GROUP_MSGS.length-1];
+    box.innerHTML=`
       <div class="dmCard" onclick="showPage('dmDetail')">
         <div class="left">
           <img src="${AVATAR}" onerror="imgFallback(this)">
           <div class="nameBlock">
             <span class="artistTag">ARTIST</span>
             <div class="nm"><b>${escapeHtml(getRoomTitle())}</b></div>
-            <small class="ghost" style="display:block;max-width:62vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(preview)}</small>
+            <small class="ghost" style="display:block;max-width:62vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+              ${escapeHtml(last?last.text:'（無訊息）')}
+            </small>
           </div>
         </div>
-      </div>
-    `;
+      </div>`;
   }
 
-  /* ---------- DM Thread（回覆＝圖4樣式、粉絲訊息右側 ↩︎） ---------- */
+  /* ---------- DM Thread（時間在左、FROM FAN 獨立一行、回覆箭頭） ---------- */
   let replyDraft = null; // { text }
   function renderThread(){
     const box = document.getElementById('dmThread'); box.innerHTML='';
@@ -472,13 +466,20 @@
       const wrap = document.createElement('div');
       wrap.className = 'msg ' + (m.from==='artist'?'right':'left');
 
-      const bubble = document.createElement('div');
-      bubble.className = 'bubble';
+      // time + bubble 成一個 row，時間永遠在泡泡左側
+      const row = document.createElement('div'); row.className='bubbleRow';
 
+      const t = document.createElement('div'); t.className='time'; t.textContent=fmtTime(m.ts);
+      row.appendChild(t);
+
+      const bubble = document.createElement('div'); bubble.className='bubble';
       if(m.from==='fan'){
-        bubble.innerHTML = `<div class="label">FROM FAN</div><div>${escapeHtml(m.text)}</div>`;
+        bubble.innerHTML = `<div class="labelPill">FROM FAN</div><div>${escapeHtml(m.text)}</div>`;
       }else{
         bubble.innerHTML = `<div>${escapeHtml(m.text)}</div>`;
+        if(m.replyTo && m.replyTo.text){
+          bubble.innerHTML += `<div class="quote"><b class="ghost">FROM FAN：</b>${escapeHtml(m.replyTo.text)}</div>`;
+        }
       }
 
       // 粉絲訊息才有回覆鍵（圓形箭頭）
@@ -487,33 +488,21 @@
         btn.className = 'replyBtn'; btn.innerHTML = '↩︎';
         btn.onclick = ()=>{
           replyDraft = { text: m.text };
-          const chip = document.getElementById('replyChip');
-          chip.style.display = 'flex';
-          document.getElementById('replyChipText').textContent = m.text.slice(0, 42);
+          const bar = document.getElementById('replyBar');
+          bar.style.display = 'flex';
+          document.getElementById('replyBarText').textContent = m.text;
           document.getElementById('dmMessageInput').focus();
         };
         bubble.appendChild(btn);
       }
 
-      wrap.appendChild(bubble);
-
-      // 藝人回覆 preview（泡泡外，下方）
-      if(m.from==='artist' && m.replyTo && m.replyTo.text){
-        const prev = document.createElement('div');
-        prev.className = 'replyPreview bottom';
-        prev.innerHTML = `<span class="replyTag">FROM FAN</span>${escapeHtml(m.replyTo.text)}`;
-        wrap.appendChild(prev);
-      }
-
-      const t = document.createElement('div');
-      t.className = 'time'; t.textContent = fmtTime(m.ts);
-      wrap.appendChild(t);
-
+      row.appendChild(bubble);
+      wrap.appendChild(row);
       box.appendChild(wrap);
     });
     box.scrollTop = box.scrollHeight;
   }
-  function clearReply(){ replyDraft = null; document.getElementById('replyChip').style.display='none'; }
+  function clearReply(){ replyDraft = null; document.getElementById('replyBar').style.display='none'; }
   function sendArtistMsg(){
     const inp = document.getElementById('dmMessageInput');
     const t = (inp.value||'').trim(); if(!t) return;
@@ -526,11 +515,23 @@
     if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); sendArtistMsg(); }
   });
 
-  /* ---------- DM 菜單、改名（只影響暱稱/聊天室） ---------- */
+  /* ---------- DM 菜單（外點自動收、點項目自動收） ---------- */
   function toggleDmMenu(){
     const m = document.getElementById('dmMenu');
     m.style.display = (m.style.display==='none'||!m.style.display)?'block':'none';
   }
+  document.addEventListener('click', (e)=>{
+    const menu = document.getElementById('dmMenu');
+    const more = document.getElementById('moreBtn');
+    if(menu.style.display==='block' && !menu.contains(e.target) && e.target!==more){
+      menu.style.display='none';
+    }
+  });
+  // 點任一選單項目後自動收
+  document.querySelectorAll('.dmMenuItem').forEach(btn=>{
+    btn.addEventListener('click', ()=>{ document.getElementById('dmMenu').style.display='none'; });
+  });
+
   function renameChat(){
     const cur = getRoomTitle();
     const n = prompt('更改聊天室名稱（同：藝人暱稱）', cur);
@@ -541,7 +542,6 @@
     document.getElementById('meNickname').textContent = NICKNAME;
     document.getElementById('composerWho').textContent = NICKNAME;
     renderDmList();
-    toggleDmMenu();
   }
 
   /* ---------- DM 背景：開啟／預覽／套用 ---------- */
@@ -645,7 +645,6 @@
 
   /* ---------- 啟動 ---------- */
   document.addEventListener('DOMContentLoaded', ()=>{
-    // 頭像/暱稱/ID
     document.getElementById('meNickname').textContent = NICKNAME;
     document.getElementById('dmTitle').textContent = NICKNAME;
     document.getElementById('composerWho').textContent = NICKNAME;
