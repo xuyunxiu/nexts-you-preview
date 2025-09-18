@@ -123,6 +123,33 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 .fromLabel{font-size:11px;font-weight:900;color:#6b78a8;margin-bottom:4px}
 .fanText{color:#111}
 
+.replyCard{
+  align-self:flex-end;            /* 跟藝人泡泡同側（右側） */
+  max-width:74%;
+  margin:6px 6px 0;              /* ✅ 放在「下方」→ 改成上邊距 */
+  padding:8px 12px;
+  border-radius:14px;
+  background:rgba(255,255,255,.86);
+  color:#333;
+  border:1px solid rgba(0,0,0,.06);
+  box-shadow:0 8px 18px rgba(0,0,0,.12);
+  backdrop-filter:saturate(140%) blur(0px);
+  font-weight:600;
+}
+.replyCard b{
+  display:inline-block;
+  margin-right:6px;
+  font-size:11px;
+  letter-spacing:.3px;
+  color:#6d78aa;
+}
+
+/* 讓粉絲泡泡文字更清楚（維持） */
+.msg.left .bubble{
+  background:rgba(255,255,255,.92);
+  color:#111;
+}
+  
 /* 右側內嵌回覆泡泡（透明、像你圖示） */
 .quote{
   margin-top:8px;padding:10px 12px;border-radius:12px;
@@ -483,39 +510,43 @@ function renderDmList(){
 /* ---------- DM Thread（時間左右、FROM FAN 分行、回覆箭頭距離） ---------- */
 let replyDraft = null; // { text }
 function renderThread(){
-  const box = document.getElementById('dmThread'); box.innerHTML='';
-  GROUP_MSGS.forEach(m=>{
-    const wrap = document.createElement('div');
-    wrap.className = 'msg ' + (m.from==='artist'?'right':'left');
+  const box = document.getElementById('dmThread');
+  box.innerHTML='';
 
-    // 時間（左右各自）
+  GROUP_MSGS.forEach(m=>{
+    // === 建立訊息（先放泡泡） ===
+    const wrap = document.createElement('div');
+    wrap.className = 'msg ' + (m.from==='artist' ? 'right' : 'left');
+
     const timeEl = document.createElement('div');
-    timeEl.className = 'time' + (m.from==='artist'?'':' dark');
+    timeEl.className = 'time' + (m.from==='artist' ? '' : ' dark');
     timeEl.textContent = fmtTime(m.ts);
 
-    // 泡泡
     const bubble = document.createElement('div');
     bubble.className = 'bubble';
 
     if(m.from==='fan'){
-      // FROM FAN 分兩行
       const lab = document.createElement('div'); lab.className='fromLabel'; lab.textContent='FROM FAN';
       const txt = document.createElement('div'); txt.className='fanText'; txt.innerHTML = escapeHtml(m.text);
       bubble.append(lab, txt);
     }else{
       bubble.innerHTML = escapeHtml(m.text);
-      if(m.replyTo && m.replyTo.text){
-        const q = document.createElement('div');
-        q.className = 'quote';
-        q.innerHTML = `<b>FROM FAN：</b> ${escapeHtml(m.replyTo.text)}`;
-        bubble.appendChild(q);
-      }
+      // 不在泡泡內放 quote
     }
 
     wrap.appendChild(bubble);
     wrap.appendChild(timeEl);
+    box.appendChild(wrap);
 
-    // 粉絲訊息才有回覆鍵（右側、拉開距離）
+    // === 回覆粉絲小卡 → 放在藝人泡泡「下方」 ===
+    if(m.from==='artist' && m.replyTo && m.replyTo.text){
+      const rc = document.createElement('div');
+      rc.className = 'replyCard';
+      rc.innerHTML = `<b>FROM FAN：</b><span>${escapeHtml(m.replyTo.text)}</span>`;
+      box.appendChild(rc);
+    }
+
+    // 粉絲訊息的「回覆」按鈕（原本邏輯不變）
     if(m.from==='fan'){
       const btn = document.createElement('button');
       btn.className = 'replyBtn';
@@ -529,12 +560,11 @@ function renderThread(){
       };
       bubble.appendChild(btn);
     }
-
-    box.appendChild(wrap);
   });
+
   box.scrollTop = box.scrollHeight;
 }
-function clearReply(){ replyDraft = null; document.getElementById('replyChip').style.display='none'; }
+  function clearReply(){ replyDraft = null; document.getElementById('replyChip').style.display='none'; }
 function sendArtistMsg(){
   const inp = document.getElementById('dmMessageInput');
   let t = (inp.value||'').trim(); if(!t) return;
