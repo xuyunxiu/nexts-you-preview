@@ -402,7 +402,15 @@ function showPage(id){
 
   if(id==='home'){ renderStoryBar(); renderFeed(currentFilter); }
   if(id==='dm'){ renderDmList(); }
-  if(id==='dmDetail'){ renderThread(); applyChatBg();setTimeout(()=>{ const t=document.getElementById('dmThread'); if(t) t.scrollTop=t.scrollHeight; }
+  if(id==='dmDetail'){
+    renderThread();
+    applyChatBg();
+    // 進入聊天室時保證捲到底
+    setTimeout(()=>{
+      const t = document.getElementById('dmThread');
+      if(t) t.scrollTop = t.scrollHeight;
+    }, 50);
+  }
   if(id==='composerArtist'){ document.getElementById('composerWho').textContent = NICKNAME; }
 }
 function goBack(){ PAGE_STACK.pop(); const prev = PAGE_STACK[PAGE_STACK.length-1] || 'home'; showPage(prev); }
