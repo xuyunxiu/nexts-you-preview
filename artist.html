@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>NEXT’S YOU — Fan App (單頁修正版)</title>
+<title>NEXT’S YOU — artist (單頁修正版)</title>
 
 <style>
 :root{
@@ -434,42 +434,31 @@ function VB(size=18){
 function renderFeed(filter='me'){
   const wrap = document.getElementById('feedWrap');
   const list = feedOf(filter);
-  if(!list.length){ wrap.innerHTML = `<div class="ghost" style="text-align:center;margin-top:20vh">尚無貼文</div>`; return; }
+  if(!list.length){
+    wrap.innerHTML = `<div class="ghost" style="text-align:center;margin-top:20vh">尚無貼文</div>`;
+    return;
+  }
+
   wrap.innerHTML = list.map(p=>{
-  const stage = (p.artistStage || STAGE_NAME || '').toString().toUpperCase();
-  return `
-    <div class="card soft post">
-      <div class="hdr">
-        <img class="avatar" src="${p.avatar}" onerror="imgFallback(this)">
-        <div class="meta">
-          <b>
-  ${escapeHtml(stage)}
-  <b>${escapeHtml(stage)} ${VB(18)}</b>
-    <svg class="vfy" viewBox="0 0 24 24">
-      <defs>
-        <linearGradient id="igVfyGrad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stop-color="#4ea1ff"/><stop offset="1" stop-color="#327dff"/>
-        </linearGradient>
-      </defs>
-      <!-- 圓形徽章 + 邊框 -->
-      <circle cx="12" cy="12" r="9" fill="url(#igVfyGrad)" stroke="#2b6bff" stroke-width="1"/>
-      <!-- 白色勾勾 -->
-      <path fill="#fff" d="M10.2 13.8l-2-2 1.2-1.2 0.8 0.8 2.6-2.6 1.2 1.2-3.8 3.8z"/>
-    </svg>
-  </span>
-</b>
-          <small class="ghost">${new Date(p.ts).toLocaleString()}</small>
+    const stage = (p.artistStage || STAGE_NAME || '').toString().toUpperCase();
+    return `
+      <div class="card soft post">
+        <div class="hdr">
+          <img class="avatar" src="${p.avatar}" onerror="imgFallback(this)">
+          <div class="meta">
+            <b class="stage">${escapeHtml(stage)} ${VB(18)}</b>
+            <small class="ghost">${new Date(p.ts).toLocaleString()}</small>
+          </div>
+        </div>
+        <div class="body">
+          <p>${escapeHtml(p.text)}</p>
+          ${p.img ? `<img class="hero" src="${p.img}" onerror="imgFallback(this)">` : ``}
         </div>
       </div>
-      <div class="body">
-        <p>${escapeHtml(p.text)}</p>
-        ${p.img? `<img class="hero" src="${p.img}" onerror="imgFallback(this)">` : ``}
-      </div>
-    </div>
-  `;
-}).join('');
+    `;
+  }).join('');
 }
-
+  
 /* ---------- DM List ---------- */
 function getRoomTitle(){ return NICKNAME; }
 function renderDmList(){
