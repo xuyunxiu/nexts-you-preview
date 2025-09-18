@@ -46,9 +46,9 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 #homeHeader .me img{width:44px;height:44px;border-radius:50%;object-fit:cover;border:1px solid var(--line)}
 #homeHeader .me .id{font-size:12px;color:var(--ghost)}
 
-/* Verified rosette（首頁）*/
-.verifyIcon{display:inline-flex;align-items:center;justify-content:center;margin-left:6px}
-.verifyIcon .vfy{width:18px;height:18px;display:block}
+/* Verified badge — IG style */
+.verifyIcon{display:inline-flex;align-items:center;vertical-align:-2px;margin-left:6px}
+.verifyIcon .vfy{width:16px;height:16px;display:block}
   
 /* story bar */
 #storyWrap{position:sticky;top:0;z-index:5;background:linear-gradient(180deg,rgba(245,247,255,.96),rgba(245,247,255,.90));backdrop-filter:blur(6px)}
@@ -412,22 +412,21 @@ function renderFeed(filter='me'){
         <img class="avatar" src="${p.avatar}" onerror="imgFallback(this)">
         <div class="meta">
           <b>
-            ${escapeHtml(stage)}
-            <span class="verifyIcon" aria-label="verified">
-              <svg class="vfy" viewBox="0 0 24 24">
-                <defs>
-                  <linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0" stop-color="#9bb2ff"/><stop offset="1" stop-color="#6b7bff"/>
-                  </linearGradient>
-                </defs>
-                <!-- 8瓣 rosette -->
-                <path fill="url(#${gid})"
-                  d="M12 2.3c1.5 0 3 .6 4.1 1.6l2.1-.9-.5 2.2c1 .9 1.8 2.4 1.8 3.9s-.7 3-1.7 4.1l.9 2.1-2.2-.5c-1.1 1-2.6 1.7-4.1 1.7s-3-.7-4.1-1.7l-2.2.9.5-2.2C5.6 12.2 5 10.8 5 9.3s.6-3 1.6-4.1l-.9-2.1 2.2.5C9 2.8 10.5 2.3 12 2.3z"/>
-                <!-- 勾 -->
-                <path fill="#fff" d="M10.5 13.2l-2.2-2.2 1.1-1.1 1.1 1.1 3-3 1.1 1.1-4.1 4.1z"/>
-              </svg>
-            </span>
-          </b>
+  ${escapeHtml(stage)}
+  <span class="verifyIcon" aria-label="verified">
+    <svg class="vfy" viewBox="0 0 24 24">
+      <defs>
+        <linearGradient id="igVfyGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#4ea1ff"/><stop offset="1" stop-color="#327dff"/>
+        </linearGradient>
+      </defs>
+      <!-- 圓形徽章 + 邊框 -->
+      <circle cx="12" cy="12" r="9" fill="url(#igVfyGrad)" stroke="#2b6bff" stroke-width="1"/>
+      <!-- 白色勾勾 -->
+      <path fill="#fff" d="M10.2 13.8l-2-2 1.2-1.2 0.8 0.8 2.6-2.6 1.2 1.2-3.8 3.8z"/>
+    </svg>
+  </span>
+</b>
           <small class="ghost">${new Date(p.ts).toLocaleString()}</small>
         </div>
       </div>
