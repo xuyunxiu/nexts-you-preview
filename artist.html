@@ -1,174 +1,162 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
-<title>NEXT’S YOU — Fan App (單頁版·完整修正版)</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>NEXT’S YOU — Fan App (單頁修正版)</title>
+
 <style>
-  :root{
-    --bg:#f5f7ff; --card:#fff; --text:#1a1a1a; --sub:#667085; --line:#e7eaf3; --ghost:#9aa0b4;
-    --accent:#6a5acd; --accent2:#836fff; --ok:#10b981; --danger:#ff4d4f;
-    --radius:16px; --shadow:0 12px 34px rgba(18,24,40,.08);
-    --safe: env(safe-area-inset-bottom, 0px);
-  }
-  *{box-sizing:border-box}
-  html,body{height:100%}
-  body{
-    margin:0;background:var(--bg);color:var(--text);
-    font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial;
-    -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
-    overflow-x:hidden
-  }
-  img{display:block;max-width:100%} a{text-decoration:none;color:inherit} button{font:inherit;cursor:pointer}
-  .ghost{color:var(--ghost)} .sub{color:var(--sub)} .soft{padding:16px} .row{display:flex;align-items:center;gap:10px}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
-  .chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:10px;background:#f3f5ff;border:1px solid var(--line);font-size:12px}
+:root{
+  --bg:#f5f7ff; --card:#fff; --text:#1a1a1a; --sub:#667085; --line:#e7eaf3; --ghost:#9aa0b4;
+  --accent:#6a5acd; --accent2:#836fff; --ok:#10b981; --danger:#ff4d4f;
+  --radius:16px; --shadow:0 12px 34px rgba(18,24,40,.08);
+  --safe: env(safe-area-inset-bottom, 0px);
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;background:var(--bg);color:var(--text);
+  font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial;
+  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+  overflow-x:hidden
+}
+img{display:block;max-width:100%} a{text-decoration:none;color:inherit} button{font:inherit;cursor:pointer}
+.ghost{color:var(--ghost)} .sub{color:var(--sub)} .soft{padding:16px} .row{display:flex;align-items:center;gap:10px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:#f3f5ff;border:1px solid var(--line);font-size:12px}
 
-  /* pages */
-  section.page{display:none;padding:12px 12px calc(76px + var(--safe))}
-  section.page.active{display:block;animation:fade .22s ease}
-  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+/* pages */
+section.page{display:none;padding:12px 12px calc(76px + var(--safe))}
+section.page.active{display:block;animation:fade .22s ease}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 
-  /* bottom nav */
-  nav#nav{
-    position:fixed;left:0;right:0;bottom:0;z-index:40;background:var(--card);border-top:1px solid var(--line);
-    display:flex;justify-content:space-around;gap:6px;padding:10px 8px calc(12px + var(--safe));backdrop-filter:saturate(140%) blur(10px);
-    transition:transform .25s ease;
-  }
-  nav#nav.hidden{transform:translateY(120%)}
-  nav#nav button{flex:1;border:none;background:transparent;padding:8px 0 6px;border-radius:12px;color:var(--sub);font-weight:800;font-size:13px}
-  nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid var(--line)}
+/* bottom nav */
+nav#nav{
+  position:fixed;left:0;right:0;bottom:0;z-index:40;background:var(--card);border-top:1px solid var(--line);
+  display:flex;justify-content:space-around;gap:6px;padding:10px 8px calc(12px + var(--safe));backdrop-filter:saturate(140%) blur(10px);
+  transition:transform .25s ease;
+}
+nav#nav.hidden{transform:translateY(120%)}
+nav#nav button{flex:1;border:none;background:transparent;padding:8px 0 6px;border-radius:12px;color:var(--sub);font-weight:800;font-size:13px}
+nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid var(--line)}
 
-  /* header (home) */
-  #homeHeader{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:6px 6px 10px}
-  #homeHeader .me{display:flex;align-items:center;gap:10px}
-  #homeHeader .me img{width:44px;height:44px;border-radius:50%;object-fit:cover;border:1px solid var(--line)}
-  #homeHeader .me .id{font-size:12px;color:var(--ghost)}
+/* header (home) */
+#homeHeader{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:6px 6px 10px}
+#homeHeader .me{display:flex;align-items:center;gap:10px}
+#homeHeader .me img{width:44px;height:44px;border-radius:50%;object-fit:cover;border:1px solid var(--line)}
+#homeHeader .me .id{font-size:12px;color:var(--ghost)}
 
-  /* story bar */
-  #storyWrap{position:sticky;top:0;z-index:5;background:linear-gradient(180deg,rgba(245,247,255,.96),rgba(245,247,255,.90));backdrop-filter:blur(6px)}
-  #storyBar{display:flex;gap:12px;overflow-x:auto;padding:10px 8px 12px;border-bottom:1px solid var(--line);scrollbar-width:none}
-  #storyBar::-webkit-scrollbar{display:none}
-  .story-item{flex:0 0 auto;width:64px;text-align:center;cursor:pointer;position:relative}
-  .story-item img{width:56px;height:56px;border-radius:50%;object-fit:cover;border:2px solid #d5d8f3}
-  .story-item .name{font-size:12px;margin-top:4px;color:#9aa1ad}
-  .story-item.active img{border-color:var(--accent);box-shadow:0 0 0 2px rgba(106,90,205,.18)}
-  .story-item.active .name{color:var(--accent);font-weight:700}
-  .story-item .dot{position:absolute;right:6px;top:2px;width:8px;height:8px;background:var(--danger);border-radius:50%;box-shadow:0 0 0 2px #fff}
-  .story-item.pinned img{border-color:#111}
+/* story bar */
+#storyWrap{position:sticky;top:0;z-index:5;background:linear-gradient(180deg,rgba(245,247,255,.96),rgba(245,247,255,.90));backdrop-filter:blur(6px)}
+#storyBar{display:flex;gap:12px;overflow-x:auto;padding:10px 8px 12px;border-bottom:1px solid var(--line);scrollbar-width:none}
+#storyBar::-webkit-scrollbar{display:none}
+.story-item{flex:0 0 auto;width:64px;text-align:center;cursor:pointer;position:relative}
+.story-item img{width:56px;height:56px;border-radius:50%;object-fit:cover;border:2px solid #d5d8f3}
+.story-item .name{font-size:12px;margin-top:4px;color:#9aa1ad}
+.story-item.active img{border-color:var(--accent);box-shadow:0 0 0 2px rgba(106,90,205,.18)}
+.story-item.active .name{color:var(--accent);font-weight:700}
+.story-item .dot{position:absolute;right:6px;top:2px;width:8px;height:8px;background:var(--danger);border-radius:50%;box-shadow:0 0 0 2px #fff}
+.story-item.pinned img{border-color:#111}
 
-  /* post card */
-  .post{margin:12px 6px}
-  .post .hdr{display:flex;align-items:center;gap:10px}
-  .post .avatar{width:44px;height:44px;border-radius:50%;object-fit:cover;border:1px solid var(--line)}
-  .post .meta b{font-weight:900;display:flex;align-items:center;gap:6px}
-  .post .meta small{display:block;color:var(--ghost)}
-  .post .body{margin-top:8px}
-  .post .hero{width:100%;height:360px;object-fit:cover;border-radius:12px;border:1px solid var(--line)}
+/* post card */
+.post{margin:12px 6px}
+.post .hdr{display:flex;align-items:center;gap:10px}
+.post .avatar{width:44px;height:44px;border-radius:50%;object-fit:cover;border:1px solid var(--line)}
+.post .meta b{font-weight:900;display:flex;align-items:center;gap:6px}
+.post .meta small{display:block;color:var(--ghost)}
+.post .body{margin-top:8px}
+.post .hero{width:100%;height:360px;object-fit:cover;border-radius:12px;border:1px solid var(--line)}
 
-  /* verify（新版） */
-  .verify{
-    display:inline-flex;align-items:center;justify-content:center;
-    width:16px;height:16px;border-radius:5px;
-    background:linear-gradient(180deg,#8ea2ff,#6a5acd);
-    color:#fff;font-size:11px;font-weight:900;
-    box-shadow:0 0 0 2px #fff;
-  }
+/* Verified (feed用：圖八藍勾造型) */
+.verify{
+  display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:6px;
+  background:linear-gradient(180deg,#9ab3ff,#6c7bff);
+  color:#fff;font-weight:900;font-size:12px;box-shadow:0 2px 6px rgba(106,90,205,.28), inset 0 0 0 1px rgba(255,255,255,.55);
+}
 
-  /* DM list */
-  #dm .dmCard{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px;border:1px solid var(--line);border-radius:14px;background:var(--card);margin:10px 0;cursor:pointer}
-  #dm .dmCard .left{display:flex;align-items:center;gap:12px}
-  #dm .dmCard img{width:52px;height:52px;border-radius:50%;object-fit:cover;border:1px solid var(--line)}
-  .nameBlock{display:flex;flex-direction:column;gap:4px}
-  .nm{display:flex;align-items:center;gap:8px}
-  .nm b{font-size:18px;letter-spacing:.4px}
-  /* ARTIST 徽章（方框） */
-  .artistTag{
-    display:inline-flex;align-items:center;justify-content:center;
-    padding:4px 10px;border-radius:8px;border:1px solid #ded6ff;
-    background:linear-gradient(90deg,#cbb9ff 0%,#8fb4ff 62%,#ffffff 100%);
-    color:#2e2a6f;font-size:11px;font-weight:900;letter-spacing:.7px;
-    box-shadow:0 4px 12px rgba(106,90,205,.20)
-  }
+/* DM 列表 */
+#dm .dmCard{display:flex;align-items:center;gap:12px;justify-content:space-between;padding:12px;border:1px solid var(--line);border-radius:14px;background:var(--card);margin:10px 0;cursor:pointer}
+#dm .dmCard img{width:52px;height:52px;border-radius:50%;object-fit:cover;border:1px solid var(--line)}
+.nameBlock{display:flex;flex-direction:column;gap:6px}
+.nameRow{display:flex;align-items:center;gap:8px}
+.nameRow .stage{font-weight:900;letter-spacing:.3px}
+.artistTag{
+  display:inline-flex;align-items:center;justify-content:center;padding:3px 8px;height:18px;border-radius:8px;
+  font-size:10px;font-weight:900;letter-spacing:.7px;text-transform:uppercase;color:#2e2a6f;
+  background:linear-gradient(90deg,#cbb9ff 0%,#8fb4ff 62%,#ffffff 100%);
+  border:1px solid #ded6ff;box-shadow:0 2px 8px rgba(106,90,205,.20)
+}
 
-  /* ===== DM Detail ===== */
-  #dmDetail{
-    position:relative; min-height:100vh; padding:12px 12px calc(80px + var(--safe));
-    background-attachment:fixed; background-position:center; background-repeat:no-repeat; background-size:cover;
-  }
-  /* 背景泛光覆層（固定不跟著捲動） */
-  #dmDetail::after{
-    content:""; position:fixed; inset:0; pointer-events:none; z-index:0;
-    background:rgba(0,0,0,var(--bgDim,.0)); backdrop-filter:blur(var(--bgBlur,0px));
-  }
-  .chatHUD{position:relative; z-index:1; display:flex;align-items:center;justify-content:space-between;gap:10px}
-  .hudBtn,.back{width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--card)}
-  .titleRow{display:flex;align-items:center;gap:8px}
-  .statusHint{font-size:12px;color:#9aa0b4;margin-top:4px}
+/* ===== DM Detail ===== */
+.chatHUD{display:flex;align-items:center;justify-content:space-between;padding:4px 0 8px}
+.chatHUD .center{flex:1;min-width:0}
+.titleRow{display:flex;align-items:center;gap:8px;line-height:1}
+.hudBtn,.back{width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--card)}
+.statusHint{margin-top:6px;font-size:12px;color:#b0b6c8}
 
-  /* thread */
-  .thread{position:relative; z-index:1; display:flex;flex-direction:column;gap:10px;height:calc(100vh - 220px);overflow-y:auto;padding:8px 2px}
-  .msg{position:relative; display:flex;flex-direction:column;max-width:78%;margin:6px 0}
-  .msg.left{align-self:flex-start}
-  .msg.right{align-self:flex-end}
-  .bubble{max-width:100%;padding:12px 14px;border-radius:18px;border:1px solid var(--line);background:#fff;position:relative}
-  .msg.right .bubble{background:linear-gradient(180deg,var(--accent),var(--accent2));color:#fff;border-color:transparent}
-  .labelBox{margin:-6px 0 8px}
-  .labelBox .l1{font-size:12px;font-weight:900;color:#7a88b0}
-  .labelBox .l2{font-size:11px;color:#a3adc5}
-  .quote{font-size:13px;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.85);color:#394360;border:1px solid #e6e9f7}
-  .msg.right .quote{background:rgba(255,255,255,.88);color:#394360}
-  /* 時間：左訊息放左側、右訊息放右側 */
-  .time{position:absolute;bottom:-18px;font-size:11px;color:rgba(255,255,255,.90)}
-  .msg.left  .time{left:0;transform:translateX(calc(-100% - 6px)); color:rgba(0,0,0,.45)}
-  .msg.right .time{right:0;transform:translateX(calc(100% + 6px)); color:rgba(255,255,255,.85)}
+/* 背景固定（不跟著捲動） */
+#dmDetail{
+  position:relative; background-color:#000; 
+  background-position:center;background-repeat:no-repeat;background-size:cover;background-attachment:fixed;
+}
+#dmDetail::after{content:""; position:fixed; inset:0; pointer-events:none; background:rgba(0,0,0,var(--bgDim,.0));
+  backdrop-filter:blur(var(--bgBlur,0px)); z-index:-1;}
 
-  /* 回覆箭頭（圓形半透明） */
-  .replyBtn{
-    position:absolute; right:-42px; top:50%; transform:translateY(-50%);
-    width:36px;height:36px;border-radius:999px;border:1px solid rgba(255,255,255,.5);
-    background:rgba(255,255,255,.55); backdrop-filter:blur(6px);
-    display:flex;align-items:center;justify-content:center; font-size:16px; color:#59627c;
-  }
+/* thread —— 讓時間在左右側 */
+.thread{display:flex;flex-direction:column;gap:12px;height:calc(100vh - 230px);overflow-y:auto;padding:8px 2px}
+.msg{display:flex;align-items:flex-end;gap:8px;max-width:88%;margin:0 6px}
+.msg.left{flex-direction:row;align-self:flex-start}
+.msg.right{flex-direction:row-reverse;align-self:flex-end}
+.time{font-size:11px;color:rgba(255,255,255,.88); text-shadow:0 1px 2px rgba(0,0,0,.35)}
+.time.dark{color:#8b93a7; text-shadow:none}
+.bubble{max-width:100%;padding:10px 12px;border-radius:16px;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.92);position:relative}
+.msg.right .bubble{background:linear-gradient(180deg,var(--accent),var(--accent2));color:#fff;border-color:transparent}
+.fromLabel{font-size:11px;font-weight:900;color:#6b78a8;margin-bottom:4px}
+.fanText{color:#111}
 
-  /* 回覆 chip（輸入列上方） */
-  .replyChip{display:none;align-items:center;gap:8px;margin:0 12px 8px}
-  .replyPill{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.72);border:1px solid #dfe3fb;border-radius:12px;padding:6px 10px}
-  .replyPill .tag{font-size:12px;font-weight:900;color:#7a86b7}
-  .replyPill .txt{font-size:12px;color:#6c7696;max-width:62vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .replyPill .x{border:none;background:transparent;color:#97a0b8;font-size:16px}
+/* 右側內嵌回覆泡泡（透明、像你圖示） */
+.quote{
+  margin-top:8px;padding:10px 12px;border-radius:12px;
+  background:rgba(255,255,255,.70);
+  backdrop-filter:saturate(140%) blur(2px); color:#333; border:1px solid rgba(255,255,255,.55);
+}
+.quote b{color:#6d78aa}
 
-  /* 輸入列（滿版、固定底部、較小） */
-  .dmFooter{
-    position:sticky;left:0;right:0;bottom:0;z-index:5;
-    padding:8px 12px calc(8px + var(--safe));
-    background:linear-gradient(180deg,rgba(255,255,255,0),rgba(255,255,255,.92));
-    backdrop-filter:blur(6px); border-top:1px solid rgba(255,255,255,.35);
-  }
-  .dmInputBar{display:flex;align-items:center;gap:10px;width:100%}
-  .dmInputBar .box{flex:1;min-width:0;display:flex;align-items:center;background:#fff;border:1px solid var(--line);border-radius:999px;padding:0 14px;height:44px}
-  .dmInputBar input{flex:1;border:none;outline:none;background:transparent;font-size:16px}
-  .dmSend{min-width:56px;height:44px;border:none;border-radius:14px;background:linear-gradient(180deg,var(--accent),var(--accent2));color:#fff;font-weight:900}
+/* 粉絲泡泡右側「回覆」按鈕（圓形、拉開距離） */
+.replyBtn{
+  position:absolute; right:-32px; top:50%; transform:translateY(-50%);
+  width:34px;height:34px;border-radius:999px;border:none;background:rgba(255,255,255,.78);
+  box-shadow:0 6px 14px rgba(0,0,0,.12); display:flex;align-items:center;justify-content:center;
+}
+.replyBtn svg{width:18px;height:18px;opacity:.85}
 
-  /* 右上 … 選單 */
-  #dmMenu{position:fixed;right:12px;top:64px;display:none;z-index:70}
-  #dmMenu .chip{width:100%;justify-content:center}
+/* DM 輸入列（滿版、較薄） */
+.dmFooter{
+  position:sticky;bottom:0;left:0;right:0;
+  background:linear-gradient(180deg,rgba(255,255,255,.35),rgba(255,255,255,.96));
+  backdrop-filter:blur(10px); border-top:1px solid var(--line);
+  padding:10px 0 calc(10px + var(--safe));
+}
+.dmInputBar{display:flex;align-items:center;gap:10px;padding:0 12px}
+.dmInputBar .box{flex:1;min-width:0;display:flex;align-items:center;background:#fff;border:1px solid var(--line);border-radius:22px;height:42px;padding:0 14px}
+.dmInputBar input{flex:1;border:none;outline:none;background:transparent;font-size:17px}
+.dmSend{width:54px;height:42px;border:none;border-radius:14px;background:linear-gradient(180deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center}
+.dmSend svg{width:22px;height:22px;stroke:#fff;fill:#fff}
 
-  /* 背景編輯器 */
-  #bgEditor{position:fixed;inset:0;z-index:80;display:none;background:rgba(0,0,0,.45)}
-  #bgEditor .panel{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%); width:min(720px,92vw);background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px;box-shadow:var(--shadow)}
-  #bgPreview{height:42vh;border:1px dashed var(--line);border-radius:12px;background-size:var(--bgScale,cover);background-position:center;background-repeat:no-repeat;position:relative;overflow:hidden}
-  #bgOverlay{position:absolute;inset:0;background:rgba(0,0,0,var(--bgDim,.25));backdrop-filter:blur(var(--bgBlur,0px))}
-  .rangeRow{display:flex;align-items:center;gap:10px;margin:12px 0}
-  .rangeRow label{min-width:60px;color:#556}
-  .rangeRow output{margin-left:auto;color:#667;font-variant-numeric:tabular-nums}
+/* 右上 … 選單 */
+#dmMenu{position:fixed;right:12px;top:64px;display:none;z-index:70}
+#dmMenu .row{flex-direction:column;gap:6px}
 
-  /* composer */
-  #composerArtist .topbar{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-  #composerArtist .rightName{margin-left:auto;color:#9aa1ad;font-weight:800;letter-spacing:.3px}
-  #composeBox{min-height:42vh}
-  #composeText{width:100%;border:none;outline:none;font-size:16px}
-  #composePreview>img,#composePreview>video{width:110px;height:110px;object-fit:cover;border-radius:12px;border:1px solid var(--line)}
+/* ---------- 新背景流程：挑圖 → 裁切/旋轉 → 預覽 ---------- */
+.modal{position:fixed;inset:0;z-index:80;display:none;background:rgba(0,0,0,.45)}
+.modal .panel{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%); width:min(760px,94vw);background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px;box-shadow:var(--shadow)}
+#cropStage{height:58vh;border:1px dashed var(--line);border-radius:12px;display:grid;place-items:center;overflow:hidden;background:#f8f9ff}
+#cropStage img{max-width:none;user-select:none;transform-origin:center center}
+.cropCtrls{display:flex;align-items:center;gap:10px;margin:12px 0}
+.cropCtrls .spacer{flex:1}
+
+/* 小工具 */
+.badge{background:#ff3b30;color:#fff;font-size:12px;padding:2px 7px;border-radius:999px;min-width:22px;text-align:center}
 </style>
 </head>
 <body>
@@ -189,7 +177,10 @@
   <div id="storyWrap"><div id="storyBar"></div></div>
   <div id="feedWrap"></div>
 
-  <button class="dmSend" id="fabNew" style="position:fixed;right:16px;bottom:calc(86px + var(--safe));z-index:35;width:56px;border-radius:50%">＋</button>
+  <button class="fab" id="fabNew" style="
+    position:fixed;right:16px;bottom:calc(86px + var(--safe));z-index:35;width:56px;height:56px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;border:1px solid var(--line);
+    background:linear-gradient(180deg,var(--accent),var(--accent2));color:#fff;font-weight:900;font-size:22px;box-shadow:0 12px 28px rgba(106,90,205,.28);">＋</button>
 </section>
 
 <!-- ====================== DM LIST ====================== -->
@@ -200,77 +191,85 @@
   <div id="dmList"></div>
 </section>
 
-<!-- ====================== DM DETAIL（藝人群聊） ====================== -->
+<!-- ====================== DM DETAIL ====================== -->
 <section id="dmDetail" class="page">
-  <!-- 頂部 HUD -->
   <div class="chatHUD">
-    <div class="left"><button class="back" onclick="goBack()">←</button></div>
+    <button class="back" onclick="goBack()">←</button>
     <div class="center">
       <div class="titleRow">
         <span class="artistTag">ARTIST</span>
-        <b id="dmTitle" style="letter-spacing:.6px">ANNIE</b>
+        <b id="dmTitle" style="letter-spacing:.8px">ANNIE</b>
       </div>
       <div class="statusHint" id="statusHint">（點右上「…」可更改聊天室名稱／背景）</div>
     </div>
-    <div class="right"><button class="hudBtn" title="更多" onclick="toggleDmMenu()">⋯</button></div>
+    <button class="hudBtn" title="更多" onclick="toggleDmMenu()">⋯</button>
   </div>
 
-  <!-- DM Thread -->
+  <!-- thread -->
   <div id="dmThread" class="thread"></div>
 
-  <!-- 回覆 chip -->
-  <div id="replyChip" class="replyChip">
-    <div class="replyPill">
-      <span class="tag">回覆</span>
-      <span id="replyChipText" class="txt"></span>
-      <button class="x" onclick="clearReply()">×</button>
-    </div>
-  </div>
-
-  <!-- Footer / Input -->
+  <!-- Footer -->
   <div class="dmFooter">
+    <div id="replyChip" class="row" style="display:none;gap:10px;margin:0 14px 8px;color:#7a86b7">
+      <b>回覆：</b><span id="replyChipText" class="ghost"></span>
+      <button class="chip" onclick="clearReply()">× 取消</button>
+    </div>
     <div class="dmInputBar">
       <div class="box"><input id="dmMessageInput" placeholder="輸入訊息…" /></div>
-      <button class="dmSend" id="dmSendBtn" title="送出">✈︎</button>
+      <button class="dmSend" id="dmSendBtn" aria-label="Send">
+        <!-- 紙飛機 icon -->
+        <svg viewBox="0 0 24 24"><path d="M3.4 12.6l16.7-7.2c.6-.3 1.2.3.9.9l-7.2 16.7c-.3.7-1.3.6-1.5-.1l-2.1-6.1-6.1-2.1c-.7-.2-.8-1.2-.1-1.5z"/></svg>
+      </button>
     </div>
   </div>
 
   <!-- 右上 … 選單 -->
   <div id="dmMenu" class="card soft">
     <div class="row" style="flex-direction:column;gap:6px">
-      <button class="chip" onclick="renameChat(); closeDmMenu()">更改聊天室名稱</button>
-      <button class="chip" onclick="triggerBgPicker()">更改背景</button>
+      <button class="chip" onclick="renameChat(); hideDmMenu()">更改聊天室名稱</button>
+      <button class="chip" onclick="startPickBg(); hideDmMenu()">更改背景</button>
     </div>
   </div>
-  <input id="bgFile" type="file" accept="image/*" style="display:none">
 </section>
 
-<!-- ====================== 背景編輯器 ====================== -->
-<div id="bgEditor">
+<!-- ====================== 背景：挑圖 / 裁切 / 預覽 ====================== -->
+<input id="bgChooser" type="file" accept="image/*" style="display:none">
+<div id="cropModal" class="modal">
   <div class="panel">
-    <b style="font-weight:900">背景設定</b>
-    <div id="bgPreview"><div id="bgOverlay"></div></div>
-    <div class="rangeRow"><label>縮放</label><input id="bgScale" type="range" min="100" max="220" value="140"><output id="bgScaleOut">140%</output></div>
-    <div class="rangeRow"><label>模糊</label><input id="bgBlur" type="range" min="0" max="8" value="2"><output id="bgBlurOut">2px</output></div>
-    <div class="rangeRow"><label>暗度</label><input id="bgDim" type="range" min="0" max="70" value="25"><output id="bgDimOut">25%</output></div>
-    <div class="row" style="justify-content:flex-end">
-      <button class="chip" onclick="closeBgEditor()">取消</button>
-      <button class="chip" onclick="previewApplyBg()">預覽</button>
-      <button class="dmSend" style="width:auto;padding:8px 14px;border-radius:10px" onclick="applyBg()">確認</button>
+    <b style="font-weight:900">裁切背景</b>
+    <div id="cropStage"><img id="cropImg" alt=""></div>
+    <div class="cropCtrls">
+      <button class="chip" onclick="rotateCrop()">↻ 旋轉 90°</button>
+      <label class="chip">縮放 <input id="cropScale" type="range" min="80" max="220" value="140" style="vertical-align:middle"></label>
+      <div class="spacer"></div>
+      <button class="chip" onclick="closeCrop()">取消</button>
+      <button class="chip" style="background:linear-gradient(180deg,var(--accent),var(--accent2));color:#fff;border:none" onclick="applyCrop()">下一步</button>
+    </div>
+  </div>
+</div>
+<div id="previewModal" class="modal">
+  <div class="panel">
+    <b style="font-weight:900">預覽背景</b>
+    <div style="height:48vh;border:1px dashed var(--line);border-radius:12px;overflow:hidden;background:#000">
+      <div id="bgPreviewMini" style="height:100%;background-position:center;background-size:cover;background-repeat:no-repeat"></div>
+    </div>
+    <div class="cropCtrls" style="justify-content:flex-end">
+      <button class="chip" onclick="closePreview()">返回</button>
+      <button class="chip" style="background:linear-gradient(180deg,var(--accent),var(--accent2));color:#fff;border:none" onclick="confirmPreview()">確認</button>
     </div>
   </div>
 </div>
 
 <!-- ====================== Composer（＋） ====================== -->
 <section id="composerArtist" class="page">
-  <div class="topbar">
+  <div class="row" style="gap:10px;margin-bottom:10px">
     <button class="back" onclick="goBack()">←</button>
     <b style="font-weight:900">NEXT ONE</b>
-    <div class="rightName" id="composerWho">—</div>
+    <div class="sub" id="composerWho" style="margin-left:auto;font-weight:800;letter-spacing:.3px">—</div>
   </div>
 
   <div id="composeBox" class="soft card">
-    <textarea id="composeText" rows="4" placeholder="在想些什麼？"></textarea>
+    <textarea id="composeText" rows="4" placeholder="在想些什麼？（輸入 @@@ 可自動帶入粉絲名稱示範）"></textarea>
     <div id="composePreview" class="row" style="flex-wrap:wrap;gap:8px;margin-top:10px"></div>
   </div>
 
@@ -279,7 +278,7 @@
       <input id="composeMedia" type="file" multiple accept="image/*,video/*" onchange="previewComposeMedia(event)" style="display:none">
     </label>
     <span id="composeFilesHint" class="ghost">未選取檔案</span>
-    <button class="dmSend" style="border-radius:10px" onclick="publishDraft()">發佈（暫存流程）</button>
+    <button class="chip" style="background:linear-gradient(180deg,var(--accent),var(--accent2));color:#fff;border:none" onclick="publishDraft()">發佈（暫存流程）</button>
   </div>
 </section>
 
@@ -303,32 +302,28 @@ const LS = {
   getStr(k,def=''){ const v=localStorage.getItem(k); return v ?? def },
   setStr(k,v){ localStorage.setItem(k,v) }
 };
-const fmtTime = ts => {
-  const d=new Date(ts);
-  const h=d.getHours(); const m=('0'+d.getMinutes()).slice(-2);
-  const ap= h>=12?'下午':'上午'; const hr=(h%12)||12;
-  return `${ap}${hr}:${m}`;
-};
-function escapeHtml(s){return (s||'').replace(/[&<>"']/g, m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]))}
+const fmtTime = ts => new Date(ts).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+const escapeHtml = s => (s||'').toString().replace(/[&<>"']/g, m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;" }[m]));
 
-/* 系統舞台名（不受暱稱影響） */
+/* 系統舞台名（固定大寫）、暱稱（DM 專用） */
 const STAGE_NAME = LS.getStr('artistStage','ANNIE');
-let   NICKNAME   = LS.getStr('artistNickname','Annie'); // DM 顯示暱稱
+let   NICKNAME   = LS.getStr('artistNickname','Annie');
 let   AVATAR     = LS.getStr('artistAvatar','https://picsum.photos/80?u=artist');
+const ME = { id:'me', name:STAGE_NAME, avatar:AVATAR };
 
 /* ---------- 假資料 ---------- */
-const ME = { id:'me', name:STAGE_NAME, avatar:AVATAR };
 const ARTISTS = [
-  {id:'me', name:STAGE_NAME, avatar:AVATAR},
-  {id:'all', name:'ALL', avatar:'https://picsum.photos/80?u=all'},
+  {id:'me',  name:STAGE_NAME, avatar:AVATAR},
+  {id:'all', name:'ALL',   avatar:'https://picsum.photos/80?u=all'},
   {id:'dohee', name:'DOHEE', avatar:'https://picsum.photos/80?u=dh'},
-  {id:'woo', name:'WOOCHAN', avatar:'https://picsum.photos/80?u=wc'}
+  {id:'woo',   name:'WOOCHAN', avatar:'https://picsum.photos/80?u=wc'}
 ];
 const POSTS = LS.get('artistPosts', [
   { id:'p3', artistId:'dohee', artistStage:'DOHEE',   avatar:'https://picsum.photos/80?u=dh', text:'練舞練到爆汗 💃', img:'https://picsum.photos/1200?u=dh1', ts: Date.now()-1000*60*40 },
   { id:'p2', artistId:'woo',   artistStage:'WOOCHAN', avatar:'https://picsum.photos/80?u=wc', text:'今天吃拉麵 🍜',   img:'https://picsum.photos/1200?u=wc1', ts: Date.now()-1000*60*50 },
   { id:'p1', artistId:'me',    artistStage:STAGE_NAME, avatar:ME.avatar, text:'大家好，我是 Annie ✨', img:'', ts: Date.now()-1000*60*60 }
 ]);
+
 const FANS = [
   {id:'f1', name:'Michelle', avatar:'https://picsum.photos/40?u=f1'},
   {id:'f2', name:'粉絲 B',   avatar:'https://picsum.photos/40?u=f2'}
@@ -348,26 +343,19 @@ function showPage(id){
   const page = document.getElementById(id); if(page) page.classList.add('active');
   if(PAGE_STACK[PAGE_STACK.length-1]!==id) PAGE_STACK.push(id);
 
-  // nav tab
   document.querySelectorAll('#nav button').forEach(b=>b.classList.remove('active'));
   ({home:'tabHome', dm:'tabDM', live:'tabLive', store:'tabStore'}[id] || null) &&
     document.getElementById({home:'tabHome', dm:'tabDM', live:'tabLive', store:'tabStore'}[id]).classList.add('active');
 
-  // hide nav?
   const nav = document.getElementById('nav');
   if(HIDE_NAV_IN.includes(id)) nav.classList.add('hidden'); else nav.classList.remove('hidden');
 
-  // per-page render
   if(id==='home'){ renderStoryBar(); renderFeed(currentFilter); }
   if(id==='dm'){ renderDmList(); }
   if(id==='dmDetail'){ renderThread(); applyChatBg(); }
   if(id==='composerArtist'){ document.getElementById('composerWho').textContent = NICKNAME; }
 }
-function goBack(){
-  PAGE_STACK.pop();
-  const prev = PAGE_STACK[PAGE_STACK.length-1] || 'home';
-  showPage(prev);
-}
+function goBack(){ PAGE_STACK.pop(); const prev = PAGE_STACK[PAGE_STACK.length-1] || 'home'; showPage(prev); }
 
 /* ---------- HOME：Story bar ---------- */
 let currentFilter = 'me';
@@ -408,7 +396,7 @@ function renderStoryBar(){
   });
 }
 
-/* ---------- HOME：Feed（舞台名 + 藍勾） ---------- */
+/* ---------- HOME：Feed（舞台名 + 勾勾） ---------- */
 function feedOf(filter){
   if(filter==='all') return POSTS.slice().sort((a,b)=>b.ts-a.ts);
   if(filter==='me')  return POSTS.filter(p=>p.artistId==='me').sort((a,b)=>b.ts-a.ts);
@@ -423,7 +411,7 @@ function renderFeed(filter='me'){
       <div class="hdr">
         <img class="avatar" src="${p.avatar}" onerror="imgFallback(this)">
         <div class="meta">
-          <b>${escapeHtml((p.artistStage || p.artistName || '').toString().toUpperCase())} <span class="verify">✓</span></b>
+          <b>${escapeHtml((p.artistStage||'').toString().toUpperCase())} <span class="verify">✓</span></b>
           <small class="ghost">${new Date(p.ts).toLocaleString()}</small>
         </div>
       </div>
@@ -434,27 +422,29 @@ function renderFeed(filter='me'){
     </div>
   `).join('');
 }
-document.getElementById('fabNew').addEventListener('click', ()=> showPage('composerArtist'));
 
 /* ---------- DM List ---------- */
-function getRoomTitle(){ return NICKNAME.toUpperCase(); }
+function getRoomTitle(){ return NICKNAME; }
 function renderDmList(){
   const box=document.getElementById('dmList');
   const last=GROUP_MSGS[GROUP_MSGS.length-1];
   box.innerHTML=`
     <div class="dmCard" onclick="showPage('dmDetail')">
-      <div class="left">
-        <img src="${ME.avatar}" onerror="imgFallback(this)">
-        <div class="nameBlock">
+      <img src="${ME.avatar}" onerror="imgFallback(this)">
+      <div class="nameBlock">
+        <div class="nameRow">
           <span class="artistTag">ARTIST</span>
-          <div class="nm"><b>${escapeHtml(getRoomTitle())}</b></div>
-          <small class="ghost" style="display:block;max-width:62vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(last?last.text:'（無訊息）')}</small>
+          <div class="stage">${escapeHtml(getRoomTitle().toUpperCase())}</div>
         </div>
+        <small class="ghost" style="display:block;max-width:62vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+          ${escapeHtml(last?last.text:'（無訊息）')}
+        </small>
       </div>
+      <span></span>
     </div>`;
 }
 
-/* ---------- DM Thread ---------- */
+/* ---------- DM Thread（時間左右、FROM FAN 分行、回覆箭頭距離） ---------- */
 let replyDraft = null; // { text }
 function renderThread(){
   const box = document.getElementById('dmThread'); box.innerHTML='';
@@ -462,39 +452,43 @@ function renderThread(){
     const wrap = document.createElement('div');
     wrap.className = 'msg ' + (m.from==='artist'?'right':'left');
 
+    // 時間（左右各自）
+    const timeEl = document.createElement('div');
+    timeEl.className = 'time' + (m.from==='artist'?'':' dark');
+    timeEl.textContent = fmtTime(m.ts);
+
+    // 泡泡
     const bubble = document.createElement('div');
     bubble.className = 'bubble';
 
     if(m.from==='fan'){
-      const lb = document.createElement('div');
-      lb.className='labelBox';
-      lb.innerHTML = `<div class="l1">FROM FAN</div><div class="l2">（粉絲的訊息）</div>`;
-      bubble.appendChild(lb);
-      bubble.insertAdjacentHTML('beforeend', `<div>${escapeHtml(m.text)}</div>`);
+      // FROM FAN 分兩行
+      const lab = document.createElement('div'); lab.className='fromLabel'; lab.textContent='FROM FAN';
+      const txt = document.createElement('div'); txt.className='fanText'; txt.innerHTML = escapeHtml(m.text);
+      bubble.append(lab, txt);
     }else{
-      bubble.insertAdjacentHTML('beforeend', `<div>${escapeHtml(m.text)}</div>`);
+      bubble.innerHTML = escapeHtml(m.text);
       if(m.replyTo && m.replyTo.text){
-        bubble.insertAdjacentHTML('beforeend', `<div class="quote"><b class="ghost">FROM FAN：</b>${escapeHtml(m.replyTo.text)}</div>`);
+        const q = document.createElement('div');
+        q.className = 'quote';
+        q.innerHTML = `<b>FROM FAN：</b> ${escapeHtml(m.replyTo.text)}`;
+        bubble.appendChild(q);
       }
     }
 
     wrap.appendChild(bubble);
+    wrap.appendChild(timeEl);
 
-    // 時間（左右各自靠外側）
-    const t = document.createElement('div');
-    t.className='time';
-    t.textContent = fmtTime(m.ts);
-    wrap.appendChild(t);
-
-    // 粉絲訊息才有回覆鍵
+    // 粉絲訊息才有回覆鍵（右側、拉開距離）
     if(m.from==='fan'){
       const btn = document.createElement('button');
-      btn.className = 'replyBtn'; btn.innerHTML = '→';
+      btn.className = 'replyBtn';
+      btn.innerHTML = `<svg viewBox="0 0 24 24"><path d="M12 4l-1.4 1.4L16.2 11H4v2h12.2l-5.6 5.6L12 20l8-8z" fill="currentColor"/></svg>`;
       btn.onclick = ()=>{
         replyDraft = { text: m.text };
         const chip = document.getElementById('replyChip');
         chip.style.display = 'flex';
-        document.getElementById('replyChipText').textContent = m.text;
+        document.getElementById('replyChipText').textContent = m.text.slice(0, 42);
         document.getElementById('dmMessageInput').focus();
       };
       bubble.appendChild(btn);
@@ -508,11 +502,8 @@ function clearReply(){ replyDraft = null; document.getElementById('replyChip').s
 function sendArtistMsg(){
   const inp = document.getElementById('dmMessageInput');
   let t = (inp.value||'').trim(); if(!t) return;
-
-  // @@@ -> 自動帶入粉絲名（示範取第一位粉絲）
-  const firstFan = FANS[0]?.name || '粉絲';
-  t = t.replaceAll('@@@', firstFan);
-
+  // @@@ → 自動帶入粉絲名稱（示範用第一位）
+  t = t.replaceAll('@@@', FANS[0].name);
   GROUP_MSGS.push({ id:'u'+Date.now(), from:'artist', text:t, ts:Date.now(), replyTo: replyDraft? {text:replyDraft.text}: null });
   LS.set('groupMsgs', GROUP_MSGS);
   inp.value=''; clearReply(); renderThread(); renderDmList();
@@ -522,24 +513,17 @@ document.getElementById('dmMessageInput').addEventListener('keydown', e=>{
   if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); sendArtistMsg(); }
 });
 
-/* ---------- DM 菜單 ---------- */
-function toggleDmMenu(){
+/* ---------- DM 菜單：點外面自動收起 ---------- */
+function toggleDmMenu(){ const m = document.getElementById('dmMenu'); m.style.display = (m.style.display==='block')?'none':'block'; }
+function hideDmMenu(){ document.getElementById('dmMenu').style.display='none'; }
+document.addEventListener('click', (e)=>{
   const m = document.getElementById('dmMenu');
-  const show = (m.style.display==='none'||!m.style.display);
-  m.style.display = show?'block':'none';
-  if(show){
-    // 點外面自動收
-    setTimeout(()=>{
-      const closer = (ev)=>{
-        if(!m.contains(ev.target) && ev.target.id!=='hudBtn'){ closeDmMenu(); document.removeEventListener('click', closer); }
-      };
-      document.addEventListener('click', closer);
-    },0);
-  }
-}
-function closeDmMenu(){ document.getElementById('dmMenu').style.display='none'; }
+  if(m.style.display==='block' && !m.contains(e.target) && !e.target.closest('.hudBtn')) hideDmMenu();
+});
+
+/* ---------- 改名（暱稱 = 聊天室名稱；舞台名固定大寫） ---------- */
 function renameChat(){
-  const cur = NICKNAME;
+  const cur = getRoomTitle();
   const n = prompt('更改聊天室名稱（同：藝人暱稱）', cur);
   if(!n) return;
   NICKNAME = n.trim() || cur;
@@ -550,68 +534,51 @@ function renameChat(){
   renderDmList();
 }
 
-/* ---------- 背景：挑選 -> 編輯 -> 套用 ---------- */
-function triggerBgPicker(){ closeDmMenu(); document.getElementById('bgFile').click(); }
-document.getElementById('bgFile').addEventListener('change', e=>{
-  const f = e.target.files[0]; if(!f) return;
+/* ---------- 背景：新流程（挑圖→裁切→預覽），且套用為固定背景 ---------- */
+let cropDataURL='', cropDeg=0, cropScale=1.4;
+const chooser = document.getElementById('bgChooser');
+function startPickBg(){ chooser.click(); }
+chooser.addEventListener('change', e=>{
+  const f = e.target.files?.[0]; if(!f) return;
   const reader = new FileReader();
   reader.onload = ev=>{
-    document.getElementById('bgPreview').style.backgroundImage = `url("${ev.target.result}")`;
-    document.getElementById('bgPreview').dataset.url = ev.target.result;
-    openBgEditor(); updateBgPreview();
+    cropDataURL = ev.target.result;
+    document.getElementById('cropImg').src = cropDataURL;
+    cropDeg = 0; document.getElementById('cropScale').value = 140; cropScale = 1.4;
+    updateCropTransform();
+    openModal('cropModal');
   };
   reader.readAsDataURL(f);
 });
-function openBgEditor(){
-  document.getElementById('bgEditor').style.display='block';
-  const url = document.getElementById('bgPreview').dataset.url || LS.getStr('artistChatBg','');
-  if(url) document.getElementById('bgPreview').style.backgroundImage = `url("${url}")`;
-  document.getElementById('bgScale').value = LS.getStr('artistChatBgScale','140');
-  document.getElementById('bgBlur').value  = LS.getStr('artistChatBgBlur','2');
-  document.getElementById('bgDim').value   = LS.getStr('artistChatBgDim','25');
-  updateBgPreview();
+function rotateCrop(){ cropDeg = (cropDeg + 90) % 360; updateCropTransform(); }
+document.getElementById('cropScale').addEventListener('input', e=>{ cropScale = (+e.target.value)/100; updateCropTransform(); });
+function updateCropTransform(){
+  const img = document.getElementById('cropImg');
+  img.style.transform = `scale(${cropScale}) rotate(${cropDeg}deg)`;
 }
-function closeBgEditor(){ document.getElementById('bgEditor').style.display='none'; }
-function updateBgPreview(){
-  const s=document.getElementById('bgScale').value;
-  const b=document.getElementById('bgBlur').value;
-  const d=document.getElementById('bgDim').value;
-  document.getElementById('bgPreview').style.setProperty('--bgScale', `${s}%`);
-  document.getElementById('bgOverlay').style.setProperty('--bgBlur', `${b}px`);
-  document.getElementById('bgOverlay').style.setProperty('--bgDim',  `${d/100}`);
-  document.getElementById('bgScaleOut').value = s+'%';
-  document.getElementById('bgBlurOut').value  = b+'px';
-  document.getElementById('bgDimOut').value   = d+'%';
+function applyCrop(){
+  // 直接用目前縮放/旋轉結果預覽（示意）
+  document.getElementById('bgPreviewMini').style.backgroundImage = `url("${cropDataURL}")`;
+  closeCrop(); openModal('previewModal');
 }
-['bgScale','bgBlur','bgDim'].forEach(id=>{
-  document.getElementById(id).addEventListener('input', updateBgPreview, {passive:true});
-});
-function previewApplyBg(){ applyChatBg(); }
-function applyBg(){
-  const url = document.getElementById('bgPreview').dataset.url || LS.getStr('artistChatBg','');
-  const scale = document.getElementById('bgScale').value;
-  const blur  = document.getElementById('bgBlur').value;
-  const dim   = document.getElementById('bgDim').value;
-  if(url) LS.setStr('artistChatBg', url);
-  LS.setStr('artistChatBgScale', scale);
-  LS.setStr('artistChatBgBlur',  blur);
-  LS.setStr('artistChatBgDim',   dim);
-  applyChatBg(); closeBgEditor();
+function confirmPreview(){
+  if(cropDataURL) LS.setStr('artistChatBg', cropDataURL);
+  // 可加強：把縮放/旋轉存起來；此 demo 主要貼圖+固定背景
+  LS.setStr('artistChatBgScale','100'); LS.setStr('artistChatBgBlur','0'); LS.setStr('artistChatBgDim','25');
+  applyChatBg(); closePreview();
 }
+function openModal(id){ document.getElementById(id).style.display='block'; }
+function closeCrop(){ document.getElementById('cropModal').style.display='none'; }
+function closePreview(){ document.getElementById('previewModal').style.display='none'; }
+
 function applyChatBg(){
   const url = LS.getStr('artistChatBg','');
-  const scale = LS.getStr('artistChatBgScale','140');
   const blur  = LS.getStr('artistChatBgBlur','2');
   const dim   = LS.getStr('artistChatBgDim','25');
   const el = document.getElementById('dmDetail');
-  if(!url){
-    el.style.background='none';
-    el.style.setProperty('--bgDim','0'); el.style.setProperty('--bgBlur','0px');
-  }else{
+  if(!url){ el.style.backgroundImage='none'; el.style.setProperty('--bgDim','0'); el.style.setProperty('--bgBlur','0px'); }
+  else{
     el.style.backgroundImage = `url("${url}")`;
-    el.style.backgroundSize  = `${scale}%`;
-    el.style.backgroundPosition='center';
-    el.style.backgroundRepeat='no-repeat';
     el.style.setProperty('--bgDim',  dim/100);
     el.style.setProperty('--bgBlur', `${blur}px`);
   }
@@ -630,15 +597,13 @@ function previewComposeMedia(e){
     const el = document.createElement(isVideo?'video':'img');
     el.src = url; el.controls = isVideo;
     el.onload = el.onloadeddata = ()=>URL.revokeObjectURL(url);
+    el.style.width='110px'; el.style.height='110px'; el.style.objectFit='cover'; el.style.borderRadius='12px'; el.style.border='1px solid var(--line)';
     box.appendChild(el);
   });
 }
-function publishDraft(){
-  alert('先存草稿＆預覽；發佈規則等我們接首頁串流。');
-  showPage('home');
-}
+function publishDraft(){ alert('先存草稿＆預覽；發佈規則等我們接首頁串流。'); showPage('home'); }
 
-/* ---------- 暱稱 = 聊天室名稱（不影響舞台名） ---------- */
+/* ---------- 暱稱按鈕（同聊天室名稱） ---------- */
 document.getElementById('btnEditNick').addEventListener('click', ()=>{
   const v = prompt('輸入新的暱稱（= 聊天室名稱）', NICKNAME);
   if(v && v.trim()){
@@ -653,7 +618,6 @@ document.getElementById('btnEditNick').addEventListener('click', ()=>{
 
 /* ---------- 啟動 ---------- */
 document.addEventListener('DOMContentLoaded', ()=>{
-  // 頭像/暱稱/ID
   document.getElementById('meNickname').textContent = NICKNAME;
   document.getElementById('dmTitle').textContent = NICKNAME.toUpperCase();
   document.getElementById('composerWho').textContent = NICKNAME;
@@ -663,8 +627,8 @@ document.addEventListener('DOMContentLoaded', ()=>{
   renderStoryBar(); renderFeed(currentFilter);
   renderDmList();
 
-  // 點背景編輯器外框可關閉
-  document.getElementById('bgEditor').addEventListener('click', (e)=>{ if(e.target.id==='bgEditor') closeBgEditor(); });
+  // 點畫面任何處收起 …
+  document.addEventListener('keydown', e=>{ if(e.key==='Escape') hideDmMenu(); });
 });
 </script>
 </body>
