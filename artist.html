@@ -26,16 +26,17 @@ img{display:block;max-width:100%} a{text-decoration:none;color:inherit} button{f
 .chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:#f3f5ff;border:1px solid var(--line);font-size:12px}
 
 /* pages */
-section.page{display:none;padding:12px 12px calc(76px + var(--safe))}
+section.page{
+  display:none;
+  padding:12px 12px calc(76px + var(--safe) + var(--kb-offset, 0px)); /* 加入鍵盤 offset */
+  min-height: 100dvh;
+}
 section.page.active{display:block;animation:fade .22s ease}
 @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-/* 新增（讓頁面高度跟著視窗/鍵盤變化） */
-section.page{ min-height: 100dvh; }
 @supports (height: 100svh){
   section.page{ min-height: 100svh; }   /* 備援 */
 }
 
-  
 /* bottom nav */
 nav#nav{
   position:fixed;left:0;right:0;bottom:0;z-index:40;background:var(--card);border-top:1px solid var(--line);
@@ -53,20 +54,10 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 #homeHeader .me .id{font-size:12px;color:var(--ghost)}
 
 /* Verified 徽章（12 瓣） */
-.verified-badge{
-  display:inline-block;
-  width:18px;height:18px;
-  margin-left:6px;vertical-align:middle;
-}
+.verified-badge{display:inline-block;width:18px;height:18px;margin-left:6px;vertical-align:middle}
 .verified-badge svg{width:100%;height:100%;display:block}
-.verified-badge .gear{
-  stroke:#fff; stroke-width:.9;
-  filter:drop-shadow(0 1px 2px rgba(0,0,0,.25));
-}
-.verified-badge .tick{
-  fill:#fff;
-  filter:drop-shadow(0 1px 0 rgba(0,0,0,.18));
-}
+.verified-badge .gear{stroke:#fff; stroke-width:.9;filter:drop-shadow(0 1px 2px rgba(0,0,0,.25))}
+.verified-badge .tick{fill:#fff;filter:drop-shadow(0 1px 0 rgba(0,0,0,.18))}
   
 /* story bar */
 #storyWrap{position:sticky;top:0;z-index:5;background:linear-gradient(180deg,rgba(245,247,255,.96),rgba(245,247,255,.90));backdrop-filter:blur(6px)}
@@ -114,14 +105,18 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
   position:relative; background-color:#000; 
   background-position:center;background-repeat:no-repeat;background-size:cover;background-attachment:fixed;
 }
-#dmDetail::after{content:""; position:fixed; inset:0; pointer-events:none; background:rgba(0,0,0,var(--bgDim,.0));
-  backdrop-filter:blur(var(--bgBlur,0px)); z-index:-1;}
+#dmDetail::after{
+  content:""; position:fixed; inset:0; pointer-events:none; 
+  background:rgba(0,0,0,var(--bgDim,.0));
+  backdrop-filter:blur(var(--bgBlur,0px)); z-index:-1;
+}
 
 /* thread —— 讓時間在左右側 */
 .thread{
   display:flex;flex-direction:column;gap:12px;
-  height:calc(100dvh - 230px);            /* ← 改這裡 */
-  overflow-y:auto;padding:8px 2px
+  height:calc(100dvh - 230px);
+  overflow-y:auto;padding:8px 2px;
+  -webkit-overflow-scrolling:touch; /* iOS 慣性捲動 */
 }
 @supports (height: 100svh){
   .thread{ height:calc(100svh - 230px); } /* 備援 */
@@ -143,28 +138,16 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
   margin:6px 6px 0;              /* 上方留距離＝出現在「下方」 */
   padding:10px 12px;
   border-radius:14px;
-  background:rgba(255,255,255,.86);   /* 和你給的參考透明度接近 */
+  background:rgba(255,255,255,.86);
   border:1px solid rgba(0,0,0,.06);
   box-shadow:0 8px 18px rgba(0,0,0,.12);
   backdrop-filter:saturate(140%) blur(1.5px);
   word-break:break-word;
 }
-
-/* 標題與內容：跟粉絲泡泡一致的排列與字色 */
 .replyCard .fromLabel{
-  font-size:11px;
-  font-weight:900;
-  letter-spacing:.3px;
-  color:#6d78aa;                 /* 與 .fromLabel 一致 */
-  margin-bottom:4px;
+  font-size:11px;font-weight:900;letter-spacing:.3px;color:#6d78aa;margin-bottom:4px;
 }
-.replyCard .fanText{ color:#111; }  /* 文字清楚可讀 */
 
-  /* 讓粉絲泡泡文字更清楚（維持） */
-.msg.left .bubble{
-  background:rgba(255,255,255,.92);
-}
-  
 /* 右側內嵌回覆泡泡（透明、像你圖示） */
 .quote{
   margin-top:8px;padding:10px 12px;border-radius:12px;
@@ -181,12 +164,21 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 }
 .replyBtn svg{width:18px;height:18px;opacity:.85}
 
-/* DM 輸入列（滿版、較薄） */
+/* 固定在可視視窗底部（不再用 sticky） */
 .dmFooter{
-  position: sticky; bottom: 0;
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
   background:linear-gradient(180deg,rgba(255,255,255,.35),rgba(255,255,255,.96));
-  backdrop-filter:blur(10px); border-top:1px solid var(--line);
+  backdrop-filter:blur(10px);
+  border-top:1px solid var(--line);
   padding:10px 0 calc(10px + env(safe-area-inset-bottom));
+  transform: translateY(calc(-1 * var(--kb-offset, 0px))); /* 鍵盤 offset */
+  z-index: 50;
+}
+
+/* 對話區底部預留空間（避免被 footer 蓋住） */
+#dmDetail .thread{
+  padding-bottom: calc(96px + var(--kb-offset, 0px));
 }
 .dmInputBar{display:flex;align-items:center;gap:10px;padding:0 12px}
 .dmInputBar .box{flex:1;min-width:0;display:flex;align-items:center;background:#fff;border:1px solid var(--line);border-radius:22px;height:42px;padding:0 14px}
@@ -267,7 +259,6 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
     <div class="dmInputBar">
       <div class="box"><input id="dmMessageInput" placeholder="輸入訊息…" /></div>
       <button class="dmSend" id="dmSendBtn" aria-label="Send">
-        <!-- 紙飛機 icon -->
         <svg viewBox="0 0 24 24"><path d="M3.4 12.6l16.7-7.2c.6-.3 1.2.3.9.9l-7.2 16.7c-.3.7-1.3.6-1.5-.1l-2.1-6.1-6.1-2.1c-.7-.2-.8-1.2-.1-1.5z"/></svg>
       </button>
     </div>
@@ -405,11 +396,7 @@ function showPage(id){
   if(id==='dmDetail'){
     renderThread();
     applyChatBg();
-    // 進入聊天室時保證捲到底
-    setTimeout(()=>{
-      const t = document.getElementById('dmThread');
-      if(t) t.scrollTop = t.scrollHeight;
-    }, 50);
+    setTimeout(()=>{ const t=document.getElementById('dmThread'); if(t) t.scrollTop=t.scrollHeight; },50);
   }
   if(id==='composerArtist'){ document.getElementById('composerWho').textContent = NICKNAME; }
 }
@@ -453,7 +440,7 @@ function renderStoryBar(){
     });
   });
 }
-  
+
 /* ---------- HOME：Feed（舞台名 + 勾勾） ---------- */
 function feedOf(filter){
   if(filter==='all') return POSTS.slice().sort((a,b)=>b.ts-a.ts);
@@ -473,10 +460,8 @@ function VB(size=18){
           <stop offset="100%" stop-color="#e9ecff"/>
         </linearGradient>
       </defs>
-      <!-- 12 瓣花瓣 -->
       <path class="gear" fill="url(#${gid})"
         d="M12 2.3 14 4l2.9-.6.9 2.7 2.7.9-.6 2.9L22 12l-2.1 2.1.6 2.9-2.7.9-.9 2.7-2.9-.6L12 21.7 10 20l-2.9.6-.9-2.7-2.7-.9.6-2.9L2 12l2.1-2.1-.6-2.9 2.7-.9.9-2.7L10 4l2-1.7z"/>
-      <!-- 勾 -->
       <path class="tick" d="M10.4 12.8 8.7 11.2l1.1-1.1 1.2 1.2 3-3 1.1 1.1-3.8 3.8a1 1 0 0 1-1.4 0z"/>
     </svg>
   </span>`;
@@ -488,7 +473,6 @@ function renderFeed(filter='me'){
     wrap.innerHTML = `<div class="ghost" style="text-align:center;margin-top:20vh">尚無貼文</div>`;
     return;
   }
-
   wrap.innerHTML = list.map(p=>{
     const stage = (p.artistStage || STAGE_NAME || '').toString().toUpperCase();
     return `
@@ -508,7 +492,7 @@ function renderFeed(filter='me'){
     `;
   }).join('');
 }
-  
+
 /* ---------- DM List ---------- */
 function getRoomTitle(){ return NICKNAME; }
 function renderDmList(){
@@ -537,7 +521,6 @@ function renderThread(){
   box.innerHTML='';
 
   GROUP_MSGS.forEach(m=>{
-    // === 建立訊息（先放泡泡） ===
     const wrap = document.createElement('div');
     wrap.className = 'msg ' + (m.from==='artist' ? 'right' : 'left');
 
@@ -554,25 +537,22 @@ function renderThread(){
       bubble.append(lab, txt);
     }else{
       bubble.innerHTML = escapeHtml(m.text);
-      // 不在泡泡內放 quote
     }
 
     wrap.appendChild(bubble);
     wrap.appendChild(timeEl);
     box.appendChild(wrap);
 
-    // === 回覆粉絲小卡 → 放在藝人泡泡「下方」 ===
     if (m.from==='artist' && m.replyTo && m.replyTo.text){
-  const rc = document.createElement('div');
-  rc.className = 'replyCard';
-  rc.innerHTML = `
-    <div class="fromLabel">FROM FAN</div>
-    <div class="fanText">${escapeHtml(m.replyTo.text)}</div>
-  `;
-  box.appendChild(rc);
-}
+      const rc = document.createElement('div');
+      rc.className = 'replyCard';
+      rc.innerHTML = `
+        <div class="fromLabel">FROM FAN</div>
+        <div class="fanText">${escapeHtml(m.replyTo.text)}</div>
+      `;
+      box.appendChild(rc);
+    }
 
-    // 粉絲訊息的「回覆」按鈕（原本邏輯不變）
     if(m.from==='fan'){
       const btn = document.createElement('button');
       btn.className = 'replyBtn';
@@ -590,11 +570,10 @@ function renderThread(){
 
   box.scrollTop = box.scrollHeight;
 }
-  function clearReply(){ replyDraft = null; document.getElementById('replyChip').style.display='none'; }
+function clearReply(){ replyDraft = null; document.getElementById('replyChip').style.display='none'; }
 function sendArtistMsg(){
   const inp = document.getElementById('dmMessageInput');
   let t = (inp.value||'').trim(); if(!t) return;
-  // @@@ → 自動帶入粉絲名稱（示範用第一位）
   t = t.replaceAll('@@@', FANS[0].name);
   GROUP_MSGS.push({ id:'u'+Date.now(), from:'artist', text:t, ts:Date.now(), replyTo: replyDraft? {text:replyDraft.text}: null });
   LS.set('groupMsgs', GROUP_MSGS);
@@ -626,7 +605,7 @@ function renameChat(){
   renderDmList();
 }
 
-/* ---------- 背景：新流程（挑圖→裁切→預覽），且套用為固定背景 ---------- */
+/* ---------- 背景：挑圖→裁切→預覽，並套用固定背景 ---------- */
 let cropDataURL='', cropDeg=0, cropScale=1.4;
 const chooser = document.getElementById('bgChooser');
 function startPickBg(){ chooser.click(); }
@@ -649,13 +628,11 @@ function updateCropTransform(){
   img.style.transform = `scale(${cropScale}) rotate(${cropDeg}deg)`;
 }
 function applyCrop(){
-  // 直接用目前縮放/旋轉結果預覽（示意）
   document.getElementById('bgPreviewMini').style.backgroundImage = `url("${cropDataURL}")`;
   closeCrop(); openModal('previewModal');
 }
 function confirmPreview(){
   if(cropDataURL) LS.setStr('artistChatBg', cropDataURL);
-  // 可加強：把縮放/旋轉存起來；此 demo 主要貼圖+固定背景
   LS.setStr('artistChatBgScale','100'); LS.setStr('artistChatBgBlur','0'); LS.setStr('artistChatBgDim','25');
   applyChatBg(); closePreview();
 }
@@ -719,20 +696,36 @@ document.addEventListener('DOMContentLoaded', ()=>{
   renderStoryBar(); renderFeed(currentFilter);
   renderDmList();
 
-  // 點畫面任何處收起 …
   document.addEventListener('keydown', e=>{ if(e.key==='Escape') hideDmMenu(); });
 
-  /* ★ 新增：鍵盤彈出/點擊輸入框時，讓 thread 捲到底 */
+  /* 點/聚焦輸入框時自動捲底 */
   const input  = document.getElementById('dmMessageInput');
   const thread = document.getElementById('dmThread');
   if (input && thread) {
-    const scrollToBottom = () => setTimeout(() => {
-      thread.scrollTop = thread.scrollHeight;
-    }, 60);
+    const scrollToBottom = () => setTimeout(() => { thread.scrollTop = thread.scrollHeight; }, 60);
     input.addEventListener('focus', scrollToBottom);
-    input.addEventListener('click',  scrollToBottom); // iOS 偶爾只觸發 click
+    input.addEventListener('click',  scrollToBottom);
   }
 });
+
+/* iOS Safari：鍵盤彈出時修正 footer 位置 & 自動捲到底 */
+; (function(){
+  const vv = window.visualViewport;
+  const thread = document.getElementById('dmThread');
+  function applyVV(){
+    if(!vv) return;
+    const offset = Math.max(0, window.innerHeight - vv.height); // 鍵盤佔用高度
+    document.documentElement.style.setProperty('--kb-offset', offset + 'px');
+    if (document.activeElement === document.getElementById('dmMessageInput')) {
+      setTimeout(()=>{ if(thread) thread.scrollTop = thread.scrollHeight; }, 30);
+    }
+  }
+  if(vv){
+    vv.addEventListener('resize', applyVV);
+    vv.addEventListener('scroll',  applyVV);
+    applyVV();
+  }
+})();
 </script>
 </body>
 </html>
