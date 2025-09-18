@@ -402,7 +402,7 @@ function showPage(id){
 
   if(id==='home'){ renderStoryBar(); renderFeed(currentFilter); }
   if(id==='dm'){ renderDmList(); }
-  if(id==='dmDetail'){ renderThread(); applyChatBg(); }
+  if(id==='dmDetail'){ renderThread(); applyChatBg();setTimeout(()=>{ const t=document.getElementById('dmThread'); if(t) t.scrollTop=t.scrollHeight; }
   if(id==='composerArtist'){ document.getElementById('composerWho').textContent = NICKNAME; }
 }
 function goBack(){ PAGE_STACK.pop(); const prev = PAGE_STACK[PAGE_STACK.length-1] || 'home'; showPage(prev); }
@@ -713,16 +713,16 @@ document.addEventListener('DOMContentLoaded', ()=>{
 
   // 點畫面任何處收起 …
   document.addEventListener('keydown', e=>{ if(e.key==='Escape') hideDmMenu(); });
-});
-const input  = document.getElementById('dmMessageInput');
+
+  /* ★ 新增：鍵盤彈出/點擊輸入框時，讓 thread 捲到底 */
+  const input  = document.getElementById('dmMessageInput');
   const thread = document.getElementById('dmThread');
   if (input && thread) {
     const scrollToBottom = () => setTimeout(() => {
       thread.scrollTop = thread.scrollHeight;
     }, 60);
-
     input.addEventListener('focus', scrollToBottom);
-    input.addEventListener('click',  scrollToBottom);  // iOS 偶爾只觸發 click
+    input.addEventListener('click',  scrollToBottom); // iOS 偶爾只觸發 click
   }
 });
 </script>
