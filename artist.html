@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>NEXT’S YOU — artist（貼底版）</title>
+<title>NEXT’S YOU — artist（完整修正版）</title>
 
 <style>
 :root{
@@ -11,10 +11,9 @@
   --accent:#6a5acd; --accent2:#836fff; --ok:#10b981; --danger:#ff4d4f;
   --radius:16px; --shadow:0 12px 34px rgba(18,24,40,.08);
   --safe:env(safe-area-inset-bottom,0px);
-  --kb-offset:0px; /* 由 JS 視覺視窗監聽更新 */
+  --kb-offset:0px;             /* 由 JS 動態設定（只含鍵盤，不含工具列） */
+  --footer-h:0px;              /* 由 JS 量測 footer 高度 */
 }
-
-/* reset */
 *{box-sizing:border-box}
 html,body{height:100%}
 body{
@@ -27,15 +26,11 @@ img{display:block;max-width:100%}
 a{text-decoration:none;color:inherit}
 button{font:inherit;cursor:pointer}
 
-/* utils */
-.ghost{color:var(--ghost)}
-.sub{color:var(--sub)}
-.soft{padding:16px}
-.row{display:flex;align-items:center;gap:10px}
+.ghost{color:var(--ghost)} .sub{color:var(--sub)} .soft{padding:16px} .row{display:flex;align-items:center;gap:10px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
 .chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:#f3f5ff;border:1px solid var(--line);font-size:12px}
 
-/* pages */
+/* pages（底部只保留安全區；鍵盤位移交給 DM footer 處理） */
 section.page{
   display:none;
   padding:12px 12px calc(76px + var(--safe));
@@ -61,7 +56,7 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 #homeHeader .me img{width:44px;height:44px;border-radius:50%;object-fit:cover;border:1px solid var(--line)}
 #homeHeader .me .id{font-size:12px;color:var(--ghost)}
 
-/* Verified badge（首頁貼文用） */
+/* Verified 勳章（首頁貼文用） */
 .verified-badge{display:inline-block;width:18px;height:18px;margin-left:6px;vertical-align:middle}
 .verified-badge svg{width:100%;height:100%;display:block}
 .verified-badge .gear{stroke:#fff;stroke-width:.9;filter:drop-shadow(0 1px 2px rgba(0,0,0,.25))}
@@ -95,7 +90,7 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 .nameRow{display:flex;align-items:center;gap:8px}
 .nameRow .stage{font-weight:900;letter-spacing:.3px}
 
-/* ARTIST 徽章 */
+/* —— 方框 ARTIST 勳章（紫藍白；DM 與列表共用） —— */
 .artistTag{
   display:inline-flex;align-items:center;justify-content:center;
   padding:3px 8px;border-radius:6px;
@@ -108,21 +103,25 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 /* ===== DM Detail ===== */
 .chatHUD{display:flex;align-items:center;justify-content:space-between;padding:4px 0 8px}
 .chatHUD .center{flex:1;min-width:0}
+/* 勳章在上、名字在下（較小） */
 .titleCol{display:flex;flex-direction:column;align-items:flex-start;gap:4px}
 .artistName{font-weight:900;letter-spacing:.6px;font-size:18px}
+
+/* 右上 … 白底圓角 */
 .hudBtn{width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--card)}
 
+/* 返回鍵：只有箭頭、無白底 */
 .back{width:44px;height:44px;border:none;background:transparent;border-radius:0;padding:0;display:grid;place-items:center}
 .back svg{width:22px;height:22px;stroke:#5b6ab0;stroke-width:2.6;fill:none}
 
-/* DM 背景 */
+/* 背景固定（支援模糊/遮罩） */
 #dmDetail{
   position:relative;background:#000;
   background-position:center;background-repeat:no-repeat;background-size:cover;background-attachment:fixed;
 }
 #dmDetail::after{content:"";position:fixed;inset:0;pointer-events:none;background:rgba(0,0,0,var(--bgDim,.0));backdrop-filter:blur(var(--bgBlur,0px));z-index:-1}
 
-/* thread 可捲容器（重點） */
+/* thread：時間在兩側 */
 .thread{
   display:flex;flex-direction:column;gap:12px;
   height:calc(100dvh - 230px);
@@ -141,7 +140,7 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 .fromLabel{font-size:11px;font-weight:900;color:#6b78a8;margin-bottom:4px}
 .fanText{color:#111}
 
-/* 引用卡 */
+/* 問題引用卡 */
 .replyCard{
   align-self:flex-end;max-width:74%;margin:6px 6px 0;padding:10px 12px;border-radius:14px;
   background:rgba(255,255,255,.86);border:1px solid rgba(0,0,0,.06);box-shadow:0 8px 18px rgba(0,0,0,.12);
@@ -149,7 +148,7 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 }
 .replyCard .fromLabel{font-size:11px;font-weight:900;letter-spacing:.3px;color:#6d78aa;margin-bottom:4px}
 
-/* 右側泡泡「回覆」按鈕 */
+/* 右側泡泡回覆按鈕 */
 .replyBtn{
   position:absolute;right:-32px;top:50%;transform:translateY(-50%);
   width:34px;height:34px;border-radius:999px;border:none;background:rgba(255,255,255,.78);
@@ -157,16 +156,16 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 }
 .replyBtn svg{width:18px;height:18px;opacity:.85}
 
-/* Footer 固定底部（由 --kb-offset 追隨鍵盤） */
+/* Composer 固定底部（鍵盤頂起） */
 .dmFooter{
   position:fixed;left:0;right:0;bottom:0;z-index:50;
   background:linear-gradient(180deg,rgba(255,255,255,.35),rgba(255,255,255,.96));
   backdrop-filter:blur(10px);border-top:1px solid var(--line);
-  padding:10px 0 calc(10px + var(--safe));
-  transform:translateY(calc(-1 * var(--kb-offset)));
+  padding:10px 0 calc(10px + env(safe-area-inset-bottom));
+  transform:translateY(calc(-1 * var(--kb-offset)));    /* 只跟鍵盤高度走 */
 }
 
-/* 貼底元件：內部墊高 + 錨點 */
+/* 內部量測：threadPad 由 JS 設高，確保訊息不被 footer 蓋住 */
 #threadPad{height:0;flex:0 0 auto;pointer-events:none}
 #endAnchor{height:1px;width:1px;flex:0 0 auto}
 
@@ -176,7 +175,7 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 .dmSend{width:54px;height:42px;border:none;border-radius:14px;background:linear-gradient(180deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center}
 .dmSend svg{width:22px;height:22px;stroke:#fff;fill:#fff}
 
-/* 右上選單 */
+/* 右上 … 選單 */
 #dmMenu{position:fixed;right:12px;top:64px;display:none;z-index:70}
 #dmMenu .row{flex-direction:column;gap:6px}
 
@@ -188,7 +187,7 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 .cropCtrls{display:flex;align-items:center;gap:10px;margin:12px 0}
 .cropCtrls .spacer{flex:1}
 
-/* misc */
+/* 其他小工具 */
 .badge{background:#ff3b30;color:#fff;font-size:12px;padding:2px 7px;border-radius:999px;min-width:22px;text-align:center}
 </style>
 </head>
@@ -239,7 +238,11 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
     <button class="hudBtn" title="更多" onclick="toggleDmMenu()">⋯</button>
   </div>
 
-  <div id="dmThread" class="thread"></div>
+  <!-- 關鍵：錨點一開始就存在 -->
+  <div id="dmThread" class="thread">
+    <div id="threadPad"></div>
+    <div id="endAnchor"></div>
+  </div>
 
   <!-- Footer -->
   <div class="dmFooter">
@@ -255,7 +258,7 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
     </div>
   </div>
 
-  <!-- 右上選單 -->
+  <!-- 右上 … 選單 -->
   <div id="dmMenu" class="card soft">
     <div class="row" style="flex-direction:column;gap:6px">
       <button class="chip" onclick="renameChat(); hideDmMenu()">更改聊天室名稱</button>
@@ -316,6 +319,15 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
   </div>
 </section>
 
+<!-- ====================== Live / Store 佔位頁（避免點了壞掉） ====================== -->
+<section id="live" class="page">
+  <div class="card soft"><b>直播（佔位頁）</b><div class="ghost" style="margin-top:6px">之後接正式資料。</div></div>
+</section>
+
+<section id="store" class="page">
+  <div class="card soft"><b>商店（佔位頁）</b><div class="ghost" style="margin-top:6px">之後接正式資料。</div></div>
+</section>
+
 <!-- ====================== Bottom Nav ====================== -->
 <nav id="nav">
   <button id="tabHome" class="active" onclick="showPage('home')">首頁</button>
@@ -339,7 +351,7 @@ const LS = {
 const fmtTime = ts => new Date(ts).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
 const escapeHtml = s => (s||'').toString().replace(/[&<>"']/g, m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;" }[m]));
 
-/* 舞台名/暱稱/頭像 */
+/* 舞台名（大寫）、暱稱（DM 顯示）、頭像 */
 const STAGE_NAME = LS.getStr('artistStage','ANNIE');
 let   NICKNAME   = LS.getStr('artistNickname','Annie');
 let   AVATAR     = LS.getStr('artistAvatar','https://picsum.photos/80?u=artist');
@@ -383,9 +395,8 @@ function showPage(id){
   if(id==='home'){ renderStoryBar(); renderFeed(currentFilter); }
   if(id==='dm'){ renderDmList(); }
   if(id==='dmDetail'){
-    renderThread(); applyChatBg();
-    autoStick=true;               // 進聊天室默認貼底
-    ensureBottomDuring(1000);
+    renderThread(); applyChatBg(); updateFooterSpace();
+    autoStick=true; ensureBottomDuring(1200); // 進入聊天室，強韌貼底
     bindBottomObserver();
   }
   if(id==='composerArtist'){ document.getElementById('composerWho').textContent=NICKNAME; }
@@ -481,50 +492,10 @@ function renderDmList(){
     </div><span></span></div>`;
 }
 
-/* ---------- DM Thread（含貼底元件） ---------- */
+/* ---------- DM Thread ---------- */
 let replyDraft=null;
-let autoStick=true;          // 是否跟隨底部（使用者上捲時會自動變 false）
-let __kbOffset=0;            // 鍵盤佔用高度（visualViewport 估算）
-
-function anchor(){ return document.getElementById('endAnchor'); }
-function updateBottomPad(){
-  const footer=document.querySelector('.dmFooter');
-  const pad   =document.getElementById('threadPad');
-  if(!footer||!pad) return;
-  const h=Math.ceil(footer.getBoundingClientRect().height);
-  pad.style.height=(h + (__kbOffset||0))+'px';
-}
-function stickBottomHard(){
-  const t=document.getElementById('dmThread'); if(!t) return;
-  anchor()?.scrollIntoView({block:'end'});
-  t.scrollTop = t.scrollHeight + 9999;
-}
-function ensureBottomDuring(ms=600){
-  stickBottomHard();
-  if(!autoStick) return;
-  const end=performance.now()+ms;
-  (function loop(){
-    if(!autoStick) return;
-    stickBottomHard();
-    if(performance.now()<end) requestAnimationFrame(loop);
-  })();
-}
-function bindBottomObserver(){
-  const t=document.getElementById('dmThread'), a=anchor();
-  if(!t||!a) return;
-  try{
-    new IntersectionObserver(es=>{
-      const e=es[0]; autoStick = e.isIntersecting && e.intersectionRatio>=0.96;
-    }, {root:t, threshold:[0.01,0.5,0.96], rootMargin:'0px 0px -1px 0px'}).observe(a);
-  }catch(_){
-    const near=()=> ((t.scrollHeight - t.clientHeight) - t.scrollTop) < 4;
-    autoStick = near(); t.addEventListener('scroll', ()=>{ autoStick=near(); }, {passive:true});
-  }
-}
-
 function renderThread(){
   const box=document.getElementById('dmThread'); box.innerHTML='';
-
   GROUP_MSGS.forEach(m=>{
     const wrap=document.createElement('div');
     wrap.className='msg '+(m.from==='artist'?'right':'left');
@@ -558,25 +529,27 @@ function renderThread(){
         document.getElementById('replyChip').style.display='flex';
         document.getElementById('replyChipText').textContent=m.text.slice(0,42);
         document.getElementById('dmMessageInput').focus();
-        ensureBottomDuring(600);
+        ensureBottomDuring(400);
       };
       bubble.appendChild(btn);
     }
   });
 
-  /* 關鍵：在串尾加上墊高與錨點 */
-  const pad=document.createElement('div');  pad.id='threadPad';
-  const end=document.createElement('div');  end.id='endAnchor';
-  box.append(pad,end);
+  // 關鍵：內部墊高 + 貼底錨點
+  const pad = document.getElementById('threadPad');
+  const end = document.getElementById('endAnchor');
+  if(!pad) { const p=document.createElement('div'); p.id='threadPad'; box.appendChild(p); }
+  if(!end) { const e=document.createElement('div'); e.id='endAnchor'; box.appendChild(e); }
 
   updateBottomPad();
-  ensureBottomDuring(800);
+  ensureBottomDuring(600);
+  bindBottomObserver();
 }
 
 function clearReply(){
   replyDraft=null;
   document.getElementById('replyChip').style.display='none';
-  updateBottomPad(); ensureBottomDuring(400);
+  updateFooterSpace(); ensureBottomDuring(400);
 }
 
 function sendArtistMsg(){
@@ -586,20 +559,22 @@ function sendArtistMsg(){
   GROUP_MSGS.push({id:'u'+Date.now(),from:'artist',text:t,ts:Date.now(),replyTo:replyDraft?{text:replyDraft.text}:null});
   LS.set('groupMsgs', GROUP_MSGS);
   inp.value=''; clearReply(); renderThread(); renderDmList();
-  ensureBottomDuring(800);
+  updateFooterSpace(); ensureBottomDuring(600);
 }
 document.getElementById('dmSendBtn').addEventListener('click', sendArtistMsg);
 document.getElementById('dmMessageInput').addEventListener('keydown', e=>{
   if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); sendArtistMsg(); }
 });
 
-/* ---------- DM 菜單 & 改名 ---------- */
+/* ---------- DM 菜單 ---------- */
 function toggleDmMenu(){ const m=document.getElementById('dmMenu'); m.style.display=(m.style.display==='block')?'none':'block'; }
 function hideDmMenu(){ document.getElementById('dmMenu').style.display='none'; }
 document.addEventListener('click',(e)=>{
   const m=document.getElementById('dmMenu');
   if(m.style.display==='block'&&!m.contains(e.target)&&!e.target.closest('.hudBtn')) hideDmMenu();
 });
+
+/* ---------- 改名 ---------- */
 function renameChat(){
   const cur=getRoomTitle(); const n=prompt('更改聊天室名稱（同：藝人暱稱）', cur); if(!n) return;
   NICKNAME=n.trim()||cur; LS.setStr('artistNickname', NICKNAME);
@@ -608,7 +583,7 @@ function renameChat(){
   document.getElementById('composerWho').textContent=NICKNAME; renderDmList();
 }
 
-/* ---------- 背景（裁切/預覽/套用） ---------- */
+/* ---------- 背景 ---------- */
 let cropDataURL='', cropDeg=0, cropScale=1.4;
 const chooser=document.getElementById('bgChooser');
 function startPickBg(){ chooser.click(); }
@@ -643,6 +618,59 @@ function applyChatBg(){
     el.style.backgroundImage=`url("${url}")`;
     el.style.setProperty('--bgDim', dim/100);
     el.style.setProperty('--bgBlur', `${blur}px`);
+  }
+}
+
+/* ---------- footer 高度量測 & 自動貼底（新版） ---------- */
+/* 由 footer 高度 + 鍵盤佔用（__kbOffset）來墊高 threadPad */
+let __kbOffset = 0;                // 只含鍵盤，不含工具列
+let autoStick = true;
+
+function updateBottomPad(){
+  const footer = document.querySelector('.dmFooter');
+  const pad    = document.getElementById('threadPad');
+  if(!footer || !pad) return;
+  const h = Math.ceil(footer.getBoundingClientRect().height);
+  pad.style.height = (h + (__kbOffset||0)) + 'px';
+}
+
+/* 舊接口保留，對外仍叫 updateFooterSpace */
+function updateFooterSpace(){ updateBottomPad(); }
+
+function anchor(){ return document.getElementById('endAnchor'); }
+function overflowed(t){ return t && (t.scrollHeight - t.clientHeight) > 8; }
+function atBottom(t){ return Math.abs((t.scrollHeight - t.clientHeight) - t.scrollTop) < 8; }
+
+function stickBottomHard(){
+  const t = document.getElementById('dmThread'); if(!t) return;
+  anchor()?.scrollIntoView({block:'end'});
+  t.scrollTop = t.scrollHeight + 9999;
+}
+
+function ensureBottomDuring(ms=600){
+  stickBottomHard();
+  if(!autoStick) return;
+  const end = performance.now() + ms;
+  (function loop(){
+    if(!autoStick) return;
+    stickBottomHard();
+    if(performance.now() < end) requestAnimationFrame(loop);
+  })();
+}
+
+function bindBottomObserver(){
+  const t = document.getElementById('dmThread'), a = anchor();
+  if(!t || !a) return;
+  try{
+    const io = new IntersectionObserver((entries)=>{
+      const e = entries[0];
+      autoStick = e.isIntersecting && e.intersectionRatio >= 0.96;
+    }, { root:t, threshold:[0.01,0.5,0.96], rootMargin:'0px 0px -1px 0px' });
+    io.observe(a);
+  }catch(_){
+    const nearBottom = () => ((t.scrollHeight - t.clientHeight) - t.scrollTop) < 4;
+    autoStick = nearBottom();
+    t.addEventListener('scroll', ()=>{ autoStick = nearBottom(); }, {passive:true});
   }
 }
 
@@ -681,30 +709,49 @@ document.addEventListener('DOMContentLoaded', ()=>{
   document.getElementById('meAvatar').src=AVATAR;
 
   renderStoryBar(); renderFeed(currentFilter); renderDmList();
+  document.addEventListener('keydown', e=>{ if(e.key==='Escape') hideDmMenu(); });
 
   const input=document.getElementById('dmMessageInput');
   if(input){
-    const rebound=()=>setTimeout(()=>ensureBottomDuring(600),60);
-    input.addEventListener('focus', rebound);
-    input.addEventListener('click',  rebound);
+    const scrollToBottom=()=>setTimeout(()=>ensureBottomDuring(600),60);
+    input.addEventListener('focus', scrollToBottom);
+    input.addEventListener('click',  scrollToBottom);
   }
+
+  updateFooterSpace(); ensureBottomDuring(1200);
 });
 
-/* ---------- iOS / Safari：visualViewport 追蹤鍵盤 ---------- */
+/* 監看 footer 高度變化（高度變就更新墊高） */
+(()=>{ const footer=document.querySelector('.dmFooter'); if(!footer) return;
+  if('ResizeObserver' in window){ new ResizeObserver(()=>{ updateFooterSpace(); ensureBottomDuring(600); }).observe(footer); }
+  else{ let last=0; setInterval(()=>{ const h=footer.getBoundingClientRect().height|0; if(h!==last){ last=h; updateFooterSpace(); ensureBottomDuring(600);} },500); }
+})();
+
+/* ===== iOS / Safari 鍵盤修正：只計「鍵盤」高度，不把工具列算進來 =====
+   offset = innerHeight - (visualViewport.height + visualViewport.offsetTop)
+   沒鍵盤時 ≈ 0；出現鍵盤時才變大。 */
 (function(){
-  const vv=window.visualViewport;
-  function applyVV(){
-    if(!vv) return;
-    __kbOffset = Math.max(0, window.innerHeight - vv.height);
-    document.documentElement.style.setProperty('--kb-offset', __kbOffset + 'px');
+  const vv = window.visualViewport;
+  function computeKbOffset(){
+    if(!vv) return 0;
+    const occluded = window.innerHeight - vv.height - vv.offsetTop;
+    return Math.max(0, Math.round(occluded));
+  }
+  function apply(){
+    const off = computeKbOffset();
+    __kbOffset = off;                                        // 給 JS 用來設 threadPad
+    document.documentElement.style.setProperty('--kb-offset', off + 'px'); // 給 CSS 往上抬 footer
     updateBottomPad();
     setTimeout(()=>ensureBottomDuring(600),30);
   }
-  if(vv){ vv.addEventListener('resize', applyVV); vv.addEventListener('scroll', applyVV); applyVV(); }
-  window.addEventListener('resize', ()=>{ updateBottomPad(); ensureBottomDuring(600); });
-  window.addEventListener('orientationchange', ()=>{ setTimeout(()=>{ updateBottomPad(); ensureBottomDuring(800); },120); });
-  window.addEventListener('pageshow', ()=>{ updateBottomPad(); ensureBottomDuring(800); });
-  document.addEventListener('visibilitychange', ()=>{ if(!document.hidden){ ensureBottomDuring(600); } });
+  if(vv){ vv.addEventListener('resize', apply); vv.addEventListener('scroll', apply); }
+  window.addEventListener('resize', apply);
+  window.addEventListener('orientationchange', ()=>setTimeout(apply,120));
+  window.addEventListener('pageshow', apply);
+  document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) apply(); });
+  if(document.fonts && document.fonts.ready){ document.fonts.ready.then(()=>setTimeout(apply,50)); }
+  window.addEventListener('load', ()=>setTimeout(apply,80));
+  apply(); // 初始跑一次
 })();
 </script>
 </body>
