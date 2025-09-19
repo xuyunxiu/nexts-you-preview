@@ -87,7 +87,7 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 .nameRow{display:flex;align-items:center;gap:8px}
 .nameRow .stage{font-weight:900;letter-spacing:.3px}
 
-/* ======= 方框 ARTIST 勳章（縮小版） ======= */
+/* ======= 方框 ARTIST 勳章（小） ======= */
 .artistTag{
   display:inline-flex;align-items:center;justify-content:center;
   padding:3px 8px;border-radius:6px;
@@ -132,6 +132,7 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
   height:calc(100dvh - 230px);
   overflow-y:auto;padding:8px 2px;
   -webkit-overflow-scrolling:touch;
+  scrollbar-gutter:stable both-edges; /* 避免顯示/隱藏捲軸造成位移 */
 }
 @supports (height: 100svh){
   .thread{ height:calc(100svh - 230px); }
@@ -394,7 +395,8 @@ function showPage(id){
     renderThread();
     applyChatBg();
     updateFooterSpace();
-    ensureBottom(4);   // 進入聊天室時多次貼底，抗抖動
+    autoStick = true;                                   // 進入聊天室，允許自動貼底
+    ensureBottomDuring(1200);                           // 高韌性連續貼底
   }
   if(id==='composerArtist'){ document.getElementById('composerWho').textContent = NICKNAME; }
 }
@@ -562,20 +564,20 @@ function renderThread(){
         document.getElementById('replyChipText').textContent = m.text.slice(0, 42);
         document.getElementById('dmMessageInput').focus();
         updateFooterSpace();
-        ensureBottom(2);
+        ensureBottomDuring(600);
       };
       bubble.appendChild(btn);
     }
   });
 
-  ensureBottom(2);
+  ensureBottomDuring(600);
 }
 
 function clearReply(){
   replyDraft = null;
   document.getElementById('replyChip').style.display='none';
   updateFooterSpace();
-  ensureBottom(2);
+  ensureBottomDuring(400);
 }
 
 function sendArtistMsg(){
@@ -586,7 +588,7 @@ function sendArtistMsg(){
   LS.set('groupMsgs', GROUP_MSGS);
   inp.value=''; clearReply(); renderThread(); renderDmList();
   updateFooterSpace();
-  ensureBottom(2);
+  ensureBottomDuring(600);
 }
 
 document.getElementById('dmSendBtn').addEventListener('click', sendArtistMsg);
@@ -663,22 +665,52 @@ function applyChatBg(){
   }
 }
 
-/* ---------- 量測 footer 高度 & 貼底工具 ---------- */
+/* ---------- 量測 footer 高度 & 自動貼底 ---------- */
 function updateFooterSpace(){
   const f = document.querySelector('.dmFooter');
   if(!f) return;
   const h = Math.ceil(f.getBoundingClientRect().height);
   document.documentElement.style.setProperty('--footer-h', h + 'px');
 }
-function stickBottom(){
-  const t = document.getElementById('dmThread');
-  if (t) t.scrollTop = t.scrollHeight;
+
+/* 判斷是否需要貼底（訊息是否超過一頁） */
+function overflowed(t){ return t && (t.scrollHeight - t.clientHeight) > 8; }
+function atBottom(t){ return Math.abs((t.scrollHeight - t.clientHeight) - t.scrollTop) < 8; }
+
+/* 盡量把捲軸壓到底（雙保險） */
+function stickBottomHard(){
+  const t = document.getElementById('dmThread'); if(!t) return;
+  if(!overflowed(t)) return; // 沒超過一頁就不用貼
+  t.scrollTop = t.scrollHeight + 9999;
+  if(!atBottom(t)) t.lastElementChild?.scrollIntoView({block:'end'});
 }
-function ensureBottom(times=3){
-  stickBottom();
-  for(let i=1;i<times;i++){
-    setTimeout(stickBottom, 50*i);
+
+/* 連續一段時間內持續貼到底，避免 Safari 佈局/圖片載入抖動 */
+function ensureBottomDuring(ms=800){
+  if(!autoStick) return;
+  const t = document.getElementById('dmThread'); if(!t) return;
+  const end = performance.now() + ms;
+  function loop(){
+    if(!autoStick) return;
+    stickBottomHard();
+    if(performance.now() < end) requestAnimationFrame(loop);
   }
+  requestAnimationFrame(loop);
+}
+
+/* 根據使用者捲動狀態決定是否自動貼底 */
+let autoStick = true;
+(function bindScrollGuard(){
+  const t = document.getElementById('dmThread');
+  if(!t) return;
+  t.addEventListener('scroll', ()=>{ autoStick = atBottom(t) || !overflowed(t); }, {passive:true});
+})();
+
+/* 監看 thread DOM 變動（新訊息/圖片載入）自動貼底 */
+function watchThreadMutations(){
+  const t = document.getElementById('dmThread'); if(!t) return;
+  const mo = new MutationObserver(()=>{ if(autoStick) ensureBottomDuring(600); });
+  mo.observe(t, {childList:true, subtree:false});
 }
 
 /* ---------- Composer ---------- */
@@ -691,11 +723,11 @@ function previewComposeMedia(e){
   [...e.target.files].forEach(f=>{
     const url = URL.createObjectURL(f);
     const isVideo = f.type.startsWith('video/');
-    const el = document.createElement(isVideo?'video':'img');
-    el.src = url; el.controls = isVideo;
-    el.onload = el.onloadeddata = ()=>URL.revokeObjectURL(url);
-    el.style.width='110px'; el.style.height='110px'; el.style.objectFit='cover'; el.style.borderRadius='12px'; el.style.border='1px solid var(--line)';
-    box.appendChild(el);
+    theEl = document.createElement(isVideo?'video':'img');
+    theEl.src = url; theEl.controls = isVideo;
+    theEl.onload = theEl.onloadeddata = ()=>URL.revokeObjectURL(url);
+    theEl.style.width='110px'; theEl.style.height='110px'; theEl.style.objectFit='cover'; theEl.style.borderRadius='12px'; theEl.style.border='1px solid var(--line)';
+    box.appendChild(theEl);
   });
 }
 function publishDraft(){ alert('先存草稿＆預覽；發佈規則等我們接首頁串流。'); showPage('home'); }
@@ -728,13 +760,14 @@ document.addEventListener('DOMContentLoaded', ()=>{
 
   const input  = document.getElementById('dmMessageInput');
   if (input) {
-    const scrollToBottom = () => setTimeout(()=>ensureBottom(2), 60);
+    const scrollToBottom = () => setTimeout(()=>ensureBottomDuring(600), 60);
     input.addEventListener('focus', scrollToBottom);
     input.addEventListener('click',  scrollToBottom);
   }
 
   updateFooterSpace();
-  ensureBottom(3);
+  ensureBottomDuring(1200);
+  watchThreadMutations();
 });
 
 /* 監看 .dmFooter 高度變化 */
@@ -742,12 +775,12 @@ document.addEventListener('DOMContentLoaded', ()=>{
   const footer = document.querySelector('.dmFooter');
   if (!footer) return;
   if (typeof ResizeObserver !== 'undefined') {
-    new ResizeObserver(() => { updateFooterSpace(); ensureBottom(2); }).observe(footer);
+    new ResizeObserver(() => { updateFooterSpace(); ensureBottomDuring(600); }).observe(footer);
   } else {
     let lastH = 0;
     setInterval(() => {
       const h = footer.getBoundingClientRect().height|0;
-      if (h !== lastH) { lastH = h; updateFooterSpace(); ensureBottom(2); }
+      if (h !== lastH) { lastH = h; updateFooterSpace(); ensureBottomDuring(600); }
     }, 500);
   }
 })();
@@ -759,18 +792,20 @@ document.addEventListener('DOMContentLoaded', ()=>{
     if(!vv) return;
     const offset = Math.max(0, window.innerHeight - vv.height);
     document.documentElement.style.setProperty('--kb-offset', offset + 'px');
-    setTimeout(()=>ensureBottom(2), 30);
+    setTimeout(()=>ensureBottomDuring(600), 30);
   }
   if(vv){
     vv.addEventListener('resize', applyVV);
     vv.addEventListener('scroll',  applyVV);
     applyVV();
   }
-  // 其他可能影響高度的情境
-  window.addEventListener('resize', ()=>{ updateFooterSpace(); ensureBottom(2); });
-  window.addEventListener('orientationchange', ()=>{ setTimeout(()=>{ updateFooterSpace(); ensureBottom(3); }, 120); });
-  window.addEventListener('pageshow', ()=>{ updateFooterSpace(); ensureBottom(3); });
-  document.addEventListener('visibilitychange', ()=>{ if(!document.hidden){ ensureBottom(2); } });
+  window.addEventListener('resize', ()=>{ updateFooterSpace(); ensureBottomDuring(600); });
+  window.addEventListener('orientationchange', ()=>{ setTimeout(()=>{ updateFooterSpace(); ensureBottomDuring(800); }, 120); });
+  window.addEventListener('pageshow', ()=>{ updateFooterSpace(); ensureBottomDuring(800); });
+  document.addEventListener('visibilitychange', ()=>{ if(!document.hidden){ ensureBottomDuring(600); } });
+  // 等字型/圖片載入完成再補一次
+  if (document.fonts && document.fonts.ready) { document.fonts.ready.then(()=>ensureBottomDuring(800)); }
+  window.addEventListener('load', ()=>ensureBottomDuring(1000));
 })();
 </script>
 </body>
