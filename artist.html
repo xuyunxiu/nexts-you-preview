@@ -159,8 +159,9 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
   padding:10px 0 calc(10px + env(safe-area-inset-bottom));
   transform:translateY(calc(-1 * var(--kb-offset,0px)));
 }
-/* 讓對話區為 footer 預留空間（JS 量測寫入 --footer-h） */
-#dmDetail .thread{padding-bottom:calc(var(--footer-h,96px) + var(--kb-offset,0px));}
+/* 11:17 版的貼底元件 */
+#threadPad{height:0;flex:0 0 auto;pointer-events:none}
+#endAnchor{height:1px;width:1px;flex:0 0 auto}
 
 .dmInputBar{display:flex;align-items:center;gap:10px;padding:0 12px}
 .dmInputBar .box{flex:1;min-width:0;display:flex;align-items:center;background:#fff;border:1px solid var(--line);border-radius:22px;height:42px;padding:0 14px}
@@ -694,6 +695,103 @@ document.addEventListener('DOMContentLoaded', ()=>{
   document.addEventListener('visibilitychange', ()=>{ if(!document.hidden){ ensureBottomDuring(600); } });
   if(document.fonts && document.fonts.ready){ document.fonts.ready.then(()=>ensureBottomDuring(800)); }
   window.addEventListener('load', ()=>ensureBottomDuring(1000));
+})();
+// —— Hotfix：回到 11:17 版（threadPad + endAnchor）——
+let __kbOffset = 0;   // 鍵盤佔用高度
+let autoStick  = true;
+
+function updateBottomPad(){
+  const footer = document.querySelector('.dmFooter');
+  const pad    = document.getElementById('threadPad');
+  if(!footer || !pad) return;
+  const h = Math.ceil(footer.getBoundingClientRect().height);
+  pad.style.height = (h + (__kbOffset||0)) + 'px';
+}
+
+// 保留兼容：凡是舊程式呼叫 updateFooterSpace，都導到上面這個
+function updateFooterSpace(){ updateBottomPad(); }
+
+function anchor(){ return document.getElementById('endAnchor'); }
+
+function stickBottomHard(){
+  const t = document.getElementById('dmThread'); if(!t) return;
+  anchor()?.scrollIntoView({block:'end'});
+  t.scrollTop = t.scrollHeight + 9999;
+}
+
+function ensureBottomDuring(ms=600){
+  if(!autoStick) return;
+  const end = performance.now() + ms;
+  function loop(){ if(!autoStick) return; stickBottomHard(); if(performance.now()<end) requestAnimationFrame(loop); }
+  requestAnimationFrame(loop);
+}
+
+function bindBottomObserver(){
+  const t = document.getElementById('dmThread'), a = anchor();
+  if(!t || !a || !('IntersectionObserver' in window)) return;
+  new IntersectionObserver(es=>{ autoStick = es[0].isIntersecting; }, {root:t,threshold:1}).observe(a);
+}
+
+// 覆寫 renderThread：加回 threadPad / endAnchor
+const __renderThreadOld = (typeof renderThread==='function') ? renderThread : null;
+renderThread = function(){
+  const box = document.getElementById('dmThread'); box.innerHTML='';
+  // 用舊的資料渲染（沿用你現有邏輯）
+  GROUP_MSGS.forEach(m=>{
+    const wrap=document.createElement('div');
+    wrap.className='msg '+(m.from==='artist'?'right':'left');
+    const timeEl=document.createElement('div');
+    timeEl.className='time'+(m.from==='artist'?'':' dark');
+    timeEl.textContent = new Date(m.ts).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+    const bubble=document.createElement('div'); bubble.className='bubble';
+    if(m.from==='fan'){
+      const lab=document.createElement('div'); lab.className='fromLabel'; lab.textContent='FROM FAN';
+      const txt=document.createElement('div'); txt.className='fanText';
+      txt.textContent = m.text;
+      bubble.append(lab,txt);
+    }else{
+      bubble.textContent = m.text;
+    }
+    wrap.append(bubble,timeEl); box.appendChild(wrap);
+    if(m.from==='artist' && m.replyTo && m.replyTo.text){
+      const rc=document.createElement('div'); rc.className='replyCard';
+      rc.innerHTML=`<div class="fromLabel">FROM FAN</div><div class="fanText">${m.replyTo.text}</div>`;
+      box.appendChild(rc);
+    }
+    if(m.from==='fan'){
+      const btn=document.createElement('button'); btn.className='replyBtn';
+      btn.innerHTML=`<svg viewBox="0 0 24 24"><path d="M12 4l-1.4 1.4L16.2 11H4v2h12.2l-5.6 5.6L12 20l8-8z" fill="currentColor"/></svg>`;
+      btn.onclick=()=>{ replyDraft={text:m.text};
+        document.getElementById('replyChip').style.display='flex';
+        document.getElementById('replyChipText').textContent=m.text.slice(0,42);
+        document.getElementById('dmMessageInput').focus();
+        ensureBottomDuring(400);
+      };
+      bubble.appendChild(btn);
+    }
+  });
+  // 這兩個是關鍵：內部墊高 + 貼底錨點
+  const pad = document.createElement('div');   pad.id   = 'threadPad';
+  const end = document.createElement('div');   end.id   = 'endAnchor';
+  box.append(pad,end);
+
+  updateBottomPad();
+  ensureBottomDuring(600);
+  bindBottomObserver();
+};
+
+// 視覺視窗（鍵盤/工具列）變動時，更新 __kbOffset 並貼底
+(function(){
+  const vv = window.visualViewport;
+  function applyVV(){
+    if(!vv) return;
+    __kbOffset = Math.max(0, window.innerHeight - vv.height);
+    document.documentElement.style.setProperty('--kb-offset', __kbOffset + 'px');
+    updateBottomPad();
+    setTimeout(()=>ensureBottomDuring(600),30);
+  }
+  if(vv){ vv.addEventListener('resize', applyVV); vv.addEventListener('scroll', applyVV); applyVV(); }
+  window.addEventListener('resize', ()=>{ updateBottomPad(); ensureBottomDuring(600); });
 })();
 </script>
 </body>
