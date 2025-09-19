@@ -28,14 +28,12 @@ img{display:block;max-width:100%} a{text-decoration:none;color:inherit} button{f
 /* pages */
 section.page{
   display:none;
-  padding:12px 12px calc(76px + var(--safe) + var(--kb-offset, 0px));
+  padding:12px 12px 76px;  /* 底部空間改由 threadPad 控制，這裡不再吃變數 */
   min-height: 100dvh;
 }
 section.page.active{display:block;animation:fade .22s ease}
 @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-@supports (height: 100svh){
-  section.page{ min-height: 100svh; }
-}
+@supports (height: 100svh){ section.page{ min-height: 100svh; } }
 
 /* bottom nav */
 nav#nav{
@@ -53,94 +51,50 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 #homeHeader .me img{width:44px;height:44px;border-radius:50%;object-fit:cover;border:1px solid var(--line)}
 #homeHeader .me .id{font-size:12px;color:var(--ghost)}
 
-/* Verified 徽章（12 瓣） */
-.verified-badge{display:inline-block;width:18px;height:18px;margin-left:6px;vertical-align:middle}
-.verified-badge svg{width:100%;height:100%;display:block}
-.verified-badge .gear{stroke:#fff; stroke-width:.9;filter:drop-shadow(0 1px 2px rgba(0,0,0,.25))}
-.verified-badge .tick{fill:#fff;filter:drop-shadow(0 1px 0 rgba(0,0,0,.18))}
-
-/* story bar */
-#storyWrap{position:sticky;top:0;z-index:5;background:linear-gradient(180deg,rgba(245,247,255,.96),rgba(245,247,255,.90));backdrop-filter:blur(6px)}
-#storyBar{display:flex;gap:12px;overflow-x:auto;padding:10px 8px 12px;border-bottom:1px solid var(--line);scrollbar-width:none}
-#storyBar::-webkit-scrollbar{display:none}
-.story-item{flex:0 0 auto;width:64px;text-align:center;cursor:pointer;position:relative}
-.story-item img{width:56px;height:56px;border-radius:50%;object-fit:cover;border:2px solid #d5d8f3}
-.story-item .name{font-size:12px;margin-top:4px;color:#9aa1ad}
-.story-item.active img{border-color:var(--accent);box-shadow:0 0 0 2px rgba(106,90,205,.18)}
-.story-item.active .name{color:var(--accent);font-weight:700}
-.story-item .dot{position:absolute;right:6px;top:2px;width:8px;height:8px;background:var(--danger);border-radius:50%;box-shadow:0 0 0 2px #fff}
-.story-item.pinned img{border-color:#111}
-
-/* post card */
-.post{margin:12px 6px}
-.post .hdr{display:flex;align-items:center;gap:10px}
-.post .avatar{width:44px;height:44px;border-radius:50%;object-fit:cover;border:1px solid var(--line)}
-.post .meta b{font-weight:900;display:flex;align-items:center;gap:6px}
-.post .meta small{display:block;color:var(--ghost)}
-.post .body{margin-top:8px}
-.post .hero{width:100%;height:360px;object-fit:cover;border-radius:12px;border:1px solid var(--line)}
-
-/* DM 列表 */
-#dm .dmCard{display:flex;align-items:center;gap:12px;justify-content:space-between;padding:12px;border:1px solid var(--line);border-radius:14px;background:var(--card);margin:10px 0;cursor:pointer}
-#dm .dmCard img{width:52px;height:52px;border-radius:50%;object-fit:cover;border:1px solid var(--line)}
-.nameBlock{display:flex;flex-direction:column;gap:6px}
-.nameRow{display:flex;align-items:center;gap:8px}
-.nameRow .stage{font-weight:900;letter-spacing:.3px}
-
-/* ======= 方框 ARTIST 勳章（小） ======= */
+/* ——— 方框 ARTIST 勳章（紫藍白） ——— */
 .artistTag{
   display:inline-flex;align-items:center;justify-content:center;
   padding:3px 8px;border-radius:6px;
   font-size:10px;font-weight:900;letter-spacing:.6px;text-transform:uppercase;
   color:#2e2a6f;
-  background:linear-gradient(90deg,#bca7ff 0%,#8fb4ff 64%,#ffffff 100%);
-  border:1px solid #ded6ff;
-  box-shadow:0 1px 6px rgba(106,90,205,.18);
+  background:linear-gradient(90deg,#cbb9ff 0%, #8fb4ff 62%, #ffffff 100%);
+  border:1px solid #ded6ff; box-shadow:0 1px 6px rgba(106,90,205,.18);
 }
 
 /* ===== DM Detail ===== */
 .chatHUD{display:flex;align-items:center;justify-content:space-between;padding:4px 0 8px}
 .chatHUD .center{flex:1;min-width:0}
-
-/* 讓徽章在上、名字在下（縮小） */
 .titleCol{display:flex;flex-direction:column;align-items:flex-start;gap:4px}
 .artistName{font-weight:900;letter-spacing:.6px;font-size:18px}
 
-/* 右上 ... 保持白底 */
+/* 右上 ... 白底 */
 .hudBtn{width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--card)}
 
-/* 返回鍵：只有箭頭、無白底 */
-.back{
-  width:44px;height:44px;border:none;background:transparent;border-radius:0;padding:0;display:grid;place-items:center;
-}
+/* 返回鍵：只有箭頭、無底 */
+.back{width:44px;height:44px;border:none;background:transparent;border-radius:0;padding:0;display:grid;place-items:center}
 .back svg{width:22px;height:22px;stroke:#5b6ab0;stroke-width:2.6;fill:none}
 
 /* 背景固定 */
 #dmDetail{
-  position:relative; background-color:#000; 
+  position:relative;background:#000;
   background-position:center;background-repeat:no-repeat;background-size:cover;background-attachment:fixed;
 }
-#dmDetail::after{
-  content:""; position:fixed; inset:0; pointer-events:none; 
-  background:rgba(0,0,0,var(--bgDim,.0));
-  backdrop-filter:blur(var(--bgBlur,0px)); z-index:-1;
-}
+#dmDetail::after{content:"";position:fixed;inset:0;pointer-events:none;background:rgba(0,0,0,var(--bgDim,.0));backdrop-filter:blur(var(--bgBlur,0px));z-index:-1}
 
-/* thread —— 讓時間在左右側 */
+/* thread */
 .thread{
   display:flex;flex-direction:column;gap:12px;
   height:calc(100dvh - 230px);
   overflow-y:auto;padding:8px 2px;
   -webkit-overflow-scrolling:touch;
-  scrollbar-gutter:stable both-edges; /* 避免顯示/隱藏捲軸造成位移 */
+  overflow-anchor:none;               /* 關掉捲動錨定，避免半空中 */
+  scrollbar-gutter:stable both-edges;
 }
-@supports (height: 100svh){
-  .thread{ height:calc(100svh - 230px); }
-}
+@supports (height: 100svh){ .thread{height:calc(100svh - 230px);} }
 .msg{display:flex;align-items:flex-end;gap:8px;max-width:88%;margin:0 6px}
 .msg.left{flex-direction:row;align-self:flex-start}
 .msg.right{flex-direction:row-reverse;align-self:flex-end}
-.time{font-size:11px;color:rgba(255,255,255,.88); text-shadow:0 1px 2px rgba(0,0,0,.35)}
+.time{font-size:11px;color:rgba(255,255,255,.88);text-shadow:0 1px 2px rgba(0,0,0,.35)}
 .time.dark{color:#8b93a7}
 .bubble{max-width:100%;padding:10px 12px;border-radius:16px;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.92);position:relative}
 .msg.right .bubble{background:linear-gradient(180deg,var(--accent),var(--accent2));color:#fff;border-color:transparent}
@@ -165,15 +119,12 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 
 /* Composer 固定底部 */
 .dmFooter{
-  position: fixed; left: 0; right: 0; bottom: 0; z-index: 50;
+  position:fixed;left:0;right:0;bottom:0;z-index:50;
   background:linear-gradient(180deg,rgba(255,255,255,.35),rgba(255,255,255,.96));
-  backdrop-filter:blur(10px); border-top:1px solid var(--line);
+  backdrop-filter:blur(10px);border-top:1px solid var(--line);
   padding:10px 0 calc(10px + env(safe-area-inset-bottom));
-  transform: translateY(calc(-1 * var(--kb-offset, 0px)));
+  transform:translateY(calc(-1 * var(--kb-offset, 0px)));
 }
-
-/* 對話區底部預留空間 */
-#dmDetail .thread{ padding-bottom: calc(var(--footer-h, 96px) + var(--kb-offset, 0px)); }
 .dmInputBar{display:flex;align-items:center;gap:10px;padding:0 12px}
 .dmInputBar .box{flex:1;min-width:0;display:flex;align-items:center;background:#fff;border:1px solid var(--line);border-radius:22px;height:42px;padding:0 14px}
 .dmInputBar input{flex:1;border:none;outline:none;background:transparent;font-size:17px}
@@ -184,7 +135,7 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 #dmMenu{position:fixed;right:12px;top:64px;display:none;z-index:70}
 #dmMenu .row{flex-direction:column;gap:6px}
 
-/* ---------- 新背景流程 Modal ---------- */
+/* Modal（背景裁切） */
 .modal{position:fixed;inset:0;z-index:80;display:none;background:rgba(0,0,0,.45)}
 .modal .panel{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%); width:min(760px,94vw);background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px;box-shadow:var(--shadow)}
 #cropStage{height:58vh;border:1px dashed var(--line);border-radius:12px;display:grid;place-items:center;overflow:hidden;background:#f8f9ff}
@@ -194,6 +145,10 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 
 /* 小工具 */
 .badge{background:#ff3b30;color:#fff;font-size:12px;padding:2px 7px;border-radius:999px;min-width:22px;text-align:center}
+
+/* 內容內部墊高器與錨點 */
+#threadPad{height:0;flex:0 0 auto;pointer-events:none}
+#endAnchor{height:1px;width:1px;flex:0 0 auto}
 </style>
 </head>
 <body>
@@ -344,85 +299,74 @@ const LS = {
 const fmtTime = ts => new Date(ts).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
 const escapeHtml = s => (s||'').toString().replace(/[&<>"']/g, m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;" }[m]));
 
-/* 系統舞台名（固定大寫）、暱稱（DM 專用） */
+/* 變數 */
 const STAGE_NAME = LS.getStr('artistStage','ANNIE');
 let   NICKNAME   = LS.getStr('artistNickname','Annie');
 let   AVATAR     = LS.getStr('artistAvatar','https://picsum.photos/80?u=artist');
 const ME = { id:'me', name:STAGE_NAME, avatar:AVATAR };
+let __kbOffset = 0; // 視覺視窗鍵盤占用高度（供 threadPad 使用）
 
-/* ---------- 假資料 ---------- */
-const ARTISTS = [
-  {id:'me',  name:STAGE_NAME, avatar:AVATAR},
-  {id:'all', name:'ALL',   avatar:'https://picsum.photos/80?u=all'},
-  {id:'dohee', name:'DOHEE', avatar:'https://picsum.photos/80?u=dh'},
-  {id:'woo',   name:'WOOCHAN', avatar:'https://picsum.photos/80?u=wc'}
-];
-const POSTS = LS.get('artistPosts', [
-  { id:'p3', artistId:'dohee', artistStage:'DOHEE',   avatar:'https://picsum.photos/80?u=dh', text:'練舞練到爆汗 💃', img:'https://picsum.photos/1200?u=dh1', ts: Date.now()-1000*60*40 },
-  { id:'p2', artistId:'woo',   artistStage:'WOOCHAN', avatar:'https://picsum.photos/80?u=wc', text:'今天吃拉麵 🍜',   img:'https://picsum.photos/1200?u=wc1', ts: Date.now()-1000*60*50 },
-  { id:'p1', artistId:'me',    artistStage:STAGE_NAME, avatar:ME.avatar, text:'大家好，我是 Annie ✨', img:'', ts: Date.now()-1000*60*60 }
+/* 假資料 */
+const ARTISTS=[{id:'me',name:STAGE_NAME,avatar:AVATAR},{id:'all',name:'ALL',avatar:'https://picsum.photos/80?u=all'},{id:'dohee',name:'DOHEE',avatar:'https://picsum.photos/80?u=dh'},{id:'woo',name:'WOOCHAN',avatar:'https://picsum.photos/80?u=wc'}];
+const POSTS = LS.get('artistPosts',[
+  {id:'p3',artistId:'dohee',artistStage:'DOHEE',avatar:'https://picsum.photos/80?u=dh',text:'練舞練到爆汗 💃',img:'https://picsum.photos/1200?u=dh1',ts:Date.now()-1000*60*40},
+  {id:'p2',artistId:'woo',artistStage:'WOOCHAN',avatar:'https://picsum.photos/80?u=wc',text:'今天吃拉麵 🍜',img:'https://picsum.photos/1200?u=wc1',ts:Date.now()-1000*60*50},
+  {id:'p1',artistId:'me',artistStage:STAGE_NAME,avatar:ME.avatar,text:'大家好，我是 Annie ✨',img:'',ts:Date.now()-1000*60*60}
 ]);
-
-const FANS = [
-  {id:'f1', name:'Michelle', avatar:'https://picsum.photos/40?u=f1'},
-  {id:'f2', name:'粉絲 B',   avatar:'https://picsum.photos/40?u=f2'}
-];
-let GROUP_MSGS = LS.get('groupMsgs', [
-  {id:'m1', from:'fan', fanId:'f1', text:'偶像好～', ts:Date.now()-1000*60*45},
-  {id:'m2', from:'fan', fanId:'f2', text:'今天吃什麼？', ts:Date.now()-1000*60*43},
-  {id:'m3', from:'artist', text:'我午餐吃了沙拉 🥗', ts:Date.now()-1000*60*40, replyTo:{text:'今天吃什麼？'}}
+const FANS=[{id:'f1',name:'Michelle',avatar:'https://picsum.photos/40?u=f1'},{id:'f2',name:'粉絲 B',avatar:'https://picsum.photos/40?u=f2'}];
+let GROUP_MSGS=LS.get('groupMsgs',[
+  {id:'m1',from:'fan',fanId:'f1',text:'偶像好～',ts:Date.now()-1000*60*45},
+  {id:'m2',from:'fan',fanId:'f2',text:'今天吃什麼？',ts:Date.now()-1000*60*43},
+  {id:'m3',from:'artist',text:'我午餐吃了沙拉 🥗',ts:Date.now()-1000*60*40,replyTo:{text:'今天吃什麼？'}}
 ]);
 const lastSeen = LS.get('lastSeen', {});
 
 /* ---------- 導航 ---------- */
-const HIDE_NAV_IN = ['dmDetail','composerArtist'];
-let PAGE_STACK = ['home'];
+const HIDE_NAV_IN=['dmDetail','composerArtist'];
+let PAGE_STACK=['home'];
 function showPage(id){
   document.querySelectorAll('section.page').forEach(s=>s.classList.remove('active'));
-  const page = document.getElementById(id); if(page) page.classList.add('active');
+  const page=document.getElementById(id); if(page) page.classList.add('active');
   if(PAGE_STACK[PAGE_STACK.length-1]!==id) PAGE_STACK.push(id);
-
   document.querySelectorAll('#nav button').forEach(b=>b.classList.remove('active'));
   ({home:'tabHome', dm:'tabDM', live:'tabLive', store:'tabStore'}[id] || null) &&
     document.getElementById({home:'tabHome', dm:'tabDM', live:'tabLive', store:'tabStore'}[id]).classList.add('active');
-
-  const nav = document.getElementById('nav');
+  const nav=document.getElementById('nav');
   if(HIDE_NAV_IN.includes(id)) nav.classList.add('hidden'); else nav.classList.remove('hidden');
 
   if(id==='home'){ renderStoryBar(); renderFeed(currentFilter); }
   if(id==='dm'){ renderDmList(); }
   if(id==='dmDetail'){
-    renderThread();
-    applyChatBg();
-    updateFooterSpace();
-    autoStick = true;                                   // 進入聊天室，允許自動貼底
-    ensureBottomDuring(1200);                           // 高韌性連續貼底
+    renderThread(); applyChatBg();
+    updateBottomPad();
+    autoStick=true; ensureBottomDuring(1000);
+    bindBottomObserver(); // 以錨點可視性判斷是否持續貼底
   }
-  if(id==='composerArtist'){ document.getElementById('composerWho').textContent = NICKNAME; }
+  if(id==='composerArtist'){ document.getElementById('composerWho').textContent=NICKNAME; }
 }
-function goBack(){ PAGE_STACK.pop(); const prev = PAGE_STACK[PAGE_STACK.length-1] || 'home'; showPage(prev); }
+function goBack(){ PAGE_STACK.pop(); const prev=PAGE_STACK[PAGE_STACK.length-1]||'home'; showPage(prev); }
 
 /* ---------- HOME：Story bar ---------- */
-let currentFilter = 'me';
+let currentFilter='me';
 function hasNewDots(artistId){
-  if(artistId==='me' || artistId==='all') return false;
-  const seen = lastSeen[artistId] || 0;
-  const latest = Math.max(0, ...POSTS.filter(p=>p.artistId===artistId).map(p=>p.ts));
-  return latest > seen;
+  if(artistId==='me'||artistId==='all') return false;
+  const seen=lastSeen[artistId]||0;
+  const latest=Math.max(0,...POSTS.filter(p=>p.artistId===artistId).map(p=>p.ts));
+  return latest>seen;
 }
 function renderStoryBar(){
-  const bar = document.getElementById('storyBar');
-  const others = ARTISTS.filter(a=> a.id!=='me' && a.id!=='all');
+  const bar=document.getElementById('storyBar');
+  const others=ARTISTS.filter(a=>a.id!=='me'&&a.id!=='all');
   others.sort((a,b)=>{
-    const la = Math.max(0,...POSTS.filter(p=>p.artistId===a.id).map(p=>p.ts));
-    const lb = Math.max(0,...POSTS.filter(p=>p.artistId===b.id).map(p=>p.ts));
-    return lb - la;
+    const la=Math.max(0,...POSTS.filter(p=>p.artistId===a.id).map(p=>p.ts));
+    const lb=Math.max(0,...POSTS.filter(p=>p.artistId===b.id).map(p=>p.ts));
+    return lb-la;
   });
-  const order = [ARTISTS.find(a=>a.id==='me'), ARTISTS.find(a=>a.id==='all'), ...others];
-  bar.innerHTML = order.map(a=>{
-    const active = (currentFilter===a.id) ? 'active':'';
-    const pinned = (a.id==='me' || a.id==='all') ? 'pinned':'';
-    const dot = hasNewDots(a.id)? '<span class="dot"></span>':'';
+  const order=[ARTISTS.find(a=>a.id==='me'),ARTISTS.find(a=>a.id==='all'),...others];
+  bar.innerHTML=order.map(a=>{
+    const active=(currentFilter===a.id)?'active':'';
+    const pinned=(a.id==='me'||a.id==='all')?'pinned':'';
+    const dot=hasNewDots(a.id)?'<span class="dot"></span>':'';
     return `<div class="story-item ${active} ${pinned}" data-id="${a.id}">
       <img src="${a.avatar}" onerror="imgFallback(this)">${dot}
       <div class="name">${a.name}</div>
@@ -430,66 +374,47 @@ function renderStoryBar(){
   }).join('');
   bar.querySelectorAll('.story-item').forEach(el=>{
     el.addEventListener('click', ()=>{
-      const id = el.dataset.id;
-      currentFilter = id;
-      if(id!=='all') lastSeen[id] = Date.now();
-      LS.set('lastSeen', lastSeen);
-      renderStoryBar();
-      renderFeed(currentFilter);
-      window.scrollTo({top:0,behavior:'smooth'});
+      const id=el.dataset.id; currentFilter=id;
+      if(id!=='all') lastSeen[id]=Date.now(); LS.set('lastSeen', lastSeen);
+      renderStoryBar(); renderFeed(currentFilter); window.scrollTo({top:0,behavior:'smooth'});
     });
   });
 }
 
-/* ---------- HOME：Feed（舞台名 + 勾勾） ---------- */
+/* ---------- HOME：Feed ---------- */
 function feedOf(filter){
   if(filter==='all') return POSTS.slice().sort((a,b)=>b.ts-a.ts);
   if(filter==='me')  return POSTS.filter(p=>p.artistId==='me').sort((a,b)=>b.ts-a.ts);
   return POSTS.filter(p=>p.artistId===filter).sort((a,b)=>b.ts-a.ts);
 }
 function VB(size=18){
-  const gid = 'vbGrad-' + Math.random().toString(36).slice(2,8);
-  return `
-  <span class="verified-badge" style="width:${size}px;height:${size}px">
+  const gid='vbGrad-'+Math.random().toString(36).slice(2,8);
+  return `<span class="verified-badge" style="width:${size}px;height:${size}px">
     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <defs>
-        <linearGradient id="${gid}" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%"   stop-color="#6fb3ff"/>
-          <stop offset="58%"  stop-color="#7b6dff"/>
-          <stop offset="92%"  stop-color="#ffffff"/>
-          <stop offset="100%" stop-color="#e9ecff"/>
-        </linearGradient>
-      </defs>
-      <path class="gear" fill="url(#${gid})"
-        d="M12 2.3 14 4l2.9-.6.9 2.7 2.7.9-.6 2.9L22 12l-2.1 2.1.6 2.9-2.7.9-.9 2.7-2.9-.6L12 21.7 10 20l-2.9.6-.9-2.7-2.7-.9.6-2.9L2 12l2.1-2.1-.6-2.9 2.7-.9.9-2.7L10 4l2-1.7z"/>
-      <path class="tick" d="M10.4 12.8 8.7 11.2l1.1-1.1 1.2 1.2 3-3 1.1 1.1-3.8 3.8a1 1 0 0 1-1.4 0z"/>
-    </svg>
+      <defs><linearGradient id="${gid}" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#6fb3ff"/><stop offset="58%" stop-color="#7b6dff"/><stop offset="92%" stop-color="#ffffff"/><stop offset="100%" stop-color="#e9ecff"/>
+      </linearGradient></defs>
+      <path class="gear" fill="url(#${gid})" d="M12 2.3 14 4l2.9-.6.9 2.7 2.7.9-.6 2.9L22 12l-2.1 2.1.6 2.9-2.7.9-.9 2.7-2.9-.6L12 21.7 10 20l-2.9.6-.9-2.7-2.7-.9.6-2.9L2 12l2.1-2.1-.6-2.9 2.7-.9.9-2.7L10 4l2-1.7z"/>
+      <path class="tick" d="M10.4 12.8 8.7 11.2l1.1-1.1 1.2 1.2 3-3 1.1 1.1-3.8 3.8a1 1 0 0 1-1.4 0z"/></svg>
   </span>`;
 }
 function renderFeed(filter='me'){
-  const wrap = document.getElementById('feedWrap');
-  const list = feedOf(filter);
-  if(!list.length){
-    wrap.innerHTML = `<div class="ghost" style="text-align:center;margin-top:20vh">尚無貼文</div>`;
-    return;
-  }
-  wrap.innerHTML = list.map(p=>{
-    const stage = (p.artistStage || STAGE_NAME || '').toString().toUpperCase();
-    return `
-      <div class="card soft post">
-        <div class="hdr">
-          <img class="avatar" src="${p.avatar}" onerror="imgFallback(this)">
-          <div class="meta">
-            <b class="stage">${escapeHtml(stage)} ${VB(18)}</b>
-            <small class="ghost">${new Date(p.ts).toLocaleString()}</small>
-          </div>
-        </div>
-        <div class="body">
-          <p>${escapeHtml(p.text)}</p>
-          ${p.img ? `<img class="hero" src="${p.img}" onerror="imgFallback(this)">` : ``}
+  const wrap=document.getElementById('feedWrap');
+  const list=feedOf(filter);
+  if(!list.length){ wrap.innerHTML=`<div class="ghost" style="text-align:center;margin-top:20vh">尚無貼文</div>`; return; }
+  wrap.innerHTML=list.map(p=>{
+    const stage=(p.artistStage||STAGE_NAME||'').toString().toUpperCase();
+    return `<div class="card soft post">
+      <div class="hdr">
+        <img class="avatar" src="${p.avatar}" onerror="imgFallback(this)">
+        <div class="meta">
+          <b class="stage">${escapeHtml(stage)} ${VB(18)}</b>
+          <small class="ghost">${new Date(p.ts).toLocaleString()}</small>
         </div>
       </div>
-    `;
+      <div class="body"><p>${escapeHtml(p.text)}</p>
+      ${p.img?`<img class="hero" src="${p.img}" onerror="imgFallback(this)">`:``}</div>
+    </div>`;
   }).join('');
 }
 
@@ -498,315 +423,210 @@ function getRoomTitle(){ return NICKNAME; }
 function renderDmList(){
   const box=document.getElementById('dmList');
   const last=GROUP_MSGS[GROUP_MSGS.length-1];
-  box.innerHTML=`
-    <div class="dmCard" onclick="showPage('dmDetail')">
+  box.innerHTML=`<div class="dmCard" onclick="showPage('dmDetail')">
       <img src="${ME.avatar}" onerror="imgFallback(this)">
       <div class="nameBlock">
-        <div class="nameRow">
-          <span class="artistTag">ARTIST</span>
-          <div class="stage">${escapeHtml(getRoomTitle().toUpperCase())}</div>
-        </div>
+        <div class="nameRow"><span class="artistTag">ARTIST</span>
+          <div class="stage">${escapeHtml(getRoomTitle().toUpperCase())}</div></div>
         <small class="ghost" style="display:block;max-width:62vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
-          ${escapeHtml(last?last.text:'（無訊息）')}
-        </small>
-      </div>
-      <span></span>
-    </div>`;
+          ${escapeHtml(last?last.text:'（無訊息）')}</small>
+      </div><span></span></div>`;
 }
 
 /* ---------- DM Thread ---------- */
-let replyDraft = null; // { text }
+let replyDraft=null; // { text }
 function renderThread(){
-  const box = document.getElementById('dmThread');
-  box.innerHTML='';
-
+  const box=document.getElementById('dmThread'); box.innerHTML='';
   GROUP_MSGS.forEach(m=>{
-    const wrap = document.createElement('div');
-    wrap.className = 'msg ' + (m.from==='artist' ? 'right' : 'left');
-
-    const timeEl = document.createElement('div');
-    timeEl.className = 'time' + (m.from==='artist' ? '' : ' dark');
-    timeEl.textContent = fmtTime(m.ts);
-
-    const bubble = document.createElement('div');
-    bubble.className = 'bubble';
-
+    const wrap=document.createElement('div');
+    wrap.className='msg '+(m.from==='artist'?'right':'left');
+    const timeEl=document.createElement('div');
+    timeEl.className='time'+(m.from==='artist'?'':' dark');
+    timeEl.textContent=fmtTime(m.ts);
+    const bubble=document.createElement('div'); bubble.className='bubble';
     if(m.from==='fan'){
-      const lab = document.createElement('div'); lab.className='fromLabel'; lab.textContent='FROM FAN';
-      const txt = document.createElement('div'); txt.className='fanText'; txt.innerHTML = escapeHtml(m.text);
-      bubble.append(lab, txt);
-    }else{
-      bubble.innerHTML = escapeHtml(m.text);
-    }
+      const lab=document.createElement('div'); lab.className='fromLabel'; lab.textContent='FROM FAN';
+      const txt=document.createElement('div'); txt.className='fanText'; txt.innerHTML=escapeHtml(m.text);
+      bubble.append(lab,txt);
+    }else{ bubble.innerHTML=escapeHtml(m.text); }
+    wrap.append(bubble,timeEl); box.appendChild(wrap);
 
-    wrap.appendChild(bubble);
-    wrap.appendChild(timeEl);
-    box.appendChild(wrap);
-
-    if (m.from==='artist' && m.replyTo && m.replyTo.text){
-      const rc = document.createElement('div');
-      rc.className = 'replyCard';
-      rc.innerHTML = `
-        <div class="fromLabel">FROM FAN</div>
-        <div class="fanText">${escapeHtml(m.replyTo.text)}</div>
-      `;
+    if(m.from==='artist' && m.replyTo && m.replyTo.text){
+      const rc=document.createElement('div'); rc.className='replyCard';
+      rc.innerHTML=`<div class="fromLabel">FROM FAN</div><div class="fanText">${escapeHtml(m.replyTo.text)}</div>`;
       box.appendChild(rc);
     }
-
     if(m.from==='fan'){
-      const btn = document.createElement('button');
-      btn.className = 'replyBtn';
-      btn.innerHTML = `<svg viewBox="0 0 24 24"><path d="M12 4l-1.4 1.4L16.2 11H4v2h12.2l-5.6 5.6L12 20l8-8z" fill="currentColor"/></svg>`;
-      btn.onclick = ()=>{
-        replyDraft = { text: m.text };
-        const chip = document.getElementById('replyChip');
-        chip.style.display = 'flex';
-        document.getElementById('replyChipText').textContent = m.text.slice(0, 42);
+      const btn=document.createElement('button'); btn.className='replyBtn';
+      btn.innerHTML=`<svg viewBox="0 0 24 24"><path d="M12 4l-1.4 1.4L16.2 11H4v2h12.2l-5.6 5.6L12 20l8-8z" fill="currentColor"/></svg>`;
+      btn.onclick=()=>{ replyDraft={text:m.text};
+        document.getElementById('replyChip').style.display='flex';
+        document.getElementById('replyChipText').textContent=m.text.slice(0,42);
         document.getElementById('dmMessageInput').focus();
-        updateFooterSpace();
-        ensureBottomDuring(600);
+        ensureBottomDuring(400);
       };
       bubble.appendChild(btn);
     }
   });
-
+  // 內容內部墊高器與錨點
+  const pad=document.createElement('div'); pad.id='threadPad';
+  const anchor=document.createElement('div'); anchor.id='endAnchor';
+  box.append(pad,anchor);
+  updateBottomPad();
   ensureBottomDuring(600);
 }
 
 function clearReply(){
-  replyDraft = null;
-  document.getElementById('replyChip').style.display='none';
-  updateFooterSpace();
-  ensureBottomDuring(400);
+  replyDraft=null; document.getElementById('replyChip').style.display='none';
+  updateBottomPad(); ensureBottomDuring(300);
 }
 
 function sendArtistMsg(){
-  const inp = document.getElementById('dmMessageInput');
-  let t = (inp.value||'').trim(); if(!t) return;
-  t = t.replaceAll('@@@', FANS[0].name);
-  GROUP_MSGS.push({ id:'u'+Date.now(), from:'artist', text:t, ts:Date.now(), replyTo: replyDraft? {text:replyDraft.text}: null });
+  const inp=document.getElementById('dmMessageInput'); let t=(inp.value||'').trim(); if(!t) return;
+  t=t.replaceAll('@@@', FANS[0].name);
+  GROUP_MSGS.push({id:'u'+Date.now(),from:'artist',text:t,ts:Date.now(),replyTo:replyDraft?{text:replyDraft.text}:null});
   LS.set('groupMsgs', GROUP_MSGS);
   inp.value=''; clearReply(); renderThread(); renderDmList();
-  updateFooterSpace();
   ensureBottomDuring(600);
 }
-
 document.getElementById('dmSendBtn').addEventListener('click', sendArtistMsg);
-document.getElementById('dmMessageInput').addEventListener('keydown', e=>{
-  if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); sendArtistMsg(); }
-});
+document.getElementById('dmMessageInput').addEventListener('keydown', e=>{ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); sendArtistMsg(); }});
 
 /* ---------- DM 菜單 ---------- */
-function toggleDmMenu(){ const m = document.getElementById('dmMenu'); m.style.display = (m.style.display==='block')?'none':'block'; }
+function toggleDmMenu(){ const m=document.getElementById('dmMenu'); m.style.display=(m.style.display==='block')?'none':'block'; }
 function hideDmMenu(){ document.getElementById('dmMenu').style.display='none'; }
-document.addEventListener('click', (e)=>{
-  const m = document.getElementById('dmMenu');
-  if(m.style.display==='block' && !m.contains(e.target) && !e.target.closest('.hudBtn')) hideDmMenu();
+document.addEventListener('click',(e)=>{ const m=document.getElementById('dmMenu');
+  if(m.style.display==='block'&&!m.contains(e.target)&&!e.target.closest('.hudBtn')) hideDmMenu();
 });
 
 /* ---------- 改名 ---------- */
 function renameChat(){
-  const cur = getRoomTitle();
-  const n = prompt('更改聊天室名稱（同：藝人暱稱）', cur);
-  if(!n) return;
-  NICKNAME = n.trim() || cur;
-  LS.setStr('artistNickname', NICKNAME);
-  document.getElementById('dmTitle').textContent = NICKNAME.toUpperCase();
-  document.getElementById('meNickname').textContent = NICKNAME;
-  document.getElementById('composerWho').textContent = NICKNAME;
-  renderDmList();
+  const cur=getRoomTitle(); const n=prompt('更改聊天室名稱（同：藝人暱稱）', cur); if(!n) return;
+  NICKNAME=n.trim()||cur; LS.setStr('artistNickname', NICKNAME);
+  document.getElementById('dmTitle').textContent=NICKNAME.toUpperCase();
+  document.getElementById('meNickname').textContent=NICKNAME;
+  document.getElementById('composerWho').textContent=NICKNAME; renderDmList();
 }
 
 /* ---------- 背景 ---------- */
 let cropDataURL='', cropDeg=0, cropScale=1.4;
-const chooser = document.getElementById('bgChooser');
-function startPickBg(){ chooser.click(); }
+const chooser=document.getElementById('bgChooser'); function startPickBg(){ chooser.click(); }
 chooser.addEventListener('change', e=>{
-  const f = e.target.files?.[0]; if(!f) return;
-  const reader = new FileReader();
-  reader.onload = ev=>{
-    cropDataURL = ev.target.result;
-    document.getElementById('cropImg').src = cropDataURL;
-    cropDeg = 0; document.getElementById('cropScale').value = 140; cropScale = 1.4;
-    updateCropTransform();
-    openModal('cropModal');
-  };
-  reader.readAsDataURL(f);
+  const f=e.target.files?.[0]; if(!f) return;
+  const reader=new FileReader(); reader.onload=ev=>{
+    cropDataURL=ev.target.result; document.getElementById('cropImg').src=cropDataURL;
+    cropDeg=0; document.getElementById('cropScale').value=140; cropScale=1.4; updateCropTransform(); openModal('cropModal');
+  }; reader.readAsDataURL(f);
 });
-function rotateCrop(){ cropDeg = (cropDeg + 90) % 360; updateCropTransform(); }
-document.getElementById('cropScale').addEventListener('input', e=>{ cropScale = (+e.target.value)/100; updateCropTransform(); });
-function updateCropTransform(){
-  const img = document.getElementById('cropImg');
-  img.style.transform = `scale(${cropScale}) rotate(${cropDeg}deg)`;
-}
-function applyCrop(){
-  document.getElementById('bgPreviewMini').style.backgroundImage = `url("${cropDataURL}")`;
-  closeCrop(); openModal('previewModal');
-}
-function confirmPreview(){
-  if(cropDataURL) LS.setStr('artistChatBg', cropDataURL);
-  LS.setStr('artistChatBgScale','100'); LS.setStr('artistChatBgBlur','0'); LS.setStr('artistChatBgDim','25');
-  applyChatBg(); closePreview();
+function rotateCrop(){ cropDeg=(cropDeg+90)%360; updateCropTransform(); }
+document.getElementById('cropScale').addEventListener('input', e=>{ cropScale=(+e.target.value)/100; updateCropTransform(); });
+function updateCropTransform(){ const img=document.getElementById('cropImg'); img.style.transform=`scale(${cropScale}) rotate(${cropDeg}deg)`; }
+function applyCrop(){ document.getElementById('bgPreviewMini').style.backgroundImage=`url("${cropDataURL}")`; closeCrop(); openModal('previewModal'); }
+function confirmPreview(){ if(cropDataURL) LS.setStr('artistChatBg', cropDataURL);
+  LS.setStr('artistChatBgScale','100'); LS.setStr('artistChatBgBlur','0'); LS.setStr('artistChatBgDim','25'); applyChatBg(); closePreview();
 }
 function openModal(id){ document.getElementById(id).style.display='block'; }
 function closeCrop(){ document.getElementById('cropModal').style.display='none'; }
 function closePreview(){ document.getElementById('previewModal').style.display='none'; }
-
 function applyChatBg(){
-  const url = LS.getStr('artistChatBg','');
-  const blur  = LS.getStr('artistChatBgBlur','2');
-  const dim   = LS.getStr('artistChatBgDim','25');
-  const el = document.getElementById('dmDetail');
+  const url=LS.getStr('artistChatBg',''); const blur=LS.getStr('artistChatBgBlur','2'); const dim=LS.getStr('artistChatBgDim','25');
+  const el=document.getElementById('dmDetail');
   if(!url){ el.style.backgroundImage='none'; el.style.setProperty('--bgDim','0'); el.style.setProperty('--bgBlur','0px'); }
-  else{
-    el.style.backgroundImage = `url("${url}")`;
-    el.style.setProperty('--bgDim',  dim/100);
-    el.style.setProperty('--bgBlur', `${blur}px`);
-  }
+  else{ el.style.backgroundImage=`url("${url}")`; el.style.setProperty('--bgDim', dim/100); el.style.setProperty('--bgBlur', `${blur}px`); }
 }
 
-/* ---------- 量測 footer 高度 & 自動貼底 ---------- */
-function updateFooterSpace(){
-  const f = document.querySelector('.dmFooter');
-  if(!f) return;
-  const h = Math.ceil(f.getBoundingClientRect().height);
-  document.documentElement.style.setProperty('--footer-h', h + 'px');
+/* ---------- 底部墊高器 & 自動貼底 ---------- */
+function updateBottomPad(){
+  const footer=document.querySelector('.dmFooter'); const pad=document.getElementById('threadPad'); if(!pad) return;
+  const h=footer?Math.ceil(footer.getBoundingClientRect().height):0;
+  pad.style.height=(h + (__kbOffset||0)) + 'px';
 }
-
-/* 判斷是否需要貼底（訊息是否超過一頁） */
-function overflowed(t){ return t && (t.scrollHeight - t.clientHeight) > 8; }
-function atBottom(t){ return Math.abs((t.scrollHeight - t.clientHeight) - t.scrollTop) < 8; }
-
-/* 盡量把捲軸壓到底（雙保險） */
+function anchor(){ return document.getElementById('endAnchor'); }
 function stickBottomHard(){
-  const t = document.getElementById('dmThread'); if(!t) return;
-  if(!overflowed(t)) return; // 沒超過一頁就不用貼
+  const t=document.getElementById('dmThread'); if(!t) return;
+  anchor()?.scrollIntoView({block:'end'}); // 以錨點壓到底
+  // 再補一次以保險
   t.scrollTop = t.scrollHeight + 9999;
-  if(!atBottom(t)) t.lastElementChild?.scrollIntoView({block:'end'});
 }
-
-/* 連續一段時間內持續貼到底，避免 Safari 佈局/圖片載入抖動 */
-function ensureBottomDuring(ms=800){
+function ensureBottomDuring(ms=600){
   if(!autoStick) return;
-  const t = document.getElementById('dmThread'); if(!t) return;
-  const end = performance.now() + ms;
-  function loop(){
-    if(!autoStick) return;
-    stickBottomHard();
-    if(performance.now() < end) requestAnimationFrame(loop);
-  }
+  const end=performance.now()+ms;
+  function loop(){ if(!autoStick) return; stickBottomHard(); if(performance.now()<end) requestAnimationFrame(loop); }
   requestAnimationFrame(loop);
 }
-
-/* 根據使用者捲動狀態決定是否自動貼底 */
-let autoStick = true;
-(function bindScrollGuard(){
-  const t = document.getElementById('dmThread');
-  if(!t) return;
-  t.addEventListener('scroll', ()=>{ autoStick = atBottom(t) || !overflowed(t); }, {passive:true});
-})();
-
-/* 監看 thread DOM 變動（新訊息/圖片載入）自動貼底 */
-function watchThreadMutations(){
-  const t = document.getElementById('dmThread'); if(!t) return;
-  const mo = new MutationObserver(()=>{ if(autoStick) ensureBottomDuring(600); });
-  mo.observe(t, {childList:true, subtree:false});
+let autoStick=true;
+function bindBottomObserver(){
+  const t=document.getElementById('dmThread'), a=anchor(); if(!t||!a||!('IntersectionObserver' in window)) return;
+  new IntersectionObserver(es=>{ autoStick=es[0].isIntersecting; },{root:t,threshold:1}).observe(a);
 }
 
 /* ---------- Composer ---------- */
 function previewComposeMedia(e){
-  const box = document.getElementById('composePreview');
-  const hint = document.getElementById('composeFilesHint');
-  box.innerHTML = '';
-  if(!e.target.files.length){ hint.textContent='未選取檔案'; return; }
-  hint.textContent = `已選 ${e.target.files.length} 個檔案`;
+  const box=document.getElementById('composePreview'); const hint=document.getElementById('composeFilesHint');
+  box.innerHTML=''; if(!e.target.files.length){ hint.textContent='未選取檔案'; return; }
+  hint.textContent=`已選 ${e.target.files.length} 個檔案`;
   [...e.target.files].forEach(f=>{
-    const url = URL.createObjectURL(f);
-    const isVideo = f.type.startsWith('video/');
-    theEl = document.createElement(isVideo?'video':'img');
-    theEl.src = url; theEl.controls = isVideo;
-    theEl.onload = theEl.onloadeddata = ()=>URL.revokeObjectURL(url);
-    theEl.style.width='110px'; theEl.style.height='110px'; theEl.style.objectFit='cover'; theEl.style.borderRadius='12px'; theEl.style.border='1px solid var(--line)';
-    box.appendChild(theEl);
+    const url=URL.createObjectURL(f); const isVideo=f.type.startsWith('video/'); const el=document.createElement(isVideo?'video':'img');
+    el.src=url; el.controls=isVideo; el.onload=el.onloadeddata=()=>URL.revokeObjectURL(url);
+    el.style.width='110px'; el.style.height='110px'; el.style.objectFit='cover'; el.style.borderRadius='12px'; el.style.border='1px solid var(--line)'; box.appendChild(el);
   });
 }
 function publishDraft(){ alert('先存草稿＆預覽；發佈規則等我們接首頁串流。'); showPage('home'); }
 
-/* ---------- 暱稱按鈕（同聊天室名稱） ---------- */
+/* ---------- 暱稱按鈕 ---------- */
 document.getElementById('btnEditNick').addEventListener('click', ()=>{
-  const v = prompt('輸入新的暱稱（= 聊天室名稱）', NICKNAME);
-  if(v && v.trim()){
-    NICKNAME = v.trim();
-    LS.setStr('artistNickname', NICKNAME);
-    document.getElementById('meNickname').textContent = NICKNAME;
-    document.getElementById('dmTitle').textContent = NICKNAME.toUpperCase();
-    document.getElementById('composerWho').textContent = NICKNAME;
-    renderDmList();
+  const v=prompt('輸入新的暱稱（= 聊天室名稱）', NICKNAME);
+  if(v&&v.trim()){ NICKNAME=v.trim(); LS.setStr('artistNickname', NICKNAME);
+    document.getElementById('meNickname').textContent=NICKNAME;
+    document.getElementById('dmTitle').textContent=NICKNAME.toUpperCase();
+    document.getElementById('composerWho').textContent=NICKNAME; renderDmList();
   }
 });
 
 /* ---------- 啟動 ---------- */
 document.addEventListener('DOMContentLoaded', ()=>{
-  document.getElementById('meNickname').textContent = NICKNAME;
-  document.getElementById('dmTitle').textContent = NICKNAME.toUpperCase();
-  document.getElementById('composerWho').textContent = NICKNAME;
-  document.getElementById('meId').textContent = 'ARTIST-00001';
-  document.getElementById('meAvatar').src = AVATAR;
+  document.getElementById('meNickname').textContent=NICKNAME;
+  document.getElementById('dmTitle').textContent=NICKNAME.toUpperCase();
+  document.getElementById('composerWho').textContent=NICKNAME;
+  document.getElementById('meId').textContent='ARTIST-00001';
+  document.getElementById('meAvatar').src=AVATAR;
 
-  renderStoryBar(); renderFeed(currentFilter);
-  renderDmList();
-
+  renderStoryBar(); renderFeed(currentFilter); renderDmList();
   document.addEventListener('keydown', e=>{ if(e.key==='Escape') hideDmMenu(); });
 
-  const input  = document.getElementById('dmMessageInput');
-  if (input) {
-    const scrollToBottom = () => setTimeout(()=>ensureBottomDuring(600), 60);
-    input.addEventListener('focus', scrollToBottom);
-    input.addEventListener('click',  scrollToBottom);
+  const input=document.getElementById('dmMessageInput');
+  if(input){ const scrollToBottom=()=>setTimeout(()=>ensureBottomDuring(600),60);
+    input.addEventListener('focus', scrollToBottom); input.addEventListener('click', scrollToBottom);
   }
-
-  updateFooterSpace();
-  ensureBottomDuring(1200);
-  watchThreadMutations();
+  updateBottomPad(); ensureBottomDuring(1000);
 });
 
 /* 監看 .dmFooter 高度變化 */
-(() => {
-  const footer = document.querySelector('.dmFooter');
-  if (!footer) return;
-  if (typeof ResizeObserver !== 'undefined') {
-    new ResizeObserver(() => { updateFooterSpace(); ensureBottomDuring(600); }).observe(footer);
-  } else {
-    let lastH = 0;
-    setInterval(() => {
-      const h = footer.getBoundingClientRect().height|0;
-      if (h !== lastH) { lastH = h; updateFooterSpace(); ensureBottomDuring(600); }
-    }, 500);
-  }
+(()=>{ const footer=document.querySelector('.dmFooter'); if(!footer) return;
+  if('ResizeObserver' in window){ new ResizeObserver(()=>{ updateBottomPad(); ensureBottomDuring(400); }).observe(footer); }
+  else{ let last=0; setInterval(()=>{ const h=footer.getBoundingClientRect().height|0; if(h!==last){ last=h; updateBottomPad(); ensureBottomDuring(400);} },500); }
 })();
 
-/* iOS Safari：鍵盤/視窗變化時修正並貼底 */
-; (function(){
-  const vv = window.visualViewport;
+/* iOS Safari：鍵盤/工具列/方向變動 */
+;(function(){
+  const vv=window.visualViewport;
   function applyVV(){
     if(!vv) return;
-    const offset = Math.max(0, window.innerHeight - vv.height);
-    document.documentElement.style.setProperty('--kb-offset', offset + 'px');
-    setTimeout(()=>ensureBottomDuring(600), 30);
+    __kbOffset=Math.max(0, window.innerHeight - vv.height);
+    document.documentElement.style.setProperty('--kb-offset', __kbOffset + 'px');
+    updateBottomPad(); setTimeout(()=>ensureBottomDuring(600), 30);
   }
-  if(vv){
-    vv.addEventListener('resize', applyVV);
-    vv.addEventListener('scroll',  applyVV);
-    applyVV();
-  }
-  window.addEventListener('resize', ()=>{ updateFooterSpace(); ensureBottomDuring(600); });
-  window.addEventListener('orientationchange', ()=>{ setTimeout(()=>{ updateFooterSpace(); ensureBottomDuring(800); }, 120); });
-  window.addEventListener('pageshow', ()=>{ updateFooterSpace(); ensureBottomDuring(800); });
+  if(vv){ vv.addEventListener('resize', applyVV); vv.addEventListener('scroll', applyVV); applyVV(); }
+  window.addEventListener('resize', ()=>{ updateBottomPad(); ensureBottomDuring(600); });
+  window.addEventListener('orientationchange', ()=>{ setTimeout(()=>{ updateBottomPad(); ensureBottomDuring(800); }, 120); });
+  window.addEventListener('pageshow', ()=>{ updateBottomPad(); ensureBottomDuring(800); });
   document.addEventListener('visibilitychange', ()=>{ if(!document.hidden){ ensureBottomDuring(600); } });
-  // 等字型/圖片載入完成再補一次
-  if (document.fonts && document.fonts.ready) { document.fonts.ready.then(()=>ensureBottomDuring(800)); }
+  if(document.fonts && document.fonts.ready){ document.fonts.ready.then(()=>ensureBottomDuring(800)); }
   window.addEventListener('load', ()=>ensureBottomDuring(1000));
 })();
+
+/* 其餘：首頁/DM 切換 */
+let currentFilter='me';
 </script>
 </body>
 </html>
