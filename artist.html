@@ -178,7 +178,7 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 
 /* 對話區底部預留空間（避免被 footer 蓋住） */
 #dmDetail .thread{
-  padding-bottom: calc(96px + var(--kb-offset, 0px));
+  padding-bottom: calc(var(--footer-h, 96px) + var(--kb-offset, 0px));
 }
 .dmInputBar{display:flex;align-items:center;gap:10px;padding:0 12px}
 .dmInputBar .box{flex:1;min-width:0;display:flex;align-items:center;background:#fff;border:1px solid var(--line);border-radius:22px;height:42px;padding:0 14px}
@@ -396,7 +396,8 @@ function showPage(id){
   if(id==='dmDetail'){
     renderThread();
     applyChatBg();
-    setTimeout(()=>{ const t=document.getElementById('dmThread'); if(t) t.scrollTop=t.scrollHeight; },50);
+    updateFooterSpace();          // ★ 量測輸入列實際高度
+    setTimeout(stickBottom, 50);  // ★ 進入聊天室貼到底
   }
   if(id==='composerArtist'){ document.getElementById('composerWho').textContent = NICKNAME; }
 }
@@ -563,14 +564,23 @@ function renderThread(){
         chip.style.display = 'flex';
         document.getElementById('replyChipText').textContent = m.text.slice(0, 42);
         document.getElementById('dmMessageInput').focus();
+        updateFooterSpace();  // ★ 回覆列出現時量測
+        stickBottom();        // ★ 並貼底
       };
       bubble.appendChild(btn);
     }
   });
 
-  box.scrollTop = box.scrollHeight;
+  stickBottom();
 }
-function clearReply(){ replyDraft = null; document.getElementById('replyChip').style.display='none'; }
+
+function clearReply(){
+  replyDraft = null;
+  document.getElementById('replyChip').style.display='none';
+  updateFooterSpace();   // ★ 回覆列消失時也重算
+  stickBottom();         // ★
+}
+
 function sendArtistMsg(){
   const inp = document.getElementById('dmMessageInput');
   let t = (inp.value||'').trim(); if(!t) return;
@@ -578,7 +588,10 @@ function sendArtistMsg(){
   GROUP_MSGS.push({ id:'u'+Date.now(), from:'artist', text:t, ts:Date.now(), replyTo: replyDraft? {text:replyDraft.text}: null });
   LS.set('groupMsgs', GROUP_MSGS);
   inp.value=''; clearReply(); renderThread(); renderDmList();
+  updateFooterSpace();  // ★
+  stickBottom();        // ★
 }
+
 document.getElementById('dmSendBtn').addEventListener('click', sendArtistMsg);
 document.getElementById('dmMessageInput').addEventListener('keydown', e=>{
   if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); sendArtistMsg(); }
@@ -653,6 +666,18 @@ function applyChatBg(){
   }
 }
 
+/* ---------- 量測 footer 高度 & 貼底工具 ---------- */
+function updateFooterSpace(){
+  const f = document.querySelector('.dmFooter');
+  if(!f) return;
+  const h = Math.ceil(f.getBoundingClientRect().height);
+  document.documentElement.style.setProperty('--footer-h', h + 'px');
+}
+function stickBottom(){
+  const t = document.getElementById('dmThread');
+  if (t) t.scrollTop = t.scrollHeight;
+}
+
 /* ---------- Composer ---------- */
 function previewComposeMedia(e){
   const box = document.getElementById('composePreview');
@@ -702,23 +727,39 @@ document.addEventListener('DOMContentLoaded', ()=>{
   const input  = document.getElementById('dmMessageInput');
   const thread = document.getElementById('dmThread');
   if (input && thread) {
-    const scrollToBottom = () => setTimeout(() => { thread.scrollTop = thread.scrollHeight; }, 60);
+    const scrollToBottom = () => setTimeout(stickBottom, 60);
     input.addEventListener('focus', scrollToBottom);
     input.addEventListener('click',  scrollToBottom);
   }
+
+  updateFooterSpace();  // ★ 首次量測
+  stickBottom();        // ★
 });
+
+/* 監看 .dmFooter 高度變化（回覆 chip、safe-area、橫豎切換等） */
+(() => {
+  const footer = document.querySelector('.dmFooter');
+  if (!footer) return;
+  if (typeof ResizeObserver !== 'undefined') {
+    new ResizeObserver(() => { updateFooterSpace(); stickBottom(); }).observe(footer);
+  } else {
+    // 簡單 fallback：每 500ms 檢查一次
+    let lastH = 0;
+    setInterval(() => {
+      const h = footer.getBoundingClientRect().height|0;
+      if (h !== lastH) { lastH = h; updateFooterSpace(); stickBottom(); }
+    }, 500);
+  }
+})();
 
 /* iOS Safari：鍵盤彈出時修正 footer 位置 & 自動捲到底 */
 ; (function(){
   const vv = window.visualViewport;
-  const thread = document.getElementById('dmThread');
   function applyVV(){
     if(!vv) return;
     const offset = Math.max(0, window.innerHeight - vv.height); // 鍵盤佔用高度
     document.documentElement.style.setProperty('--kb-offset', offset + 'px');
-    if (document.activeElement === document.getElementById('dmMessageInput')) {
-      setTimeout(()=>{ if(thread) thread.scrollTop = thread.scrollHeight; }, 30);
-    }
+    setTimeout(stickBottom, 30); // ★ 鍵盤變化後貼底
   }
   if(vv){
     vv.addEventListener('resize', applyVV);
