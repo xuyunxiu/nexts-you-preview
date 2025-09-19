@@ -715,23 +715,48 @@ function anchor(){ return document.getElementById('endAnchor'); }
 
 function stickBottomHard(){
   const t = document.getElementById('dmThread'); if(!t) return;
+  // 先用錨點
   anchor()?.scrollIntoView({block:'end'});
+  // 再保險一次直接把捲軸推到底
   t.scrollTop = t.scrollHeight + 9999;
 }
 
 function ensureBottomDuring(ms=600){
-  if(!autoStick) return;
+  // 先來一次強制到底（避免 observer/計算尚未就緒）
+  stickBottomHard();
+
+  if(!autoStick) return;           // 使用者往上捲就不干擾
   const end = performance.now() + ms;
-  function loop(){ if(!autoStick) return; stickBottomHard(); if(performance.now()<end) requestAnimationFrame(loop); }
+  function loop(){
+    if(!autoStick) return;
+    stickBottomHard();
+    if(performance.now() < end) requestAnimationFrame(loop);
+  }
   requestAnimationFrame(loop);
 }
 
 function bindBottomObserver(){
   const t = document.getElementById('dmThread'), a = anchor();
-  if(!t || !a || !('IntersectionObserver' in window)) return;
-  new IntersectionObserver(es=>{ autoStick = es[0].isIntersecting; }, {root:t,threshold:1}).observe(a);
-}
+  if(!t || !a) return;
 
+  try{
+    const io = new IntersectionObserver((entries)=>{
+      const e = entries[0];
+      // 允許 ~4% 的容差（iOS Safari 常有 1px 誤差）
+      autoStick = e.isIntersecting && e.intersectionRatio >= 0.96;
+    }, {
+      root: t,
+      threshold: [0.01, 0.5, 0.96],
+      rootMargin: '0px 0px -1px 0px' // 再給 1px 緩衝
+    });
+    io.observe(a);
+  }catch(_){
+    // 老 iOS / 特殊環境：退回用捲動距離判斷
+    const nearBottom = () => ((t.scrollHeight - t.clientHeight) - t.scrollTop) < 4;
+    autoStick = nearBottom();
+    t.addEventListener('scroll', ()=>{ autoStick = nearBottom(); }, {passive:true});
+  }
+}
 // 覆寫 renderThread：加回 threadPad / endAnchor
 const __renderThreadOld = (typeof renderThread==='function') ? renderThread : null;
 renderThread = function(){
