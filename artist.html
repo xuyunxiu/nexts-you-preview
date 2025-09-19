@@ -28,7 +28,8 @@ img{display:block;max-width:100%} a{text-decoration:none;color:inherit} button{f
 /* pages */
 section.page{
   display:none;
-  padding:12px 12px calc(76px + var(--safe) + var(--kb-offset, 0px)); /* 加入鍵盤 offset */
+  /* ★ 用變數控制底部空間；預設仍保留底部 nav 的空間 */
+  padding:12px 12px var(--page-bottom, calc(76px + var(--safe) + var(--kb-offset, 0px)));
   min-height: 100dvh;
 }
 section.page.active{display:block;animation:fade .22s ease}
@@ -102,6 +103,8 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 
 /* 背景固定（不跟著捲動） */
 #dmDetail{
+  /* ★ DM 頁不要保留底部 nav 的空間，讓訊息可以真的「貼」到輸入框上緣 */
+  --page-bottom: 0px;
   position:relative; background-color:#000; 
   background-position:center;background-repeat:no-repeat;background-size:cover;background-attachment:fixed;
 }
