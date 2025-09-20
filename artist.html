@@ -460,54 +460,52 @@ function renderFeed(filter){
 
 /* ---------- DM List ---------- */
 function getRoomTitle(){ return NICKNAME; }
+// --- 取代整個 renderDmList() ---
 function renderDmList(){
-  var box=document.getElementById('dmList'); if(!box) return;
-  var last=GROUP_MSGS[GROUP_MSGS.length-1];
-  box.innerHTML='<div class="dmCard" onclick="showPage(\\'dmDetail\\')">'+
-    '<img src="'+ME.avatar+'" onerror="imgFallback(this)">'+
-    '<div class="nameBlock"><div class="nameRow"><span class="artistTag">ARTIST</span>'+
-    '<div class="stage">'+escapeHtml(getRoomTitle().toUpperCase())+'</div></div>'+
-    '<small class="ghost" style="display:block;max-width:62vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+
-    escapeHtml(last?last.text:'（無訊息）')+
-    '</small></div><span></span></div>';
-}
+  var box = document.getElementById('dmList'); 
+  if(!box) return;
+  box.innerHTML = '';
 
-/* ---------- DM Thread（貼底） ---------- */
-var replyDraft=null;
-function renderThread(){
-  var box=document.getElementById('dmThread'); if(!box) return; box.innerHTML='';
-  for(var i=0;i<GROUP_MSGS.length;i++){
-    var m=GROUP_MSGS[i];
-    var wrap=document.createElement('div'); wrap.className='msg '+(m.from==='artist'?'right':'left');
-    var timeEl=document.createElement('div'); timeEl.className='time'+(m.from==='artist'?'':' dark'); timeEl.textContent=fmtTime(m.ts);
-    var bubble=document.createElement('div'); bubble.className='bubble';
-    if(m.from==='fan'){
-      var lab=document.createElement('div'); lab.className='fromLabel'; lab.textContent='FROM FAN';
-      var txt=document.createElement('div'); txt.className='fanText'; txt.textContent=m.text; bubble.appendChild(lab); bubble.appendChild(txt);
-    }else{ bubble.textContent=m.text; }
-    wrap.appendChild(bubble); wrap.appendChild(timeEl); box.appendChild(wrap);
-    if(m.from==='artist'&&m.replyTo&&m.replyTo.text){
-      var rc=document.createElement('div'); rc.className='replyCard';
-      rc.innerHTML='<div class="fromLabel">FROM FAN</div><div class="fanText">'+escapeHtml(m.replyTo.text)+'</div>';
-      box.appendChild(rc);
-    }
-    if(m.from==='fan'){
-      var btn=document.createElement('button'); btn.className='replyBtn';
-      btn.innerHTML='<svg viewBox="0 0 24 24"><path d="M12 4l-1.4 1.4L16.2 11H4v2h12.2l-5.6 5.6L12 20l8-8z" fill="currentColor"/></svg>';
-      btn.onclick=(function(text){ return function(){
-        replyDraft={text:text};
-        var chip=document.getElementById('replyChip'); if(chip) chip.style.display='flex';
-        var rtext=document.getElementById('replyChipText'); if(rtext) rtext.textContent=(text||'').slice(0,42);
-        var inp=document.getElementById('dmMessageInput'); if(inp) inp.focus();
-        ensureBottomDuring(600);
-      };})(m.text);
-      bubble.appendChild(btn);
-    }
-  }
-  // 錨點（用於貼底）
-  var end=document.createElement('div'); end.id='endAnchor'; end.style.cssText='height:1px;width:1px;overflow-anchor:auto;';
-  box.appendChild(end);
-  updateFooterSpace(); ensureBottomDuring(600);
+  var last = GROUP_MSGS[GROUP_MSGS.length-1];
+
+  var card = document.createElement('div');
+  card.className = 'dmCard';
+  card.addEventListener('click', function(){ showPage('dmDetail'); });
+
+  var img = document.createElement('img');
+  img.src = ME.avatar;
+  img.onerror = function(){ imgFallback(img); };
+
+  var nameBlock = document.createElement('div');
+  nameBlock.className = 'nameBlock';
+
+  var nameRow = document.createElement('div');
+  nameRow.className = 'nameRow';
+
+  var tag = document.createElement('span');
+  tag.className = 'artistTag';
+  tag.textContent = 'ARTIST';
+
+  var stage = document.createElement('div');
+  stage.className = 'stage';
+  stage.textContent = getRoomTitle().toUpperCase();
+
+  nameRow.appendChild(tag);
+  nameRow.appendChild(stage);
+
+  var small = document.createElement('small');
+  small.className = 'ghost';
+  small.style.cssText = 'display:block;max-width:62vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis';
+  small.textContent = last ? last.text : '（無訊息）';
+
+  nameBlock.appendChild(nameRow);
+  nameBlock.appendChild(small);
+
+  card.appendChild(img);
+  card.appendChild(nameBlock);
+  card.appendChild(document.createElement('span')); // 右側佔位
+
+  box.appendChild(card);
 }
 function clearReply(){
   replyDraft=null;
