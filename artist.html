@@ -217,6 +217,40 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 .cropCtrls{display:flex;align-items:center;gap:10px;margin:12px 0}
 .cropCtrls .spacer{flex:1}
 
+/* ==== Reply Chip（簡潔＋質感） ==== */
+.replyChip{
+  position:relative;
+  display:flex; align-items:center; gap:8px;
+  margin:0 14px 8px;
+  padding:8px 36px 8px 12px;              /* 右邊預留關閉鍵空間 */
+  border-radius:13px;
+  border:1px solid rgba(255,255,255,.28); /* 微玻璃邊 */
+  background:rgba(255,255,255,.12);       /* 很淡的玻璃感；footer 的模糊保留 */
+  backdrop-filter:saturate(140%) blur(1.5px);
+}
+.replyChipLabel{
+  font-size:12px; font-weight:900; letter-spacing:.35px;
+  color:#7a86b7; margin-right:2px; user-select:none;
+}
+.replyChipText{
+  flex:1; min-width:0;
+  font-size:15px; line-height:1.25; font-weight:600;
+  color:#2f3564; opacity:.95;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  /* 更細膩的排版質感 */
+  text-rendering:optimizeLegibility; -webkit-font-smoothing:antialiased;
+  font-feature-settings:"kern" 1, "liga" 1;
+}
+.replyChipClose{
+  position:absolute; top:6px; right:6px;
+  width:28px; height:28px; padding:0;
+  display:grid; place-items:center;
+  border:none; background:transparent;     /* 取消白底與按鈕樣式 */
+  color:#6f78aa; border-radius:6px; cursor:pointer;
+}
+.replyChipClose:hover{ background:rgba(255,255,255,.10); }
+.replyChipClose svg{ width:18px; height:18px; display:block; }
+  
 /* 小工具 */
 .badge{background:#ff3b30;color:#fff;font-size:12px;padding:2px 7px;border-radius:999px;min-width:22px;text-align:center}
 </style>
@@ -272,10 +306,16 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 
   <!-- Footer -->
   <div class="dmFooter" id="dmFooter">
-    <div id="replyChip" class="row" style="display:none;gap:10px;margin:0 14px 8px;color:#7a86b7">
-      <b>回覆：</b><span id="replyChipText" class="ghost"></span>
-      <button class="chip" onclick="clearReply()">× 取消</button>
-    </div>
+    <div id="replyChip" class="replyChip" style="display:none">
+  <span class="replyChipLabel">回覆：</span>
+  <span id="replyChipText" class="replyChipText">—</span>
+  <button class="replyChipClose" onclick="clearReply()">
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M6 6l12 12M18 6L6 18"
+            stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+    </svg>
+  </button>
+</div>
     <div class="dmInputBar">
       <div class="box"><input id="dmMessageInput" placeholder="輸入訊息…" /></div>
       <button class="dmSend" id="dmSendBtn" aria-label="Send">
