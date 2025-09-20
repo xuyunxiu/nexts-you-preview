@@ -3,13 +3,17 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>NEXT’S YOU — artist（純 CSS 貼底版）</title>
+<title>NEXT’S YOU — artist（完整修正版）</title>
+
 <style>
 :root{
   --bg:#f5f7ff; --card:#fff; --text:#1a1a1a; --sub:#667085; --line:#e7eaf3; --ghost:#9aa0b4;
-  --accent:#6a5acd; --accent2:#836fff; --danger:#ff4d4f;
+  --accent:#6a5acd; --accent2:#836fff; --ok:#10b981; --danger:#ff4d4f;
   --radius:16px; --shadow:0 12px 34px rgba(18,24,40,.08);
   --safe:env(safe-area-inset-bottom,0px);
+  --kb-offset:0px;          /* 鍵盤佔用高度（由 JS 寫入） */
+  --footer-h:72px;          /* DM footer 實際高度（由 JS 量測） */
+  --hud-h:68px;             /* DM header 高度（由 JS 量測） */
 }
 *{box-sizing:border-box}
 html,body{height:100%}
@@ -19,16 +23,21 @@ body{
   -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
   overflow-x:hidden;
 }
-img{display:block;max-width:100%} a{text-decoration:none;color:inherit} button{font:inherit;cursor:pointer}
+img{display:block;max-width:100%}
+a{text-decoration:none;color:inherit} button{font:inherit;cursor:pointer}
+
 .ghost{color:var(--ghost)} .sub{color:var(--sub)} .soft{padding:16px} .row{display:flex;align-items:center;gap:10px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
 .chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:#f3f5ff;border:1px solid var(--line);font-size:12px}
 
-/* pages */
-section.page{display:none;padding:12px 12px calc(76px + var(--safe));min-height:100dvh}
+/* pages（底部只保留安全區；鍵盤位移交給 DM footer + JS） */
+section.page{
+  display:none;
+  padding:12px 12px calc(76px + var(--safe));
+  min-height:100svh;
+}
 section.page.active{display:block;animation:fade .22s ease}
 @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-@supports (height:100svh){ section.page{min-height:100svh;} }
 
 /* bottom nav */
 nav#nav{
@@ -79,14 +88,25 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 .nameBlock{display:flex;flex-direction:column;gap:6px}
 .nameRow{display:flex;align-items:center;gap:8px}
 .nameRow .stage{font-weight:900;letter-spacing:.3px}
+
+/* —— 方框 ARTIST 勳章（紫藍白；DM 與列表共用） —— */
 .artistTag{
-  display:inline-flex;align-items:center;justify-content:center;padding:3px 8px;border-radius:6px;
+  display:inline-flex;align-items:center;justify-content:center;
+  padding:3px 8px;border-radius:6px;
   font-size:10px;font-weight:900;letter-spacing:.6px;text-transform:uppercase;
-  color:#2e2a6f;background:linear-gradient(90deg,#bca7ff 0%,#8fb4ff 64%,#ffffff 100%);
+  color:#2e2a6f;
+  background:linear-gradient(90deg,#bca7ff 0%,#8fb4ff 64%,#ffffff 100%);
   border:1px solid #ded6ff; box-shadow:0 1px 6px rgba(106,90,205,.18);
 }
 
 /* ===== DM Detail ===== */
+#dmDetail{
+  position:relative;background:#000;
+  background-position:center;background-repeat:no-repeat;background-size:cover;background-attachment:fixed;
+}
+#dmDetail::after{content:"";position:fixed;inset:0;pointer-events:none;background:rgba(0,0,0,var(--bgDim,.0));backdrop-filter:blur(var(--bgBlur,0px));z-index:-1}
+
+/* header */
 .chatHUD{display:flex;align-items:center;justify-content:space-between;padding:4px 0 8px}
 .chatHUD .center{flex:1;min-width:0}
 .titleCol{display:flex;flex-direction:column;align-items:flex-start;gap:4px}
@@ -95,24 +115,17 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 .back{width:44px;height:44px;border:none;background:transparent;border-radius:0;padding:0;display:grid;place-items:center}
 .back svg{width:22px;height:22px;stroke:#5b6ab0;stroke-width:2.6;fill:none}
 
-#dmDetail{
-  position:relative;background:#000;
-  background-position:center;background-repeat:no-repeat;background-size:cover; /* 移除 background-attachment:fixed，避免 iOS 異常 */
-}
-#dmDetail.hasbg::after{
-  content:"";position:absolute;inset:0;pointer-events:none;
-  background:rgba(0,0,0,var(--bgDim,.25));backdrop-filter:blur(var(--bgBlur,2px));z-index:-1;
-}
-
-/* —— 核心：零 JS 自動在底 —— */
+/* thread */
 .thread{
-  display:flex;flex-direction:column-reverse;           /* 反向顯示，scrollTop=0 即底部 */
-  height:calc(100dvh - 230px);
-  overflow-y:auto;
-  padding:8px 2px calc(140px + var(--safe));            /* 固定底部內距，最後一則永不被擋 */
-  -webkit-overflow-scrolling:touch;
+  position:absolute; left:0; right:0;
+  top:var(--hud-h);
+  bottom:calc(var(--footer-h) + var(--kb-offset) + env(safe-area-inset-bottom,0px));
+  overflow-y:auto; -webkit-overflow-scrolling:touch;
+  display:flex; flex-direction:column; padding:8px 2px;
+  scrollbar-gutter:stable both-edges;
 }
-@supports (height:100svh){ .thread{height:calc(100svh - 230px);} }
+/* Safari 在 overflow 容器裡 gap 可能失效，改用鄰接 margin */
+.thread .msg + .msg{ margin-top:12px; }
 
 .msg{display:flex;align-items:flex-end;gap:8px;max-width:88%;margin:0 6px}
 .msg.left{flex-direction:row;align-self:flex-start}
@@ -123,16 +136,24 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 .msg.right .bubble{background:linear-gradient(180deg,var(--accent),var(--accent2));color:#fff;border-color:transparent}
 .fromLabel{font-size:11px;font-weight:900;color:#6b78a8;margin-bottom:4px}
 .fanText{color:#111}
-.entry{display:flex;flex-direction:column;gap:8px}     /* 讓訊息+引用卡當作一組，反向時不會分開 */
 
 /* 問題引用卡 */
 .replyCard{
-  align-self:flex-end;max-width:74%;margin:0 6px;padding:10px 12px;border-radius:14px;
+  align-self:flex-end;max-width:74%;margin:12px 6px 0;padding:10px 12px;border-radius:14px;
   background:rgba(255,255,255,.86);border:1px solid rgba(0,0,0,.06);box-shadow:0 8px 18px rgba(0,0,0,.12);
   backdrop-filter:saturate(140%) blur(1.5px);word-break:break-word;
 }
+.replyCard .fromLabel{font-size:11px;font-weight:900;letter-spacing:.3px;color:#6d78aa;margin-bottom:4px}
 
-/* Composer */
+/* 右側泡泡回覆按鈕 */
+.replyBtn{
+  position:absolute;right:-32px;top:50%;transform:translateY(-50%);
+  width:34px;height:34px;border-radius:999px;border:none;background:rgba(255,255,255,.78);
+  box-shadow:0 6px 14px rgba(0,0,0,.12);display:flex;align-items:center;justify-content:center;
+}
+.replyBtn svg{width:18px;height:18px;opacity:.85}
+
+/* Composer 固定底部（鍵盤頂起） */
 .dmFooter{
   position:fixed;left:0;right:0;bottom:0;z-index:50;
   background:linear-gradient(180deg,rgba(255,255,255,.35),rgba(255,255,255,.96));
@@ -145,6 +166,10 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 .dmSend{width:54px;height:42px;border:none;border-radius:14px;background:linear-gradient(180deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center}
 .dmSend svg{width:22px;height:22px;stroke:#fff;fill:#fff}
 
+/* 讓 JS 在串尾加的兩個元件工作 */
+#threadPad{height:calc(var(--footer-h) + var(--kb-offset) + env(safe-area-inset-bottom,0px) + 6px);flex:0 0 auto;pointer-events:none}
+#endAnchor{height:1px;flex:0 0 auto}
+
 /* 右上 … 選單 */
 #dmMenu{position:fixed;right:12px;top:64px;display:none;z-index:70}
 #dmMenu .row{flex-direction:column;gap:6px}
@@ -156,6 +181,9 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 #cropStage img{max-width:none;user-select:none;transform-origin:center center}
 .cropCtrls{display:flex;align-items:center;gap:10px;margin:12px 0}
 .cropCtrls .spacer{flex:1}
+
+/* 小工具 */
+.badge{background:#ff3b30;color:#fff;font-size:12px;padding:2px 7px;border-radius:999px;min-width:22px;text-align:center}
 </style>
 </head>
 <body>
@@ -192,7 +220,7 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 
 <!-- ====================== DM DETAIL ====================== -->
 <section id="dmDetail" class="page">
-  <div class="chatHUD">
+  <div class="chatHUD" id="dmHUD">
     <button class="back" onclick="goBack()" aria-label="Back">
       <svg viewBox="0 0 24 24"><path d="M15 19 8 12l7-7"/></svg>
     </button>
@@ -207,7 +235,8 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 
   <div id="dmThread" class="thread"></div>
 
-  <div class="dmFooter">
+  <!-- Footer -->
+  <div class="dmFooter" id="dmFooter">
     <div id="replyChip" class="row" style="display:none;gap:10px;margin:0 14px 8px;color:#7a86b7">
       <b>回覆：</b><span id="replyChipText" class="ghost"></span>
       <button class="chip" onclick="clearReply()">× 取消</button>
@@ -347,7 +376,11 @@ function showPage(id){
 
   if(id==='home'){ renderStoryBar(); renderFeed(currentFilter); }
   if(id==='dm'){ renderDmList(); }
-  if(id==='dmDetail'){ renderThread(); applyChatBg(); }
+  if(id==='dmDetail'){
+    measureHUD(); measureFooter(); renderThread(); applyChatBg();
+    autoStick=true; scrollToEndDuring(1000);
+    bindBottomObserver(); bindScrollGuard(); // 觀察「是否在底」狀態
+  }
   if(id==='composerArtist'){ document.getElementById('composerWho').textContent=NICKNAME; }
 }
 function goBack(){ PAGE_STACK.pop(); const prev=PAGE_STACK[PAGE_STACK.length-1]||'home'; showPage(prev); }
@@ -441,16 +474,12 @@ function renderDmList(){
     </div><span></span></div>`;
 }
 
-/* ---------- DM Thread：純 CSS 貼底（DOM 反序 + column-reverse） ---------- */
+/* ---------- DM Thread（核心） ---------- */
 let replyDraft=null;
 function renderThread(){
-  const box=document.getElementById('dmThread'); if(!box) return;
-  box.innerHTML='';
+  const box=document.getElementById('dmThread'); box.innerHTML='';
 
-  // 反序：讓「最新」先插入，配合 column-reverse 會落在視覺底部
-  GROUP_MSGS.slice().reverse().forEach(m=>{
-    const entry=document.createElement('div'); entry.className='entry';
-
+  GROUP_MSGS.forEach(m=>{
     const wrap=document.createElement('div');
     wrap.className='msg '+(m.from==='artist'?'right':'left');
 
@@ -461,43 +490,47 @@ function renderThread(){
     const bubble=document.createElement('div'); bubble.className='bubble';
     if(m.from==='fan'){
       const lab=document.createElement('div'); lab.className='fromLabel'; lab.textContent='FROM FAN';
-      const txt=document.createElement('div'); txt.className='fanText'; txt.textContent=m.text;
+      const txt=document.createElement('div'); txt.className='fanText'; txt.innerHTML=escapeHtml(m.text);
       bubble.append(lab,txt);
-
-      const btn=document.createElement('button'); btn.className='chip';
-      btn.style.cssText='position:absolute;right:-32px;top:50%;transform:translateY(-50%);border-radius:999px;background:rgba(255,255,255,.78);box-shadow:0 6px 14px rgba(0,0,0,.12);padding:6px 8px';
-      btn.innerHTML=`<svg viewBox="0 0 24 24" width="18" height="18"><path d="M12 4l-1.4 1.4L16.2 11H4v2h12.2l-5.6 5.6L12 20l8-8z" fill="currentColor"/></svg>`;
-      btn.onclick=()=>{ replyDraft={text:m.text};
-        document.getElementById('replyChip').style.display='flex';
-        document.getElementById('replyChipText').textContent=m.text.slice(0,42);
-        document.getElementById('dmMessageInput').focus();
-      };
-      bubble.appendChild(btn);
     }else{
-      bubble.textContent=m.text;
+      bubble.innerHTML=escapeHtml(m.text);
     }
 
-    wrap.append(bubble,timeEl);
-    entry.appendChild(wrap);
+    wrap.append(bubble,timeEl); box.appendChild(wrap);
 
     if(m.from==='artist'&&m.replyTo&&m.replyTo.text){
       const rc=document.createElement('div'); rc.className='replyCard';
       rc.innerHTML=`<div class="fromLabel">FROM FAN</div><div class="fanText">${escapeHtml(m.replyTo.text)}</div>`;
-      entry.appendChild(rc);
+      box.appendChild(rc);
     }
 
-    box.appendChild(entry);
+    if(m.from==='fan'){
+      const btn=document.createElement('button'); btn.className='replyBtn';
+      btn.innerHTML=`<svg viewBox="0 0 24 24"><path d="M12 4l-1.4 1.4L16.2 11H4v2h12.2l-5.6 5.6L12 20l8-8z" fill="currentColor"/></svg>`;
+      btn.onclick=()=>{
+        replyDraft={text:m.text};
+        document.getElementById('replyChip').style.display='flex';
+        document.getElementById('replyChipText').textContent=m.text.slice(0,42);
+        document.getElementById('dmMessageInput').focus();
+        scrollToEndDuring(600);
+      };
+      bubble.appendChild(btn);
+    }
   });
 
-  // column-reverse 下，0 就是最底；確保重繪後仍停在底
-  box.scrollTop = 0;
+  // 串尾墊高 + 錨點（關鍵）
+  if(!box.querySelector('#threadPad')){ const pad=document.createElement('div'); pad.id='threadPad'; box.appendChild(pad); }
+  if(!box.querySelector('#endAnchor')){ const a=document.createElement('div'); a.id='endAnchor'; box.appendChild(a); }
+
+  scrollToEndDuring(600);
 }
 
+/* ---------- 送訊息 / 回覆 ---------- */
 function clearReply(){
   replyDraft=null;
   document.getElementById('replyChip').style.display='none';
+  scrollToEndDuring(400);
 }
-
 function sendArtistMsg(){
   const inp=document.getElementById('dmMessageInput');
   let t=(inp.value||'').trim(); if(!t) return;
@@ -505,15 +538,22 @@ function sendArtistMsg(){
   GROUP_MSGS.push({id:'u'+Date.now(),from:'artist',text:t,ts:Date.now(),replyTo:replyDraft?{text:replyDraft.text}:null});
   LS.set('groupMsgs', GROUP_MSGS);
   inp.value=''; clearReply(); renderThread(); renderDmList();
+  scrollToEndDuring(900);
 }
+document.getElementById('dmSendBtn').addEventListener('click', sendArtistMsg);
+document.getElementById('dmMessageInput').addEventListener('keydown', e=>{
+  if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); sendArtistMsg(); }
+});
 
-/* ---------- DM 菜單 / 改名 ---------- */
+/* ---------- DM 菜單 ---------- */
 function toggleDmMenu(){ const m=document.getElementById('dmMenu'); m.style.display=(m.style.display==='block')?'none':'block'; }
 function hideDmMenu(){ document.getElementById('dmMenu').style.display='none'; }
 document.addEventListener('click',(e)=>{
   const m=document.getElementById('dmMenu');
   if(m.style.display==='block'&&!m.contains(e.target)&&!e.target.closest('.hudBtn')) hideDmMenu();
 });
+
+/* ---------- 改名 ---------- */
 function renameChat(){
   const cur=getRoomTitle(); const n=prompt('更改聊天室名稱（同：藝人暱稱）', cur); if(!n) return;
   NICKNAME=n.trim()||cur; LS.setStr('artistNickname', NICKNAME);
@@ -522,12 +562,12 @@ function renameChat(){
   document.getElementById('composerWho').textContent=NICKNAME; renderDmList();
 }
 
-/* ---------- 背景 ---------- */
+/* ---------- 背景：挑圖/裁切/預覽/套用 ---------- */
 let cropDataURL='', cropDeg=0, cropScale=1.4;
 const chooser=document.getElementById('bgChooser');
 function startPickBg(){ chooser.click(); }
 chooser.addEventListener('change', e=>{
-  const f=e.target.files&&e.target.files[0]; if(!f) return;
+  const f=e.target.files?.[0]; if(!f) return;
   const reader=new FileReader();
   reader.onload=ev=>{
     cropDataURL=ev.target.result;
@@ -543,7 +583,7 @@ function updateCropTransform(){ const img=document.getElementById('cropImg'); im
 function applyCrop(){ document.getElementById('bgPreviewMini').style.backgroundImage=`url("${cropDataURL}")`; closeCrop(); openModal('previewModal'); }
 function confirmPreview(){
   if(cropDataURL) LS.setStr('artistChatBg', cropDataURL);
-  LS.setStr('artistChatBgBlur','0'); LS.setStr('artistChatBgDim','25');
+  LS.setStr('artistChatBgScale','100'); LS.setStr('artistChatBgBlur','0'); LS.setStr('artistChatBgDim','25');
   applyChatBg(); closePreview();
 }
 function openModal(id){ document.getElementById(id).style.display='block'; }
@@ -552,21 +592,61 @@ function closePreview(){ document.getElementById('previewModal').style.display='
 function applyChatBg(){
   const url=LS.getStr('artistChatBg',''); const blur=LS.getStr('artistChatBgBlur','2'); const dim=LS.getStr('artistChatBgDim','25');
   const el=document.getElementById('dmDetail');
-  if(!url){ el.style.backgroundImage='none'; el.classList.remove('hasbg'); }
+  if(!url){ el.style.backgroundImage='none'; el.style.setProperty('--bgDim','0'); el.style.setProperty('--bgBlur','0px'); }
   else{
     el.style.backgroundImage=`url("${url}")`;
-    el.style.setProperty('--bgDim', Number(dim)/100);
+    el.style.setProperty('--bgDim', dim/100);
     el.style.setProperty('--bgBlur', `${blur}px`);
-    el.classList.add('hasbg');
   }
 }
 
-/* ---------- Composer 補件 ---------- */
+/* ---------- 尺寸量測 & 貼底核心 ---------- */
+function measureFooter(){
+  const f=document.getElementById('dmFooter'); if(!f) return;
+  const h=Math.ceil(f.getBoundingClientRect().height);
+  document.documentElement.style.setProperty('--footer-h', h + 'px');
+}
+function measureHUD(){
+  const hEl=document.getElementById('dmHUD'); if(!hEl) return;
+  const h=Math.ceil(hEl.getBoundingClientRect().height);
+  document.documentElement.style.setProperty('--hud-h', h + 'px');
+}
+function atBottom(t){ return ((t.scrollHeight - t.clientHeight) - t.scrollTop) < 4; }
+function stickBottomNow(){
+  const t=document.getElementById('dmThread'); if(!t) return;
+  document.getElementById('endAnchor')?.scrollIntoView({block:'end'});
+  t.scrollTop = t.scrollHeight + 9999;
+}
+function scrollToEndDuring(ms=800){
+  if(!autoStick) return;
+  const end=performance.now()+ms;
+  function loop(){ if(!autoStick) return; stickBottomNow(); if(performance.now()<end) requestAnimationFrame(loop); }
+  requestAnimationFrame(loop);
+}
+let autoStick=true;
+function bindScrollGuard(){
+  const t=document.getElementById('dmThread'); if(!t) return;
+  const nearBottom = ()=>((t.scrollHeight - t.clientHeight) - t.scrollTop) < 6;
+  autoStick = nearBottom();
+  t.addEventListener('scroll', ()=>{ autoStick = nearBottom(); }, {passive:true});
+}
+function bindBottomObserver(){
+  const t=document.getElementById('dmThread'), a=document.getElementById('endAnchor');
+  if(!t || !a) return;
+  try{
+    const io = new IntersectionObserver((entries)=>{
+      const e = entries[0]; autoStick = e.isIntersecting && e.intersectionRatio >= 0.96;
+    },{root:t,threshold:[0.01,0.5,0.96],rootMargin:'0px 0px -1px 0px'});
+    io.observe(a);
+  }catch(_){ /* 老環境就用 scroll guard（上面已加） */ }
+}
+
+/* ---------- Composer ---------- */
 function previewComposeMedia(e){
   const box=document.getElementById('composePreview'); const hint=document.getElementById('composeFilesHint');
   box.innerHTML=''; if(!e.target.files.length){ hint.textContent='未選取檔案'; return; }
   hint.textContent=`已選 ${e.target.files.length} 個檔案`;
-  Array.prototype.forEach.call(e.target.files, f=>{
+  [...e.target.files].forEach(f=>{
     const url=URL.createObjectURL(f); const isVideo=f.type.startsWith('video/');
     const el=document.createElement(isVideo?'video':'img');
     el.src=url; el.controls=isVideo; el.onload=el.onloadeddata=()=>URL.revokeObjectURL(url);
@@ -575,6 +655,17 @@ function previewComposeMedia(e){
   });
 }
 function publishDraft(){ alert('先存草稿＆預覽；發佈規則等我們接首頁串流。'); showPage('home'); }
+
+/* ---------- 暱稱按鈕 ---------- */
+document.getElementById('btnEditNick').addEventListener('click', ()=>{
+  const v=prompt('輸入新的暱稱（= 聊天室名稱）', NICKNAME);
+  if(v&&v.trim()){
+    NICKNAME=v.trim(); LS.setStr('artistNickname', NICKNAME);
+    document.getElementById('meNickname').textContent=NICKNAME;
+    document.getElementById('dmTitle').textContent=NICKNAME.toUpperCase();
+    document.getElementById('composerWho').textContent=NICKNAME; renderDmList();
+  }
+});
 
 /* ---------- 啟動 ---------- */
 document.addEventListener('DOMContentLoaded', ()=>{
@@ -586,11 +677,34 @@ document.addEventListener('DOMContentLoaded', ()=>{
 
   renderStoryBar(); renderFeed(currentFilter); renderDmList();
 
-  document.getElementById('dmSendBtn').addEventListener('click', sendArtistMsg);
-  document.getElementById('dmMessageInput').addEventListener('keydown', e=>{
-    if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); sendArtistMsg(); }
-  });
+  // 初始量測
+  measureHUD(); measureFooter();
+
+  // 進到 DM 前若已在該頁，仍保險貼底
+  if(document.getElementById('dmThread')){ scrollToEndDuring(800); }
 });
+
+/* 監看 footer 高度變化（鍵盤彈起 / 回覆 chip 出現） */
+(()=>{ const footer=document.getElementById('dmFooter'); if(!footer) return;
+  if('ResizeObserver' in window){ new ResizeObserver(()=>{ measureFooter(); scrollToEndDuring(600); }).observe(footer); }
+})();
+
+/* iOS Safari：視窗/鍵盤變化（來源於 visualViewport） */
+;(function(){
+  const vv=window.visualViewport;
+  function applyVV(){
+    if(!vv) return;
+    const offset=Math.max(0, window.innerHeight - vv.height);
+    document.documentElement.style.setProperty('--kb-offset', offset + 'px');
+    measureFooter(); scrollToEndDuring(600);
+  }
+  if(vv){ vv.addEventListener('resize', applyVV); vv.addEventListener('scroll', applyVV); applyVV(); }
+  window.addEventListener('resize', ()=>{ measureHUD(); measureFooter(); scrollToEndDuring(600); });
+  window.addEventListener('orientationchange', ()=>{ setTimeout(()=>{ measureHUD(); measureFooter(); scrollToEndDuring(800); },120); });
+  window.addEventListener('pageshow', ()=>{ measureFooter(); scrollToEndDuring(800); });
+  document.addEventListener('visibilitychange', ()=>{ if(!document.hidden){ scrollToEndDuring(600); } });
+  if(document.fonts && document.fonts.ready){ document.fonts.ready.then(()=>scrollToEndDuring(800)); }
+})();
 </script>
 </body>
 </html>
