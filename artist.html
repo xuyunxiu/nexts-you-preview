@@ -3,16 +3,15 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>NEXT’S YOU — artist（貼底最終版）</title>
-
+<title>NEXT’S YOU — artist（穩定貼底版）</title>
 <style>
 :root{
   --bg:#f5f7ff; --card:#fff; --text:#1a1a1a; --sub:#667085; --line:#e7eaf3; --ghost:#9aa0b4;
   --accent:#6a5acd; --accent2:#836fff; --ok:#10b981; --danger:#ff4d4f;
   --radius:16px; --shadow:0 12px 34px rgba(18,24,40,.08);
   --safe:env(safe-area-inset-bottom,0px);
-  --kb-offset:0px;          /* 工具列/鍵盤佔用 */
-  --footer-h:86px;          /* 由 JS 實測回寫 */
+  --kb-offset:0px;          /* 工具列/鍵盤佔用（JS 回寫） */
+  --footer-h:86px;          /* Footer 實測高度（JS 回寫） */
 }
 *{box-sizing:border-box}
 html,body{height:100%}
@@ -108,17 +107,17 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 }
 #dmDetail::after{content:"";position:fixed;inset:0;pointer-events:none;background:rgba(0,0,0,var(--bgDim,.0));backdrop-filter:blur(var(--bgBlur,0px));z-index:-1}
 
-/* thread：真正保留底部空間 + 關閉自動錨點 */
+/* thread：保留底部空間 + 關閉自動錨點 */
 .thread{
   display:flex;flex-direction:column;gap:12px;
   height:calc(100dvh - 230px);
   overflow-y:auto;
   padding:8px 2px 0;
-  padding-bottom:calc(var(--footer-h) + var(--kb-offset) + var(--safe) + 8px) !important;
-  scroll-padding-bottom:calc(var(--footer-h) + var(--kb-offset) + var(--safe) + 8px) !important;
+  padding-bottom:calc(var(--footer-h) + var(--kb-offset) + var(--safe) + 8px);
+  scroll-padding-bottom:calc(var(--footer-h) + var(--kb-offset) + var(--safe) + 8px);
   -webkit-overflow-scrolling:touch; scrollbar-gutter:stable both-edges;
   overscroll-behavior:contain;
-  overflow-anchor:none;               /* 關閉容器自動錨點 */
+  overflow-anchor:none;
 }
 @supports (height:100svh){ .thread{height:calc(100svh - 230px)} }
 .msg{display:flex;align-items:flex-end;gap:8px;max-width:88%;margin:0 6px}
@@ -152,8 +151,7 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
   position:fixed;left:0;right:0;bottom:0;z-index:50;
   background:linear-gradient(180deg,rgba(255,255,255,.35),rgba(255,255,255,.96));
   backdrop-filter:blur(10px);
-  /* 重要：拿掉這條線，避免「切半」的視覺 */
-  border-top:none;
+  border-top:none;  /* 移除會「切泡泡」的線 */
   padding:10px 0 calc(10px + env(safe-area-inset-bottom));
   transform:translateY(calc(-1 * var(--kb-offset)));
 }
@@ -311,368 +309,395 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 <script>
 /* ---------- 小工具 ---------- */
 function imgFallback(img){
-  const svg = encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><rect width='100%' height='100%' fill='#eaeef8'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='#9aa0b4' font-family='sans-serif' font-size='20'>NO IMG</text></svg>`);
+  var svg = encodeURIComponent("<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><rect width='100%' height='100%' fill='#eaeef8'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='#9aa0b4' font-family='sans-serif' font-size='20'>NO IMG</text></svg>");
   img.src = 'data:image/svg+xml;charset=UTF-8,' + svg; img.onerror = null;
 }
-const LS = {
-  get(k,def=null){ try{ const v=localStorage.getItem(k); return v? JSON.parse(v): def }catch(e){ return def } },
-  set(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)) }catch(e){} },
-  getStr(k,def=''){ const v=localStorage.getItem(k); return v ?? def },
-  setStr(k,v){ localStorage.setItem(k,v) }
+var LS = {
+  get:function(k,def){ try{ var v=localStorage.getItem(k); return v? JSON.parse(v): (typeof def==='undefined'?null:def) }catch(e){ return (typeof def==='undefined'?null:def) } },
+  set:function(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)) }catch(e){} },
+  getStr:function(k,def){ var v=localStorage.getItem(k); return v!==null?v:(typeof def==='undefined'?'':def) },
+  setStr:function(k,v){ localStorage.setItem(k,v) }
 };
-const fmtTime = ts => new Date(ts).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
-const escapeHtml = s => (s||'').toString().replace(/[&<>"']/g, m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;" }[m]));
+function fmtTime(ts){ return new Date(ts).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}); }
+function escapeHtml(s){ return (s||'').toString().replace(/[&<>"']/g,function(m){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]; }); }
 
 /* 舞台名/暱稱/頭像 */
-const STAGE_NAME = LS.getStr('artistStage','ANNIE');
-let   NICKNAME   = LS.getStr('artistNickname','Annie');
-let   AVATAR     = LS.getStr('artistAvatar','https://picsum.photos/80?u=artist');
-const ME = { id:'me', name:STAGE_NAME, avatar:AVATAR };
+var STAGE_NAME = LS.getStr('artistStage','ANNIE');
+var NICKNAME   = LS.getStr('artistNickname','Annie');
+var AVATAR     = LS.getStr('artistAvatar','https://picsum.photos/80?u=artist');
+var ME = { id:'me', name:STAGE_NAME, avatar:AVATAR };
 
 /* 假資料 */
-const ARTISTS = [
+var ARTISTS = [
   {id:'me',name:STAGE_NAME,avatar:AVATAR},
   {id:'all',name:'ALL',avatar:'https://picsum.photos/80?u=all'},
   {id:'dohee',name:'DOHEE',avatar:'https://picsum.photos/80?u=dh'},
   {id:'woo',name:'WOOCHAN',avatar:'https://picsum.photos/80?u=wc'}
 ];
-const POSTS = LS.get('artistPosts',[
+var POSTS = LS.get('artistPosts',[
   {id:'p3',artistId:'dohee',artistStage:'DOHEE',avatar:'https://picsum.photos/80?u=dh',text:'練舞練到爆汗 💃',img:'https://picsum.photos/1200?u=dh1',ts:Date.now()-1000*60*40},
   {id:'p2',artistId:'woo',artistStage:'WOOCHAN',avatar:'https://picsum.photos/80?u=wc',text:'今天吃拉麵 🍜',img:'https://picsum.photos/1200?u=wc1',ts:Date.now()-1000*60*50},
   {id:'p1',artistId:'me',artistStage:STAGE_NAME,avatar:ME.avatar,text:'大家好，我是 Annie ✨',img:'',ts:Date.now()-1000*60*60}
 ]);
-const FANS=[{id:'f1',name:'Michelle',avatar:'https://picsum.photos/40?u=f1'},{id:'f2',name:'粉絲 B',avatar:'https://picsum.photos/40?u=f2'}];
-let GROUP_MSGS=LS.get('groupMsgs',[
+var FANS=[{id:'f1',name:'Michelle',avatar:'https://picsum.photos/40?u=f1'},{id:'f2',name:'粉絲 B',avatar:'https://picsum.photos/40?u=f2'}];
+var GROUP_MSGS=LS.get('groupMsgs',[
   {id:'m1',from:'fan',fanId:'f1',text:'偶像好～',ts:Date.now()-1000*60*45},
   {id:'m2',from:'fan',fanId:'f2',text:'今天吃什麼？',ts:Date.now()-1000*60*43},
   {id:'m3',from:'artist',text:'我午餐吃了沙拉 🥗',ts:Date.now()-1000*60*40,replyTo:{text:'今天吃什麼？'}}
 ]);
-const lastSeen = LS.get('lastSeen', {});
+var lastSeen = LS.get('lastSeen', {});
 
 /* ---------- 導航 ---------- */
-const HIDE_NAV_IN=['dmDetail','composerArtist'];
-let PAGE_STACK=['home'];
+var HIDE_NAV_IN=['dmDetail','composerArtist'];
+var PAGE_STACK=['home'];
 function showPage(id){
-  document.querySelectorAll('section.page').forEach(s=>s.classList.remove('active'));
-  const page=document.getElementById(id); if(page) page.classList.add('active');
+  var pages=document.querySelectorAll('section.page');
+  for(var i=0;i<pages.length;i++){ pages[i].classList.remove('active'); }
+  var page=document.getElementById(id); if(page) page.classList.add('active');
   if(PAGE_STACK[PAGE_STACK.length-1]!==id) PAGE_STACK.push(id);
 
-  document.querySelectorAll('#nav button').forEach(b=>b.classList.remove('active'));
-  ({home:'tabHome',dm:'tabDM',live:'tabLive',store:'tabStore'}[id]||null) &&
-    document.getElementById({home:'tabHome',dm:'tabDM',live:'tabLive',store:'tabStore'}[id]).classList.add('active');
+  var navBtns=document.querySelectorAll('#nav button');
+  for(var j=0;j<navBtns.length;j++){ navBtns[j].classList.remove('active'); }
+  var map={home:'tabHome',dm:'tabDM',live:'tabLive',store:'tabStore'};
+  if(map[id]){ var b=document.getElementById(map[id]); if(b) b.classList.add('active'); }
 
-  const nav=document.getElementById('nav');
-  if(HIDE_NAV_IN.includes(id)) nav.classList.add('hidden'); else nav.classList.remove('hidden');
+  var nav=document.getElementById('nav');
+  if(HIDE_NAV_IN.indexOf(id)>=0) nav.classList.add('hidden'); else nav.classList.remove('hidden');
 
   if(id==='home'){ renderStoryBar(); renderFeed(currentFilter); }
   if(id==='dm'){ renderDmList(); }
   if(id==='dmDetail'){
     renderThread(); applyChatBg(); updateFooterSpace();
     autoStick=true;
-    ensureBottomDuring(900);                    // 進入立即貼底
-    setTimeout(()=>ensureBottomDuring(900),120);
-    requestAnimationFrame(()=>ensureBottomDuring(900));
+    ensureBottomDuring(900);
+    setTimeout(function(){ ensureBottomDuring(900); },120);
+    requestAnimationFrame(function(){ ensureBottomDuring(900); });
     bindBottomObserver(); bindScrollGuard(); watchThreadMutations();
   }
-  if(id==='composerArtist'){ document.getElementById('composerWho').textContent=NICKNAME; }
+  if(id==='composerArtist'){ var cw=document.getElementById('composerWho'); if(cw) cw.textContent=NICKNAME; }
 }
-function goBack(){ PAGE_STACK.pop(); const prev=PAGE_STACK[PAGE_STACK.length-1]||'home'; showPage(prev); }
+function goBack(){ PAGE_STACK.pop(); var prev=PAGE_STACK[PAGE_STACK.length-1]||'home'; showPage(prev); }
 
 /* ---------- HOME：Story & Feed ---------- */
-let currentFilter='me';
+var currentFilter='me';
 function hasNewDots(artistId){
   if(artistId==='me'||artistId==='all') return false;
-  const seen=lastSeen[artistId]||0;
-  const latest=Math.max(0,...POSTS.filter(p=>p.artistId===artistId).map(p=>p.ts));
+  var seen=lastSeen[artistId]||0;
+  var latest=0;
+  for(var i=0;i<POSTS.length;i++){ if(POSTS[i].artistId===artistId && POSTS[i].ts>latest) latest=POSTS[i].ts; }
   return latest>seen;
 }
 function renderStoryBar(){
-  const bar=document.getElementById('storyBar');
-  const others=ARTISTS.filter(a=>a.id!=='me'&&a.id!=='all');
-  others.sort((a,b)=>{
-    const la=Math.max(0,...POSTS.filter(p=>p.artistId===a.id).map(p=>p.ts));
-    const lb=Math.max(0,...POSTS.filter(p=>p.artistId===b.id).map(p=>p.ts));
+  var bar=document.getElementById('storyBar');
+  var others=ARTISTS.filter(function(a){ return a.id!=='me'&&a.id!=='all'; });
+  others.sort(function(a,b){
+    var la=0, lb=0;
+    for(var i=0;i<POSTS.length;i++){
+      if(POSTS[i].artistId===a.id && POSTS[i].ts>la) la=POSTS[i].ts;
+      if(POSTS[i].artistId===b.id && POSTS[i].ts>lb) lb=POSTS[i].ts;
+    }
     return lb-la;
   });
-  const order=[ARTISTS.find(a=>a.id==='me'),ARTISTS.find(a=>a.id==='all'),...others];
-  bar.innerHTML=order.map(a=>{
-    const active=(currentFilter===a.id)?'active':'';
-    const pinned=(a.id==='me'||a.id==='all')?'pinned':'';
-    const dot=hasNewDots(a.id)?'<span class="dot"></span>':'';
-    return `<div class="story-item ${active} ${pinned}" data-id="${a.id}">
-      <img src="${a.avatar}" onerror="imgFallback(this)">${dot}
-      <div class="name">${a.name}</div></div>`;
-  }).join('');
-  bar.querySelectorAll('.story-item').forEach(el=>{
-    el.addEventListener('click', ()=>{
-      const id=el.dataset.id; currentFilter=id;
-      if(id!=='all') lastSeen[id]=Date.now(); LS.set('lastSeen', lastSeen);
-      renderStoryBar(); renderFeed(currentFilter); window.scrollTo({top:0,behavior:'smooth'});
-    });
-  });
+  var meItem=null, allItem=null;
+  for(var k=0;k<ARTISTS.length;k++){ if(ARTISTS[k].id==='me') meItem=ARTISTS[k]; if(ARTISTS[k].id==='all') allItem=ARTISTS[k]; }
+  var order=[meItem,allItem].concat(others);
+  var html='';
+  for(var t=0;t<order.length;t++){
+    var a=order[t]; if(!a) continue;
+    var active=(currentFilter===a.id)?'active':'';
+    var pinned=(a.id==='me'||a.id==='all')?'pinned':'';
+    var dot=hasNewDots(a.id)?'<span class="dot"></span>':'';
+    html+= '<div class="story-item '+active+' '+pinned+'" data-id="'+a.id+'">'+
+      '<img src="'+a.avatar+'" onerror="imgFallback(this)">'+dot+
+      '<div class="name">'+a.name+'</div></div>';
+  }
+  bar.innerHTML=html;
+  var items=bar.querySelectorAll('.story-item');
+  for(var x=0;x<items.length;x++){
+    items[x].addEventListener('click', (function(el){
+      return function(){
+        var id=el.getAttribute('data-id'); currentFilter=id;
+        if(id!=='all'){ lastSeen[id]=Date.now(); LS.set('lastSeen', lastSeen); }
+        renderStoryBar(); renderFeed(currentFilter); window.scrollTo(0,0);
+      };
+    })(items[x]));
+  }
 }
 function feedOf(filter){
-  if(filter==='all') return POSTS.slice().sort((a,b)=>b.ts-a.ts);
-  if(filter==='me')  return POSTS.filter(p=>p.artistId==='me').sort((a,b)=>b.ts-a.ts);
-  return POSTS.filter(p=>p.artistId===filter).sort((a,b)=>b.ts-a.ts);
+  var arr=POSTS.slice(0);
+  if(filter==='all'){ arr.sort(function(a,b){return b.ts-a.ts}); return arr; }
+  if(filter==='me'){ arr=arr.filter(function(p){return p.artistId==='me'}); arr.sort(function(a,b){return b.ts-a.ts}); return arr; }
+  arr=arr.filter(function(p){return p.artistId===filter}); arr.sort(function(a,b){return b.ts-a.ts}); return arr;
 }
-function VB(size=18){
-  const gid='vbGrad-'+Math.random().toString(36).slice(2,8);
-  return `<span class="verified-badge" style="width:${size}px;height:${size}px">
-    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <defs><linearGradient id="${gid}" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0%" stop-color="#6fb3ff"/><stop offset="58%" stop-color="#7b6dff"/><stop offset="92%" stop-color="#ffffff"/><stop offset="100%" stop-color="#e9ecff"/>
-      </linearGradient></defs>
-      <path class="gear" fill="url(#${gid})" d="M12 2.3 14 4l2.9-.6.9 2.7 2.7.9-.6 2.9L22 12l-2.1 2.1.6 2.9-2.7.9-.9 2.7-2.9-.6L12 21.7 10 20l-2.9.6-.9-2.7-2.7-.9.6-2.9L2 12l2.1-2.1-.6-2.9 2.7-.9.9-2.7L10 4l2-1.7z"/>
-      <path class="tick" d="M10.4 12.8 8.7 11.2l1.1-1.1 1.2 1.2 3-3 1.1 1.1-3.8 3.8a1 1 0 0 1-1.4 0z"/></svg>
-  </span>`;
+function VB(size){
+  size=size||18; var gid='vbGrad-'+Math.random().toString(36).slice(2,8);
+  return '<span class="verified-badge" style="width:'+size+'px;height:'+size+'px">'+
+    '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">'+
+    '<defs><linearGradient id="'+gid+'" x1="0" y1="0" x2="1" y2="1">'+
+    '<stop offset="0%" stop-color="#6fb3ff"/><stop offset="58%" stop-color="#7b6dff"/><stop offset="92%" stop-color="#ffffff"/><stop offset="100%" stop-color="#e9ecff"/>'+
+    '</linearGradient></defs>'+
+    '<path class="gear" fill="url(#'+gid+')" d="M12 2.3 14 4l2.9-.6.9 2.7 2.7.9-.6 2.9L22 12l-2.1 2.1.6 2.9-2.7.9-.9 2.7-2.9-.6L12 21.7 10 20l-2.9.6-.9-2.7-2.7-.9.6-2.9L2 12l2.1-2.1-.6-2.9 2.7-.9.9-2.7L10 4l2-1.7z"/>'+
+    '<path class="tick" d="M10.4 12.8 8.7 11.2l1.1-1.1 1.2 1.2 3-3 1.1 1.1-3.8 3.8a1 1 0 0 1-1.4 0z"/></svg></span>';
 }
-function renderFeed(filter='me'){
-  const wrap=document.getElementById('feedWrap');
-  const list=feedOf(filter);
-  if(!list.length){ wrap.innerHTML=`<div class="ghost" style="text-align:center;margin-top:20vh">尚無貼文</div>`; return; }
-  wrap.innerHTML=list.map(p=>{
-    const stage=(p.artistStage||STAGE_NAME||'').toString().toUpperCase();
-    return `<div class="card soft post">
-      <div class="hdr">
-        <img class="avatar" src="${p.avatar}" onerror="imgFallback(this)">
-        <div class="meta">
-          <b class="stage">${escapeHtml(stage)} ${VB(18)}</b>
-          <small class="ghost">${new Date(p.ts).toLocaleString()}</small>
-        </div>
-      </div>
-      <div class="body"><p>${escapeHtml(p.text)}</p>
-      ${p.img?`<img class="hero" src="${p.img}" onerror="imgFallback(this)">`:``}</div>
-    </div>`;
-  }).join('');
+function renderFeed(filter){
+  filter=filter||'me';
+  var wrap=document.getElementById('feedWrap');
+  var list=feedOf(filter);
+  if(!list.length){ wrap.innerHTML='<div class="ghost" style="text-align:center;margin-top:20vh">尚無貼文</div>'; return; }
+  var html='';
+  for(var i=0;i<list.length;i++){
+    var p=list[i]; var stage=(p.artistStage||STAGE_NAME||'').toString().toUpperCase();
+    html+='<div class="card soft post"><div class="hdr">'+
+      '<img class="avatar" src="'+p.avatar+'" onerror="imgFallback(this)">'+
+      '<div class="meta"><b class="stage">'+escapeHtml(stage)+' '+VB(18)+'</b>'+
+      '<small class="ghost">'+new Date(p.ts).toLocaleString()+'</small></div></div>'+
+      '<div class="body"><p>'+escapeHtml(p.text)+'</p>'+
+      (p.img?'<img class="hero" src="'+p.img+'" onerror="imgFallback(this)">':'')+
+      '</div></div>';
+  }
+  wrap.innerHTML=html;
+}
+
+/* ---------- DM List ---------- */
+function getRoomTitle(){ return NICKNAME; }
+function renderDmList(){
+  var box=document.getElementById('dmList'); if(!box) return;
+  var last=GROUP_MSGS[GROUP_MSGS.length-1];
+  box.innerHTML='<div class="dmCard" onclick="showPage(\\'dmDetail\\')">'+
+    '<img src="'+ME.avatar+'" onerror="imgFallback(this)">'+
+    '<div class="nameBlock"><div class="nameRow"><span class="artistTag">ARTIST</span>'+
+    '<div class="stage">'+escapeHtml(getRoomTitle().toUpperCase())+'</div></div>'+
+    '<small class="ghost" style="display:block;max-width:62vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+
+    escapeHtml(last?last.text:'（無訊息）')+
+    '</small></div><span></span></div>';
 }
 
 /* ---------- DM Thread（貼底） ---------- */
-let replyDraft=null;
+var replyDraft=null;
 function renderThread(){
-  const box=document.getElementById('dmThread'); box.innerHTML='';
-
-  GROUP_MSGS.forEach(m=>{
-    const wrap=document.createElement('div');
-    wrap.className='msg '+(m.from==='artist'?'right':'left');
-
-    const timeEl=document.createElement('div');
-    timeEl.className='time'+(m.from==='artist'?'':' dark');
-    timeEl.textContent=fmtTime(m.ts);
-
-    const bubble=document.createElement('div'); bubble.className='bubble';
+  var box=document.getElementById('dmThread'); if(!box) return; box.innerHTML='';
+  for(var i=0;i<GROUP_MSGS.length;i++){
+    var m=GROUP_MSGS[i];
+    var wrap=document.createElement('div'); wrap.className='msg '+(m.from==='artist'?'right':'left');
+    var timeEl=document.createElement('div'); timeEl.className='time'+(m.from==='artist'?'':' dark'); timeEl.textContent=fmtTime(m.ts);
+    var bubble=document.createElement('div'); bubble.className='bubble';
     if(m.from==='fan'){
-      const lab=document.createElement('div'); lab.className='fromLabel'; lab.textContent='FROM FAN';
-      const txt=document.createElement('div'); txt.className='fanText'; txt.textContent=m.text;
-      bubble.append(lab,txt);
-    }else{
-      bubble.textContent=m.text;
-    }
-    wrap.append(bubble,timeEl); box.appendChild(wrap);
-
+      var lab=document.createElement('div'); lab.className='fromLabel'; lab.textContent='FROM FAN';
+      var txt=document.createElement('div'); txt.className='fanText'; txt.textContent=m.text; bubble.appendChild(lab); bubble.appendChild(txt);
+    }else{ bubble.textContent=m.text; }
+    wrap.appendChild(bubble); wrap.appendChild(timeEl); box.appendChild(wrap);
     if(m.from==='artist'&&m.replyTo&&m.replyTo.text){
-      const rc=document.createElement('div'); rc.className='replyCard';
-      rc.innerHTML=`<div class="fromLabel">FROM FAN</div><div class="fanText">${escapeHtml(m.replyTo.text)}</div>`;
+      var rc=document.createElement('div'); rc.className='replyCard';
+      rc.innerHTML='<div class="fromLabel">FROM FAN</div><div class="fanText">'+escapeHtml(m.replyTo.text)+'</div>';
       box.appendChild(rc);
     }
-
     if(m.from==='fan'){
-      const btn=document.createElement('button'); btn.className='replyBtn';
-      btn.innerHTML=`<svg viewBox="0 0 24 24"><path d="M12 4l-1.4 1.4L16.2 11H4v2h12.2l-5.6 5.6L12 20l8-8z" fill="currentColor"/></svg>`;
-      btn.onclick=()=>{
-        replyDraft={text:m.text};
-        document.getElementById('replyChip').style.display='flex';
-        document.getElementById('replyChipText').textContent=m.text.slice(0,42);
-        document.getElementById('dmMessageInput').focus();
+      var btn=document.createElement('button'); btn.className='replyBtn';
+      btn.innerHTML='<svg viewBox="0 0 24 24"><path d="M12 4l-1.4 1.4L16.2 11H4v2h12.2l-5.6 5.6L12 20l8-8z" fill="currentColor"/></svg>';
+      btn.onclick=(function(text){ return function(){
+        replyDraft={text:text};
+        var chip=document.getElementById('replyChip'); if(chip) chip.style.display='flex';
+        var rtext=document.getElementById('replyChipText'); if(rtext) rtext.textContent=(text||'').slice(0,42);
+        var inp=document.getElementById('dmMessageInput'); if(inp) inp.focus();
         ensureBottomDuring(600);
-      };
+      };})(m.text);
       bubble.appendChild(btn);
     }
-  });
-
-  // 只保留錨點（容器 overflow-anchor:none; 錨點 auto）
-  const end = document.createElement('div'); end.id='endAnchor'; end.style.cssText='height:1px;width:1px;overflow-anchor:auto;';
-  box.append(end);
-
-  updateFooterSpace();
-  ensureBottomDuring(600);
+  }
+  // 錨點（用於貼底）
+  var end=document.createElement('div'); end.id='endAnchor'; end.style.cssText='height:1px;width:1px;overflow-anchor:auto;';
+  box.appendChild(end);
+  updateFooterSpace(); ensureBottomDuring(600);
 }
 function clearReply(){
   replyDraft=null;
-  document.getElementById('replyChip').style.display='none';
+  var chip=document.getElementById('replyChip'); if(chip) chip.style.display='none';
   updateFooterSpace(); ensureBottomDuring(400);
 }
 function sendArtistMsg(){
-  const inp=document.getElementById('dmMessageInput');
-  let t=(inp.value||'').trim(); if(!t) return;
-  t=t.replaceAll('@@@', FANS[0].name);
-  GROUP_MSGS.push({id:'u'+Date.now(),from:'artist',text:t,ts:Date.now(),replyTo:replyDraft?{text:replyDraft.text}:null});
+  var inp=document.getElementById('dmMessageInput'); if(!inp) return;
+  var t=(inp.value||'').trim(); if(!t) return;
+  // 取代 @@@（避免 replaceAll）
+  t=t.split('@@@').join(FANS[0].name);
+  GROUP_MSGS.push({id:'u'+Date.now(),from:'artist',text:t,ts:Date.now(),replyTo:(replyDraft?{text:replyDraft.text}:null)});
   LS.set('groupMsgs', GROUP_MSGS);
   inp.value=''; clearReply(); renderThread(); renderDmList();
   ensureBottomDuring(900);
 }
 document.getElementById('dmSendBtn').addEventListener('click', sendArtistMsg);
-document.getElementById('dmMessageInput').addEventListener('keydown', e=>{
+document.getElementById('dmMessageInput').addEventListener('keydown', function(e){
   if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); sendArtistMsg(); }
 });
 
 /* ---------- DM 菜單 ---------- */
-function toggleDmMenu(){ const m=document.getElementById('dmMenu'); m.style.display=(m.style.display==='block')?'none':'block'; }
-function hideDmMenu(){ document.getElementById('dmMenu').style.display='none'; }
-document.addEventListener('click',(e)=>{
-  const m=document.getElementById('dmMenu');
-  if(m.style.display==='block'&&!m.contains(e.target)&&!e.target.closest('.hudBtn')) hideDmMenu();
+function toggleDmMenu(){ var m=document.getElementById('dmMenu'); if(!m) return; m.style.display=(m.style.display==='block')?'none':'block'; }
+function hideDmMenu(){ var m=document.getElementById('dmMenu'); if(m) m.style.display='none'; }
+document.addEventListener('click',function(e){
+  var m=document.getElementById('dmMenu'); var hud=document.querySelector('.hudBtn');
+  if(m && m.style.display==='block' && !m.contains(e.target) && (!hud || !hud.contains(e.target))) hideDmMenu();
 });
 
 /* ---------- 改名 ---------- */
 function renameChat(){
-  const cur=getRoomTitle(); const n=prompt('更改聊天室名稱（同：藝人暱稱）', cur); if(!n) return;
-  NICKNAME=n.trim()||cur; LS.setStr('artistNickname', NICKNAME);
-  document.getElementById('dmTitle').textContent=NICKNAME.toUpperCase();
-  document.getElementById('meNickname').textContent=NICKNAME;
-  document.getElementById('composerWho').textContent=NICKNAME; renderDmList();
+  var cur=getRoomTitle(); var n=prompt('更改聊天室名稱（同：藝人暱稱）', cur); if(!n) return;
+  NICKNAME=(n.trim()||cur); LS.setStr('artistNickname', NICKNAME);
+  var t=document.getElementById('dmTitle'); if(t) t.textContent=NICKNAME.toUpperCase();
+  var nn=document.getElementById('meNickname'); if(nn) nn.textContent=NICKNAME;
+  var cw=document.getElementById('composerWho'); if(cw) cw.textContent=NICKNAME;
+  renderDmList();
 }
 
 /* ---------- 背景 ---------- */
-let cropDataURL='', cropDeg=0, cropScale=1.4;
-const chooser=document.getElementById('bgChooser');
-function startPickBg(){ chooser.click(); }
-chooser.addEventListener('change', e=>{
-  const f=e.target.files?.[0]; if(!f) return;
-  const reader=new FileReader();
-  reader.onload=ev=>{
-    cropDataURL=ev.target.result;
-    document.getElementById('cropImg').src=cropDataURL;
-    cropDeg=0; document.getElementById('cropScale').value=140; cropScale=1.4;
-    updateCropTransform(); openModal('cropModal');
-  };
-  reader.readAsDataURL(f);
-});
+var cropDataURL='', cropDeg=0, cropScale=1.4;
+var chooser=document.getElementById('bgChooser');
+function startPickBg(){ if(chooser) chooser.click(); }
+if(chooser){
+  chooser.addEventListener('change', function(e){
+    var f=(e && e.target && e.target.files && e.target.files[0])? e.target.files[0] : null; if(!f) return;
+    var reader=new FileReader();
+    reader.onload=function(ev){
+      cropDataURL=ev.target.result;
+      var img=document.getElementById('cropImg'); if(img) img.src=cropDataURL;
+      cropDeg=0; var sc=document.getElementById('cropScale'); if(sc){ sc.value=140; } cropScale=1.4;
+      updateCropTransform(); openModal('cropModal');
+    };
+    reader.readAsDataURL(f);
+  });
+}
 function rotateCrop(){ cropDeg=(cropDeg+90)%360; updateCropTransform(); }
-document.getElementById('cropScale').addEventListener('input', e=>{ cropScale=(+e.target.value)/100; updateCropTransform(); });
-function updateCropTransform(){ const img=document.getElementById('cropImg'); img.style.transform=`scale(${cropScale}) rotate(${cropDeg}deg)`; }
-function applyCrop(){ document.getElementById('bgPreviewMini').style.backgroundImage=`url("${cropDataURL}")`; closeCrop(); openModal('previewModal'); }
+var sc=document.getElementById('cropScale');
+if(sc){ sc.addEventListener('input', function(e){ cropScale=(+e.target.value)/100; updateCropTransform(); }); }
+function updateCropTransform(){ var img=document.getElementById('cropImg'); if(img) img.style.transform='scale('+cropScale+') rotate('+cropDeg+'deg)'; }
+function applyCrop(){ var mini=document.getElementById('bgPreviewMini'); if(mini) mini.style.backgroundImage='url("'+cropDataURL+'")'; closeCrop(); openModal('previewModal'); }
 function confirmPreview(){
   if(cropDataURL) LS.setStr('artistChatBg', cropDataURL);
   LS.setStr('artistChatBgScale','100'); LS.setStr('artistChatBgBlur','0'); LS.setStr('artistChatBgDim','25');
   applyChatBg(); closePreview();
 }
-function openModal(id){ document.getElementById(id).style.display='block'; }
-function closeCrop(){ document.getElementById('cropModal').style.display='none'; }
-function closePreview(){ document.getElementById('previewModal').style.display='none'; }
+function openModal(id){ var m=document.getElementById(id); if(m) m.style.display='block'; }
+function closeCrop(){ var m=document.getElementById('cropModal'); if(m) m.style.display='none'; }
+function closePreview(){ var m=document.getElementById('previewModal'); if(m) m.style.display='none'; }
 function applyChatBg(){
-  const url=LS.getStr('artistChatBg',''); const blur=LS.getStr('artistChatBgBlur','2'); const dim=LS.getStr('artistChatBgDim','25');
-  const el=document.getElementById('dmDetail');
+  var url=LS.getStr('artistChatBg',''); var blur=LS.getStr('artistChatBgBlur','2'); var dim=LS.getStr('artistChatBgDim','25');
+  var el=document.getElementById('dmDetail');
+  if(!el) return;
   if(!url){ el.style.backgroundImage='none'; el.style.setProperty('--bgDim','0'); el.style.setProperty('--bgBlur','0px'); }
   else{
-    el.style.backgroundImage=`url("${url}")`;
-    el.style.setProperty('--bgDim', dim/100);
-    el.style.setProperty('--bgBlur', `${blur}px`);
+    el.style.backgroundImage='url("'+url+'")';
+    el.style.setProperty('--bgDim', (parseInt(dim,10)||0)/100);
+    el.style.setProperty('--bgBlur', (parseInt(blur,10)||0)+'px');
   }
 }
 
 /* ---------- 貼底核心 ---------- */
 function updateFooterSpace(){
-  const f=document.querySelector('.dmFooter'); if(!f) return;
-  const h=Math.ceil(f.getBoundingClientRect().height);
+  var f=document.querySelector('.dmFooter'); if(!f) return;
+  var h=Math.ceil(f.getBoundingClientRect().height);
   document.documentElement.style.setProperty('--footer-h', h + 'px');
 }
 function anchor(){ return document.getElementById('endAnchor'); }
 function stickBottomHard(){
-  const t=document.getElementById('dmThread'); if(!t) return;
-  anchor()?.scrollIntoView({block:'end'});
+  var t=document.getElementById('dmThread'); if(!t) return;
+  var a=anchor(); if(a && a.scrollIntoView) a.scrollIntoView({block:'end'});
   t.scrollTop = t.scrollHeight + 9999;
 }
-let autoStick=true;
-function ensureBottomDuring(ms=800){
+var autoStick=true;
+function ensureBottomDuring(ms){
+  ms=ms||800;
   stickBottomHard();
   if(!autoStick) return;
-  const end=performance.now()+ms;
+  var end=performance.now()+ms;
   function loop(){ if(!autoStick) return; stickBottomHard(); if(performance.now()<end) requestAnimationFrame(loop); }
   requestAnimationFrame(loop);
 }
 function bindScrollGuard(){
-  const t=document.getElementById('dmThread'); if(!t) return;
-  const nearBottom = () => ((t.scrollHeight - t.clientHeight) - t.scrollTop) < 6;
+  var t=document.getElementById('dmThread'); if(!t) return;
+  function nearBottom(){ return ((t.scrollHeight - t.clientHeight) - t.scrollTop) < 6; }
   autoStick = nearBottom();
-  t.addEventListener('scroll', ()=>{ autoStick = nearBottom(); }, {passive:true});
+  t.addEventListener('scroll', function(){ autoStick = nearBottom(); }, {passive:true});
 }
 function bindBottomObserver(){
-  const t=document.getElementById('dmThread'), a=anchor(); if(!t||!a) return;
+  var t=document.getElementById('dmThread'), a=anchor(); if(!t||!a) return;
   try{
-    const io=new IntersectionObserver((entries)=>{ const e=entries[0]; autoStick = e.isIntersecting && e.intersectionRatio >= .96; }, {root:t,threshold:[0.01,.5,.96],rootMargin:'0px 0px -1px 0px'});
+    var io=new IntersectionObserver(function(entries){
+      var e=entries[0]; autoStick = e.isIntersecting && e.intersectionRatio >= .96;
+    }, {root:t,threshold:[0.01,.5,.96],rootMargin:'0px 0px -1px 0px'});
     io.observe(a);
-  }catch(_){ bindScrollGuard(); }
+  }catch(e){ bindScrollGuard(); }
 }
 function watchThreadMutations(){
-  const t=document.getElementById('dmThread'); if(!t) return;
-  const mo=new MutationObserver(()=>{ if(autoStick) ensureBottomDuring(600); updateFooterSpace(); });
+  var t=document.getElementById('dmThread'); if(!t) return;
+  var mo=new MutationObserver(function(){ if(autoStick) ensureBottomDuring(600); updateFooterSpace(); });
   mo.observe(t,{childList:true,subtree:false});
 }
 
 /* ---------- Composer ---------- */
 function previewComposeMedia(e){
-  const box=document.getElementById('composePreview'); const hint=document.getElementById('composeFilesHint');
-  box.innerHTML=''; if(!e.target.files.length){ hint.textContent='未選取檔案'; return; }
-  hint.textContent=`已選 ${e.target.files.length} 個檔案`;
-  [...e.target.files].forEach(f=>{
-    const url=URL.createObjectURL(f); const isVideo=f.type.startsWith('video/');
-    const el=document.createElement(isVideo?'video':'img');
-    el.src=url; el.controls=isVideo; el.onload=el.onloadeddata=()=>URL.revokeObjectURL(url);
+  var box=document.getElementById('composePreview'); var hint=document.getElementById('composeFilesHint');
+  if(!box||!hint) return; box.innerHTML='';
+  if(!e || !e.target || !e.target.files || !e.target.files.length){ hint.textContent='未選取檔案'; return; }
+  hint.textContent='已選 '+e.target.files.length+' 個檔案';
+  for(var i=0;i<e.target.files.length;i++){
+    var f=e.target.files[i]; var url=URL.createObjectURL(f); var isVideo=(f.type||'').indexOf('video/')===0;
+    var el=document.createElement(isVideo?'video':'img'); el.src=url; if(isVideo) el.controls=true;
+    el.onload=el.onloadeddata=function(){ URL.revokeObjectURL(url); };
     el.style.width='110px'; el.style.height='110px'; el.style.objectFit='cover'; el.style.borderRadius='12px'; el.style.border='1px solid var(--line)';
     box.appendChild(el);
-  });
+  }
 }
 function publishDraft(){ alert('先存草稿＆預覽；發佈規則等我們接首頁串流。'); showPage('home'); }
 
 /* ---------- 暱稱按鈕 ---------- */
-document.getElementById('btnEditNick').addEventListener('click', ()=>{
-  const v=prompt('輸入新的暱稱（= 聊天室名稱）', NICKNAME);
-  if(v&&v.trim()){
+document.getElementById('btnEditNick').addEventListener('click', function(){
+  var v=prompt('輸入新的暱稱（= 聊天室名稱）', NICKNAME);
+  if(v && v.trim()){
     NICKNAME=v.trim(); LS.setStr('artistNickname', NICKNAME);
-    document.getElementById('meNickname').textContent=NICKNAME;
-    document.getElementById('dmTitle').textContent=NICKNAME.toUpperCase();
-    document.getElementById('composerWho').textContent=NICKNAME; renderDmList();
+    var nn=document.getElementById('meNickname'); if(nn) nn.textContent=NICKNAME;
+    var dt=document.getElementById('dmTitle'); if(dt) dt.textContent=NICKNAME.toUpperCase();
+    var cw=document.getElementById('composerWho'); if(cw) cw.textContent=NICKNAME;
+    renderDmList();
   }
 });
 
 /* ---------- 啟動 ---------- */
-document.addEventListener('DOMContentLoaded', ()=>{
-  document.getElementById('meNickname').textContent=NICKNAME;
-  document.getElementById('dmTitle').textContent=NICKNAME.toUpperCase();
-  document.getElementById('composerWho').textContent=NICKNAME;
-  document.getElementById('meId').textContent='ARTIST-00001';
-  document.getElementById('meAvatar').src=AVATAR;
+document.addEventListener('DOMContentLoaded', function(){
+  try{
+    document.getElementById('meNickname').textContent=NICKNAME;
+    document.getElementById('dmTitle').textContent=NICKNAME.toUpperCase();
+    document.getElementById('composerWho').textContent=NICKNAME;
+    document.getElementById('meId').textContent='ARTIST-00001';
+    document.getElementById('meAvatar').src=AVATAR;
 
-  renderStoryBar(); renderFeed(currentFilter); renderDmList();
-  document.addEventListener('keydown', e=>{ if(e.key==='Escape') hideDmMenu(); });
+    renderStoryBar(); renderFeed(currentFilter); renderDmList();
+    document.addEventListener('keydown', function(e){ if(e.key==='Escape') hideDmMenu(); });
 
-  const input=document.getElementById('dmMessageInput');
-  if(input){
-    const scrollToBottom=()=>setTimeout(()=>ensureBottomDuring(600),40);
-    input.addEventListener('focus', scrollToBottom);
-    input.addEventListener('click',  scrollToBottom);
-  }
+    var input=document.getElementById('dmMessageInput');
+    if(input){
+      var scrollToBottom=function(){ setTimeout(function(){ ensureBottomDuring(600); },40); };
+      input.addEventListener('focus', scrollToBottom);
+      input.addEventListener('click',  scrollToBottom);
+    }
 
-  updateFooterSpace(); ensureBottomDuring(600);
+    updateFooterSpace(); ensureBottomDuring(600);
+  }catch(e){ /* 安全防呆：就算哪裡炸也至少把 DM 列表顯示出來 */ renderDmList(); }
 });
 
-/* iOS Safari：視覺視窗（工具列/鍵盤）變化 → 讓 footer 上移並重算底部空間 */
+/* iOS Safari：視覺視窗（工具列/鍵盤）變化 */
 (function(){
-  const vv=window.visualViewport;
+  var vv=window.visualViewport;
   function applyVV(){
     if(!vv) return;
-    const offset=Math.max(0, window.innerHeight - vv.height);
+    var offset=Math.max(0, window.innerHeight - vv.height);
     document.documentElement.style.setProperty('--kb-offset', offset + 'px');
     updateFooterSpace();
-    setTimeout(()=>ensureBottomDuring(600),30);
+    setTimeout(function(){ ensureBottomDuring(600); },30);
   }
   if(vv){ vv.addEventListener('resize', applyVV); vv.addEventListener('scroll', applyVV); applyVV(); }
-  window.addEventListener('resize', ()=>{ updateFooterSpace(); ensureBottomDuring(600); });
-  window.addEventListener('orientationchange', ()=>{ setTimeout(()=>{ updateFooterSpace(); ensureBottomDuring(800); },120); });
-  window.addEventListener('pageshow', ()=>{ updateFooterSpace(); ensureBottomDuring(800); });
-  document.addEventListener('visibilitychange', ()=>{ if(!document.hidden){ ensureBottomDuring(600); } });
-  if(document.fonts && document.fonts.ready){ document.fonts.ready.then(()=>ensureBottomDuring(800)); }
+  window.addEventListener('resize', function(){ updateFooterSpace(); ensureBottomDuring(600); });
+  window.addEventListener('orientationchange', function(){ setTimeout(function(){ updateFooterSpace(); ensureBottomDuring(800); },120); });
+  window.addEventListener('pageshow', function(){ updateFooterSpace(); ensureBottomDuring(800); });
+  document.addEventListener('visibilitychange', function(){ if(!document.hidden){ ensureBottomDuring(600); } });
+  if(document.fonts && document.fonts.ready){ document.fonts.ready.then(function(){ ensureBottomDuring(800); }); }
 })();
 </script>
 </body>
