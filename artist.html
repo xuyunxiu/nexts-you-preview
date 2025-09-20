@@ -3,15 +3,16 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>NEXT’S YOU — artist（穩定貼底版）</title>
+<title>NEXT’S YOU — artist（完整穩定貼底版）</title>
+
 <style>
 :root{
   --bg:#f5f7ff; --card:#fff; --text:#1a1a1a; --sub:#667085; --line:#e7eaf3; --ghost:#9aa0b4;
   --accent:#6a5acd; --accent2:#836fff; --ok:#10b981; --danger:#ff4d4f;
   --radius:16px; --shadow:0 12px 34px rgba(18,24,40,.08);
   --safe:env(safe-area-inset-bottom,0px);
-  --kb-offset:0px;          /* 工具列/鍵盤佔用（JS 回寫） */
-  --footer-h:86px;          /* Footer 實測高度（JS 回寫） */
+  --kb-offset:0px;              /* 鍵盤高度由 JS 寫入 */
+  --footer-h:72px;              /* composer 高度由 JS 寫入 */
 }
 *{box-sizing:border-box}
 html,body{height:100%}
@@ -26,11 +27,11 @@ img{display:block;max-width:100%} a{text-decoration:none;color:inherit} button{f
 .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
 .chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:#f3f5ff;border:1px solid var(--line);font-size:12px}
 
-/* pages */
+/* pages（底部只保留安全區；鍵盤位移交給 DM footer 處理） */
 section.page{display:none;padding:12px 12px calc(76px + var(--safe));min-height:100dvh}
 section.page.active{display:block;animation:fade .22s ease}
 @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-@supports (height:100svh){ section.page{min-height:100svh} }
+@supports (height:100svh){ section.page{min-height:100svh;} }
 
 /* bottom nav */
 nav#nav{
@@ -42,13 +43,13 @@ nav#nav.hidden{transform:translateY(120%)}
 nav#nav button{flex:1;border:none;background:transparent;padding:8px 0 6px;border-radius:12px;color:var(--sub);font-weight:800;font-size:13px}
 nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid var(--line)}
 
-/* header */
+/* header (home) */
 #homeHeader{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:6px 6px 10px}
 #homeHeader .me{display:flex;align-items:center;gap:10px}
 #homeHeader .me img{width:44px;height:44px;border-radius:50%;object-fit:cover;border:1px solid var(--line)}
 #homeHeader .me .id{font-size:12px;color:var(--ghost)}
 
-/* Verified */
+/* Verified 勳章（首頁貼文用） */
 .verified-badge{display:inline-block;width:18px;height:18px;margin-left:6px;vertical-align:middle}
 .verified-badge svg{width:100%;height:100%;display:block}
 .verified-badge .gear{stroke:#fff;stroke-width:.9;filter:drop-shadow(0 1px 2px rgba(0,0,0,.25))}
@@ -66,7 +67,7 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 .story-item .dot{position:absolute;right:6px;top:2px;width:8px;height:8px;background:var(--danger);border-radius:50%;box-shadow:0 0 0 2px #fff}
 .story-item.pinned img{border-color:#111}
 
-/* post */
+/* post card */
 .post{margin:12px 6px}
 .post .hdr{display:flex;align-items:center;gap:10px}
 .post .avatar{width:44px;height:44px;border-radius:50%;object-fit:cover;border:1px solid var(--line)}
@@ -75,19 +76,20 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 .post .body{margin-top:8px}
 .post .hero{width:100%;height:360px;object-fit:cover;border-radius:12px;border:1px solid var(--line)}
 
-/* DM list */
+/* DM 列表 */
 #dm .dmCard{display:flex;align-items:center;gap:12px;justify-content:space-between;padding:12px;border:1px solid var(--line);border-radius:14px;background:var(--card);margin:10px 0;cursor:pointer}
 #dm .dmCard img{width:52px;height:52px;border-radius:50%;object-fit:cover;border:1px solid var(--line)}
 .nameBlock{display:flex;flex-direction:column;gap:6px}
 .nameRow{display:flex;align-items:center;gap:8px}
 .nameRow .stage{font-weight:900;letter-spacing:.3px}
 
-/* ARTIST 勳章 */
+/* —— 方框 ARTIST 勳章（紫藍白；DM 與列表共用） —— */
 .artistTag{
   display:inline-flex;align-items:center;justify-content:center;
   padding:3px 8px;border-radius:6px;
   font-size:10px;font-weight:900;letter-spacing:.6px;text-transform:uppercase;
-  color:#2e2a6f;background:linear-gradient(90deg,#bca7ff 0%,#8fb4ff 64%,#ffffff 100%);
+  color:#2e2a6f;
+  background:linear-gradient(90deg,#bca7ff 0%,#8fb4ff 64%,#ffffff 100%);
   border:1px solid #ded6ff; box-shadow:0 1px 6px rgba(106,90,205,.18);
 }
 
@@ -100,26 +102,19 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 .back{width:44px;height:44px;border:none;background:transparent;border-radius:0;padding:0;display:grid;place-items:center}
 .back svg{width:22px;height:22px;stroke:#5b6ab0;stroke-width:2.6;fill:none}
 
-/* 背景 */
-#dmDetail{
-  position:relative;background:#000;
-  background-position:center;background-repeat:no-repeat;background-size:cover;background-attachment:fixed;
-}
-#dmDetail::after{content:"";position:fixed;inset:0;pointer-events:none;background:rgba(0,0,0,var(--bgDim,.0));backdrop-filter:blur(var(--bgBlur,0px));z-index:-1}
+/* 背景固定（支援模糊/遮罩） */
+#dmDetail{position:relative;background:#000;background-position:center;background-repeat:no-repeat;background-size:cover;background-attachment:fixed;}
+#dmDetail.hasbg::after{content:"";position:fixed;inset:0;pointer-events:none;background:rgba(0,0,0,var(--bgDim,.25));backdrop-filter:blur(var(--bgBlur,2px));z-index:-1}
 
-/* thread：保留底部空間 + 關閉自動錨點 */
+/* thread：時間在兩側 + 強韌貼底 */
 .thread{
   display:flex;flex-direction:column;gap:12px;
   height:calc(100dvh - 230px);
-  overflow-y:auto;
-  padding:8px 2px 0;
-  padding-bottom:calc(var(--footer-h) + var(--kb-offset) + var(--safe) + 8px);
-  scroll-padding-bottom:calc(var(--footer-h) + var(--kb-offset) + var(--safe) + 8px);
-  -webkit-overflow-scrolling:touch; scrollbar-gutter:stable both-edges;
-  overscroll-behavior:contain;
-  overflow-anchor:none;
+  overflow-y:auto;padding:8px 2px;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-gutter:stable both-edges;
 }
-@supports (height:100svh){ .thread{height:calc(100svh - 230px)} }
+@supports (height:100svh){ .thread{height:calc(100svh - 230px);} }
 .msg{display:flex;align-items:flex-end;gap:8px;max-width:88%;margin:0 6px}
 .msg.left{flex-direction:row;align-self:flex-start}
 .msg.right{flex-direction:row-reverse;align-self:flex-end}
@@ -136,25 +131,16 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
   background:rgba(255,255,255,.86);border:1px solid rgba(0,0,0,.06);box-shadow:0 8px 18px rgba(0,0,0,.12);
   backdrop-filter:saturate(140%) blur(1.5px);word-break:break-word;
 }
-.replyCard .fromLabel{font-size:11px;font-weight:900;letter-spacing:.3px;color:#6d78aa;margin-bottom:4px}
-
-/* 右側泡泡回覆按鈕 */
-.replyBtn{
-  position:absolute;right:-32px;top:50%;transform:translateY(-50%);
-  width:34px;height:34px;border-radius:999px;border:none;background:rgba(255,255,255,.78);
-  box-shadow:0 6px 14px rgba(0,0,0,.12);display:flex;align-items:center;justify-content:center;
-}
-.replyBtn svg{width:18px;height:18px;opacity:.85}
 
 /* Composer 固定底部（鍵盤頂起） */
 .dmFooter{
   position:fixed;left:0;right:0;bottom:0;z-index:50;
   background:linear-gradient(180deg,rgba(255,255,255,.35),rgba(255,255,255,.96));
-  backdrop-filter:blur(10px);
-  border-top:none;  /* 移除會「切泡泡」的線 */
-  padding:10px 0 calc(10px + env(safe-area-inset-bottom));
-  transform:translateY(calc(-1 * var(--kb-offset)));
+  backdrop-filter:blur(10px);border-top:1px solid var(--line);
+  padding:10px 0 calc(10px + env(safe-area-inset-bottom) + var(--kb-offset));
 }
+#threadPad{height:var(--footer-h)}
+#endAnchor{height:1px;width:1px}
 .dmInputBar{display:flex;align-items:center;gap:10px;padding:0 12px}
 .dmInputBar .box{flex:1;min-width:0;display:flex;align-items:center;background:#fff;border:1px solid var(--line);border-radius:22px;height:42px;padding:0 14px}
 .dmInputBar input{flex:1;border:none;outline:none;background:transparent;font-size:17px}
@@ -165,13 +151,16 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 #dmMenu{position:fixed;right:12px;top:64px;display:none;z-index:70}
 #dmMenu .row{flex-direction:column;gap:6px}
 
-/* Modal（裁切/預覽） */
+/* Modal（背景裁切/預覽） */
 .modal{position:fixed;inset:0;z-index:80;display:none;background:rgba(0,0,0,.45)}
 .modal .panel{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(760px,94vw);background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px;box-shadow:0 12px 34px rgba(18,24,40,.16)}
 #cropStage{height:58vh;border:1px dashed var(--line);border-radius:12px;display:grid;place-items:center;overflow:hidden;background:#f8f9ff}
 #cropStage img{max-width:none;user-select:none;transform-origin:center center}
 .cropCtrls{display:flex;align-items:center;gap:10px;margin:12px 0}
 .cropCtrls .spacer{flex:1}
+
+/* 小工具 */
+.badge{background:#ff3b30;color:#fff;font-size:12px;padding:2px 7px;border-radius:999px;min-width:22px;text-align:center}
 </style>
 </head>
 <body>
@@ -221,7 +210,10 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
     <button class="hudBtn" title="更多" onclick="toggleDmMenu()">⋯</button>
   </div>
 
-  <div id="dmThread" class="thread"></div>
+  <div id="dmThread" class="thread">
+    <div id="threadPad"></div>
+    <div id="endAnchor"></div>
+  </div>
 
   <!-- Footer -->
   <div class="dmFooter">
@@ -309,394 +301,388 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 <script>
 /* ---------- 小工具 ---------- */
 function imgFallback(img){
-  var svg = encodeURIComponent("<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><rect width='100%' height='100%' fill='#eaeef8'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='#9aa0b4' font-family='sans-serif' font-size='20'>NO IMG</text></svg>");
+  const svg = encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><rect width='100%' height='100%' fill='#eaeef8'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='#9aa0b4' font-family='sans-serif' font-size='20'>NO IMG</text></svg>`);
   img.src = 'data:image/svg+xml;charset=UTF-8,' + svg; img.onerror = null;
 }
-var LS = {
-  get:function(k,def){ try{ var v=localStorage.getItem(k); return v? JSON.parse(v): (typeof def==='undefined'?null:def) }catch(e){ return (typeof def==='undefined'?null:def) } },
-  set:function(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)) }catch(e){} },
-  getStr:function(k,def){ var v=localStorage.getItem(k); return v!==null?v:(typeof def==='undefined'?'':def) },
-  setStr:function(k,v){ localStorage.setItem(k,v) }
+const LS = {
+  get(k,def=null){ try{ const v=localStorage.getItem(k); return v? JSON.parse(v): def }catch(e){ return def } },
+  set(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)) }catch(e){} },
+  getStr(k,def=''){ const v=localStorage.getItem(k); return v ?? def },
+  setStr(k,v){ localStorage.setItem(k,v) }
 };
-function fmtTime(ts){ return new Date(ts).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}); }
-function escapeHtml(s){ return (s||'').toString().replace(/[&<>"']/g,function(m){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]; }); }
+const fmtTime = ts => new Date(ts).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+const escapeHtml = s => (s||'').toString().replace(/[&<>"']/g, m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;" }[m]));
 
-/* 舞台名/暱稱/頭像 */
-var STAGE_NAME = LS.getStr('artistStage','ANNIE');
-var NICKNAME   = LS.getStr('artistNickname','Annie');
-var AVATAR     = LS.getStr('artistAvatar','https://picsum.photos/80?u=artist');
-var ME = { id:'me', name:STAGE_NAME, avatar:AVATAR };
+/* 舞台名（大寫）、暱稱（DM 顯示）、頭像 */
+const STAGE_NAME = LS.getStr('artistStage','ANNIE');
+let   NICKNAME   = LS.getStr('artistNickname','Annie');
+let   AVATAR     = LS.getStr('artistAvatar','https://picsum.photos/80?u=artist');
+const ME = { id:'me', name:STAGE_NAME, avatar:AVATAR };
 
 /* 假資料 */
-var ARTISTS = [
+const ARTISTS = [
   {id:'me',name:STAGE_NAME,avatar:AVATAR},
   {id:'all',name:'ALL',avatar:'https://picsum.photos/80?u=all'},
   {id:'dohee',name:'DOHEE',avatar:'https://picsum.photos/80?u=dh'},
   {id:'woo',name:'WOOCHAN',avatar:'https://picsum.photos/80?u=wc'}
 ];
-var POSTS = LS.get('artistPosts',[
+const POSTS = LS.get('artistPosts',[
   {id:'p3',artistId:'dohee',artistStage:'DOHEE',avatar:'https://picsum.photos/80?u=dh',text:'練舞練到爆汗 💃',img:'https://picsum.photos/1200?u=dh1',ts:Date.now()-1000*60*40},
   {id:'p2',artistId:'woo',artistStage:'WOOCHAN',avatar:'https://picsum.photos/80?u=wc',text:'今天吃拉麵 🍜',img:'https://picsum.photos/1200?u=wc1',ts:Date.now()-1000*60*50},
   {id:'p1',artistId:'me',artistStage:STAGE_NAME,avatar:ME.avatar,text:'大家好，我是 Annie ✨',img:'',ts:Date.now()-1000*60*60}
 ]);
-var FANS=[{id:'f1',name:'Michelle',avatar:'https://picsum.photos/40?u=f1'},{id:'f2',name:'粉絲 B',avatar:'https://picsum.photos/40?u=f2'}];
-var GROUP_MSGS=LS.get('groupMsgs',[
+const FANS=[{id:'f1',name:'Michelle',avatar:'https://picsum.photos/40?u=f1'},{id:'f2',name:'粉絲 B',avatar:'https://picsum.photos/40?u=f2'}];
+let GROUP_MSGS=LS.get('groupMsgs',[
   {id:'m1',from:'fan',fanId:'f1',text:'偶像好～',ts:Date.now()-1000*60*45},
   {id:'m2',from:'fan',fanId:'f2',text:'今天吃什麼？',ts:Date.now()-1000*60*43},
   {id:'m3',from:'artist',text:'我午餐吃了沙拉 🥗',ts:Date.now()-1000*60*40,replyTo:{text:'今天吃什麼？'}}
 ]);
-var lastSeen = LS.get('lastSeen', {});
+const lastSeen = LS.get('lastSeen', {});
 
 /* ---------- 導航 ---------- */
-var HIDE_NAV_IN=['dmDetail','composerArtist'];
-var PAGE_STACK=['home'];
+const HIDE_NAV_IN=['dmDetail','composerArtist'];
+let PAGE_STACK=['home'];
 function showPage(id){
-  var pages=document.querySelectorAll('section.page');
-  for(var i=0;i<pages.length;i++){ pages[i].classList.remove('active'); }
-  var page=document.getElementById(id); if(page) page.classList.add('active');
+  document.querySelectorAll('section.page').forEach(s=>s.classList.remove('active'));
+  const page=document.getElementById(id); if(page) page.classList.add('active');
   if(PAGE_STACK[PAGE_STACK.length-1]!==id) PAGE_STACK.push(id);
 
-  var navBtns=document.querySelectorAll('#nav button');
-  for(var j=0;j<navBtns.length;j++){ navBtns[j].classList.remove('active'); }
-  var map={home:'tabHome',dm:'tabDM',live:'tabLive',store:'tabStore'};
-  if(map[id]){ var b=document.getElementById(map[id]); if(b) b.classList.add('active'); }
+  document.querySelectorAll('#nav button').forEach(b=>b.classList.remove('active'));
+  ({home:'tabHome',dm:'tabDM',live:'tabLive',store:'tabStore'}[id]||null) &&
+    document.getElementById({home:'tabHome',dm:'tabDM',live:'tabLive',store:'tabStore'}[id]).classList.add('active');
 
-  var nav=document.getElementById('nav');
-  if(HIDE_NAV_IN.indexOf(id)>=0) nav.classList.add('hidden'); else nav.classList.remove('hidden');
+  const nav=document.getElementById('nav');
+  if(HIDE_NAV_IN.includes(id)) nav.classList.add('hidden'); else nav.classList.remove('hidden');
 
   if(id==='home'){ renderStoryBar(); renderFeed(currentFilter); }
   if(id==='dm'){ renderDmList(); }
   if(id==='dmDetail'){
-    renderThread(); applyChatBg(); updateFooterSpace();
-    autoStick=true;
-    ensureBottomDuring(900);
-    setTimeout(function(){ ensureBottomDuring(900); },120);
-    requestAnimationFrame(function(){ ensureBottomDuring(900); });
-    bindBottomObserver(); bindScrollGuard(); watchThreadMutations();
+    renderThread(); applyChatBg(); updateBottomPad();
+    autoStick=true; ensureBottomDuring(900); // 進入聊天室貼到底
+    bindBottomObserver();
   }
-  if(id==='composerArtist'){ var cw=document.getElementById('composerWho'); if(cw) cw.textContent=NICKNAME; }
+  if(id==='composerArtist'){ document.getElementById('composerWho').textContent=NICKNAME; }
 }
-function goBack(){ PAGE_STACK.pop(); var prev=PAGE_STACK[PAGE_STACK.length-1]||'home'; showPage(prev); }
+function goBack(){ PAGE_STACK.pop(); const prev=PAGE_STACK[PAGE_STACK.length-1]||'home'; showPage(prev); }
 
-/* ---------- HOME：Story & Feed ---------- */
-var currentFilter='me';
+/* ---------- HOME：Story bar ---------- */
+let currentFilter='me';
 function hasNewDots(artistId){
   if(artistId==='me'||artistId==='all') return false;
-  var seen=lastSeen[artistId]||0;
-  var latest=0;
-  for(var i=0;i<POSTS.length;i++){ if(POSTS[i].artistId===artistId && POSTS[i].ts>latest) latest=POSTS[i].ts; }
+  const seen=lastSeen[artistId]||0;
+  const latest=Math.max(0,...POSTS.filter(p=>p.artistId===artistId).map(p=>p.ts));
   return latest>seen;
 }
 function renderStoryBar(){
-  var bar=document.getElementById('storyBar');
-  var others=ARTISTS.filter(function(a){ return a.id!=='me'&&a.id!=='all'; });
-  others.sort(function(a,b){
-    var la=0, lb=0;
-    for(var i=0;i<POSTS.length;i++){
-      if(POSTS[i].artistId===a.id && POSTS[i].ts>la) la=POSTS[i].ts;
-      if(POSTS[i].artistId===b.id && POSTS[i].ts>lb) lb=POSTS[i].ts;
-    }
+  const bar=document.getElementById('storyBar');
+  const others=ARTISTS.filter(a=>a.id!=='me'&&a.id!=='all');
+  others.sort((a,b)=>{
+    const la=Math.max(0,...POSTS.filter(p=>p.artistId===a.id).map(p=>p.ts));
+    const lb=Math.max(0,...POSTS.filter(p=>p.artistId===b.id).map(p=>p.ts));
     return lb-la;
   });
-  var meItem=null, allItem=null;
-  for(var k=0;k<ARTISTS.length;k++){ if(ARTISTS[k].id==='me') meItem=ARTISTS[k]; if(ARTISTS[k].id==='all') allItem=ARTISTS[k]; }
-  var order=[meItem,allItem].concat(others);
-  var html='';
-  for(var t=0;t<order.length;t++){
-    var a=order[t]; if(!a) continue;
-    var active=(currentFilter===a.id)?'active':'';
-    var pinned=(a.id==='me'||a.id==='all')?'pinned':'';
-    var dot=hasNewDots(a.id)?'<span class="dot"></span>':'';
-    html+= '<div class="story-item '+active+' '+pinned+'" data-id="'+a.id+'">'+
-      '<img src="'+a.avatar+'" onerror="imgFallback(this)">'+dot+
-      '<div class="name">'+a.name+'</div></div>';
-  }
-  bar.innerHTML=html;
-  var items=bar.querySelectorAll('.story-item');
-  for(var x=0;x<items.length;x++){
-    items[x].addEventListener('click', (function(el){
-      return function(){
-        var id=el.getAttribute('data-id'); currentFilter=id;
-        if(id!=='all'){ lastSeen[id]=Date.now(); LS.set('lastSeen', lastSeen); }
-        renderStoryBar(); renderFeed(currentFilter); window.scrollTo(0,0);
-      };
-    })(items[x]));
-  }
+  const order=[ARTISTS.find(a=>a.id==='me'),ARTISTS.find(a=>a.id==='all'),...others];
+  bar.innerHTML=order.map(a=>{
+    const active=(currentFilter===a.id)?'active':'';
+    const pinned=(a.id==='me'||a.id==='all')?'pinned':'';
+    const dot=hasNewDots(a.id)?'<span class="dot"></span>':'';
+    return `<div class="story-item ${active} ${pinned}" data-id="${a.id}">
+      <img src="${a.avatar}" onerror="imgFallback(this)">${dot}
+      <div class="name">${a.name}</div></div>`;
+  }).join('');
+  bar.querySelectorAll('.story-item').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      const id=el.dataset.id; currentFilter=id;
+      if(id!=='all') lastSeen[id]=Date.now(); LS.set('lastSeen', lastSeen);
+      renderStoryBar(); renderFeed(currentFilter); window.scrollTo({top:0,behavior:'smooth'});
+    });
+  });
 }
+
+/* ---------- HOME：Feed ---------- */
 function feedOf(filter){
-  var arr=POSTS.slice(0);
-  if(filter==='all'){ arr.sort(function(a,b){return b.ts-a.ts}); return arr; }
-  if(filter==='me'){ arr=arr.filter(function(p){return p.artistId==='me'}); arr.sort(function(a,b){return b.ts-a.ts}); return arr; }
-  arr=arr.filter(function(p){return p.artistId===filter}); arr.sort(function(a,b){return b.ts-a.ts}); return arr;
+  if(filter==='all') return POSTS.slice().sort((a,b)=>b.ts-a.ts);
+  if(filter==='me')  return POSTS.filter(p=>p.artistId==='me').sort((a,b)=>b.ts-a.ts);
+  return POSTS.filter(p=>p.artistId===filter).sort((a,b)=>b.ts-a.ts);
 }
-function VB(size){
-  size=size||18; var gid='vbGrad-'+Math.random().toString(36).slice(2,8);
-  return '<span class="verified-badge" style="width:'+size+'px;height:'+size+'px">'+
-    '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">'+
-    '<defs><linearGradient id="'+gid+'" x1="0" y1="0" x2="1" y2="1">'+
-    '<stop offset="0%" stop-color="#6fb3ff"/><stop offset="58%" stop-color="#7b6dff"/><stop offset="92%" stop-color="#ffffff"/><stop offset="100%" stop-color="#e9ecff"/>'+
-    '</linearGradient></defs>'+
-    '<path class="gear" fill="url(#'+gid+')" d="M12 2.3 14 4l2.9-.6.9 2.7 2.7.9-.6 2.9L22 12l-2.1 2.1.6 2.9-2.7.9-.9 2.7-2.9-.6L12 21.7 10 20l-2.9.6-.9-2.7-2.7-.9.6-2.9L2 12l2.1-2.1-.6-2.9 2.7-.9.9-2.7L10 4l2-1.7z"/>'+
-    '<path class="tick" d="M10.4 12.8 8.7 11.2l1.1-1.1 1.2 1.2 3-3 1.1 1.1-3.8 3.8a1 1 0 0 1-1.4 0z"/></svg></span>';
+function VB(size=18){
+  const gid='vbGrad-'+Math.random().toString(36).slice(2,8);
+  return `<span class="verified-badge" style="width:${size}px;height:${size}px">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <defs><linearGradient id="${gid}" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#6fb3ff"/><stop offset="58%" stop-color="#7b6dff"/><stop offset="92%" stop-color="#ffffff"/><stop offset="100%" stop-color="#e9ecff"/>
+      </linearGradient></defs>
+      <path class="gear" fill="url(#${gid})" d="M12 2.3 14 4l2.9-.6.9 2.7 2.7.9-.6 2.9L22 12l-2.1 2.1.6 2.9-2.7.9-.9 2.7-2.9-.6L12 21.7 10 20l-2.9.6-.9-2.7-2.7-.9.6-2.9L2 12l2.1-2.1-.6-2.9 2.7-.9.9-2.7L10 4l2-1.7z"/>
+      <path class="tick" d="M10.4 12.8 8.7 11.2l1.1-1.1 1.2 1.2 3-3 1.1 1.1-3.8 3.8a1 1 0 0 1-1.4 0z"/></svg>
+  </span>`;
 }
-function renderFeed(filter){
-  filter=filter||'me';
-  var wrap=document.getElementById('feedWrap');
-  var list=feedOf(filter);
-  if(!list.length){ wrap.innerHTML='<div class="ghost" style="text-align:center;margin-top:20vh">尚無貼文</div>'; return; }
-  var html='';
-  for(var i=0;i<list.length;i++){
-    var p=list[i]; var stage=(p.artistStage||STAGE_NAME||'').toString().toUpperCase();
-    html+='<div class="card soft post"><div class="hdr">'+
-      '<img class="avatar" src="'+p.avatar+'" onerror="imgFallback(this)">'+
-      '<div class="meta"><b class="stage">'+escapeHtml(stage)+' '+VB(18)+'</b>'+
-      '<small class="ghost">'+new Date(p.ts).toLocaleString()+'</small></div></div>'+
-      '<div class="body"><p>'+escapeHtml(p.text)+'</p>'+
-      (p.img?'<img class="hero" src="'+p.img+'" onerror="imgFallback(this)">':'')+
-      '</div></div>';
-  }
-  wrap.innerHTML=html;
+function renderFeed(filter='me'){
+  const wrap=document.getElementById('feedWrap');
+  const list=feedOf(filter);
+  if(!list.length){ wrap.innerHTML=`<div class="ghost" style="text-align:center;margin-top:20vh">尚無貼文</div>`; return; }
+  wrap.innerHTML=list.map(p=>{
+    const stage=(p.artistStage||STAGE_NAME||'').toString().toUpperCase();
+    return `<div class="card soft post">
+      <div class="hdr">
+        <img class="avatar" src="${p.avatar}" onerror="imgFallback(this)">
+        <div class="meta">
+          <b class="stage">${escapeHtml(stage)} ${VB(18)}</b>
+          <small class="ghost">${new Date(p.ts).toLocaleString()}</small>
+        </div>
+      </div>
+      <div class="body"><p>${escapeHtml(p.text)}</p>
+      ${p.img?`<img class="hero" src="${p.img}" onerror="imgFallback(this)">`:``}</div>
+    </div>`;
+  }).join('');
 }
 
-/* ---------- DM List ---------- */
+/* ---------- DM List（避免 inline onclick） ---------- */
 function getRoomTitle(){ return NICKNAME; }
-// --- 取代整個 renderDmList() ---
 function renderDmList(){
-  var box = document.getElementById('dmList'); 
-  if(!box) return;
-  box.innerHTML = '';
+  const box=document.getElementById('dmList'); box.innerHTML='';
+  const last=GROUP_MSGS[GROUP_MSGS.length-1];
 
-  var last = GROUP_MSGS[GROUP_MSGS.length-1];
-
-  var card = document.createElement('div');
-  card.className = 'dmCard';
-  card.addEventListener('click', function(){ showPage('dmDetail'); });
-
-  var img = document.createElement('img');
-  img.src = ME.avatar;
-  img.onerror = function(){ imgFallback(img); };
-
-  var nameBlock = document.createElement('div');
-  nameBlock.className = 'nameBlock';
-
-  var nameRow = document.createElement('div');
-  nameRow.className = 'nameRow';
-
-  var tag = document.createElement('span');
-  tag.className = 'artistTag';
-  tag.textContent = 'ARTIST';
-
-  var stage = document.createElement('div');
-  stage.className = 'stage';
-  stage.textContent = getRoomTitle().toUpperCase();
-
-  nameRow.appendChild(tag);
-  nameRow.appendChild(stage);
-
-  var small = document.createElement('small');
-  small.className = 'ghost';
-  small.style.cssText = 'display:block;max-width:62vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis';
+  const card=document.createElement('div'); card.className='dmCard'; card.addEventListener('click', ()=>showPage('dmDetail'));
+  const img=document.createElement('img'); img.src=ME.avatar; img.onerror=()=>imgFallback(img);
+  const nameBlock=document.createElement('div'); nameBlock.className='nameBlock';
+  const nameRow=document.createElement('div'); nameRow.className='nameRow';
+  const tag=document.createElement('span'); tag.className='artistTag'; tag.textContent='ARTIST';
+  const stage=document.createElement('div'); stage.className='stage'; stage.textContent=getRoomTitle().toUpperCase();
+  const small=document.createElement('small'); small.className='ghost';
+  small.style.cssText='display:block;max-width:62vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis';
   small.textContent = last ? last.text : '（無訊息）';
+  nameRow.append(tag,stage); nameBlock.append(nameRow,small);
+  card.append(img,nameBlock,document.createElement('span'));
+  box.append(card);
+}
 
-  nameBlock.appendChild(nameRow);
-  nameBlock.appendChild(small);
+/* ---------- DM Thread（穩定貼底） ---------- */
+let replyDraft=null;
+function renderThread(){
+  const box=document.getElementById('dmThread'); if(!box) return;
+  // 保留 pad/anchor，清空其他
+  const pad=document.getElementById('threadPad'), end=document.getElementById('endAnchor');
+  box.innerHTML=''; box.append(pad,end);
 
-  card.appendChild(img);
-  card.appendChild(nameBlock);
-  card.appendChild(document.createElement('span')); // 右側佔位
+  GROUP_MSGS.forEach(m=>{
+    const wrap=document.createElement('div');
+    wrap.className='msg '+(m.from==='artist'?'right':'left');
 
-  box.appendChild(card);
+    const timeEl=document.createElement('div');
+    timeEl.className='time'+(m.from==='artist'?'':' dark');
+    timeEl.textContent=fmtTime(m.ts);
+
+    const bubble=document.createElement('div'); bubble.className='bubble';
+    if(m.from==='fan'){
+      const lab=document.createElement('div'); lab.className='fromLabel'; lab.textContent='FROM FAN';
+      const txt=document.createElement('div'); txt.className='fanText'; txt.textContent=m.text;
+      bubble.append(lab,txt);
+
+      const btn=document.createElement('button');
+      btn.className='replyBtn';
+      btn.style.cssText='position:absolute;right:-32px;top:50%;transform:translateY(-50%);width:34px;height:34px;border-radius:999px;border:none;background:rgba(255,255,255,.78);box-shadow:0 6px 14px rgba(0,0,0,.12);display:flex;align-items:center;justify-content:center';
+      btn.innerHTML=`<svg viewBox="0 0 24 24" width="18" height="18"><path d="M12 4l-1.4 1.4L16.2 11H4v2h12.2l-5.6 5.6L12 20l8-8z" fill="currentColor"/></svg>`;
+      btn.onclick=()=>{
+        replyDraft={text:m.text};
+        document.getElementById('replyChip').style.display='flex';
+        document.getElementById('replyChipText').textContent=m.text.slice(0,42);
+        document.getElementById('dmMessageInput').focus();
+        ensureBottomDuring(400);
+      };
+      bubble.appendChild(btn);
+    }else{
+      bubble.textContent=m.text;
+    }
+
+    wrap.append(bubble,timeEl);
+    box.insertBefore(wrap, end);
+
+    if(m.from==='artist'&&m.replyTo&&m.replyTo.text){
+      const rc=document.createElement('div'); rc.className='replyCard';
+      rc.innerHTML=`<div class="fromLabel">FROM FAN</div><div class="fanText">${escapeHtml(m.replyTo.text)}</div>`;
+      box.insertBefore(rc, end);
+    }
+  });
+
+  updateBottomPad();
+  ensureBottomDuring(600);
 }
 function clearReply(){
   replyDraft=null;
-  var chip=document.getElementById('replyChip'); if(chip) chip.style.display='none';
-  updateFooterSpace(); ensureBottomDuring(400);
+  document.getElementById('replyChip').style.display='none';
+  ensureBottomDuring(400);
 }
+
 function sendArtistMsg(){
-  var inp=document.getElementById('dmMessageInput'); if(!inp) return;
-  var t=(inp.value||'').trim(); if(!t) return;
-  // 取代 @@@（避免 replaceAll）
-  t=t.split('@@@').join(FANS[0].name);
-  GROUP_MSGS.push({id:'u'+Date.now(),from:'artist',text:t,ts:Date.now(),replyTo:(replyDraft?{text:replyDraft.text}:null)});
+  const inp=document.getElementById('dmMessageInput');
+  let t=(inp.value||'').trim(); if(!t) return;
+  t=t.replaceAll('@@@', FANS[0].name);
+  GROUP_MSGS.push({id:'u'+Date.now(),from:'artist',text:t,ts:Date.now(),replyTo:replyDraft?{text:replyDraft.text}:null});
   LS.set('groupMsgs', GROUP_MSGS);
   inp.value=''; clearReply(); renderThread(); renderDmList();
-  ensureBottomDuring(900);
 }
 document.getElementById('dmSendBtn').addEventListener('click', sendArtistMsg);
-document.getElementById('dmMessageInput').addEventListener('keydown', function(e){
+document.getElementById('dmMessageInput').addEventListener('keydown', e=>{
   if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); sendArtistMsg(); }
 });
 
 /* ---------- DM 菜單 ---------- */
-function toggleDmMenu(){ var m=document.getElementById('dmMenu'); if(!m) return; m.style.display=(m.style.display==='block')?'none':'block'; }
-function hideDmMenu(){ var m=document.getElementById('dmMenu'); if(m) m.style.display='none'; }
-document.addEventListener('click',function(e){
-  var m=document.getElementById('dmMenu'); var hud=document.querySelector('.hudBtn');
-  if(m && m.style.display==='block' && !m.contains(e.target) && (!hud || !hud.contains(e.target))) hideDmMenu();
+function toggleDmMenu(){ const m=document.getElementById('dmMenu'); m.style.display=(m.style.display==='block')?'none':'block'; }
+function hideDmMenu(){ document.getElementById('dmMenu').style.display='none'; }
+document.addEventListener('click',(e)=>{
+  const m=document.getElementById('dmMenu');
+  if(m.style.display==='block'&&!m.contains(e.target)&&!e.target.closest('.hudBtn')) hideDmMenu();
 });
 
 /* ---------- 改名 ---------- */
 function renameChat(){
-  var cur=getRoomTitle(); var n=prompt('更改聊天室名稱（同：藝人暱稱）', cur); if(!n) return;
-  NICKNAME=(n.trim()||cur); LS.setStr('artistNickname', NICKNAME);
-  var t=document.getElementById('dmTitle'); if(t) t.textContent=NICKNAME.toUpperCase();
-  var nn=document.getElementById('meNickname'); if(nn) nn.textContent=NICKNAME;
-  var cw=document.getElementById('composerWho'); if(cw) cw.textContent=NICKNAME;
-  renderDmList();
+  const cur=getRoomTitle(); const n=prompt('更改聊天室名稱（同：藝人暱稱）', cur); if(!n) return;
+  NICKNAME=n.trim()||cur; LS.setStr('artistNickname', NICKNAME);
+  document.getElementById('dmTitle').textContent=NICKNAME.toUpperCase();
+  document.getElementById('meNickname').textContent=NICKNAME;
+  document.getElementById('composerWho').textContent=NICKNAME; renderDmList();
 }
 
 /* ---------- 背景 ---------- */
-var cropDataURL='', cropDeg=0, cropScale=1.4;
-var chooser=document.getElementById('bgChooser');
-function startPickBg(){ if(chooser) chooser.click(); }
-if(chooser){
-  chooser.addEventListener('change', function(e){
-    var f=(e && e.target && e.target.files && e.target.files[0])? e.target.files[0] : null; if(!f) return;
-    var reader=new FileReader();
-    reader.onload=function(ev){
-      cropDataURL=ev.target.result;
-      var img=document.getElementById('cropImg'); if(img) img.src=cropDataURL;
-      cropDeg=0; var sc=document.getElementById('cropScale'); if(sc){ sc.value=140; } cropScale=1.4;
-      updateCropTransform(); openModal('cropModal');
-    };
-    reader.readAsDataURL(f);
-  });
-}
+let cropDataURL='', cropDeg=0, cropScale=1.4;
+const chooser=document.getElementById('bgChooser');
+function startPickBg(){ chooser.click(); }
+chooser.addEventListener('change', e=>{
+  const files=e.target.files; const f=files && files[0]; if(!f) return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    cropDataURL=ev.target.result;
+    document.getElementById('cropImg').src=cropDataURL;
+    cropDeg=0; document.getElementById('cropScale').value=140; cropScale=1.4;
+    updateCropTransform(); openModal('cropModal');
+  };
+  reader.readAsDataURL(f);
+});
 function rotateCrop(){ cropDeg=(cropDeg+90)%360; updateCropTransform(); }
-var sc=document.getElementById('cropScale');
-if(sc){ sc.addEventListener('input', function(e){ cropScale=(+e.target.value)/100; updateCropTransform(); }); }
-function updateCropTransform(){ var img=document.getElementById('cropImg'); if(img) img.style.transform='scale('+cropScale+') rotate('+cropDeg+'deg)'; }
-function applyCrop(){ var mini=document.getElementById('bgPreviewMini'); if(mini) mini.style.backgroundImage='url("'+cropDataURL+'")'; closeCrop(); openModal('previewModal'); }
+document.getElementById('cropScale').addEventListener('input', e=>{ cropScale=(+e.target.value)/100; updateCropTransform(); });
+function updateCropTransform(){ const img=document.getElementById('cropImg'); img.style.transform=`scale(${cropScale}) rotate(${cropDeg}deg)`; }
+function applyCrop(){ document.getElementById('bgPreviewMini').style.backgroundImage=`url("${cropDataURL}")`; closeCrop(); openModal('previewModal'); }
 function confirmPreview(){
   if(cropDataURL) LS.setStr('artistChatBg', cropDataURL);
   LS.setStr('artistChatBgScale','100'); LS.setStr('artistChatBgBlur','0'); LS.setStr('artistChatBgDim','25');
   applyChatBg(); closePreview();
 }
-function openModal(id){ var m=document.getElementById(id); if(m) m.style.display='block'; }
-function closeCrop(){ var m=document.getElementById('cropModal'); if(m) m.style.display='none'; }
-function closePreview(){ var m=document.getElementById('previewModal'); if(m) m.style.display='none'; }
+function openModal(id){ document.getElementById(id).style.display='block'; }
+function closeCrop(){ document.getElementById('cropModal').style.display='none'; }
+function closePreview(){ document.getElementById('previewModal').style.display='none'; }
 function applyChatBg(){
-  var url=LS.getStr('artistChatBg',''); var blur=LS.getStr('artistChatBgBlur','2'); var dim=LS.getStr('artistChatBgDim','25');
-  var el=document.getElementById('dmDetail');
-  if(!el) return;
-  if(!url){ el.style.backgroundImage='none'; el.style.setProperty('--bgDim','0'); el.style.setProperty('--bgBlur','0px'); }
+  const url=LS.getStr('artistChatBg',''); const blur=LS.getStr('artistChatBgBlur','2'); const dim=LS.getStr('artistChatBgDim','25');
+  const el=document.getElementById('dmDetail');
+  if(!url){ el.style.backgroundImage='none'; el.classList.remove('hasbg'); }
   else{
-    el.style.backgroundImage='url("'+url+'")';
-    el.style.setProperty('--bgDim', (parseInt(dim,10)||0)/100);
-    el.style.setProperty('--bgBlur', (parseInt(blur,10)||0)+'px');
+    el.style.backgroundImage=`url("${url}")`;
+    el.style.setProperty('--bgDim', Number(dim)/100);
+    el.style.setProperty('--bgBlur', `${blur}px`);
+    el.classList.add('hasbg');
   }
-}
-
-/* ---------- 貼底核心 ---------- */
-function updateFooterSpace(){
-  var f=document.querySelector('.dmFooter'); if(!f) return;
-  var h=Math.ceil(f.getBoundingClientRect().height);
-  document.documentElement.style.setProperty('--footer-h', h + 'px');
-}
-function anchor(){ return document.getElementById('endAnchor'); }
-function stickBottomHard(){
-  var t=document.getElementById('dmThread'); if(!t) return;
-  var a=anchor(); if(a && a.scrollIntoView) a.scrollIntoView({block:'end'});
-  t.scrollTop = t.scrollHeight + 9999;
-}
-var autoStick=true;
-function ensureBottomDuring(ms){
-  ms=ms||800;
-  stickBottomHard();
-  if(!autoStick) return;
-  var end=performance.now()+ms;
-  function loop(){ if(!autoStick) return; stickBottomHard(); if(performance.now()<end) requestAnimationFrame(loop); }
-  requestAnimationFrame(loop);
-}
-function bindScrollGuard(){
-  var t=document.getElementById('dmThread'); if(!t) return;
-  function nearBottom(){ return ((t.scrollHeight - t.clientHeight) - t.scrollTop) < 6; }
-  autoStick = nearBottom();
-  t.addEventListener('scroll', function(){ autoStick = nearBottom(); }, {passive:true});
-}
-function bindBottomObserver(){
-  var t=document.getElementById('dmThread'), a=anchor(); if(!t||!a) return;
-  try{
-    var io=new IntersectionObserver(function(entries){
-      var e=entries[0]; autoStick = e.isIntersecting && e.intersectionRatio >= .96;
-    }, {root:t,threshold:[0.01,.5,.96],rootMargin:'0px 0px -1px 0px'});
-    io.observe(a);
-  }catch(e){ bindScrollGuard(); }
-}
-function watchThreadMutations(){
-  var t=document.getElementById('dmThread'); if(!t) return;
-  var mo=new MutationObserver(function(){ if(autoStick) ensureBottomDuring(600); updateFooterSpace(); });
-  mo.observe(t,{childList:true,subtree:false});
 }
 
 /* ---------- Composer ---------- */
 function previewComposeMedia(e){
-  var box=document.getElementById('composePreview'); var hint=document.getElementById('composeFilesHint');
-  if(!box||!hint) return; box.innerHTML='';
-  if(!e || !e.target || !e.target.files || !e.target.files.length){ hint.textContent='未選取檔案'; return; }
-  hint.textContent='已選 '+e.target.files.length+' 個檔案';
-  for(var i=0;i<e.target.files.length;i++){
-    var f=e.target.files[i]; var url=URL.createObjectURL(f); var isVideo=(f.type||'').indexOf('video/')===0;
-    var el=document.createElement(isVideo?'video':'img'); el.src=url; if(isVideo) el.controls=true;
-    el.onload=el.onloadeddata=function(){ URL.revokeObjectURL(url); };
+  const box=document.getElementById('composePreview'); const hint=document.getElementById('composeFilesHint');
+  box.innerHTML=''; if(!e.target.files.length){ hint.textContent='未選取檔案'; return; }
+  hint.textContent=`已選 ${e.target.files.length} 個檔案`;
+  Array.prototype.forEach.call(e.target.files, f=>{
+    const url=URL.createObjectURL(f); const isVideo=f.type.startsWith('video/');
+    const el=document.createElement(isVideo?'video':'img');
+    el.src=url; el.controls=isVideo; el.onload=el.onloadeddata=()=>URL.revokeObjectURL(url);
     el.style.width='110px'; el.style.height='110px'; el.style.objectFit='cover'; el.style.borderRadius='12px'; el.style.border='1px solid var(--line)';
     box.appendChild(el);
-  }
+  });
 }
 function publishDraft(){ alert('先存草稿＆預覽；發佈規則等我們接首頁串流。'); showPage('home'); }
 
+/* ---------- 穩定貼底：footer 高度量測 & 自動貼底 ---------- */
+let autoStick=true;        // 使用者往上滑則暫停
+let __kbOffset=0;         // 鍵盤佔用高度
+function updateBottomPad(){
+  const footer=document.querySelector('.dmFooter');
+  const pad=document.getElementById('threadPad');
+  if(!footer || !pad) return;
+  const h=Math.ceil(footer.getBoundingClientRect().height) + (__kbOffset||0);
+  pad.style.height = h + 'px';
+  document.documentElement.style.setProperty('--footer-h', h + 'px');
+}
+function stickBottomHard(){
+  const t=document.getElementById('dmThread'); if(!t) return;
+  document.getElementById('endAnchor')?.scrollIntoView({block:'end'});
+  t.scrollTop = t.scrollHeight + 9999;
+}
+function ensureBottomDuring(ms=800){
+  stickBottomHard();
+  if(!autoStick) return;
+  const end=performance.now()+ms;
+  (function loop(){ if(!autoStick) return; stickBottomHard(); if(performance.now()<end) requestAnimationFrame(loop); })();
+}
+function bindBottomObserver(){
+  const t=document.getElementById('dmThread'), a=document.getElementById('endAnchor');
+  if(!t || !a) return;
+  try{
+    const io=new IntersectionObserver((entries)=>{
+      const e=entries[0];
+      autoStick = e.isIntersecting && e.intersectionRatio >= 0.96;
+    }, {root:t,threshold:[0.01,0.96],rootMargin:'0px 0px -1px 0px'});
+    io.observe(a);
+  }catch(_){
+    const nearBottom = () => ((t.scrollHeight - t.clientHeight) - t.scrollTop) < 4;
+    autoStick = nearBottom();
+    t.addEventListener('scroll', ()=>{ autoStick = nearBottom(); }, {passive:true});
+  }
+}
+
+/* iOS Safari：視窗/鍵盤變化 */
+;(function(){
+  const vv=window.visualViewport;
+  function applyVV(){
+    if(!vv) return;
+    __kbOffset = Math.max(0, window.innerHeight - vv.height);
+    document.documentElement.style.setProperty('--kb-offset', __kbOffset + 'px');
+    updateBottomPad(); setTimeout(()=>ensureBottomDuring(600),30);
+  }
+  if(vv){ vv.addEventListener('resize', applyVV); vv.addEventListener('scroll', applyVV); applyVV(); }
+  window.addEventListener('resize', ()=>{ updateBottomPad(); ensureBottomDuring(600); });
+  window.addEventListener('orientationchange', ()=>{ setTimeout(()=>{ updateBottomPad(); ensureBottomDuring(800); },120); });
+  window.addEventListener('pageshow', ()=>{ updateBottomPad(); ensureBottomDuring(800); });
+  document.addEventListener('visibilitychange', ()=>{ if(!document.hidden){ ensureBottomDuring(600); } });
+  if(document.fonts && document.fonts.ready){ document.fonts.ready.then(()=>ensureBottomDuring(800)); }
+  window.addEventListener('load', ()=>ensureBottomDuring(1000));
+})();
+
 /* ---------- 暱稱按鈕 ---------- */
-document.getElementById('btnEditNick').addEventListener('click', function(){
-  var v=prompt('輸入新的暱稱（= 聊天室名稱）', NICKNAME);
-  if(v && v.trim()){
+document.getElementById('btnEditNick').addEventListener('click', ()=>{
+  const v=prompt('輸入新的暱稱（= 聊天室名稱）', NICKNAME);
+  if(v&&v.trim()){
     NICKNAME=v.trim(); LS.setStr('artistNickname', NICKNAME);
-    var nn=document.getElementById('meNickname'); if(nn) nn.textContent=NICKNAME;
-    var dt=document.getElementById('dmTitle'); if(dt) dt.textContent=NICKNAME.toUpperCase();
-    var cw=document.getElementById('composerWho'); if(cw) cw.textContent=NICKNAME;
-    renderDmList();
+    document.getElementById('meNickname').textContent=NICKNAME;
+    document.getElementById('dmTitle').textContent=NICKNAME.toUpperCase();
+    document.getElementById('composerWho').textContent=NICKNAME; renderDmList();
   }
 });
 
 /* ---------- 啟動 ---------- */
-document.addEventListener('DOMContentLoaded', function(){
-  try{
-    document.getElementById('meNickname').textContent=NICKNAME;
-    document.getElementById('dmTitle').textContent=NICKNAME.toUpperCase();
-    document.getElementById('composerWho').textContent=NICKNAME;
-    document.getElementById('meId').textContent='ARTIST-00001';
-    document.getElementById('meAvatar').src=AVATAR;
+document.addEventListener('DOMContentLoaded', ()=>{
+  document.getElementById('meNickname').textContent=NICKNAME;
+  document.getElementById('dmTitle').textContent=NICKNAME.toUpperCase();
+  document.getElementById('composerWho').textContent=NICKNAME;
+  document.getElementById('meId').textContent='ARTIST-00001';
+  document.getElementById('meAvatar').src=AVATAR;
 
-    renderStoryBar(); renderFeed(currentFilter); renderDmList();
-    document.addEventListener('keydown', function(e){ if(e.key==='Escape') hideDmMenu(); });
+  renderStoryBar(); renderFeed(currentFilter); renderDmList();
 
-    var input=document.getElementById('dmMessageInput');
-    if(input){
-      var scrollToBottom=function(){ setTimeout(function(){ ensureBottomDuring(600); },40); };
-      input.addEventListener('focus', scrollToBottom);
-      input.addEventListener('click',  scrollToBottom);
-    }
-
-    updateFooterSpace(); ensureBottomDuring(600);
-  }catch(e){ /* 安全防呆：就算哪裡炸也至少把 DM 列表顯示出來 */ renderDmList(); }
-});
-
-/* iOS Safari：視覺視窗（工具列/鍵盤）變化 */
-(function(){
-  var vv=window.visualViewport;
-  function applyVV(){
-    if(!vv) return;
-    var offset=Math.max(0, window.innerHeight - vv.height);
-    document.documentElement.style.setProperty('--kb-offset', offset + 'px');
-    updateFooterSpace();
-    setTimeout(function(){ ensureBottomDuring(600); },30);
+  const input=document.getElementById('dmMessageInput');
+  if(input){
+    const scrollToBottom=()=>setTimeout(()=>ensureBottomDuring(600),60);
+    input.addEventListener('focus', scrollToBottom);
+    input.addEventListener('click',  scrollToBottom);
   }
-  if(vv){ vv.addEventListener('resize', applyVV); vv.addEventListener('scroll', applyVV); applyVV(); }
-  window.addEventListener('resize', function(){ updateFooterSpace(); ensureBottomDuring(600); });
-  window.addEventListener('orientationchange', function(){ setTimeout(function(){ updateFooterSpace(); ensureBottomDuring(800); },120); });
-  window.addEventListener('pageshow', function(){ updateFooterSpace(); ensureBottomDuring(800); });
-  document.addEventListener('visibilitychange', function(){ if(!document.hidden){ ensureBottomDuring(600); } });
-  if(document.fonts && document.fonts.ready){ document.fonts.ready.then(function(){ ensureBottomDuring(800); }); }
-})();
+
+  updateBottomPad(); ensureBottomDuring(1000);
+});
 </script>
 </body>
 </html>
