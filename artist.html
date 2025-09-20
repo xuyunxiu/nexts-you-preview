@@ -102,7 +102,8 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 /* ===== DM Detail ===== */
 #dmDetail{
   position:relative;background:#000;
-  background-position:center;background-repeat:no-repeat;background-size:cover;background-attachment:fixed;
+  background-position:center;background-repeat:no-repeat;background-size:cover;
+  background-attachment:scroll; /* 避免「背景被放大/固定」錯覺 */
 }
 #dmDetail::after{content:"";position:fixed;inset:0;pointer-events:none;background:rgba(0,0,0,var(--bgDim,.0));backdrop-filter:blur(var(--bgBlur,0px));z-index:-1}
 
@@ -115,13 +116,25 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 .back{width:44px;height:44px;border:none;background:transparent;border-radius:0;padding:0;display:grid;place-items:center}
 .back svg{width:22px;height:22px;stroke:#5b6ab0;stroke-width:2.6;fill:none}
 
+/* 佔滿容器，不在這裡做底部墊高（墊高交給 #threadPad） */
+.thread{
+  position:absolute; left:0; right:0;
+  top:var(--hud-h); bottom:0;               /* 貼到底部；空間交給 threadPad */
+  overflow-y:auto; -webkit-overflow-scrolling:touch;
+  display:flex; flex-direction:column;
+  padding:8px 2px;
+  scrollbar-gutter:stable both-edges;
+}
+/* Safari 在 overflow 容器裡 gap 可能失效，改用鄰接 margin 保持訊息間距 */
+.thread .msg + .msg{ margin-top:12px; }
+
+/* 串尾只保留「一份」pad：避免滑到底還多出一截空白 */
 #threadPad{
-  height:12px;           /* 避免和 .thread 的 bottom 雙重墊高 */
+  height:calc(var(--footer-h) + var(--kb-offset) + env(safe-area-inset-bottom,0px) + 2px);
   flex:0 0 auto;
   pointer-events:none;
 }
-/* Safari 在 overflow 容器裡 gap 可能失效，改用鄰接 margin */
-.thread .msg + .msg{ margin-top:12px; }
+#endAnchor{ height:1px; flex:0 0 auto; }
 
 .msg{display:flex;align-items:flex-end;gap:8px;max-width:88%;margin:0 6px}
 .msg.left{flex-direction:row;align-self:flex-start}
@@ -133,9 +146,10 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 .fromLabel{font-size:11px;font-weight:900;color:#6b78a8;margin-bottom:4px}
 .fanText{color:#111}
 
+/* 問題引用卡：底邊距 0，靠相鄰規則與泡泡拉開距離 */
 .replyCard{
   align-self:flex-end; max-width:74%;
-  margin:14px 6px 6px;   /* ↑14px ↓6px，與最後一則訊息不會黏在一起 */
+  margin:14px 6px 0;
   padding:10px 12px; border-radius:14px;
   background:rgba(255,255,255,.86);
   border:1px solid rgba(0,0,0,.06);
@@ -143,16 +157,12 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
   backdrop-filter:saturate(140%) blur(1.5px);
   word-break:break-word;
 }
-.replyCard .fromLabel{font-size:11px;font-weight:900;letter-spacing:.3px;color:#6d78aa;margin-bottom:4px}
-.msg + .replyCard{ margin-top:16px; }
-  
-/* 右側泡泡回覆按鈕 */
-.replyBtn{
-  position:absolute;right:-32px;top:50%;transform:translateY(-50%);
-  width:34px;height:34px;border-radius:999px;border:none;background:rgba(255,255,255,.78);
-  box-shadow:0 6px 14px rgba(0,0,0,.12);display:flex;align-items:center;justify-content:center;
+.replyCard .fromLabel{
+  font-size:11px; font-weight:900; letter-spacing:.3px; color:#6d78aa; margin-bottom:4px;
 }
-.replyBtn svg{width:18px;height:18px;opacity:.85}
+/* 與上下訊息保持舒服的距離（雙向） */
+.thread .msg + .replyCard,
+.thread .replyCard + .msg{ margin-top:12px; }
 
 /* Composer 固定底部（鍵盤頂起） */
 .dmFooter{
