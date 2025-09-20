@@ -33,12 +33,8 @@ a{text-decoration:none;color:inherit} button{font:inherit;cursor:pointer}
 .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
 .chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:#f3f5ff;border:1px solid var(--line);font-size:12px}
 
-/* pages（底部只保留安全區；鍵盤位移交給 DM footer + JS） */
-section.page{
-  display:none;
-  padding:12px 12px calc(76px + var(--safe));
-  min-height:100svh;
-}
+/* pages */
+section.page{display:none; padding:12px 12px calc(76px + var(--safe)); min-height:100svh;}
 section.page.active{display:block;animation:fade .22s ease}
 @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 
@@ -58,7 +54,7 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 #homeHeader .me img{width:44px;height:44px;border-radius:50%;object-fit:cover;border:1px solid var(--line)}
 #homeHeader .me .id{font-size:12px;color:var(--ghost)}
 
-/* Verified 勳章（首頁貼文用） */
+/* Verified 勳章 */
 .verified-badge{display:inline-block;width:18px;height:18px;margin-left:6px;vertical-align:middle}
 .verified-badge svg{width:100%;height:100%;display:block}
 .verified-badge .gear{stroke:#fff;stroke-width:.9;filter:drop-shadow(0 1px 2px rgba(0,0,0,.25))}
@@ -92,7 +88,7 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 .nameRow{display:flex;align-items:center;gap:8px}
 .nameRow .stage{font-weight:900;letter-spacing:.3px}
 
-/* —— 方框 ARTIST 勳章（紫藍白；DM 與列表共用） —— */
+/* ARTIST tag */
 .artistTag{
   display:inline-flex;align-items:center;justify-content:center;
   padding:3px 8px;border-radius:6px;
@@ -119,22 +115,17 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 .back{width:44px;height:44px;border:none;background:transparent;border-radius:0;padding:0;display:grid;place-items:center}
 .back svg{width:22px;height:22px;stroke:#5b6ab0;stroke-width:2.6;fill:none}
 
-/* 佔滿容器，不在這裡做底部墊高（墊高交給 #threadPad） */
+/* 佔滿容器 */
 .thread{
-  position:absolute; left:0; right:0;
-  top:var(--hud-h); bottom:0;
+  position:absolute; left:0; right:0; top:var(--hud-h); bottom:0;
   overflow-y:auto; -webkit-overflow-scrolling:touch;
-  display:flex; flex-direction:column;
-  padding:8px 2px;
+  display:flex; flex-direction:column; padding:8px 2px;
   scrollbar-gutter:stable both-edges;
 }
 .thread .msg + .msg{ margin-top:12px; }
 
-/* 串尾只保留一份 pad */
-#threadPad{
-  height:calc(var(--footer-h) + var(--kb-offset) + env(safe-area-inset-bottom,0px) + 2px);
-  flex:0 0 auto; pointer-events:none;
-}
+/* 串尾 pad */
+#threadPad{ height:calc(var(--footer-h) + var(--kb-offset) + env(safe-area-inset-bottom,0px) + 6px); flex:0 0 auto; pointer-events:none }
 #endAnchor{ height:1px; flex:0 0 auto; }
 
 .msg{display:flex;align-items:flex-end;gap:8px;max-width:88%;margin:0 6px}
@@ -147,33 +138,29 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 .fromLabel{font-size:11px;font-weight:900;color:#6b78a8;margin-bottom:4px}
 .fanText{color:#111}
 
-/* 問題引用卡 */
+/* 引用卡 */
 .replyCard{
-  align-self:flex-end; max-width:74%;
-  margin:14px 6px 0; padding:10px 12px; border-radius:14px;
-  background:rgba(255,255,255,.86);
-  border:1px solid rgba(0,0,0,.06);
-  box-shadow:0 8px 18px rgba(0,0,0,.12);
-  backdrop-filter:saturate(140%) blur(1.5px);
+  align-self:flex-end; max-width:74%; margin:14px 6px 0; padding:10px 12px; border-radius:14px;
+  background:rgba(255,255,255,.86); border:1px solid rgba(0,0,0,.06);
+  box-shadow:0 8px 18px rgba(0,0,0,.12); backdrop-filter:saturate(140%) blur(1.5px);
   word-break:break-word;
 }
 .replyCard .fromLabel{ font-size:11px; font-weight:900; letter-spacing:.3px; color:#6d78aa; margin-bottom:4px; }
 .thread .msg + .replyCard, .thread .replyCard + .msg{ margin-top:12px; }
 
-/* ③ 回覆箭頭 */
+/* 回覆箭頭 */
 .replyBtn{
   position:absolute; top:50%;
   right:calc(-1 * (var(--reply-size) + var(--reply-gap)));
   transform:translateY(-50%);
   width:var(--reply-size); height:var(--reply-size);
   border-radius:999px; border:1px solid rgba(0,0,0,.08);
-  background:rgba(255,255,255,.92);
-  box-shadow:0 6px 14px rgba(0,0,0,.12);
+  background:rgba(255,255,255,.92); box-shadow:0 6px 14px rgba(0,0,0,.12);
   display:flex;align-items:center;justify-content:center; z-index:2;
 }
 .replyBtn svg{ width:calc(var(--reply-size)*0.53); height:calc(var(--reply-size)*0.53); opacity:.85; }
 
-/* Composer 固定底部（鍵盤頂起） */
+/* Composer 固定底部 */
 .dmFooter{
   position:fixed;left:0;right:0;bottom:0;z-index:50;
   background:linear-gradient(180deg,rgba(255,255,255,.35),rgba(255,255,255,.96));
@@ -183,18 +170,14 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 
 /* 輸入列與按鈕 */
 .dmInputBar{display:flex;align-items:center;gap:10px;padding:0 12px}
-.dmInputBar .box{
-  flex:1;min-width:0;display:flex;align-items:center;background:#fff;border:1px solid var(--line);
-  border-radius:22px;height:42px;padding:0 14px
-}
+.dmInputBar .box{flex:1;min-width:0;display:flex;align-items:center;background:#fff;border:1px solid var(--line);border-radius:22px;height:42px;padding:0 14px}
 .dmInputBar input{flex:1;border:none;outline:none;background:transparent;font-size:17px}
 
-.dmPlus,.dmEmoji,.dmVoice{
+.dmPlus,.dmVoice{
   width:32px;height:32px;border-radius:10px;border:1px solid var(--line);
   background:rgba(255,255,255,.88);display:grid;place-items:center;flex:0 0 auto;
 }
-.dmPlus{font-weight:900;font-size:18px;line-height:1}
-.dmEmoji{font-size:18px}
+.dmPlus{font-size:18px;line-height:1}
 .dmVoice{position:relative}
 .dmVoice::before{
   content:""; display:block; width:16px; height:20px; margin:auto;
@@ -202,7 +185,7 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
   -webkit-mask: inherit; background:#556;
 }
 
-/* 發送鍵：無字=灰；有字=黑 */
+/* 送出鍵：無字=灰；有字=黑 */
 .dmSend{
   width:40px;height:40px;border:none;border-radius:20px;
   background:#e9ecf4; color:#b2b7c8;
@@ -215,12 +198,13 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 /* 媒體樣式 */
 .msgImg{max-width:min(68vw,300px);border-radius:12px;border:1px solid rgba(0,0,0,.08)}
 .msgVideo{width:min(68vw,300px);height:auto;border-radius:12px;border:1px solid rgba(0,0,0,.08)}
-.bubble.voice{padding:8px 10px}
-.voicePlayer{width:220px;height:36px;display:block}
 
-/* 讓 JS 在串尾加的兩個元件工作 */
-#threadPad{height:calc(var(--footer-h) + var(--kb-offset) + env(safe-area-inset-bottom,0px) + 6px);flex:0 0 auto;pointer-events:none}
-#endAnchor{height:1px;flex:0 0 auto}
+/* 語音泡泡：用 audio 控制列，避免黑底 */
+.bubble.voice{padding:8px 10px}
+.voicePlayer{
+  width:240px;height:36px;display:block;
+  background:transparent; /* iOS 仍會用原生樣式，但不會是整塊黑幕 */
+}
 
 /* 右上 … 選單 */
 #dmMenu{position:fixed;right:12px;top:64px;display:none;z-index:70}
@@ -317,17 +301,18 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 
     <!-- 新輸入列 -->
     <div class="dmInputBar">
-      <button class="dmPlus"  id="dmPlusBtn"  aria-label="新增">＋</button>
+      <!-- 📸 攝影/相簿 -->
+      <button class="dmPlus"  id="dmPlusBtn"  aria-label="相機/相簿">📸</button>
       <div class="box"><input id="dmMessageInput" placeholder="輸入訊息…" /></div>
-      <button class="dmEmoji" id="dmEmojiBtn" aria-label="表情">😊</button>
-      <button class="dmVoice" id="dmVoiceBtn" aria-label="語音/影片"></button>
+      <!-- 移除 emoji 鈕（照你的需求） -->
+      <button class="dmVoice" id="dmVoiceBtn" aria-label="語音"></button>
       <button class="dmSend" id="dmSendBtn" aria-label="Send" disabled>
         <svg viewBox="0 0 24 24"><path d="M3.4 12.6l16.7-7.2c.6-.3 1.2.3.9.9l-7.2 16.7c-.3.7-1.3.6-1.5-.1l-2.1-6.1-6.1-2.1c-.7-.2-.8-1.2-.1-1.5z"/></svg>
       </button>
 
       <!-- 隱藏挑選器 -->
-      <input id="pickerMedia" type="file" accept="image/*,video/*" multiple style="display:none">
-      <input id="pickerVoice" type="file" accept="audio/*,video/*" multiple style="display:none">
+      <input id="pickerMedia" type="file" accept="image/*,video/*" multiple capture="environment" style="display:none">
+      <input id="pickerVoice" type="file" accept="audio/*" multiple style="display:none">
     </div>
   </div>
 
@@ -465,8 +450,8 @@ function showPage(id){
   if(id==='dmDetail'){
     measureHUD(); measureFooter(); renderThread(); applyChatBg();
     autoStick=true; scrollToEndDuring(1000);
-    bindBottomObserver(); bindScrollGuard(); // 觀察是否在底
-    setTimeout(hardStickBottom, 0);         // 進頁再強貼底（保險）
+    bindBottomObserver(); bindScrollGuard();
+    setTimeout(hardStickBottom, 0);
   }
   if(id==='composerArtist'){ document.getElementById('composerWho').textContent=NICKNAME; }
 }
@@ -588,17 +573,16 @@ function renderThread(){
       bubble.innerHTML = `<img class="msgImg" src="${m.src}" alt="">`;
     }else if(m.type==='video'){
       bubble.innerHTML = `<video class="msgVideo" src="${m.src}" controls playsinline></video>`;
-    }else if(m.type==='audio' || m.type==='voice'){
+    }else if(m.type==='audio' || m.type==='voice'){  // voice 也一律用 audio 呈現
       bubble.classList.add('voice');
-      const tag = m.type==='audio' ? 'audio' : 'video'; // 影片當語音條
-      bubble.innerHTML = `<${tag} class="voicePlayer" src="${m.src}" controls playsinline></${tag}>`;
+      bubble.innerHTML = `<audio class="voicePlayer" src="${m.src}" preload="metadata" controls controlsList="nodownload noplaybackrate noremoteplayback"></audio>`;
     }else{
       if(m.from==='fan'){
         const lab=document.createElement('div'); lab.className='fromLabel'; lab.textContent='FROM FAN';
         const txt=document.createElement('div'); txt.className='fanText'; txt.innerHTML=escapeHtml(m.text);
         bubble.append(lab,txt);
       }else{
-        bubble.innerHTML=escapeHtml(m.text); // ✅ 藝人端保留原樣（含 @@@）
+        bubble.innerHTML=escapeHtml(m.text); // 保留原樣（含 @@@）
       }
     }
 
@@ -642,7 +626,6 @@ function sendArtistMsg(){
   let t=(inp.value||'').trim(); 
   if(!t) return;
 
-  // ✅ 不做任何替換：藝人端保留 @@@
   GROUP_MSGS.push({
     id:'u'+Date.now(),
     from:'artist',
@@ -671,13 +654,12 @@ function updateComposerUI(){
 }
 dmInput.addEventListener('input', updateComposerUI);
 
-/* ---------- 上傳：＋（相簿） / 語音（檔案 or 螢幕錄影） ---------- */
+/* ---------- 上傳：📸（相簿/相機） / 語音 ---------- */
 const pickerMedia = document.getElementById('pickerMedia');
 const pickerVoice = document.getElementById('pickerVoice');
 document.getElementById('dmPlusBtn').addEventListener('click', ()=>pickerMedia.click());
 document.getElementById('dmVoiceBtn').addEventListener('click', ()=>pickerVoice.click());
 
-/* 檔案轉 DataURL（為了能存進 LS，避免 blob 失效） */
 function toDataURL(file){
   return new Promise((res,rej)=>{
     const fr=new FileReader();
@@ -709,11 +691,10 @@ pickerVoice.addEventListener('change', async e=>{
   const files=[...e.target.files];
   for(const f of files){
     const data = await toDataURL(f);
-    const isAudio = f.type.startsWith('audio/');
     GROUP_MSGS.push({
       id:'v'+Date.now()+Math.random(),
       from:'artist',
-      type: isAudio ? 'audio' : 'voice', // 影片也當語音泡泡（細長播放器）
+      type:'audio',   // 一律保存為 audio
       src: data,
       ts: Date.now()
     });
@@ -789,7 +770,6 @@ function measureHUD(){
   const h=Math.ceil(hEl.getBoundingClientRect().height);
   document.documentElement.style.setProperty('--hud-h', h + 'px');
 }
-function atBottom(t){ return ((t.scrollHeight - t.clientHeight) - t.scrollTop) < 4; }
 function stickBottomNow(){
   const t=document.getElementById('dmThread'); if(!t) return;
   document.getElementById('endAnchor')?.scrollIntoView({block:'end'});
@@ -862,20 +842,18 @@ document.addEventListener('DOMContentLoaded', ()=>{
 
   renderStoryBar(); renderFeed(currentFilter); renderDmList();
 
-  // 初始量測
   measureHUD(); measureFooter();
   updateComposerUI();
 
-  // 若一開始就停在 DM 頁，保險貼底
   if(document.getElementById('dmThread')){ scrollToEndDuring(800); setTimeout(hardStickBottom,0); }
 });
 
-/* 監看 footer 高度變化（鍵盤彈起 / 回覆 chip 出現） */
+/* 監看 footer 高度變化 */
 (()=>{ const footer=document.getElementById('dmFooter'); if(!footer) return;
   if('ResizeObserver' in window){ new ResizeObserver(()=>{ measureFooter(); scrollToEndDuring(600); }).observe(footer); }
 })();
 
-/* iOS Safari：視窗/鍵盤變化（visualViewport） */
+/* iOS Safari：視窗/鍵盤變化 */
 ;(function(){
   const vv=window.visualViewport;
   function applyVV(){
