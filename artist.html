@@ -14,7 +14,10 @@
   --kb-offset:0px;          /* 鍵盤佔用高度（由 JS 寫入） */
   --footer-h:72px;          /* DM footer 實際高度（由 JS 量測） */
   --hud-h:68px;             /* DM header 高度（由 JS 量測） */
+  --reply-size:30px;   /* 圖二的按鈕大小 */
+  --reply-gap:18px;    /* 泡泡邊緣到按鈕的距離 */
 }
+
 *{box-sizing:border-box}
 html,body{height:100%}
 body{
@@ -164,6 +167,27 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 .thread .msg + .replyCard,
 .thread .replyCard + .msg{ margin-top:12px; }
 
+/* ③ 新增箭頭樣式（放在泡泡相關樣式附近即可） */
+.replyBtn{
+  position:absolute;
+  top:50%;
+  right:calc(-1 * (var(--reply-size) + var(--reply-gap))); /* 與泡泡拉開距離 */
+  transform:translateY(-50%);
+  width:var(--reply-size);
+  height:var(--reply-size);
+  border-radius:999px;
+  border:1px solid rgba(0,0,0,.08);
+  background:rgba(255,255,255,.92);
+  box-shadow:0 6px 14px rgba(0,0,0,.12);
+  display:flex;align-items:center;justify-content:center;
+  z-index:2;               /* 不會被泡泡或時間遮住 */
+}
+.replyBtn svg{
+  width:calc(var(--reply-size)*0.53);
+  height:calc(var(--reply-size)*0.53);
+  opacity:.85;
+}
+  
 /* Composer 固定底部（鍵盤頂起） */
 .dmFooter{
   position:fixed;left:0;right:0;bottom:0;z-index:50;
