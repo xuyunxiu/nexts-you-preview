@@ -52,7 +52,7 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 #homeHeader{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:6px 6px 10px}
 #homeHeader .me{display:flex;align-items:center;gap:10px}
 #homeHeader .me img{width:44px;height:44px;border-radius:50%;object-fit:cover;border:1px solid var(--line)}
-#homeHeader .me .id{font-size:12px;color:var(--ghost)}
+#homeHeader .me .id{font-size:12px;color:#9aa0b4}
 
 /* Verified 勳章 */
 .verified-badge{display:inline-block;width:18px;height:18px;margin-left:6px;vertical-align:middle}
@@ -77,7 +77,7 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 .post .hdr{display:flex;align-items:center;gap:10px}
 .post .avatar{width:44px;height:44px;border-radius:50%;object-fit:cover;border:1px solid var(--line)}
 .post .meta b{font-weight:900;display:flex;align-items:center;gap:6px}
-.post .meta small{display:block;color:var(--ghost)}
+.post .meta small{display:block;color:#9aa0b4}
 .post .body{margin-top:8px}
 .post .hero{width:100%;height:360px;object-fit:cover;border-radius:12px;border:1px solid var(--line)}
 
@@ -160,12 +160,14 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 }
 .replyBtn svg{ width:calc(var(--reply-size)*0.53); height:calc(var(--reply-size)*0.53); opacity:.85; }
 
-/* Composer 固定底部 */
+/* Composer 固定底部：鍵盤彈起時上移 */
 .dmFooter{
   position:fixed;left:0;right:0;bottom:0;z-index:50;
   background:linear-gradient(180deg,rgba(255,255,255,.35),rgba(255,255,255,.96));
   backdrop-filter:blur(10px);border-top:1px solid var(--line);
   padding:10px 0 calc(10px + env(safe-area-inset-bottom));
+  transform:translateY(calc(-1 * var(--kb-offset)));
+  transition:transform .18s ease;
 }
 
 /* 輸入列與按鈕 */
@@ -176,14 +178,10 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 .dmPlus,.dmVoice{
   width:32px;height:32px;border-radius:10px;border:1px solid var(--line);
   background:rgba(255,255,255,.88);display:grid;place-items:center;flex:0 0 auto;
+  font-size:18px;line-height:1;
 }
-.dmPlus{font-size:18px;line-height:1}
-.dmVoice{position:relative}
-.dmVoice::before{
-  content:""; display:block; width:16px; height:20px; margin:auto;
-  mask: url('data:image/svg+xml;utf8,<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3zm-7 9a1 1 0 1 0-2 0 9 9 0 0 0 8 8.94V22h2v-1.06A9 9 0 0 0 21 12a1 1 0 1 0-2 0 7 7 0 0 1-14 0z"/></svg>') center/contain no-repeat;
-  -webkit-mask: inherit; background:#556;
-}
+.dmPlus{ /* 顯示 📸 */ }
+.dmVoice{ /* 顯示 🎙️ */ }
 
 /* 送出鍵：無字=灰；有字=黑 */
 .dmSend{
@@ -199,16 +197,24 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 .msgImg{max-width:min(68vw,300px);border-radius:12px;border:1px solid rgba(0,0,0,.08)}
 .msgVideo{width:min(68vw,300px);height:auto;border-radius:12px;border:1px solid rgba(0,0,0,.08)}
 
-/* 語音泡泡：用 audio 控制列，避免黑底 */
+/* 語音泡泡：audio 控制列 */
 .bubble.voice{padding:8px 10px}
-.voicePlayer{
-  width:240px;height:36px;display:block;
-  background:transparent; /* iOS 仍會用原生樣式，但不會是整塊黑幕 */
-}
+.voicePlayer{width:240px;height:36px;display:block;background:transparent}
 
 /* 右上 … 選單 */
 #dmMenu{position:fixed;right:12px;top:64px;display:none;z-index:70}
 #dmMenu .row{flex-direction:column;gap:6px}
+
+/* Action Sheet（📸 選單） */
+.sheet{position:fixed;inset:0;z-index:70;display:none}
+.sheet .mask{position:absolute;inset:0;background:rgba(0,0,0,.35)}
+.sheet .panel{
+  position:absolute;left:0;right:0;bottom:0;background:#f7f8ff;border-top-left-radius:16px;border-top-right-radius:16px;
+  box-shadow:0 -10px 28px rgba(0,0,0,.18);border-top:1px solid var(--line);padding:10px;
+}
+.sheet .panel .btn{width:100%;padding:12px 10px;border:none;border-radius:12px;background:#fff;border:1px solid var(--line);margin:6px 0;font-weight:800}
+.sheet .panel .btn.primary{background:linear-gradient(180deg,var(--accent),var(--accent2));color:#fff;border:none}
+.sheet .panel .btn.cancel{background:#f4f5fb}
 
 /* Modal（背景裁切/預覽） */
 .modal{position:fixed;inset:0;z-index:80;display:none;background:rgba(0,0,0,.45)}
@@ -301,18 +307,19 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 
     <!-- 新輸入列 -->
     <div class="dmInputBar">
-      <!-- 📸 攝影/相簿 -->
+      <!-- 📸 攝影/相簿（會先出選單） -->
       <button class="dmPlus"  id="dmPlusBtn"  aria-label="相機/相簿">📸</button>
       <div class="box"><input id="dmMessageInput" placeholder="輸入訊息…" /></div>
-      <!-- 移除 emoji 鈕（照你的需求） -->
-      <button class="dmVoice" id="dmVoiceBtn" aria-label="語音"></button>
+      <button class="dmVoice" id="dmVoiceBtn" aria-label="語音">🎙️</button>
       <button class="dmSend" id="dmSendBtn" aria-label="Send" disabled>
         <svg viewBox="0 0 24 24"><path d="M3.4 12.6l16.7-7.2c.6-.3 1.2.3.9.9l-7.2 16.7c-.3.7-1.3.6-1.5-.1l-2.1-6.1-6.1-2.1c-.7-.2-.8-1.2-.1-1.5z"/></svg>
       </button>
 
-      <!-- 隱藏挑選器 -->
-      <input id="pickerMedia" type="file" accept="image/*,video/*" multiple capture="environment" style="display:none">
-      <input id="pickerVoice" type="file" accept="audio/*" multiple style="display:none">
+      <!-- 隱藏挑選器（分開控管） -->
+      <input id="pickCamera" type="file" accept="image/*,video/*" capture="environment" style="display:none">
+      <input id="pickAlbum"  type="file" accept="image/*,video/*" multiple style="display:none">
+      <input id="pickFiles"  type="file" accept="image/*,video/*" multiple style="display:none">
+      <input id="pickVoice"  type="file" accept="audio/*" multiple style="display:none">
     </div>
   </div>
 
@@ -324,6 +331,17 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
     </div>
   </div>
 </section>
+
+<!-- 📸 Action Sheet -->
+<div id="mediaSheet" class="sheet" aria-hidden="true">
+  <div class="mask"></div>
+  <div class="panel">
+    <button class="btn primary" id="actCamera">用相機拍照 / 錄影</button>
+    <button class="btn" id="actAlbum">從相簿選擇</button>
+    <button class="btn" id="actFiles">從檔案選擇</button>
+    <button class="btn cancel" id="actCancel">取消</button>
+  </div>
+</div>
 
 <!-- ====================== 背景：挑圖 / 裁切 / 預覽 ====================== -->
 <input id="bgChooser" type="file" accept="image/*" style="display:none">
@@ -573,7 +591,7 @@ function renderThread(){
       bubble.innerHTML = `<img class="msgImg" src="${m.src}" alt="">`;
     }else if(m.type==='video'){
       bubble.innerHTML = `<video class="msgVideo" src="${m.src}" controls playsinline></video>`;
-    }else if(m.type==='audio' || m.type==='voice'){  // voice 也一律用 audio 呈現
+    }else if(m.type==='audio' || m.type==='voice'){
       bubble.classList.add('voice');
       bubble.innerHTML = `<audio class="voicePlayer" src="${m.src}" preload="metadata" controls controlsList="nodownload noplaybackrate noremoteplayback"></audio>`;
     }else{
@@ -608,7 +626,6 @@ function renderThread(){
     }
   });
 
-  // 串尾墊高 + 錨點
   if(!box.querySelector('#threadPad')){ const pad=document.createElement('div'); pad.id='threadPad'; box.appendChild(pad); }
   if(!box.querySelector('#endAnchor')){ const a=document.createElement('div'); a.id='endAnchor'; box.appendChild(a); }
 
@@ -653,12 +670,29 @@ function updateComposerUI(){
   sendBtn.disabled = !has;
 }
 dmInput.addEventListener('input', updateComposerUI);
+dmInput.addEventListener('focus', ()=>{ measureFooter(); scrollToEndDuring(800); setTimeout(hardStickBottom,0); });
+dmInput.addEventListener('blur', ()=>{ measureFooter(); });
 
-/* ---------- 上傳：📸（相簿/相機） / 語音 ---------- */
-const pickerMedia = document.getElementById('pickerMedia');
-const pickerVoice = document.getElementById('pickerVoice');
-document.getElementById('dmPlusBtn').addEventListener('click', ()=>pickerMedia.click());
-document.getElementById('dmVoiceBtn').addEventListener('click', ()=>pickerVoice.click());
+/* ---------- 📸 Action Sheet（不直接開相機） ---------- */
+const mediaSheet = document.getElementById('mediaSheet');
+const openSheet = ()=>{ mediaSheet.style.display='block'; };
+const closeSheet = ()=>{ mediaSheet.style.display='none'; };
+
+document.getElementById('dmPlusBtn').addEventListener('click', openSheet);
+document.querySelector('#mediaSheet .mask').addEventListener('click', closeSheet);
+document.getElementById('actCancel').addEventListener('click', closeSheet);
+
+document.getElementById('actCamera').addEventListener('click', ()=>{ document.getElementById('pickCamera').click(); closeSheet(); });
+document.getElementById('actAlbum').addEventListener('click',  ()=>{ document.getElementById('pickAlbum').click();  closeSheet(); });
+document.getElementById('actFiles').addEventListener('click',  ()=>{ document.getElementById('pickFiles').click();  closeSheet(); });
+
+/* ---------- 上傳處理：相機 / 相簿 / 檔案 / 語音 ---------- */
+const pickCamera=document.getElementById('pickCamera');
+const pickAlbum =document.getElementById('pickAlbum');
+const pickFiles =document.getElementById('pickFiles');
+const pickVoice =document.getElementById('pickVoice');
+
+document.getElementById('dmVoiceBtn').addEventListener('click', ()=>pickVoice.click());
 
 function toDataURL(file){
   return new Promise((res,rej)=>{
@@ -668,9 +702,8 @@ function toDataURL(file){
     fr.readAsDataURL(file);
   });
 }
-
-pickerMedia.addEventListener('change', async e=>{
-  const files=[...e.target.files];
+async function handleMediaFiles(fileList){
+  const files=[...fileList];
   for(const f of files){
     const data = await toDataURL(f);
     const isVideo = f.type.startsWith('video/');
@@ -684,17 +717,20 @@ pickerMedia.addEventListener('change', async e=>{
   }
   LS.set('groupMsgs', GROUP_MSGS);
   renderThread(); renderDmList(); hardStickBottom();
-  e.target.value='';
-});
+}
 
-pickerVoice.addEventListener('change', async e=>{
+pickCamera.addEventListener('change', e=>{ if(e.target.files.length){ handleMediaFiles(e.target.files); e.target.value=''; }});
+pickAlbum .addEventListener('change', e=>{ if(e.target.files.length){ handleMediaFiles(e.target.files); e.target.value=''; }});
+pickFiles .addEventListener('change', e=>{ if(e.target.files.length){ handleMediaFiles(e.target.files); e.target.value=''; }});
+
+pickVoice.addEventListener('change', async e=>{
   const files=[...e.target.files];
   for(const f of files){
     const data = await toDataURL(f);
     GROUP_MSGS.push({
       id:'v'+Date.now()+Math.random(),
       from:'artist',
-      type:'audio',   // 一律保存為 audio
+      type:'audio',
       src: data,
       ts: Date.now()
     });
