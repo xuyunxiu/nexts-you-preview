@@ -610,7 +610,15 @@ function sendArtistMsg(){
   const inp=document.getElementById('dmMessageInput');
   let t=(inp.value||'').trim(); if(!t) return;
   t=t.replaceAll('@@@', FANS[0].name);
-  GROUP_MSGS.push({id:'u'+Date.now(),from:'artist',text:t,ts:Date.now(),replyTo:replyDraft?{text:replyDraft.text}:null});
+  // ✅ 不做任何替換，原樣存入（包含 @@@）
+  GROUP_MSGS.push({
+    id:'u'+Date.now(),
+    from:'artist',
+    text:t,
+    ts:Date.now(),
+    replyTo:replyDraft?{text:replyDraft.text}:null
+  });
+
   LS.set('groupMsgs', GROUP_MSGS);
   inp.value=''; clearReply(); renderThread(); renderDmList();
   scrollToEndDuring(900);
