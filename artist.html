@@ -115,14 +115,10 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 .back{width:44px;height:44px;border:none;background:transparent;border-radius:0;padding:0;display:grid;place-items:center}
 .back svg{width:22px;height:22px;stroke:#5b6ab0;stroke-width:2.6;fill:none}
 
-/* thread */
-.thread{
-  position:absolute; left:0; right:0;
-  top:var(--hud-h);
-  bottom:calc(var(--footer-h) + var(--kb-offset) + env(safe-area-inset-bottom,0px));
-  overflow-y:auto; -webkit-overflow-scrolling:touch;
-  display:flex; flex-direction:column; padding:8px 2px;
-  scrollbar-gutter:stable both-edges;
+#threadPad{
+  height:12px;           /* 避免和 .thread 的 bottom 雙重墊高 */
+  flex:0 0 auto;
+  pointer-events:none;
 }
 /* Safari 在 overflow 容器裡 gap 可能失效，改用鄰接 margin */
 .thread .msg + .msg{ margin-top:12px; }
@@ -137,14 +133,19 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 .fromLabel{font-size:11px;font-weight:900;color:#6b78a8;margin-bottom:4px}
 .fanText{color:#111}
 
-/* 問題引用卡 */
 .replyCard{
-  align-self:flex-end;max-width:74%;margin:12px 6px 0;padding:10px 12px;border-radius:14px;
-  background:rgba(255,255,255,.86);border:1px solid rgba(0,0,0,.06);box-shadow:0 8px 18px rgba(0,0,0,.12);
-  backdrop-filter:saturate(140%) blur(1.5px);word-break:break-word;
+  align-self:flex-end; max-width:74%;
+  margin:14px 6px 6px;   /* ↑14px ↓6px，與最後一則訊息不會黏在一起 */
+  padding:10px 12px; border-radius:14px;
+  background:rgba(255,255,255,.86);
+  border:1px solid rgba(0,0,0,.06);
+  box-shadow:0 8px 18px rgba(0,0,0,.12);
+  backdrop-filter:saturate(140%) blur(1.5px);
+  word-break:break-word;
 }
 .replyCard .fromLabel{font-size:11px;font-weight:900;letter-spacing:.3px;color:#6d78aa;margin-bottom:4px}
-
+.msg + .replyCard{ margin-top:16px; }
+  
 /* 右側泡泡回覆按鈕 */
 .replyBtn{
   position:absolute;right:-32px;top:50%;transform:translateY(-50%);
