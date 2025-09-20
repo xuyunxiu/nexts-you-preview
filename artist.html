@@ -14,8 +14,8 @@
   --kb-offset:0px;          /* 鍵盤佔用高度（由 JS 寫入） */
   --footer-h:72px;          /* DM footer 實際高度（由 JS 量測） */
   --hud-h:68px;             /* DM header 高度（由 JS 量測） */
-  --reply-size:30px;   /* 圖二的按鈕大小 */
-  --reply-gap:18px;    /* 泡泡邊緣到按鈕的距離 */
+  --reply-size:30px;        /* 引用按鈕大小 */
+  --reply-gap:18px;         /* 泡泡→按鈕距離 */
 }
 
 *{box-sizing:border-box}
@@ -106,7 +106,7 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 #dmDetail{
   position:relative;background:#000;
   background-position:center;background-repeat:no-repeat;background-size:cover;
-  background-attachment:scroll; /* 避免「背景被放大/固定」錯覺 */
+  background-attachment:scroll;
 }
 #dmDetail::after{content:"";position:fixed;inset:0;pointer-events:none;background:rgba(0,0,0,var(--bgDim,.0));backdrop-filter:blur(var(--bgBlur,0px));z-index:-1}
 
@@ -122,20 +122,18 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 /* 佔滿容器，不在這裡做底部墊高（墊高交給 #threadPad） */
 .thread{
   position:absolute; left:0; right:0;
-  top:var(--hud-h); bottom:0;               /* 貼到底部；空間交給 threadPad */
+  top:var(--hud-h); bottom:0;
   overflow-y:auto; -webkit-overflow-scrolling:touch;
   display:flex; flex-direction:column;
   padding:8px 2px;
   scrollbar-gutter:stable both-edges;
 }
-/* Safari 在 overflow 容器裡 gap 可能失效，改用鄰接 margin 保持訊息間距 */
 .thread .msg + .msg{ margin-top:12px; }
 
-/* 串尾只保留「一份」pad：避免滑到底還多出一截空白 */
+/* 串尾只保留一份 pad */
 #threadPad{
   height:calc(var(--footer-h) + var(--kb-offset) + env(safe-area-inset-bottom,0px) + 2px);
-  flex:0 0 auto;
-  pointer-events:none;
+  flex:0 0 auto; pointer-events:none;
 }
 #endAnchor{ height:1px; flex:0 0 auto; }
 
@@ -149,45 +147,32 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 .fromLabel{font-size:11px;font-weight:900;color:#6b78a8;margin-bottom:4px}
 .fanText{color:#111}
 
-/* 問題引用卡：底邊距 0，靠相鄰規則與泡泡拉開距離 */
+/* 問題引用卡 */
 .replyCard{
   align-self:flex-end; max-width:74%;
-  margin:14px 6px 0;
-  padding:10px 12px; border-radius:14px;
+  margin:14px 6px 0; padding:10px 12px; border-radius:14px;
   background:rgba(255,255,255,.86);
   border:1px solid rgba(0,0,0,.06);
   box-shadow:0 8px 18px rgba(0,0,0,.12);
   backdrop-filter:saturate(140%) blur(1.5px);
   word-break:break-word;
 }
-.replyCard .fromLabel{
-  font-size:11px; font-weight:900; letter-spacing:.3px; color:#6d78aa; margin-bottom:4px;
-}
-/* 與上下訊息保持舒服的距離（雙向） */
-.thread .msg + .replyCard,
-.thread .replyCard + .msg{ margin-top:12px; }
+.replyCard .fromLabel{ font-size:11px; font-weight:900; letter-spacing:.3px; color:#6d78aa; margin-bottom:4px; }
+.thread .msg + .replyCard, .thread .replyCard + .msg{ margin-top:12px; }
 
-/* ③ 新增箭頭樣式（放在泡泡相關樣式附近即可） */
+/* ③ 回覆箭頭 */
 .replyBtn{
-  position:absolute;
-  top:50%;
-  right:calc(-1 * (var(--reply-size) + var(--reply-gap))); /* 與泡泡拉開距離 */
+  position:absolute; top:50%;
+  right:calc(-1 * (var(--reply-size) + var(--reply-gap)));
   transform:translateY(-50%);
-  width:var(--reply-size);
-  height:var(--reply-size);
-  border-radius:999px;
-  border:1px solid rgba(0,0,0,.08);
+  width:var(--reply-size); height:var(--reply-size);
+  border-radius:999px; border:1px solid rgba(0,0,0,.08);
   background:rgba(255,255,255,.92);
   box-shadow:0 6px 14px rgba(0,0,0,.12);
-  display:flex;align-items:center;justify-content:center;
-  z-index:2;               /* 不會被泡泡或時間遮住 */
+  display:flex;align-items:center;justify-content:center; z-index:2;
 }
-.replyBtn svg{
-  width:calc(var(--reply-size)*0.53);
-  height:calc(var(--reply-size)*0.53);
-  opacity:.85;
-}
-  
+.replyBtn svg{ width:calc(var(--reply-size)*0.53); height:calc(var(--reply-size)*0.53); opacity:.85; }
+
 /* Composer 固定底部（鍵盤頂起） */
 .dmFooter{
   position:fixed;left:0;right:0;bottom:0;z-index:50;
@@ -195,11 +180,43 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
   backdrop-filter:blur(10px);border-top:1px solid var(--line);
   padding:10px 0 calc(10px + env(safe-area-inset-bottom));
 }
+
+/* 輸入列與按鈕 */
 .dmInputBar{display:flex;align-items:center;gap:10px;padding:0 12px}
-.dmInputBar .box{flex:1;min-width:0;display:flex;align-items:center;background:#fff;border:1px solid var(--line);border-radius:22px;height:42px;padding:0 14px}
+.dmInputBar .box{
+  flex:1;min-width:0;display:flex;align-items:center;background:#fff;border:1px solid var(--line);
+  border-radius:22px;height:42px;padding:0 14px
+}
 .dmInputBar input{flex:1;border:none;outline:none;background:transparent;font-size:17px}
-.dmSend{width:54px;height:42px;border:none;border-radius:14px;background:linear-gradient(180deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center}
-.dmSend svg{width:22px;height:22px;stroke:#fff;fill:#fff}
+
+.dmPlus,.dmEmoji,.dmVoice{
+  width:32px;height:32px;border-radius:10px;border:1px solid var(--line);
+  background:rgba(255,255,255,.88);display:grid;place-items:center;flex:0 0 auto;
+}
+.dmPlus{font-weight:900;font-size:18px;line-height:1}
+.dmEmoji{font-size:18px}
+.dmVoice{position:relative}
+.dmVoice::before{
+  content:""; display:block; width:16px; height:20px; margin:auto;
+  mask: url('data:image/svg+xml;utf8,<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3zm-7 9a1 1 0 1 0-2 0 9 9 0 0 0 8 8.94V22h2v-1.06A9 9 0 0 0 21 12a1 1 0 1 0-2 0 7 7 0 0 1-14 0z"/></svg>') center/contain no-repeat;
+  -webkit-mask: inherit; background:#556;
+}
+
+/* 發送鍵：無字=灰；有字=黑 */
+.dmSend{
+  width:40px;height:40px;border:none;border-radius:20px;
+  background:#e9ecf4; color:#b2b7c8;
+  display:flex;align-items:center;justify-content:center;
+}
+.dmSend svg{width:20px;height:20px;fill:currentColor;stroke:currentColor}
+.dmSend[disabled]{opacity:1;cursor:default}
+.hasText .dmSend{ background:#111; color:#fff; }
+
+/* 媒體樣式 */
+.msgImg{max-width:min(68vw,300px);border-radius:12px;border:1px solid rgba(0,0,0,.08)}
+.msgVideo{width:min(68vw,300px);height:auto;border-radius:12px;border:1px solid rgba(0,0,0,.08)}
+.bubble.voice{padding:8px 10px}
+.voicePlayer{width:220px;height:36px;display:block}
 
 /* 讓 JS 在串尾加的兩個元件工作 */
 #threadPad{height:calc(var(--footer-h) + var(--kb-offset) + env(safe-area-inset-bottom,0px) + 6px);flex:0 0 auto;pointer-events:none}
@@ -217,40 +234,22 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 .cropCtrls{display:flex;align-items:center;gap:10px;margin:12px 0}
 .cropCtrls .spacer{flex:1}
 
-/* ==== Reply Chip（簡潔＋質感） ==== */
+/* Reply Chip */
 .replyChip{
-  position:relative;
-  display:flex; align-items:center; gap:8px;
-  margin:0 14px 8px;
-  padding:8px 36px 8px 12px;              /* 右邊預留關閉鍵空間 */
-  border-radius:13px;
-  border:1px solid rgba(255,255,255,.28); /* 微玻璃邊 */
-  background:rgba(255,255,255,.12);       /* 很淡的玻璃感；footer 的模糊保留 */
-  backdrop-filter:saturate(140%) blur(1.5px);
+  position:relative; display:flex; align-items:center; gap:8px;
+  margin:0 14px 8px; padding:8px 36px 8px 12px;
+  border-radius:13px; border:1px solid rgba(255,255,255,.28);
+  background:rgba(255,255,255,.12); backdrop-filter:saturate(140%) blur(1.5px);
 }
-.replyChipLabel{
-  font-size:12px; font-weight:900; letter-spacing:.35px;
-  color:#7a86b7; margin-right:2px; user-select:none;
-}
-.replyChipText{
-  flex:1; min-width:0;
-  font-size:15px; line-height:1.25; font-weight:600;
-  color:#2f3564; opacity:.95;
-  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
-  /* 更細膩的排版質感 */
-  text-rendering:optimizeLegibility; -webkit-font-smoothing:antialiased;
-  font-feature-settings:"kern" 1, "liga" 1;
-}
+.replyChipLabel{ font-size:12px; font-weight:900; letter-spacing:.35px; color:#7a86b7; margin-right:2px; user-select:none; }
+.replyChipText{ flex:1; min-width:0; font-size:15px; line-height:1.25; font-weight:600; color:#2f3564; opacity:.95; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .replyChipClose{
-  position:absolute; top:6px; right:6px;
-  width:28px; height:28px; padding:0;
-  display:grid; place-items:center;
-  border:none; background:transparent;     /* 取消白底與按鈕樣式 */
-  color:#6f78aa; border-radius:6px; cursor:pointer;
+  position:absolute; top:6px; right:6px; width:28px; height:28px;
+  display:grid; place-items:center; border:none; background:transparent; color:#6f78aa; border-radius:6px; cursor:pointer;
 }
 .replyChipClose:hover{ background:rgba(255,255,255,.10); }
 .replyChipClose svg{ width:18px; height:18px; display:block; }
-  
+
 /* 小工具 */
 .badge{background:#ff3b30;color:#fff;font-size:12px;padding:2px 7px;border-radius:999px;min-width:22px;text-align:center}
 </style>
@@ -307,20 +306,28 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
   <!-- Footer -->
   <div class="dmFooter" id="dmFooter">
     <div id="replyChip" class="replyChip" style="display:none">
-  <span class="replyChipLabel">回覆：</span>
-  <span id="replyChipText" class="replyChipText">—</span>
-  <button class="replyChipClose" onclick="clearReply()">
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M6 6l12 12M18 6L6 18"
-            stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
-    </svg>
-  </button>
-</div>
+      <span class="replyChipLabel">回覆：</span>
+      <span id="replyChipText" class="replyChipText">—</span>
+      <button class="replyChipClose" onclick="clearReply()">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- 新輸入列 -->
     <div class="dmInputBar">
+      <button class="dmPlus"  id="dmPlusBtn"  aria-label="新增">＋</button>
       <div class="box"><input id="dmMessageInput" placeholder="輸入訊息…" /></div>
-      <button class="dmSend" id="dmSendBtn" aria-label="Send">
+      <button class="dmEmoji" id="dmEmojiBtn" aria-label="表情">😊</button>
+      <button class="dmVoice" id="dmVoiceBtn" aria-label="語音/影片"></button>
+      <button class="dmSend" id="dmSendBtn" aria-label="Send" disabled>
         <svg viewBox="0 0 24 24"><path d="M3.4 12.6l16.7-7.2c.6-.3 1.2.3.9.9l-7.2 16.7c-.3.7-1.3.6-1.5-.1l-2.1-6.1-6.1-2.1c-.7-.2-.8-1.2-.1-1.5z"/></svg>
       </button>
+
+      <!-- 隱藏挑選器 -->
+      <input id="pickerMedia" type="file" accept="image/*,video/*" multiple style="display:none">
+      <input id="pickerVoice" type="file" accept="audio/*,video/*" multiple style="display:none">
     </div>
   </div>
 
@@ -426,7 +433,11 @@ const POSTS = LS.get('artistPosts',[
   {id:'p2',artistId:'woo',artistStage:'WOOCHAN',avatar:'https://picsum.photos/80?u=wc',text:'今天吃拉麵 🍜',img:'https://picsum.photos/1200?u=wc1',ts:Date.now()-1000*60*50},
   {id:'p1',artistId:'me',artistStage:STAGE_NAME,avatar:ME.avatar,text:'大家好，我是 Annie ✨',img:'',ts:Date.now()-1000*60*60}
 ]);
+
+/* 假粉絲 */
 const FANS=[{id:'f1',name:'Michelle',avatar:'https://picsum.photos/40?u=f1'},{id:'f2',name:'粉絲 B',avatar:'https://picsum.photos/40?u=f2'}];
+
+/* 訊息 */
 let GROUP_MSGS=LS.get('groupMsgs',[
   {id:'m1',from:'fan',fanId:'f1',text:'偶像好～',ts:Date.now()-1000*60*45},
   {id:'m2',from:'fan',fanId:'f2',text:'今天吃什麼？',ts:Date.now()-1000*60*43},
@@ -454,7 +465,8 @@ function showPage(id){
   if(id==='dmDetail'){
     measureHUD(); measureFooter(); renderThread(); applyChatBg();
     autoStick=true; scrollToEndDuring(1000);
-    bindBottomObserver(); bindScrollGuard(); // 觀察「是否在底」狀態
+    bindBottomObserver(); bindScrollGuard(); // 觀察是否在底
+    setTimeout(hardStickBottom, 0);         // 進頁再強貼底（保險）
   }
   if(id==='composerArtist'){ document.getElementById('composerWho').textContent=NICKNAME; }
 }
@@ -533,6 +545,13 @@ function renderFeed(filter='me'){
 
 /* ---------- DM List ---------- */
 function getRoomTitle(){ return NICKNAME; }
+function lastPreview(m){
+  if(!m) return '（無訊息）';
+  if(m.type==='image') return '[照片]';
+  if(m.type==='video') return '[影片]';
+  if(m.type==='audio' || m.type==='voice') return '[語音]';
+  return m.text || '（無訊息）';
+}
 function renderDmList(){
   const box=document.getElementById('dmList');
   const last=GROUP_MSGS[GROUP_MSGS.length-1];
@@ -544,7 +563,7 @@ function renderDmList(){
         <div class="stage">${escapeHtml(getRoomTitle().toUpperCase())}</div>
       </div>
       <small class="ghost" style="display:block;max-width:62vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
-        ${escapeHtml(last?last.text:'（無訊息）')}
+        ${escapeHtml(lastPreview(last))}
       </small>
     </div><span></span></div>`;
 }
@@ -563,12 +582,24 @@ function renderThread(){
     timeEl.textContent=fmtTime(m.ts);
 
     const bubble=document.createElement('div'); bubble.className='bubble';
-    if(m.from==='fan'){
-      const lab=document.createElement('div'); lab.className='fromLabel'; lab.textContent='FROM FAN';
-      const txt=document.createElement('div'); txt.className='fanText'; txt.innerHTML=escapeHtml(m.text);
-      bubble.append(lab,txt);
+
+    // 內容渲染
+    if(m.type==='image'){
+      bubble.innerHTML = `<img class="msgImg" src="${m.src}" alt="">`;
+    }else if(m.type==='video'){
+      bubble.innerHTML = `<video class="msgVideo" src="${m.src}" controls playsinline></video>`;
+    }else if(m.type==='audio' || m.type==='voice'){
+      bubble.classList.add('voice');
+      const tag = m.type==='audio' ? 'audio' : 'video'; // 影片當語音條
+      bubble.innerHTML = `<${tag} class="voicePlayer" src="${m.src}" controls playsinline></${tag}>`;
     }else{
-      bubble.innerHTML=escapeHtml(m.text);
+      if(m.from==='fan'){
+        const lab=document.createElement('div'); lab.className='fromLabel'; lab.textContent='FROM FAN';
+        const txt=document.createElement('div'); txt.className='fanText'; txt.innerHTML=escapeHtml(m.text);
+        bubble.append(lab,txt);
+      }else{
+        bubble.innerHTML=escapeHtml(m.text); // ✅ 藝人端保留原樣（含 @@@）
+      }
     }
 
     wrap.append(bubble,timeEl); box.appendChild(wrap);
@@ -579,7 +610,7 @@ function renderThread(){
       box.appendChild(rc);
     }
 
-    if(m.from==='fan'){
+    if(m.from==='fan' && !m.type){
       const btn=document.createElement('button'); btn.className='replyBtn';
       btn.innerHTML=`<svg viewBox="0 0 24 24"><path d="M12 4l-1.4 1.4L16.2 11H4v2h12.2l-5.6 5.6L12 20l8-8z" fill="currentColor"/></svg>`;
       btn.onclick=()=>{
@@ -593,7 +624,7 @@ function renderThread(){
     }
   });
 
-  // 串尾墊高 + 錨點（關鍵）
+  // 串尾墊高 + 錨點
   if(!box.querySelector('#threadPad')){ const pad=document.createElement('div'); pad.id='threadPad'; box.appendChild(pad); }
   if(!box.querySelector('#endAnchor')){ const a=document.createElement('div'); a.id='endAnchor'; box.appendChild(a); }
 
@@ -608,9 +639,10 @@ function clearReply(){
 }
 function sendArtistMsg(){
   const inp=document.getElementById('dmMessageInput');
-  let t=(inp.value||'').trim(); if(!t) return;
-  t=t.replaceAll('@@@', FANS[0].name);
-  // ✅ 不做任何替換，原樣存入（包含 @@@）
+  let t=(inp.value||'').trim(); 
+  if(!t) return;
+
+  // ✅ 不做任何替換：藝人端保留 @@@
   GROUP_MSGS.push({
     id:'u'+Date.now(),
     from:'artist',
@@ -620,12 +652,75 @@ function sendArtistMsg(){
   });
 
   LS.set('groupMsgs', GROUP_MSGS);
-  inp.value=''; clearReply(); renderThread(); renderDmList();
-  scrollToEndDuring(900);
+  inp.value=''; updateComposerUI(); clearReply(); renderThread(); renderDmList();
+  hardStickBottom();
 }
 document.getElementById('dmSendBtn').addEventListener('click', sendArtistMsg);
 document.getElementById('dmMessageInput').addEventListener('keydown', e=>{
   if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); sendArtistMsg(); }
+});
+
+/* 發送鍵狀態：有字→黑色；沒字→灰 */
+const dmInput = document.getElementById('dmMessageInput');
+const sendBtn = document.getElementById('dmSendBtn');
+const footerEl = document.getElementById('dmFooter');
+function updateComposerUI(){
+  const has = (dmInput.value||'').trim().length>0;
+  footerEl.classList.toggle('hasText', has);
+  sendBtn.disabled = !has;
+}
+dmInput.addEventListener('input', updateComposerUI);
+
+/* ---------- 上傳：＋（相簿） / 語音（檔案 or 螢幕錄影） ---------- */
+const pickerMedia = document.getElementById('pickerMedia');
+const pickerVoice = document.getElementById('pickerVoice');
+document.getElementById('dmPlusBtn').addEventListener('click', ()=>pickerMedia.click());
+document.getElementById('dmVoiceBtn').addEventListener('click', ()=>pickerVoice.click());
+
+/* 檔案轉 DataURL（為了能存進 LS，避免 blob 失效） */
+function toDataURL(file){
+  return new Promise((res,rej)=>{
+    const fr=new FileReader();
+    fr.onload = ()=>res(fr.result);
+    fr.onerror= rej;
+    fr.readAsDataURL(file);
+  });
+}
+
+pickerMedia.addEventListener('change', async e=>{
+  const files=[...e.target.files];
+  for(const f of files){
+    const data = await toDataURL(f);
+    const isVideo = f.type.startsWith('video/');
+    GROUP_MSGS.push({
+      id:'m'+Date.now()+Math.random(),
+      from:'artist',
+      type: isVideo ? 'video' : 'image',
+      src: data,
+      ts: Date.now()
+    });
+  }
+  LS.set('groupMsgs', GROUP_MSGS);
+  renderThread(); renderDmList(); hardStickBottom();
+  e.target.value='';
+});
+
+pickerVoice.addEventListener('change', async e=>{
+  const files=[...e.target.files];
+  for(const f of files){
+    const data = await toDataURL(f);
+    const isAudio = f.type.startsWith('audio/');
+    GROUP_MSGS.push({
+      id:'v'+Date.now()+Math.random(),
+      from:'artist',
+      type: isAudio ? 'audio' : 'voice', // 影片也當語音泡泡（細長播放器）
+      src: data,
+      ts: Date.now()
+    });
+  }
+  LS.set('groupMsgs', GROUP_MSGS);
+  renderThread(); renderDmList(); hardStickBottom();
+  e.target.value='';
 });
 
 /* ---------- DM 菜單 ---------- */
@@ -706,6 +801,13 @@ function scrollToEndDuring(ms=800){
   function loop(){ if(!autoStick) return; stickBottomNow(); if(performance.now()<end) requestAnimationFrame(loop); }
   requestAnimationFrame(loop);
 }
+function hardStickBottom(){
+  const t=document.getElementById('dmThread'); if(!t) return;
+  t.scrollTop = t.scrollHeight + 9999;
+  let frames=24;
+  function pump(){ t.scrollTop = t.scrollHeight + 9999; if(--frames>0) requestAnimationFrame(pump); }
+  requestAnimationFrame(()=>requestAnimationFrame(pump));
+}
 let autoStick=true;
 function bindScrollGuard(){
   const t=document.getElementById('dmThread'); if(!t) return;
@@ -721,10 +823,10 @@ function bindBottomObserver(){
       const e = entries[0]; autoStick = e.isIntersecting && e.intersectionRatio >= 0.96;
     },{root:t,threshold:[0.01,0.5,0.96],rootMargin:'0px 0px -1px 0px'});
     io.observe(a);
-  }catch(_){ /* 老環境就用 scroll guard（上面已加） */ }
+  }catch(_){ /* 老環境用 scroll guard */ }
 }
 
-/* ---------- Composer ---------- */
+/* ---------- Composer（首頁草稿） ---------- */
 function previewComposeMedia(e){
   const box=document.getElementById('composePreview'); const hint=document.getElementById('composeFilesHint');
   box.innerHTML=''; if(!e.target.files.length){ hint.textContent='未選取檔案'; return; }
@@ -762,9 +864,10 @@ document.addEventListener('DOMContentLoaded', ()=>{
 
   // 初始量測
   measureHUD(); measureFooter();
+  updateComposerUI();
 
-  // 進到 DM 前若已在該頁，仍保險貼底
-  if(document.getElementById('dmThread')){ scrollToEndDuring(800); }
+  // 若一開始就停在 DM 頁，保險貼底
+  if(document.getElementById('dmThread')){ scrollToEndDuring(800); setTimeout(hardStickBottom,0); }
 });
 
 /* 監看 footer 高度變化（鍵盤彈起 / 回覆 chip 出現） */
@@ -772,7 +875,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
   if('ResizeObserver' in window){ new ResizeObserver(()=>{ measureFooter(); scrollToEndDuring(600); }).observe(footer); }
 })();
 
-/* iOS Safari：視窗/鍵盤變化（來源於 visualViewport） */
+/* iOS Safari：視窗/鍵盤變化（visualViewport） */
 ;(function(){
   const vv=window.visualViewport;
   function applyVV(){
