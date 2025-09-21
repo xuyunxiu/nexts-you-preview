@@ -16,6 +16,8 @@
   --hud-h:68px;
   --reply-size:30px;
   --reply-gap:18px;
+  /* 新增：媒體寬度上限 */
+  --media-max: min(64vw, 280px);
 }
 *{box-sizing:border-box}
 html,body{height:100%}
@@ -97,8 +99,8 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 #dm .dmCard{
   display:flex;
   align-items:center;
-  justify-content:flex-start;   /* 往左靠 */
-  gap:12px;                     /* 與頭像的距離 */
+  justify-content:flex-start;
+  gap:12px;
   padding:12px;
   border:1px solid var(--line);
   border-radius:14px;
@@ -143,29 +145,16 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 }
 #dmDetail::after{content:"";position:fixed;inset:0;pointer-events:none;background:rgba(0,0,0,var(--bgDim,.0));backdrop-filter:blur(var(--bgBlur,0px));z-index:-1}
 
-/* ---------- header（聊天室 HUD）：置中標題、隱藏徽章，且不改變高度 ---------- */
+/* ======= HUD（置中標題、移除徽章，不影響貼底） ======= */
 .chatHUD{
-  position:relative; /* 置中容器參考點 */
-  display:flex;align-items:center;justify-content:space-between;padding:4px 0 8px;
+  /* 改成三欄 grid：左← / 中央標題 / 右… */
+  display:grid;grid-template-columns:44px 1fr 40px;align-items:center;
+  padding:6px 0 8px;
 }
-.chatHUD .center{
-  position:absolute;left:50%;top:50%;
-  transform:translate(-50%,-50%);
-  width:70%;min-width:0;text-align:center;
-  pointer-events:none; /* 不擋住左右按鈕 */
-}
-.chatHUD .titleCol{
-  display:flex;flex-direction:column;align-items:center;gap:2px;
-}
-.chatHUD .artistTag{ display:none !important; }      /* 只在 HUD 隱藏徽章 */
-.artistName{font-weight:900;letter-spacing:.6px;font-size:18px;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-
-/* —— HUD 右上「…」：取消底色與描邊，只留 icon —— */
+.chatHUD .center{min-width:0;text-align:center}
+.artistName{font-weight:900;letter-spacing:.6px;font-size:20px;color:#222}
 .hudBtn{
-  width:40px;height:40px;
-  border:none;background:transparent;
-  color:#fff;                    /* 看起來是白色三點 */
-  display:grid;place-items:center;
+  width:40px;height:40px;border:none;background:transparent;color:#fff;display:grid;place-items:center;
 }
 .hudBtn:active{ transform:scale(.96); }
 .back{width:44px;height:44px;border:none;background:transparent;border-radius:0;padding:0;display:grid;place-items:center}
@@ -189,8 +178,10 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
   border-radius:var(--bubble-r);
   border:1px solid rgba(255,255,255,.22);
   background:rgba(255,255,255,.92);
-  position:relative;}
-.msg.right .bubble{background:linear-gradient(180deg,var(--accent),var(--accent2));color:#fff;border-color:transparent}
+  position:relative;
+}
+/* 重要：避免覆蓋脫泡泡的媒體 */
+.msg.right .bubble:not(.mediaWrap){background:linear-gradient(180deg,var(--accent),var(--accent2));color:#fff;border-color:transparent}
 .fromLabel{font-size:11px;font-weight:900;color:#6b78a8;margin-bottom:4px}
 .fanText{color:#111}
 
@@ -205,7 +196,7 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
   border-radius:999px;border:1px solid rgba(0,0,0,.08);background:rgba(255,255,255,.92);box-shadow:0 6px 14px rgba(0,0,0,.12);display:flex;align-items:center;justify-content:center;z-index:2}
 .replyBtn svg{width:calc(var(--reply-size)*0.53);height:calc(var(--reply-size)*0.53);opacity:.85}
 
-/* ------------ Footer（縮小、輸入框更長更細） ------------ */
+/* ===== Footer（縮小、長而細的輸入框） ===== */
 .dmFooter{
   position:fixed;left:0;right:0;
   bottom: max(env(safe-area-inset-bottom, 0px), var(--kb-offset));
@@ -213,70 +204,41 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
   background:linear-gradient(180deg,rgba(255,255,255,.35),rgba(255,255,255,.96));
   backdrop-filter:blur(10px);
   border-top:1px solid var(--line);
-  padding:6px 0 calc(6px + env(safe-area-inset-bottom));  /* 由 10px → 6px */
+  padding:6px 0 calc(8px + env(safe-area-inset-bottom));
 }
-.dmInputBar{display:flex;align-items:center;gap:8px;padding:0 12px}
+.dmInputBar{display:flex;align-items:center;gap:8px;padding:0 10px}
 .dmInputBar .box{
   flex:1;min-width:0;display:flex;align-items:center;
   background:#fff;border:1px solid var(--line);
-  height:40px;                     /* 由 50px → 40px：更細 */
-  padding:0 14px;border-radius:22px;
+  height:42px;                /* 更細 */
+  padding:0 16px;border-radius:24px;
 }
-.dmInputBar input{
-  flex:1;border:none;outline:none;background:transparent;
-  font-size:16px;
-}
-
-/* 底部相機/麥克風：縮小圖鈕尺寸，讓輸入框更長 */
+.dmInputBar input{flex:1;border:none;outline:none;background:transparent;font-size:16px}
 .iconBtn{
-  width:34px;height:34px;          /* 由 40 → 34 */
-  border:none;background:transparent;
-  display:grid;place-items:center;
-  flex:0 0 auto;font-size:20px;line-height:1;
+  width:34px;height:34px;border:none;background:transparent;display:grid;place-items:center;flex:0 0 auto;font-size:20px;line-height:1;
 }
 .iconBtn span{display:block;line-height:1}
 .camEmoji{transform:translate(-1px,.5px)}
 .micEmoji{transform:translate(-.5px,.5px)}
+.dmSend{width:34px;height:34px;border:none;border-radius:0;background:transparent;color:#b2b7c8;display:grid;place-items:center}
+.dmSend svg{width:20px;height:20px;display:block;transform:none}
+.hasText .dmSend{ color:#111; }
 
-/* 發送鍵：維持透明，縮小按鈕本體 */
-.dmSend{
-  width:34px;height:34px;border:none;border-radius:0; /* 由 40 → 34 */
-  background:transparent;
-  color:#b2b7c8;                   /* 無字/不可送 → 灰 */
-  display:grid;place-items:center;
-}
-.dmSend svg{width:22px;height:22px;display:block;transform:none}
-.hasText .dmSend{ color:#111; }    /* 有文字 → 黑 */
-  
-/* 媒體（圖片/影片） */
-.msgImg{
+/* ===== 媒體（圖片/影片）尺寸下修，且全部脫離泡泡 ===== */
+.msgImg,.msgVideo{
   display:block;
-  width:min(76vw,340px);
+  width:var(--media-max);
   height:auto;
   border-radius:12px;
   border:1px solid rgba(0,0,0,.08);
   overflow:hidden;
 }
-.msgVideo{
-  display:block;
-  width:min(76vw,340px);
-  height:auto;
-  border-radius:12px;
-  border:1px solid rgba(0,0,0,.08);
-  overflow:hidden;
-}
+.bubble.mediaWrap{ background:transparent!important; border:none!important; padding:0!important; border-radius:0!important; }
 
-/* 讓圖片/影片視覺上脫離泡泡（仍沿用現有 DOM） */
-.bubble.mediaWrap{ background:transparent; border:none; padding:0; border-radius:0; }
-  
-/* ===== 語音泡泡（簡化款；顏色統一為右側藝人紫漸層） ===== */
+/* ===== 語音泡泡（同右側顏色 & 依長度變化） ===== */
 .bubble.voice{border-radius:18px;border:1px solid rgba(0,0,0,.08);background:#fff}
-.msg.right .bubble.voice{
-  background:linear-gradient(180deg,var(--accent),var(--accent2));  /* 與右側文字一致 */
-  border-color:transparent;color:#fff;
-}
-
-.voiceUI{display:flex;align-items:center;gap:10px;min-width:190px}
+.msg.right .bubble.voice{background:linear-gradient(180deg,var(--accent),var(--accent2));border-color:transparent;color:#fff}
+.voiceUI{display:flex;align-items:center;gap:10px;min-width:120px}
 .voicePlay{
   width:30px;height:30px;border-radius:50%;
   display:grid;place-items:center;
@@ -284,29 +246,24 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 }
 .msg.right .voicePlay{background:rgba(255,255,255,.18);border-color:rgba(255,255,255,.28);color:#fff}
 .voicePlay svg{width:16px;height:16px;fill:currentColor}
-
-.voiceBars{display:none!important}  /* 關掉原本的動畫條 */
-.voiceDur{
-  margin-left:6px;
-  font-variant-numeric:tabular-nums;
-  min-width:46px;text-align:right;font-weight:800;opacity:.9;
-}
+.voiceBars{display:none!important}
+.voiceDur{margin-left:6px;font-variant-numeric:tabular-nums;min-width:46px;text-align:right;font-weight:800;opacity:.9}
 .msg.right .voiceDur{color:#fff}
 
-/* Reply Chip */
-.replyChip{position:relative;display:flex;align-items:center;gap:8px;margin:0 14px 8px;padding:8px 36px 8px 12px;border-radius:13px;border:1px solid rgba(255,255,255,.28);
-  background:rgba(255,255,255,.12);backdrop-filter:saturate(140%) blur(1.5px)}
-.replyChipLabel{font-size:12px;font-weight:900;letter-spacing:.35px;color:#7a86b7;margin-right:2px;user-select:none}
-.replyChipText{flex:1;min-width:0;font-size:15px;line-height:1.25;font-weight:600;color:#2f3564;opacity:.95;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.replyChipClose{position:absolute;top:6px;right:6px;width:28px;height:28px;display:grid;place-items:center;border:none;background:transparent;color:#6f78aa;border-radius:6px;cursor:pointer}
-.replyChipClose:hover{background:rgba(255,255,255,.10)}
-.replyChipClose svg{width:18px;height:18px;display:block}
+/* ===== 系統分隔：日期 & 未讀 ===== */
+.daySep{display:flex;justify-content:center;margin:10px 0}
+.daySep span{padding:6px 10px;border-radius:12px;border:1px solid rgba(255,255,255,.28);background:rgba(255,255,255,.16);backdrop-filter:blur(2px);font-weight:900;color:#fff;letter-spacing:.3px}
+.unreadSep{position:relative;margin:12px 6px;display:flex;justify-content:center}
+.unreadSep .pill{
+  padding:8px 14px;border-radius:12px;font-weight:900;letter-spacing:.3px;color:#fff;background:rgba(106,90,205,.85);
+  box-shadow:0 2px 10px rgba(0,0,0,.20)
+}
 
 /* —— 系統通知（透明覆蓋在 Footer 上方） —— */
 .inlineNotice{
   position:fixed;left:16px;right:16px;
   bottom:calc(var(--footer-h) + var(--kb-offset) + env(safe-area-inset-bottom,0px) + 10px);
-  z-index:46; /* 在 footer 上，仍在 nav(40)之上 */
+  z-index:46;
   text-align:center;font-weight:900;letter-spacing:.3px;
   color:rgba(255,255,255,.96);
   text-shadow:0 1px 2px rgba(0,0,0,.35);
@@ -315,7 +272,7 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
   transition:opacity .18s ease, transform .18s ease;
 }
 .inlineNotice.show{opacity:1;transform:none}
-  
+
 /* Modal（背景裁切/預覽/語音修剪） */
 .modal{position:fixed;inset:0;z-index:80;display:none;background:rgba(0,0,0,.45)}
 .modal .panel{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(760px,94vw);background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px;box-shadow:0 12px 34px rgba(18,24,40,.16)}
@@ -373,7 +330,7 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 <section id="dmDetail" class="page">
   <div class="chatHUD" id="dmHUD">
     <button class="back" onclick="goBack()" aria-label="Back"><svg viewBox="0 0 24 24"><path d="M15 19 8 12l7-7"/></svg></button>
-    <div class="center"><div class="titleCol"><span class="artistTag">ARTIST</span><b id="dmTitle" class="artistName">ANNIE</b></div></div>
+    <div class="center"><b id="dmTitle" class="artistName">ANNIE</b></div>
     <button class="hudBtn" title="更多" onclick="toggleDmMenu()">⋯</button>
   </div>
 
@@ -390,7 +347,6 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
       <button class="replyChipClose" onclick="clearReply()"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></button>
     </div>
 
-    <!-- 輸入列：📸 & 🎙️ 叫原生選單 -->
     <div class="dmInputBar">
       <button class="iconBtn" id="btnCamera" aria-label="相機/相簿"><span class="camEmoji">📸</span></button>
       <div class="box"><input id="dmMessageInput" placeholder="請呼叫粉絲暱稱 @@@ " /></div>
@@ -577,7 +533,14 @@ let GROUP_MSGS=LS.get('groupMsgs',[
   {id:'m2',from:'fan',fanId:'f2',text:'今天吃什麼？',ts:Date.now()-1000*60*43},
   {id:'m3',from:'artist',text:'我午餐吃了沙拉 🥗',ts:Date.now()-1000*60*40,replyTo:{text:'今天吃什麼？'}}
 ]);
+
+/* ====== 既有 lastSeen（首頁故事用） ====== */
 const lastSeen = LS.get('lastSeen', {});
+
+/* ====== 新增：已讀時間（聊天室定位 & 未讀分隔） ====== */
+const READ_KEY = 'groupLastRead';
+function getLastRead(){ return LS.get(READ_KEY, 0); }
+function setLastRead(ts){ LS.set(READ_KEY, ts); }
 
 /* ===================== 導航 ===================== */
 const HIDE_NAV_IN=['dmDetail','composerArtist'];
@@ -598,14 +561,20 @@ function showPage(id){
   if(id==='dm'){ renderDmList(); }
   if(id==='dmDetail'){
     measureHUD(); measureFooter(); renderThread(); applyChatBg();
-    autoStick=true; scrollToEndDuring(1000);
+    // 進聊天室：捲到未讀；如果沒有未讀→貼底
+    const ua=document.getElementById('unreadAnchor');
+    if(ua){ autoStick=false; setTimeout(()=>{ ua.scrollIntoView({block:'center'}); },0); }
+    else{ autoStick=true; scrollToEndDuring(800); setTimeout(hardStickBottom,0); }
     bindBottomObserver(); bindScrollGuard();
-    setTimeout(hardStickBottom, 0);
-    updateNoticeBanner();                 // ▶ 進入聊天室時判斷是否顯示通知
+    updateNoticeBanner();
   }
   if(id==='composerArtist'){ document.getElementById('composerWho').textContent=NICKNAME; }
 }
-function goBack(){ PAGE_STACK.pop(); const prev=PAGE_STACK[PAGE_STACK.length-1]||'home'; showPage(prev); }
+function goBack(){
+  // 離開聊天室即更新已讀到目前最後一則
+  if(PAGE_STACK[PAGE_STACK.length-1]==='dmDetail'){ setLastRead(getLastTs()); }
+  PAGE_STACK.pop(); const prev=PAGE_STACK[PAGE_STACK.length-1]||'home'; showPage(prev);
+}
 
 /* ===================== HOME：Story Bar / Feed ===================== */
 let currentFilter='me';
@@ -628,7 +597,6 @@ function renderStoryBar(){
     const active=(currentFilter===a.id)?'active':'';
     const pinned=(a.id==='me'||a.id==='all')?'pinned':'';
     const dot=hasNewDots(a.id)?'<span class="dot"></span>':'';
-    // 自己的圈圈固定顯示 ME，不受暱稱影響
     const label = (a.id==='me') ? 'ME' : a.name;
     return `<div class="story-item ${active} ${pinned}" data-id="${a.id}">
       <img src="${a.avatar}" onerror="imgFallback(this)">
@@ -663,7 +631,6 @@ function renderFeed(filter='me'){
   const list=feedOf(filter);
   if(!list.length){ wrap.innerHTML=`<div class="ghost" style="text-align:center;margin-top:20vh">尚無貼文</div>`; return; }
   wrap.innerHTML=list.map(p=>{
-    // 首頁貼文：自己看到可用暱稱，其它角色仍顯示藝名（這裡僅呈現自己視角）
     const stage=(p.artistStage||STAGE_NAME||'').toString().toUpperCase();
     const displayName = (p.artistId==='me') ? NICKNAME.toUpperCase() : stage;
     return `<div class="card soft post">
@@ -703,7 +670,7 @@ function renderDmList(){
     </div><span></span></div>`;
 }
 
-/* ===================== 語音泡泡（有影像軌用 <video>） ===================== */
+/* ============ 語音 UI（依秒數調整寬度） ============ */
 function buildVoiceUI(msg){
   const segStart = Number(msg.segStart || msg.start || 0);
   const segEnd   = Number(msg.segEnd   || msg.end   || 0);
@@ -744,11 +711,15 @@ function buildVoiceUI(msg){
   btn.onclick = ()=> media.paused ? toPlay() : toPause();
 
   media.addEventListener('loadedmetadata', ()=>{
-    const d = (segEnd>segStart) ? (segEnd - segStart) : (media.duration||0);
-    dur.textContent = mmss(d||0);
+    const clip = (segEnd>segStart) ? (segEnd - segStart) : (media.duration||0);
+    dur.textContent = mmss(clip||0);
+    // 依時長調整寬度：1s~60s → 120~300px（再限制不超過媒體上限）
+    const minW=120, maxW=300;
+    const secs = Math.max(1, Math.min(60, Math.round(clip||1)));
+    const px = Math.round(minW + (maxW-minW) * (secs/60));
+    ui.style.width = Math.min(px, 300) + 'px';
   });
 
-  // ▶ 倒數顯示＋片段終止
   media.addEventListener('timeupdate', ()=>{
     const total  = (segEnd>segStart) ? (segEnd - segStart) : (media.duration||0);
     const played = Math.max(0, (media.currentTime || 0) - (segStart||0));
@@ -756,25 +727,61 @@ function buildVoiceUI(msg){
     dur.textContent = mmss(Math.ceil(left));
     if(segEnd>segStart && media.currentTime >= segEnd - 0.05){ toPause(); }
   });
-
   media.addEventListener('ended', toPause);
-
   return ui;
 }
   
+/* ===================== 日期/未讀輔助 ===================== */
+function isSameDay(a,b){
+  const da=new Date(a), db=new Date(b);
+  return da.getFullYear()==db.getFullYear() && da.getMonth()==db.getMonth() && da.getDate()==db.getDate();
+}
+function dayLabel(ts){
+  const now = new Date(); const d = new Date(ts);
+  const one = 24*60*60*1000;
+  const diffDays = Math.floor((new Date(now.getFullYear(),now.getMonth(),now.getDate()) - new Date(d.getFullYear(),d.getMonth(),d.getDate()))/one);
+  if(diffDays===0) return '今天';
+  if(diffDays===1) return '昨天';
+  if(diffDays>=7){
+    return `${d.getMonth()+1}/${d.getDate()}`;
+  }
+  return `${d.getMonth()+1}/${d.getDate()}`; // 2~6 天就直接顯示 M/D
+}
+
 /* ===================== DM Thread（渲染） ===================== */
 let replyDraft=null;
 
 async function resolveMediaSrc(m){
-  if(m.src) return m.src;                   // 舊資料（DataURL）仍可顯示
-  if(m.mediaId) return await MEDIA_DB.getURL(m.mediaId); // 新流程（IndexedDB）
+  if(m.src) return m.src;
+  if(m.mediaId) return await MEDIA_DB.getURL(m.mediaId);
   return '';
 }
 
 function renderThread(){
   const box=document.getElementById('dmThread'); box.innerHTML='';
+  const lastRead = getLastRead();
+  let lastDay = null;
+  let unreadInserted = false;
 
-  GROUP_MSGS.forEach(m=>{
+  GROUP_MSGS.forEach((m, idx)=>{
+    // 日期分隔
+    const curDayKey = new Date(m.ts).toDateString();
+    if(curDayKey !== lastDay){
+      const sep=document.createElement('div'); sep.className='daySep';
+      sep.innerHTML = `<span>${dayLabel(m.ts)}</span>`;
+      box.appendChild(sep);
+      lastDay = curDayKey;
+    }
+
+    // 未讀分隔：插在第一則未讀之前
+    if(!unreadInserted && m.ts>lastRead){
+      const un=document.createElement('div'); un.className='unreadSep'; un.id='unreadAnchor';
+      un.innerHTML=`<div class="pill">以下為尚未閱讀的訊息</div>`;
+      box.appendChild(un);
+      unreadInserted=true;
+    }
+
+    // 一般訊息
     const wrap=document.createElement('div');
     wrap.className='msg '+(m.from==='artist'?'right':'left');
 
@@ -786,12 +793,12 @@ function renderThread(){
 
     if(m.type==='image'){
       const img=document.createElement('img'); img.className='msgImg'; img.alt='';
-      bubble.classList.add('mediaWrap');   // ✅ 圖片脫離泡泡
+      bubble.classList.add('mediaWrap');   // 圖片脫泡泡
       bubble.appendChild(img);
       resolveMediaSrc(m).then(url=>{ img.src=url; }).catch(()=>{});
     }else if(m.type==='video'){
       const v=document.createElement('video'); v.className='msgVideo'; v.controls=true; v.playsInline=true; v.setAttribute('webkit-playsinline','');
-      bubble.classList.add('mediaWrap');  // ✅ 影片脫離泡泡
+      bubble.classList.add('mediaWrap');   // 影片脫泡泡
       bubble.appendChild(v);
       resolveMediaSrc(m).then(url=>{ v.src=url; }).catch(()=>{});
     }else if(m.type==='voice'){
@@ -834,16 +841,9 @@ function renderThread(){
 
   if(!box.querySelector('#threadPad')){ const pad=document.createElement('div'); pad.id='threadPad'; box.appendChild(pad); }
   if(!box.querySelector('#endAnchor')){ const a=document.createElement('div'); a.id='endAnchor'; box.appendChild(a); }
-
-  scrollToEndDuring(600);
 }
 
 /* ===================== 系統通知：粉絲在等你的訊息 ===================== */
-/* 規則：
-   - 只在聊天室頁面顯示
-   - 有粉絲的新訊息時間 > 藝人最後發送時間（或清除時間）就顯示
-   - 藝人一發送任何訊息立刻關閉並記錄清除時間
-*/
 function getLastTs(role){
   let t=0; for(const m of GROUP_MSGS){ if(!role || m.from===role){ if(m.ts>t) t=m.ts; } } return t;
 }
@@ -878,7 +878,9 @@ function sendArtistMsg(){
 
   LS.set('groupMsgs', GROUP_MSGS);
   inp.value=''; updateComposerUI(); clearReply(); renderThread(); renderDmList();
-  clearNoticeNow();                          // ▶ 發送後關閉通知
+  clearNoticeNow();
+  // 發送代表已讀到最後
+  setLastRead(getLastTs());
   hardStickBottom();
   updateNoticeBanner();
 }
@@ -915,7 +917,7 @@ pickMedia.addEventListener('change', async e=>{
     GROUP_MSGS.push({ id:'m'+Date.now()+Math.random(), from:'artist', type:isVideo?'video':'image', mediaId:id, ts:Date.now() });
   }
   LS.set('groupMsgs', GROUP_MSGS);
-  renderThread(); renderDmList(); clearNoticeNow(); hardStickBottom(); updateNoticeBanner();
+  renderThread(); renderDmList(); clearNoticeNow(); setLastRead(getLastTs()); hardStickBottom(); updateNoticeBanner();
   e.target.value='';
 });
 
@@ -1009,7 +1011,7 @@ trimUse.addEventListener('click', async ()=>{
     ts:Date.now()
   });
   LS.set('groupMsgs', GROUP_MSGS);
-  closeTrim(); renderThread(); renderDmList(); clearNoticeNow(); hardStickBottom(); updateNoticeBanner();
+  closeTrim(); renderThread(); renderDmList(); clearNoticeNow(); setLastRead(getLastTs()); hardStickBottom(); updateNoticeBanner();
 });
 
 /* ===================== DM 菜單 / 改名 ===================== */
@@ -1173,7 +1175,10 @@ document.addEventListener('DOMContentLoaded', ()=>{
   window.addEventListener('resize', ()=>{ measureHUD(); measureFooter(); scrollToEndDuring(600); });
   window.addEventListener('orientationchange', ()=>{ setTimeout(()=>{ measureHUD(); measureFooter(); scrollToEndDuring(800); },120); });
   window.addEventListener('pageshow', ()=>{ measureFooter(); scrollToEndDuring(800); });
-  document.addEventListener('visibilitychange', ()=>{ if(!document.hidden){ scrollToEndDuring(600); } });
+  document.addEventListener('visibilitychange', ()=>{ 
+    if(!document.hidden){ scrollToEndDuring(600); } 
+    else{ setLastRead(getLastTs()); }   // 后台時也更新已讀
+  });
   if(document.fonts && document.fonts.ready){ document.fonts.ready.then(()=>scrollToEndDuring(800)); }
 })();
 </script>
