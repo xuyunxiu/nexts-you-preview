@@ -239,7 +239,14 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 .hasText .dmSend{ color:#111; }    /* 有文字 → 黑 */
   
 /* 媒體（圖片/影片） */
-.msgImg{max-width:min(68vw,300px);border-radius:12px;border:1px solid rgba(0,0,0,.08)}
+.msgImg{
+  display:block;
+  width:min(76vw,340px);
+  height:auto;
+  border-radius:12px;
+  border:1px solid rgba(0,0,0,.08);
+  overflow:hidden;
+}
 .msgVideo{
   display:block;
   width:min(76vw,340px);
@@ -727,17 +734,21 @@ function buildVoiceUI(msg){
     const d = (segEnd>segStart) ? (segEnd - segStart) : (media.duration||0);
     dur.textContent = mmss(d||0);
   });
+
+  // ▶ 倒數顯示＋片段終止
   media.addEventListener('timeupdate', ()=>{
-  const total = (segEnd>segStart) ? (segEnd - segStart) : (media.duration||0);
-  const played = Math.max(0, (media.currentTime || 0) - (segStart||0));
-  const left = Math.max(0, total - played);
-  dur.textContent = mmss(Math.ceil(left));  // 右側顯示倒數
+    const total  = (segEnd>segStart) ? (segEnd - segStart) : (media.duration||0);
+    const played = Math.max(0, (media.currentTime || 0) - (segStart||0));
+    const left   = Math.max(0, total - played);
+    dur.textContent = mmss(Math.ceil(left));
+    if(segEnd>segStart && media.currentTime >= segEnd - 0.05){ toPause(); }
+  });
 
-  if(segEnd>segStart && media.currentTime >= segEnd - 0.05){
-    toPause();
-  }
-});
+  media.addEventListener('ended', toPause);
 
+  return ui;
+}
+  
 /* ===================== DM Thread（渲染） ===================== */
 let replyDraft=null;
 
@@ -761,10 +772,11 @@ function renderThread(){
     const bubble=document.createElement('div'); bubble.className='bubble';
 
     if(m.type==='image'){
-      const img=document.createElement('img'); img.className='msgImg'; img.alt='';
-      bubble.appendChild(img);
-      resolveMediaSrc(m).then(url=>{ img.src=url; }).catch(()=>{});
-    }else if(m.type==='video'){
+  const img=document.createElement('img'); img.className='msgImg'; img.alt='';
+  bubble.classList.add('mediaWrap');   // ✅ 讓圖片脫離泡泡樣式
+  bubble.appendChild(img);
+  resolveMediaSrc(m).then(url=>{ img.src=url; }).catch(()=>{});
+}else if(m.type==='video'){
       const v=document.createElement('video'); v.className='msgVideo'; v.controls=true; v.playsInline=true; v.setAttribute('webkit-playsinline','');
       bubble.classList.add('mediaWrap');  // 讓上面的 CSS 生效
       bubble.appendChild(v);
