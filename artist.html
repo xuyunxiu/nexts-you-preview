@@ -237,6 +237,20 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 .replyChipClose:hover{background:rgba(255,255,255,.10)}
 .replyChipClose svg{width:18px;height:18px;display:block}
 
+/* —— 系統通知（透明覆蓋在 Footer 上方） —— */
+.inlineNotice{
+  position:fixed;left:16px;right:16px;
+  bottom:calc(var(--footer-h) + var(--kb-offset) + env(safe-area-inset-bottom,0px) + 10px);
+  z-index:46; /* 在 footer 上，仍在 nav(40)之上 */
+  text-align:center;font-weight:900;letter-spacing:.3px;
+  color:rgba(255,255,255,.96);
+  text-shadow:0 1px 2px rgba(0,0,0,.35);
+  pointer-events:none;user-select:none;
+  opacity:0;transform:translateY(6px);
+  transition:opacity .18s ease, transform .18s ease;
+}
+.inlineNotice.show{opacity:1;transform:none}
+  
 /* Modal（背景裁切/預覽/語音修剪） */
 .modal{position:fixed;inset:0;z-index:80;display:none;background:rgba(0,0,0,.45)}
 .modal .panel{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(760px,94vw);background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px;box-shadow:0 12px 34px rgba(18,24,40,.16)}
@@ -300,6 +314,9 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 
   <div id="dmThread" class="thread"></div>
 
+  <!-- ✅ 透明系統通知（僅在聊天室內顯示） -->
+  <div id="chatNotice" class="inlineNotice" style="display:none">粉絲在等你的訊息哦😊</div>
+  
   <!-- Footer -->
   <div class="dmFooter" id="dmFooter">
     <div id="replyChip" class="replyChip" style="display:none">
@@ -311,7 +328,7 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
     <!-- 輸入列：📸 & 🎙️ 叫原生選單 -->
     <div class="dmInputBar">
       <button class="iconBtn" id="btnCamera" aria-label="相機/相簿"><span class="camEmoji">📸</span></button>
-      <div class="box"><input id="dmMessageInput" placeholder="輸入訊息…" /></div>
+      <div class="box"><input id="dmMessageInput" placeholder="請呼叫粉絲暱稱 @@@ " /></div>
       <button class="iconBtn" id="btnMic" aria-label="語音"><span class="micEmoji">🎙️</span></button>
       <button class="dmSend" id="dmSendBtn" aria-label="Send" disabled>
         <svg viewBox="0 0 24 24"><path d="M3.4 12.6l16.7-7.2c.6-.3 1.2.3.9.9l-7.2 16.7c-.3.7-1.3.6-1.5-.1l-2.1-6.1-6.1-2.1c-.7-.2-.8-1.2-.1-1.5z" fill="currentColor"/></svg>
@@ -440,61 +457,45 @@ const s2clock = s => { s = Math.max(0, s||0); const m = Math.floor(s/60), r = Ma
 const mmss = sec => { sec = Math.max(0, Math.floor(sec || 0)); const m = Math.floor(sec/60), s = sec % 60; return `${m}:${s.toString().padStart(2,'0')}`; };
 const escapeHtml = s => (s||'').toString().replace(/[&<>"']/g, m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;" }[m]));
 
-/* ======== IndexedDB：把媒體（Blob）丟這裡 ======== */
+/* ===== IndexedDB：媒體存這裡（刷新不會消失） ===== */
 const MEDIA_DB = (()=> {
   const DB_NAME='nxu-media-db', STORE='media';
   let db=null; const urlCache=new Map();
-  function open(){
-    return new Promise((res,rej)=>{
-      if(db) return res(db);
-      const req=indexedDB.open(DB_NAME,1);
-      req.onupgradeneeded=e=>{
-        const d=e.target.result;
-        if(!d.objectStoreNames.contains(STORE)) d.createObjectStore(STORE);
-      };
-      req.onsuccess=()=>{ db=req.result; res(db); };
-      req.onerror=()=>rej(req.error);
-    });
-  }
-  async function put(blob){
-    const d=await open();
-    return new Promise((res,rej)=>{
-      const id='m'+Date.now().toString(36)+Math.random().toString(36).slice(2,8);
-      const tx=d.transaction(STORE,'readwrite'); tx.objectStore(STORE).put(blob,id);
-      tx.oncomplete=()=>res(id); tx.onerror=()=>rej(tx.error);
-    });
-  }
-  async function getBlob(id){
-    const d=await open();
-    return new Promise((res,rej)=>{
-      const tx=d.transaction(STORE,'readonly'); const req=tx.objectStore(STORE).get(id);
-      req.onsuccess=()=>res(req.result||null); req.onerror=()=>rej(req.error);
-    });
-  }
-  async function getURL(id){
-    if(urlCache.has(id)) return urlCache.get(id);
-    const p=(async ()=>{
-      const blob=await getBlob(id);
-      return blob? URL.createObjectURL(blob) : '';
-    })();
-    urlCache.set(id, p);
-    return p;
+  function open(){ return new Promise((res,rej)=>{
+    if(db) return res(db);
+    const req=indexedDB.open(DB_NAME,1);
+    req.onupgradeneeded=e=>{ const d=e.target.result; if(!d.objectStoreNames.contains(STORE)) d.createObjectStore(STORE); };
+    req.onsuccess=()=>{ db=req.result; res(db); };
+    req.onerror=()=>rej(req.error);
+  });}
+  async function put(blob){ const d=await open(); return new Promise((res,rej)=>{
+    const id='m'+Date.now().toString(36)+Math.random().toString(36).slice(2,8);
+    const tx=d.transaction(STORE,'readwrite'); tx.objectStore(STORE).put(blob,id);
+    tx.oncomplete=()=>res(id); tx.onerror=()=>rej(tx.error);
+  });}
+  async function getBlob(id){ const d=await open(); return new Promise((res,rej)=>{
+    const tx=d.transaction(STORE,'readonly'); const req=tx.objectStore(STORE).get(id);
+    req.onsuccess=()=>res(req.result||null); req.onerror=()=>rej(req.error);
+  });}
+  async function getURL(id){ if(urlCache.has(id)) return urlCache.get(id);
+    const p=(async ()=>{ const blob=await getBlob(id); return blob? URL.createObjectURL(blob) : ''; })();
+    urlCache.set(id,p); return p;
   }
   return { put, getURL };
 })();
 
-/* ======== 只允許同時播放一條 ======== */
+/* 只允許同時播放一條 */
 let ACTIVE_AUDIO = null;
 function stopActive(){ if (ACTIVE_AUDIO){ ACTIVE_AUDIO.pause(); ACTIVE_AUDIO._owner?.classList.remove('playing'); ACTIVE_AUDIO = null; } }
 
-/* ======== 個人資料／假資料 ======== */
+/* ===== 個人資料／假資料 ===== */
 const STAGE_NAME = LS.getStr('artistStage','ANNIE');
-let   NICKNAME   = LS.getStr('artistNickname','Annie');
+let   NICKNAME   = LS.getStr('artistNickname','Annie');      // 自己看到的暱稱
 let   AVATAR     = LS.getStr('artistAvatar','https://picsum.photos/80?u=artist');
 const ME = { id:'me', name:STAGE_NAME, avatar:AVATAR };
 
 const ARTISTS = [
-  {id:'me',name:'ME',avatar:AVATAR},
+  {id:'me',name:STAGE_NAME,avatar:AVATAR},
   {id:'all',name:'ALL',avatar:'https://picsum.photos/80?u=all'},
   {id:'dohee',name:'DOHEE',avatar:'https://picsum.photos/80?u=dh'},
   {id:'woo',name:'WOOCHAN',avatar:'https://picsum.photos/80?u=wc'}
@@ -535,6 +536,7 @@ function showPage(id){
     autoStick=true; scrollToEndDuring(1000);
     bindBottomObserver(); bindScrollGuard();
     setTimeout(hardStickBottom, 0);
+    updateNoticeBanner();                 // ▶ 進入聊天室時判斷是否顯示通知
   }
   if(id==='composerArtist'){ document.getElementById('composerWho').textContent=NICKNAME; }
 }
@@ -548,8 +550,6 @@ function hasNewDots(artistId){
   const latest=Math.max(0,...POSTS.filter(p=>p.artistId===artistId).map(p=>p.ts));
   return latest>seen;
 }
-
-/* HOME：Story bar（保持原本邏輯，會顯示上面的 name，其中自己的就是 ME）*/
 function renderStoryBar(){
   const bar=document.getElementById('storyBar');
   const others=ARTISTS.filter(a=>a.id!=='me'&&a.id!=='all');
@@ -563,9 +563,11 @@ function renderStoryBar(){
     const active=(currentFilter===a.id)?'active':'';
     const pinned=(a.id==='me'||a.id==='all')?'pinned':'';
     const dot=hasNewDots(a.id)?'<span class="dot"></span>':'';
+    // 自己的圈圈固定顯示 ME，不受暱稱影響
+    const label = (a.id==='me') ? 'ME' : a.name;
     return `<div class="story-item ${active} ${pinned}" data-id="${a.id}">
-      <img src="${a.avatar}" onerror="imgFallback(this)">${dot}
-      <div class="name">${a.name}</div></div>`;
+      <img src="${a.avatar}" onerror="imgFallback(this)">
+      <div class="name">${label}</div></div>`;
   }).join('');
   bar.querySelectorAll('.story-item').forEach(el=>{
     el.addEventListener('click', ()=>{
@@ -575,7 +577,6 @@ function renderStoryBar(){
     });
   });
 }
-
 function feedOf(filter){
   if(filter==='all') return POSTS.slice().sort((a,b)=>b.ts-a.ts);
   if(filter==='me')  return POSTS.filter(p=>p.artistId==='me').sort((a,b)=>b.ts-a.ts);
@@ -592,19 +593,19 @@ function VB(size=18){
       <path class="tick" d="M10.4 12.8 8.7 11.2l1.1-1.1 1.2 1.2 3-3 1.1 1.1-3.8 3.8a1 1 0 0 1-1.4 0z"/></svg>
   </span>`;
 }
-/* HOME：Feed — 自己的貼文顯示暱稱，其它人用藝名(全大寫) */
 function renderFeed(filter='me'){
   const wrap=document.getElementById('feedWrap');
   const list=feedOf(filter);
   if(!list.length){ wrap.innerHTML=`<div class="ghost" style="text-align:center;margin-top:20vh">尚無貼文</div>`; return; }
   wrap.innerHTML=list.map(p=>{
-    // 只有自己看到自己的貼文會顯示暱稱；其他一律顯示藝名(全大寫)
-    const titleName = (p.artistId==='me') ? (NICKNAME||'') : (p.artistStage||STAGE_NAME||'').toString().toUpperCase();
+    // 首頁貼文：自己看到可用暱稱，其它角色仍顯示藝名（這裡僅呈現自己視角）
+    const stage=(p.artistStage||STAGE_NAME||'').toString().toUpperCase();
+    const displayName = (p.artistId==='me') ? NICKNAME.toUpperCase() : stage;
     return `<div class="card soft post">
       <div class="hdr">
         <img class="avatar" src="${p.avatar}" onerror="imgFallback(this)">
         <div class="meta">
-          <b class="stage">${escapeHtml(titleName)} ${VB(18)}</b>
+          <b class="stage">${escapeHtml(displayName)} ${VB(18)}</b>
           <small class="ghost">${new Date(p.ts).toLocaleString()}</small>
         </div>
       </div>
@@ -616,32 +617,25 @@ function renderFeed(filter='me'){
 
 /* ===================== DM 列表 ===================== */
 function getRoomTitle(){ return NICKNAME; }
-/* 預覽字串：語音顯示全形括號 ［語音訊息］ */
 function lastPreview(m){
   if(!m) return '（無訊息）';
-  if(m.type === 'image') return '［照片］';
-  if(m.type === 'video') return '［影片］';
-  if(m.type === 'audio' || m.type === 'voice') return '［語音訊息］';
+  if(m.type==='image') return '[照片]';
+  if(m.type==='video') return '[影片]';
+  if(m.type==='audio' || m.type==='voice') return '［語音訊息］';
   return m.text || '（無訊息）';
 }
-  
-/* DM 列表：徽章與名稱靠近頭像、靠左排列 */
 function renderDmList(){
   const box=document.getElementById('dmList');
   const last=GROUP_MSGS[GROUP_MSGS.length-1];
-
-  box.innerHTML = `
-    <div class="dmCard" onclick="showPage('dmDetail')">
-      <img src="${ME.avatar}" onerror="imgFallback(this)">
-      <div class="nameBlock">
-        <div class="nameRow">
-          <span class="artistTag">ARTIST</span>
-          <div class="stage">${escapeHtml(getRoomTitle().toUpperCase())}</div>
-        </div>
-        <small class="dmPreview">${escapeHtml(lastPreview(last))}</small>
+  box.innerHTML=`<div class="dmCard" onclick="showPage('dmDetail')">
+    <img src="${ME.avatar}" onerror="imgFallback(this)">
+    <div class="nameBlock">
+      <div class="nameRow" style="align-items:center;gap:8px">
+        <span class="artistTag">ARTIST</span>
+        <div class="stage">${escapeHtml(getRoomTitle().toUpperCase())}</div>
       </div>
-    </div>
-  `;
+      <small class="ghost" style="display:block;max-width:62vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(lastPreview(last))}</small>
+    </div><span></span></div>`;
 }
 
 /* ===================== 語音泡泡（有影像軌用 <video>） ===================== */
@@ -770,6 +764,29 @@ function renderThread(){
   scrollToEndDuring(600);
 }
 
+/* ===================== 系統通知：粉絲在等你的訊息 ===================== */
+/* 規則：
+   - 只在聊天室頁面顯示
+   - 有粉絲的新訊息時間 > 藝人最後發送時間（或清除時間）就顯示
+   - 藝人一發送任何訊息立刻關閉並記錄清除時間
+*/
+function getLastTs(role){
+  let t=0; for(const m of GROUP_MSGS){ if(!role || m.from===role){ if(m.ts>t) t=m.ts; } } return t;
+}
+function updateNoticeBanner(){
+  const el = document.getElementById('chatNotice'); if(!el) return;
+  const lastFanTs     = getLastTs('fan');
+  const lastArtistTs  = getLastTs('artist');
+  const clearedAt     = LS.get('noticeClearedAt', 0);
+  const needShow = lastFanTs > Math.max(lastArtistTs, clearedAt);
+  el.style.display = needShow ? 'block' : 'none';
+  el.classList.toggle('show', needShow);
+}
+function clearNoticeNow(){
+  LS.set('noticeClearedAt', Date.now());
+  const el=document.getElementById('chatNotice'); if(el){ el.classList.remove('show'); el.style.display='none'; }
+}
+
 /* ===================== 送訊息 / 回覆 ===================== */
 function clearReply(){ replyDraft=null; document.getElementById('replyChip').style.display='none'; scrollToEndDuring(400); }
 function sendArtistMsg(){
@@ -787,7 +804,9 @@ function sendArtistMsg(){
 
   LS.set('groupMsgs', GROUP_MSGS);
   inp.value=''; updateComposerUI(); clearReply(); renderThread(); renderDmList();
+  clearNoticeNow();                          // ▶ 發送後關閉通知
   hardStickBottom();
+  updateNoticeBanner();
 }
 document.getElementById('dmSendBtn').addEventListener('click', sendArtistMsg);
 const dmInput = document.getElementById('dmMessageInput');
@@ -808,26 +827,25 @@ dmInput.addEventListener('focus', ()=>{
   setTimeout(hardStickBottom,600);
 });
 
-/* ===================== 媒體上傳（照相 / 語音） ===================== */
+/* ===================== 媒體上傳 ===================== */
 const pickMedia = document.getElementById('pickMedia');
 const pickVoice = document.getElementById('pickVoice');
 document.getElementById('btnCamera').addEventListener('click', ()=>pickMedia.click());
 document.getElementById('btnMic').addEventListener('click', ()=>pickVoice.click());
 
-/* 圖片/影片：直接入聊天室（Blob → IndexedDB，訊息存 mediaId） */
 pickMedia.addEventListener('change', async e=>{
   const files=[...e.target.files];
   for(const f of files){
-    const id = await MEDIA_DB.put(f);                    // 存 Blob
+    const id = await MEDIA_DB.put(f);
     const isVideo = f.type.startsWith('video/');
     GROUP_MSGS.push({ id:'m'+Date.now()+Math.random(), from:'artist', type:isVideo?'video':'image', mediaId:id, ts:Date.now() });
   }
   LS.set('groupMsgs', GROUP_MSGS);
-  renderThread(); renderDmList(); hardStickBottom();
+  renderThread(); renderDmList(); clearNoticeNow(); hardStickBottom(); updateNoticeBanner();
   e.target.value='';
 });
 
-/* 語音：先進修剪視窗（支援 audio / mov / mp4） */
+/* 語音修剪（支援 audio / mov / mp4） */
 let trimState = { blob:null, url:'', dur:0, start:0, end:0 };
 const trimModal = document.getElementById('trimModal');
 const trimMedia = document.getElementById('trimMedia');
@@ -905,7 +923,7 @@ trimUse.addEventListener('click', async ()=>{
   const dur = Math.max(0, (trimState.end||0) - (trimState.start||0));
   if(!confirm(`要發送 ${mmss(dur)} 的語音片段嗎？`)) return;
 
-  const id = await MEDIA_DB.put(trimState.blob); // 存 Blob 到 IndexedDB
+  const id = await MEDIA_DB.put(trimState.blob);
   GROUP_MSGS.push({
     id:'v'+Date.now()+Math.random(),
     from:'artist',
@@ -917,7 +935,7 @@ trimUse.addEventListener('click', async ()=>{
     ts:Date.now()
   });
   LS.set('groupMsgs', GROUP_MSGS);
-  closeTrim(); renderThread(); renderDmList(); hardStickBottom();
+  closeTrim(); renderThread(); renderDmList(); clearNoticeNow(); hardStickBottom(); updateNoticeBanner();
 });
 
 /* ===================== DM 菜單 / 改名 ===================== */
@@ -927,14 +945,13 @@ document.addEventListener('click',(e)=>{
   const m=document.getElementById('dmMenu');
   if(m.style.display==='block'&&!m.contains(e.target)&&!e.target.closest('.hudBtn')) hideDmMenu();
 });
-/* 改名流程：更新清單、首頁貼文、Story bar（ME 不受影響，但要重繪） */
 function renameChat(){
   const cur=getRoomTitle(); const n=prompt('更改聊天室名稱（同：藝人暱稱）', cur); if(!n) return;
   NICKNAME=n.trim()||cur; LS.setStr('artistNickname', NICKNAME);
   document.getElementById('dmTitle').textContent=NICKNAME.toUpperCase();
-  document.getElementById('meNickname').textContent=NICKNAME;
-  document.getElementById('composerWho').textContent=NICKNAME;
-  renderDmList(); renderFeed(currentFilter); renderStoryBar();
+  document.getElementById('meNickname')?.textContent && (document.getElementById('meNickname').textContent=NICKNAME);
+  document.getElementById('composerWho')?.textContent && (document.getElementById('composerWho').textContent=NICKNAME);
+  renderDmList();
 }
 
 /* ===================== 背景：挑圖/裁切/預覽/套用 ===================== */
@@ -1038,33 +1055,33 @@ function previewComposeMedia(e){
 function publishDraft(){ alert('先存草稿＆預覽；發佈規則等我們接首頁串流。'); showPage('home'); }
 
 /* ===================== 暱稱按鈕 ===================== */
-/* 「更改我的暱稱」按鈕：同上 */
-document.getElementById('btnEditNick').addEventListener('click', ()=>{
+document.getElementById('btnEditNick')?.addEventListener('click', ()=>{
   const v=prompt('輸入新的暱稱（= 聊天室名稱）', NICKNAME);
   if(v&&v.trim()){
     NICKNAME=v.trim(); LS.setStr('artistNickname', NICKNAME);
-    document.getElementById('meNickname').textContent=NICKNAME;
+    document.getElementById('meNickname')?.textContent && (document.getElementById('meNickname').textContent=NICKNAME);
     document.getElementById('dmTitle').textContent=NICKNAME.toUpperCase();
-    document.getElementById('composerWho').textContent=NICKNAME;
-    renderDmList(); renderFeed(currentFilter); renderStoryBar();
+    document.getElementById('composerWho')?.textContent && (document.getElementById('composerWho').textContent=NICKNAME);
+    renderDmList();
   }
 });
 
 /* ===================== 啟動 ===================== */
 document.addEventListener('DOMContentLoaded', ()=>{
-  document.getElementById('meNickname').textContent=NICKNAME;
+  document.getElementById('meNickname') && (document.getElementById('meNickname').textContent=NICKNAME);
   document.getElementById('dmTitle').textContent=NICKNAME.toUpperCase();
-  document.getElementById('composerWho').textContent=NICKNAME;
-  document.getElementById('meId').textContent='ARTIST-00001';
-  document.getElementById('meAvatar').src=AVATAR;
+  document.getElementById('composerWho') && (document.getElementById('composerWho').textContent=NICKNAME);
+  document.getElementById('meId') && (document.getElementById('meId').textContent='ARTIST-00001');
+  document.getElementById('meAvatar') && (document.getElementById('meAvatar').src=AVATAR);
 
   renderStoryBar(); renderFeed(currentFilter); renderDmList();
 
   measureHUD(); measureFooter(); updateComposerUI();
   if(document.getElementById('dmThread')){ scrollToEndDuring(800); setTimeout(hardStickBottom,0); }
+  updateNoticeBanner();
 });
 
-/* 監看 footer 高度變化（鍵盤彈起 / 回覆 chip 出現） */
+/* 監看 footer 高度變化（鍵盤/回覆 chip） */
 (()=>{ const footer=document.getElementById('dmFooter'); if(!footer) return;
   if('ResizeObserver' in window){ new ResizeObserver(()=>{ measureFooter(); scrollToEndDuring(600); }).observe(footer); }
 })();
