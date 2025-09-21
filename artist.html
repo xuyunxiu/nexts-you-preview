@@ -146,7 +146,11 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
   backdrop-filter:blur(10px);
   border-top:1px solid var(--line);
   padding:10px 0 calc(10px + env(safe-area-inset-bottom));
+.dmInputBar{display:flex;align-items:center;gap:10px;padding:0 12px}
+.dmInputBar .box{flex:1;min-width:0;display:flex;align-items:center;background:#fff;border:1px solid var(--line);border-radius:22px;height:42px;padding:0 14px}
+.dmInputBar input{flex:1;border:none;outline:none;background:transparent;font-size:17px} 
 }
+  
 /* 左右 icon：置中 + 像素微調 */
 .iconBtn{width:42px;height:42px;border-radius:14px;border:1px solid var(--line);background:#fff;display:grid;place-items:center;flex:0 0 auto;font-size:22px;line-height:1}
 .iconBtn span{display:block;line-height:1}
