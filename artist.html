@@ -390,6 +390,8 @@ const fmtTime = ts => new Date(ts).toLocaleTimeString([], {hour:'2-digit',minute
 const s2clock = s => { s = Math.max(0, s||0); const m = Math.floor(s/60), r = Math.floor(s%60); return `${m}:${r.toString().padStart(2,'0')}`; };
 /* 顯示 mm:ss（純長度用） */
 const mmss = sec => { sec = Math.max(0, Math.floor(sec || 0)); const m = Math.floor(sec/60), s = sec % 60; return `${m}:${s.toString().padStart(2,'0')}`; };
+/* 轉義（避免 XSS / 也避免程式炸掉） */
+const escapeHtml = s => (s||'').toString().replace(/[&<>"']/g, m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;" }[m]));
 /* 僅允許同時播放一條 */
 let ACTIVE_AUDIO = null;
 function stopActive(){ if (ACTIVE_AUDIO){ ACTIVE_AUDIO.pause(); ACTIVE_AUDIO._owner?.classList.remove('playing'); ACTIVE_AUDIO = null; } }
@@ -487,7 +489,7 @@ function renderStoryBar(){
 function feedOf(filter){
   if(filter==='all') return POSTS.slice().sort((a,b)=>b.ts-a.ts);
   if(filter==='me')  return POSTS.filter(p=>p.artistId==='me').sort((a,b)=>b.ts-a.ts);
-  return POSTS.filter(p=>p.artistId===filter).sort((a,b)=>b.ts-a_ts);
+  return POSTS.filter(p=>p.artistId===filter).sort((a,b)=>b.ts-a.ts); /* 修：a_ts -> a.ts */
 }
 function VB(size=18){
   const gid='vbGrad-'+Math.random().toString(36).slice(2,8);
@@ -540,7 +542,7 @@ function renderDmList(){
     </div><span></span></div>`;
 }
 
-/* ---------- 語音泡泡建立 ---------- */
+/* ---------- 語音泡泡建立（整段覆蓋版） ---------- */
 function buildVoiceUI(msg){
   const segStart = Number(msg.segStart || msg.start || 0);
   const segEnd   = Number(msg.segEnd   || msg.end   || 0);
@@ -555,32 +557,40 @@ function buildVoiceUI(msg){
   const dur = document.createElement('div'); dur.className='voiceDur'; dur.textContent = '0:00';
   ui.append(btn,bars,dur);
 
-  const audio = document.createElement('audio');
-  audio.src = msg.src; audio.preload='metadata'; audio.style.display='none'; ui.appendChild(audio);
-  audio._owner = ui;
+  // ▲ 重點：有影像軌就用 <video>，否則 <audio>
+  const media = document.createElement(msg.isVideo ? 'video' : 'audio');
+  media.src = msg.src;
+  media.preload = 'metadata';
+  media.style.display = 'none';
+  if (msg.isVideo) { media.playsInline = true; } // 只要播放音軌，不用顯示畫面
+  ui.appendChild(media);
+  media._owner = ui;
 
   function toPlay(){
     stopActive();
-    try{ audio.currentTime = segStart || 0; }catch(_){}
-    audio.play().then(()=>{ ACTIVE_AUDIO = audio; ui.classList.add('playing');
+    try{ media.currentTime = segStart || 0; }catch(_){}
+    media.play().then(()=>{
+      ACTIVE_AUDIO = media;
+      ui.classList.add('playing');
       btn.innerHTML=`<svg viewBox="0 0 24 24"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>`;
     }).catch(()=>{});
   }
   function toPause(){
-    audio.pause(); ui.classList.remove('playing');
+    media.pause();
+    ui.classList.remove('playing');
     btn.innerHTML=`<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>`;
-    if(ACTIVE_AUDIO===audio) ACTIVE_AUDIO=null;
+    if (ACTIVE_AUDIO===media) ACTIVE_AUDIO=null;
   }
-  btn.onclick = ()=> audio.paused ? toPlay() : toPause();
+  btn.onclick = ()=> media.paused ? toPlay() : toPause();
 
-  audio.addEventListener('loadedmetadata', ()=>{
-    const d = (segEnd>segStart) ? (segEnd - segStart) : (audio.duration||0);
+  media.addEventListener('loadedmetadata', ()=>{
+    const d = (segEnd>segStart) ? (segEnd - segStart) : (media.duration||0);
     dur.textContent = mmss(d||0);
   });
-  audio.addEventListener('timeupdate', ()=>{
-    if(segEnd>segStart && audio.currentTime >= segEnd - 0.05){ toPause(); }
+  media.addEventListener('timeupdate', ()=>{
+    if(segEnd>segStart && media.currentTime >= segEnd - 0.05){ toPause(); }
   });
-  audio.addEventListener('ended', toPause);
+  media.addEventListener('ended', toPause);
 
   return ui;
 }
