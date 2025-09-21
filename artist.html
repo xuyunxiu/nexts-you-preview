@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>NEXT’S YOU — artist（完整修正版）</title>
+<title>NEXT’S YOU — artist（整合版）</title>
 
 <style>
 :root{
@@ -11,13 +11,12 @@
   --accent:#6a5acd; --accent2:#836fff; --ok:#10b981; --danger:#ff4d4f;
   --radius:16px; --shadow:0 12px 34px rgba(18,24,40,.08);
   --safe:env(safe-area-inset-bottom,0px);
-  --kb-offset:0px;          /* 鍵盤佔用高度（由 JS 寫入） */
-  --footer-h:72px;          /* DM footer 實際高度（由 JS 量測） */
-  --hud-h:68px;             /* DM header 高度（由 JS 量測） */
-  --reply-size:30px;        /* 引用按鈕大小 */
-  --reply-gap:18px;         /* 泡泡→按鈕距離 */
+  --kb-offset:0px;
+  --footer-h:72px;
+  --hud-h:68px;
+  --reply-size:30px;
+  --reply-gap:18px;
 }
-
 *{box-sizing:border-box}
 html,body{height:100%}
 body{
@@ -54,7 +53,7 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 #homeHeader .me img{width:44px;height:44px;border-radius:50%;object-fit:cover;border:1px solid var(--line)}
 #homeHeader .me .id{font-size:12px;color:var(--ghost)}
 
-/* Verified 勳章（首頁貼文用） */
+/* Verified 勳章 */
 .verified-badge{display:inline-block;width:18px;height:18px;margin-left:6px;vertical-align:middle}
 .verified-badge svg{width:100%;height:100%;display:block}
 .verified-badge .gear{stroke:#fff;stroke-width:.9;filter:drop-shadow(0 1px 2px rgba(0,0,0,.25))}
@@ -156,19 +155,29 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 .dmSend svg{width:20px;height:20px;display:block;transform:translateY(-.5px)}
 .hasText .dmSend{background:#111;color:#fff}
 
-/* 媒體 */
+/* 媒體（圖片/影片） */
 .msgImg{max-width:min(68vw,300px);border-radius:12px;border:1px solid rgba(0,0,0,.08)}
 .msgVideo{width:min(68vw,300px);height:auto;border-radius:12px;border:1px solid rgba(0,0,0,.08)}
 
-/* 自訂語音條（不顯示黑播放器） */
-.voiceBox{display:flex;align-items:center;gap:10px;background:rgba(0,0,0,.08);border-radius:999px;padding:6px 10px}
-.msg.right .voiceBox{background:rgba(255,255,255,.18)}
-.vBtn{width:28px;height:28px;border-radius:50%;border:none;display:grid;place-items:center;background:#fff;color:#333}
-.msg.right .vBtn{background:rgba(255,255,255,.92)}
-.vBar{position:relative;height:6px;width:140px;border-radius:999px;background:rgba(0,0,0,.12);overflow:hidden}
-.vFill{position:absolute;left:0;top:0;bottom:0;width:0%;background:#6a5acd}
-.msg.right .vFill{background:#fff}
-.vTime{font-size:12px;opacity:.85}
+/* ===== 語音泡泡（LINE 風） ===== */
+.bubble.voice{padding:12px 14px;border-radius:18px}
+.voiceUI{display:flex;align-items:center;gap:12px;min-width:210px}
+.voicePlay{
+  flex:0 0 auto;width:32px;height:32px;border-radius:50%;
+  display:grid;place-items:center;background:rgba(255,255,255,.24);
+  border:1px solid rgba(255,255,255,.32);color:#2b356f;
+}
+.msg.left .voicePlay{background:#f1f3ff;border-color:#e5e8f5;color:#2b356f}
+.msg.right .voicePlay{background:rgba(255,255,255,.20);border-color:rgba(255,255,255,.34);color:#fff}
+.voicePlay svg{width:16px;height:16px;display:block;fill:currentColor}
+.voiceBars{position:relative;flex:1;height:18px;display:flex;align-items:flex-end;gap:4px}
+.voiceBar{width:4px;height:8px;border-radius:3px;background:rgba(42,57,124,.25);transition:height .18s ease, background .18s ease;}
+.msg.right .voiceBar{background:rgba(255,255,255,.55)}
+.voiceUI.playing .voiceBar{animation:vbob .9s ease-in-out infinite}
+.voiceUI.playing .voiceBar:nth-child(odd){animation-delay:.12s}
+@keyframes vbob{0%,100%{height:6px}40%{height:18px}70%{height:10px}}
+.voiceDur{font-variant-numeric:tabular-nums;min-width:44px;text-align:right;font-weight:800;opacity:.85}
+.msg.right .voiceDur{color:#fff}
 
 /* Reply Chip */
 .replyChip{position:relative;display:flex;align-items:center;gap:8px;margin:0 14px 8px;padding:8px 36px 8px 12px;border-radius:13px;border:1px solid rgba(255,255,255,.28);
@@ -250,7 +259,7 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
       <button class="replyChipClose" onclick="clearReply()"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></button>
     </div>
 
-    <!-- 輸入列：📸 & 🎙️ 改成直接呼叫 OS 選單 -->
+    <!-- 輸入列：📸 & 🎙️ 叫原生選單 -->
     <div class="dmInputBar">
       <button class="iconBtn" id="btnCamera" aria-label="相機/相簿"><span class="camEmoji">📸</span></button>
       <div class="box"><input id="dmMessageInput" placeholder="輸入訊息…" /></div>
@@ -259,7 +268,7 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
         <svg viewBox="0 0 24 24"><path d="M3.4 12.6l16.7-7.2c.6-.3 1.2.3.9.9l-7.2 16.7c-.3.7-1.3.6-1.5-.1l-2.1-6.1-6.1-2.1c-.7-.2-.8-1.2-.1-1.5z" fill="currentColor"/></svg>
       </button>
 
-      <!-- 隱藏挑選器（直接叫出原生 action sheet） -->
+      <!-- 隱藏挑選器 -->
       <input id="pickMedia" type="file" accept="image/*,video/*" multiple style="display:none">
       <input id="pickVoice" type="file" accept="audio/*,video/*" style="display:none">
     </div>
@@ -307,12 +316,11 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
   <div class="panel">
     <b style="font-weight:900">修剪語音（可試聽）</b>
     <div class="trimBox">
-      <!-- 隱藏的解碼媒體：統一用 video，能播 audio/mov -->
       <video id="trimMedia" playsinline style="display:none"></video>
 
       <div class="trimRow">
         <button class="btn" id="trimPlay">▶️ 播放</button>
-        <div class="vBar" style="flex:1"><div id="trimFill" class="vFill" style="background:#6a5acd"></div></div>
+        <div class="vBar" style="flex:1"><div id="trimFill" class="vFill" style="background:#6a5acd;height:6px;border-radius:999px;width:0%"></div></div>
         <div id="trimClock" class="vTime">0:00</div>
       </div>
 
@@ -379,14 +387,14 @@ const LS = {
   setStr(k,v){ localStorage.setItem(k,v) }
 };
 const fmtTime = ts => new Date(ts).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
-const s2clock = s => {
-  s = Math.max(0, s||0);
-  const m = Math.floor(s/60), r = Math.floor(s%60);
-  return `${m}:${r.toString().padStart(2,'0')}`;
-};
-const escapeHtml = s => (s||'').toString().replace(/[&<>"']/g, m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;" }[m]));
+const s2clock = s => { s = Math.max(0, s||0); const m = Math.floor(s/60), r = Math.floor(s%60); return `${m}:${r.toString().padStart(2,'0')}`; };
+/* 顯示 mm:ss（純長度用） */
+const mmss = sec => { sec = Math.max(0, Math.floor(sec || 0)); const m = Math.floor(sec/60), s = sec % 60; return `${m}:${s.toString().padStart(2,'0')}`; };
+/* 僅允許同時播放一條 */
+let ACTIVE_AUDIO = null;
+function stopActive(){ if (ACTIVE_AUDIO){ ACTIVE_AUDIO.pause(); ACTIVE_AUDIO._owner?.classList.remove('playing'); ACTIVE_AUDIO = null; } }
 
-/* 舞台名（大寫）、暱稱（DM 顯示）、頭像 */
+/* 舞台名/暱稱/頭像 */
 const STAGE_NAME = LS.getStr('artistStage','ANNIE');
 let   NICKNAME   = LS.getStr('artistNickname','Annie');
 let   AVATAR     = LS.getStr('artistAvatar','https://picsum.photos/80?u=artist');
@@ -479,7 +487,7 @@ function renderStoryBar(){
 function feedOf(filter){
   if(filter==='all') return POSTS.slice().sort((a,b)=>b.ts-a.ts);
   if(filter==='me')  return POSTS.filter(p=>p.artistId==='me').sort((a,b)=>b.ts-a.ts);
-  return POSTS.filter(p=>p.artistId===filter).sort((a,b)=>b.ts-a.ts);
+  return POSTS.filter(p=>p.artistId===filter).sort((a,b)=>b.ts-a_ts);
 }
 function VB(size=18){
   const gid='vbGrad-'+Math.random().toString(36).slice(2,8);
@@ -532,6 +540,51 @@ function renderDmList(){
     </div><span></span></div>`;
 }
 
+/* ---------- 語音泡泡建立 ---------- */
+function buildVoiceUI(msg){
+  const segStart = Number(msg.segStart || msg.start || 0);
+  const segEnd   = Number(msg.segEnd   || msg.end   || 0);
+
+  const ui  = document.createElement('div'); ui.className='voiceUI';
+  const btn = document.createElement('button'); btn.className='voicePlay';
+  btn.innerHTML = `<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>`;
+
+  const bars = document.createElement('div'); bars.className='voiceBars';
+  for(let i=0;i<12;i++){ const b=document.createElement('div'); b.className='voiceBar'; bars.appendChild(b); }
+
+  const dur = document.createElement('div'); dur.className='voiceDur'; dur.textContent = '0:00';
+  ui.append(btn,bars,dur);
+
+  const audio = document.createElement('audio');
+  audio.src = msg.src; audio.preload='metadata'; audio.style.display='none'; ui.appendChild(audio);
+  audio._owner = ui;
+
+  function toPlay(){
+    stopActive();
+    try{ audio.currentTime = segStart || 0; }catch(_){}
+    audio.play().then(()=>{ ACTIVE_AUDIO = audio; ui.classList.add('playing');
+      btn.innerHTML=`<svg viewBox="0 0 24 24"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>`;
+    }).catch(()=>{});
+  }
+  function toPause(){
+    audio.pause(); ui.classList.remove('playing');
+    btn.innerHTML=`<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>`;
+    if(ACTIVE_AUDIO===audio) ACTIVE_AUDIO=null;
+  }
+  btn.onclick = ()=> audio.paused ? toPlay() : toPause();
+
+  audio.addEventListener('loadedmetadata', ()=>{
+    const d = (segEnd>segStart) ? (segEnd - segStart) : (audio.duration||0);
+    dur.textContent = mmss(d||0);
+  });
+  audio.addEventListener('timeupdate', ()=>{
+    if(segEnd>segStart && audio.currentTime >= segEnd - 0.05){ toPause(); }
+  });
+  audio.addEventListener('ended', toPause);
+
+  return ui;
+}
+
 /* ---------- DM Thread（核心） ---------- */
 let replyDraft=null;
 function renderThread(){
@@ -547,41 +600,15 @@ function renderThread(){
 
     const bubble=document.createElement('div'); bubble.className='bubble';
 
-    // 內容
     if(m.type==='image'){
       bubble.innerHTML = `<img class="msgImg" src="${m.src}" alt="">`;
     }else if(m.type==='video'){
       bubble.innerHTML = `<video class="msgVideo" src="${m.src}" controls playsinline></video>`;
-    }else if(m.type==='voice'){   // 我們的自訂語音條（含夾取區間）
-      const boxV = document.createElement('div'); boxV.className='voiceBox';
-      const btn  = document.createElement('button'); btn.className='vBtn'; btn.textContent='▶︎';
-      const bar  = document.createElement('div'); bar.className='vBar';
-      const fill = document.createElement('div'); fill.className='vFill'; bar.appendChild(fill);
-      const tLbl = document.createElement('div'); tLbl.className='vTime'; tLbl.textContent='0:00';
-      const tag  = document.createElement(m.isVideo?'video':'audio');
-      tag.src = m.src; tag.playsInline = true; tag.preload='metadata'; tag.style.display='none';
-      boxV.append(btn, bar, tLbl, tag);
-      bubble.appendChild(boxV);
-
-      let playing=false, raf=0;
-      function tick(){
-        const st=m.start||0, ed=m.end||tag.duration||0;
-        const cur=tag.currentTime||0;
-        const pct = ed>st? ( (cur-st)/(ed-st) )*100 : 0;
-        fill.style.width = Math.max(0,Math.min(100,pct)) + '%';
-        tLbl.textContent = s2clock(Math.max(0, cur-st));
-        if(cur>=ed-0.02){ tag.pause(); tag.currentTime = ed; stop(); }
-        else { raf=requestAnimationFrame(tick); }
-      }
-      function play(){
-        const st=m.start||0;
-        try{ tag.currentTime = st; }catch(_){}
-        tag.play().catch(()=>{}); btn.textContent='⏸'; playing=true; tick();
-      }
-      function stop(){ cancelAnimationFrame(raf); btn.textContent='▶︎'; playing=false; }
-      btn.addEventListener('click', ()=>{ playing? (tag.pause(),stop()) : play(); });
-      tag.addEventListener('pause', stop);
-    }else{ // 純文字
+    }else if(m.type==='voice'){
+      bubble.classList.add('voice');
+      const ui = buildVoiceUI({src:m.src, segStart:m.start, segEnd:m.end, isVideo:m.isVideo});
+      bubble.appendChild(ui);
+    }else{
       if(m.from==='fan'){
         const lab=document.createElement('div'); lab.className='fromLabel'; lab.textContent='FROM FAN';
         const txt=document.createElement('div'); txt.className='fanText'; txt.innerHTML=escapeHtml(m.text);
@@ -613,7 +640,6 @@ function renderThread(){
     }
   });
 
-  // 串尾墊高 + 錨點
   if(!box.querySelector('#threadPad')){ const pad=document.createElement('div'); pad.id='threadPad'; box.appendChild(pad); }
   if(!box.querySelector('#endAnchor')){ const a=document.createElement('div'); a.id='endAnchor'; box.appendChild(a); }
 
@@ -621,11 +647,7 @@ function renderThread(){
 }
 
 /* ---------- 送訊息 / 回覆 ---------- */
-function clearReply(){
-  replyDraft=null;
-  document.getElementById('replyChip').style.display='none';
-  scrollToEndDuring(400);
-}
+function clearReply(){ replyDraft=null; document.getElementById('replyChip').style.display='none'; scrollToEndDuring(400); }
 function sendArtistMsg(){
   const inp=document.getElementById('dmMessageInput');
   let t=(inp.value||'').trim(); 
@@ -634,7 +656,7 @@ function sendArtistMsg(){
   GROUP_MSGS.push({
     id:'u'+Date.now(),
     from:'artist',
-    text:t,             // ✅ 藝人端保留 @@@
+    text:t,
     ts:Date.now(),
     replyTo:replyDraft?{text:replyDraft.text}:null
   });
@@ -648,7 +670,6 @@ const dmInput = document.getElementById('dmMessageInput');
 dmInput.addEventListener('keydown', e=>{
   if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); sendArtistMsg(); }
 });
-/* 發送鍵狀態 */
 const sendBtn = document.getElementById('dmSendBtn');
 const footerEl = document.getElementById('dmFooter');
 function updateComposerUI(){
@@ -668,16 +689,11 @@ const pickMedia = document.getElementById('pickMedia');
 const pickVoice = document.getElementById('pickVoice');
 document.getElementById('btnCamera').addEventListener('click', ()=>pickMedia.click());
 document.getElementById('btnMic').addEventListener('click', ()=>pickVoice.click());
-
 function toDataURL(file){
   return new Promise((res,rej)=>{
-    const fr=new FileReader();
-    fr.onload = ()=>res(fr.result);
-    fr.onerror= rej;
-    fr.readAsDataURL(file);
+    const fr=new FileReader(); fr.onload = ()=>res(fr.result); fr.onerror= rej; fr.readAsDataURL(file);
   });
 }
-
 /* 📸：直接進聊天室（照片/影片） */
 pickMedia.addEventListener('change', async e=>{
   const files=[...e.target.files];
@@ -706,7 +722,6 @@ const trimUse   = document.getElementById('trimUse');
 
 pickVoice.addEventListener('change', async e=>{
   const f=e.target.files?.[0]; if(!f) return;
-  // 用 video 解碼所有格式，避免 <audio> 報「錯誤」
   trimState.blob = f;
   trimState.url  = URL.createObjectURL(f);
   trimMedia.src = trimState.url;
@@ -759,18 +774,17 @@ trimPlay.addEventListener('click', ()=>{
   if(!playing){
     try{ trimMedia.currentTime = trimState.start; }catch(_){}
     trimMedia.play().catch(()=>{});
-    trimPlay.textContent='⏸ 暫停';
-    playing=true;
+    trimPlay.textContent='⏸ 暫停'; playing=true;
   }else{
-    trimMedia.pause();
-    trimPlay.textContent='▶️ 播放';
-    playing=false;
+    trimMedia.pause(); trimPlay.textContent='▶️ 播放'; playing=false;
   }
 });
 trimMedia.addEventListener('pause', ()=>{ trimPlay.textContent='▶️ 播放'; playing=false; });
 
 trimUse.addEventListener('click', async ()=>{
-  // 存成 DataURL（保持離線），並記錄裁切區間
+  const dur = Math.max(0, (trimState.end||0) - (trimState.start||0));
+  if(!confirm(`要發送 ${mmss(dur)} 的語音片段嗎？`)) return;
+
   const data = await toDataURL(trimState.blob);
   GROUP_MSGS.push({
     id:'v'+Date.now()+Math.random(),
