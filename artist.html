@@ -60,17 +60,30 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 .verified-badge .tick{fill:#fff;filter:drop-shadow(0 1px 0 rgba(0,0,0,.18))}
 
 /* story bar */
-#storyWrap{position:sticky;top:0;z-index:5;background:linear-gradient(180deg,rgba(245,247,255,.96),rgba(245,247,255,.90));backdrop-filter:blur(6px)}
-#storyBar{display:flex;gap:12px;overflow-x:auto;padding:10px 8px 12px;border-bottom:1px solid var(--line);scrollbar-width:none}
+#storyWrap{
+  position:sticky;top:0;z-index:5;
+  background:linear-gradient(180deg,rgba(245,247,255,.96),rgba(245,247,255,.90));
+  backdrop-filter:blur(6px)
+}
+#storyBar{
+  display:flex;gap:12px;overflow-x:auto;padding:10px 8px 12px;
+  border-bottom:1px solid var(--line);scrollbar-width:none
+}
 #storyBar::-webkit-scrollbar{display:none}
-.story-item{flex:0 0 auto;width:64px;text-align:center;cursor:pointer;position:relative}
-.story-item img{width:56px;height:56px;border-radius:50%;object-fit:cover;border:2px solid #d5d8f3}
+.story-item{
+  flex:0 0 auto;width:64px;text-align:center;cursor:pointer;position:relative
+}
+/* 重點：把圓頭像置中 */
+.story-item img{
+  width:56px;height:56px;border-radius:50%;
+  object-fit:cover;border:2px solid #d5d8f3;margin:0 auto
+}
 .story-item .name{font-size:12px;margin-top:4px;color:#9aa1ad}
 .story-item.active img{border-color:var(--accent);box-shadow:0 0 0 2px rgba(106,90,205,.18)}
 .story-item.active .name{color:var(--accent);font-weight:700}
 .story-item .dot{position:absolute;right:6px;top:2px;width:8px;height:8px;background:var(--danger);border-radius:50%;box-shadow:0 0 0 2px #fff}
 .story-item.pinned img{border-color:#111}
-
+  
 /* post card */
 .post{margin:12px 6px}
 .post .hdr{display:flex;align-items:center;gap:10px}
@@ -80,14 +93,43 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 .post .body{margin-top:8px}
 .post .hero{width:100%;height:360px;object-fit:cover;border-radius:12px;border:1px solid var(--line)}
 
-/* DM 列表 */
-#dm .dmCard{display:flex;align-items:center;gap:12px;justify-content:space-between;padding:12px;border:1px solid var(--line);border-radius:14px;background:var(--card);margin:10px 0;cursor:pointer}
-#dm .dmCard img{width:52px;height:52px;border-radius:50%;object-fit:cover;border:1px solid var(--line)}
-.nameBlock{display:flex;flex-direction:column;gap:6px}
-.nameRow{display:flex;align-items:center;gap:8px}
-.nameRow .stage{font-weight:900;letter-spacing:.3px}
+/* DM 列表卡片：靠左排、緊鄰頭像但保留間距 */
+#dm .dmCard{
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;   /* 往左靠 */
+  gap:12px;                     /* 與頭像的距離 */
+  padding:12px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:var(--card);
+  margin:10px 0;
+  cursor:pointer;
+}
 
-/* —— 方框 ARTIST 勳章 —— */
+/* 頭像維持不變 */
+#dm .dmCard img{
+  width:52px;height:52px;border-radius:50%;
+  object-fit:cover;border:1px solid var(--line);
+}
+
+/* 文案區靠左、可伸展，避免被擠壓 */
+.nameBlock{display:flex;flex-direction:column;gap:6px;flex:1;min-width:0}
+
+/* 徽章 + 名稱 同一行，貼近但留 8px 間距；名稱單行溢出省略 */
+.nameRow{display:flex;align-items:center;gap:8px;min-width:0}
+.nameRow .stage{
+  font-weight:900;letter-spacing:.3px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+
+/* 預覽文字一行省略，顏色淡一點 */
+.dmPreview{
+  display:block;color:var(--ghost);
+  max-width:62vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+
+/* 徽章（沿用聊天室樣式） */
 .artistTag{
   display:inline-flex;align-items:center;justify-content:center;
   padding:3px 8px;border-radius:6px;font-size:10px;font-weight:900;letter-spacing:.6px;text-transform:uppercase;
@@ -243,7 +285,7 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 <!-- ====================== DM LIST ====================== -->
 <section id="dm" class="page">
   <div class="row" style="justify-content:space-between;margin:2px 0 10px">
-    <b style="font-weight:900">訊息</b>
+    <b style="font-weight:900">DM</b>
   </div>
   <div id="dmList"></div>
 </section>
@@ -452,7 +494,7 @@ let   AVATAR     = LS.getStr('artistAvatar','https://picsum.photos/80?u=artist')
 const ME = { id:'me', name:STAGE_NAME, avatar:AVATAR };
 
 const ARTISTS = [
-  {id:'me',name:STAGE_NAME,avatar:AVATAR},
+  {id:'me',name:'ME',avatar:AVATAR},
   {id:'all',name:'ALL',avatar:'https://picsum.photos/80?u=all'},
   {id:'dohee',name:'DOHEE',avatar:'https://picsum.photos/80?u=dh'},
   {id:'woo',name:'WOOCHAN',avatar:'https://picsum.photos/80?u=wc'}
@@ -506,6 +548,8 @@ function hasNewDots(artistId){
   const latest=Math.max(0,...POSTS.filter(p=>p.artistId===artistId).map(p=>p.ts));
   return latest>seen;
 }
+
+/* HOME：Story bar（保持原本邏輯，會顯示上面的 name，其中自己的就是 ME）*/
 function renderStoryBar(){
   const bar=document.getElementById('storyBar');
   const others=ARTISTS.filter(a=>a.id!=='me'&&a.id!=='all');
@@ -531,6 +575,7 @@ function renderStoryBar(){
     });
   });
 }
+
 function feedOf(filter){
   if(filter==='all') return POSTS.slice().sort((a,b)=>b.ts-a.ts);
   if(filter==='me')  return POSTS.filter(p=>p.artistId==='me').sort((a,b)=>b.ts-a.ts);
@@ -547,17 +592,19 @@ function VB(size=18){
       <path class="tick" d="M10.4 12.8 8.7 11.2l1.1-1.1 1.2 1.2 3-3 1.1 1.1-3.8 3.8a1 1 0 0 1-1.4 0z"/></svg>
   </span>`;
 }
+/* HOME：Feed — 自己的貼文顯示暱稱，其它人用藝名(全大寫) */
 function renderFeed(filter='me'){
   const wrap=document.getElementById('feedWrap');
   const list=feedOf(filter);
   if(!list.length){ wrap.innerHTML=`<div class="ghost" style="text-align:center;margin-top:20vh">尚無貼文</div>`; return; }
   wrap.innerHTML=list.map(p=>{
-    const stage=(p.artistStage||STAGE_NAME||'').toString().toUpperCase();
+    // 只有自己看到自己的貼文會顯示暱稱；其他一律顯示藝名(全大寫)
+    const titleName = (p.artistId==='me') ? (NICKNAME||'') : (p.artistStage||STAGE_NAME||'').toString().toUpperCase();
     return `<div class="card soft post">
       <div class="hdr">
         <img class="avatar" src="${p.avatar}" onerror="imgFallback(this)">
         <div class="meta">
-          <b class="stage">${escapeHtml(stage)} ${VB(18)}</b>
+          <b class="stage">${escapeHtml(titleName)} ${VB(18)}</b>
           <small class="ghost">${new Date(p.ts).toLocaleString()}</small>
         </div>
       </div>
@@ -569,22 +616,32 @@ function renderFeed(filter='me'){
 
 /* ===================== DM 列表 ===================== */
 function getRoomTitle(){ return NICKNAME; }
+/* 預覽字串：語音顯示全形括號 ［語音訊息］ */
 function lastPreview(m){
   if(!m) return '（無訊息）';
-  if(m.type==='image') return '[照片]';
-  if(m.type==='video') return '[影片]';
-  if(m.type==='audio' || m.type==='voice') return '[語音]';
+  if(m.type === 'image') return '［照片］';
+  if(m.type === 'video') return '［影片］';
+  if(m.type === 'audio' || m.type === 'voice') return '［語音訊息］';
   return m.text || '（無訊息）';
 }
+  
+/* DM 列表：徽章與名稱靠近頭像、靠左排列 */
 function renderDmList(){
   const box=document.getElementById('dmList');
   const last=GROUP_MSGS[GROUP_MSGS.length-1];
-  box.innerHTML=`<div class="dmCard" onclick="showPage('dmDetail')">
-    <img src="${ME.avatar}" onerror="imgFallback(this)">
-    <div class="nameBlock">
-      <div class="nameRow"><span class="artistTag">ARTIST</span><div class="stage">${escapeHtml(getRoomTitle().toUpperCase())}</div></div>
-      <small class="ghost" style="display:block;max-width:62vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(lastPreview(last))}</small>
-    </div><span></span></div>`;
+
+  box.innerHTML = `
+    <div class="dmCard" onclick="showPage('dmDetail')">
+      <img src="${ME.avatar}" onerror="imgFallback(this)">
+      <div class="nameBlock">
+        <div class="nameRow">
+          <span class="artistTag">ARTIST</span>
+          <div class="stage">${escapeHtml(getRoomTitle().toUpperCase())}</div>
+        </div>
+        <small class="dmPreview">${escapeHtml(lastPreview(last))}</small>
+      </div>
+    </div>
+  `;
 }
 
 /* ===================== 語音泡泡（有影像軌用 <video>） ===================== */
@@ -870,12 +927,14 @@ document.addEventListener('click',(e)=>{
   const m=document.getElementById('dmMenu');
   if(m.style.display==='block'&&!m.contains(e.target)&&!e.target.closest('.hudBtn')) hideDmMenu();
 });
+/* 改名流程：更新清單、首頁貼文、Story bar（ME 不受影響，但要重繪） */
 function renameChat(){
   const cur=getRoomTitle(); const n=prompt('更改聊天室名稱（同：藝人暱稱）', cur); if(!n) return;
   NICKNAME=n.trim()||cur; LS.setStr('artistNickname', NICKNAME);
   document.getElementById('dmTitle').textContent=NICKNAME.toUpperCase();
   document.getElementById('meNickname').textContent=NICKNAME;
-  document.getElementById('composerWho').textContent=NICKNAME; renderDmList();
+  document.getElementById('composerWho').textContent=NICKNAME;
+  renderDmList(); renderFeed(currentFilter); renderStoryBar();
 }
 
 /* ===================== 背景：挑圖/裁切/預覽/套用 ===================== */
@@ -979,13 +1038,15 @@ function previewComposeMedia(e){
 function publishDraft(){ alert('先存草稿＆預覽；發佈規則等我們接首頁串流。'); showPage('home'); }
 
 /* ===================== 暱稱按鈕 ===================== */
+/* 「更改我的暱稱」按鈕：同上 */
 document.getElementById('btnEditNick').addEventListener('click', ()=>{
   const v=prompt('輸入新的暱稱（= 聊天室名稱）', NICKNAME);
   if(v&&v.trim()){
     NICKNAME=v.trim(); LS.setStr('artistNickname', NICKNAME);
     document.getElementById('meNickname').textContent=NICKNAME;
     document.getElementById('dmTitle').textContent=NICKNAME.toUpperCase();
-    document.getElementById('composerWho').textContent=NICKNAME; renderDmList();
+    document.getElementById('composerWho').textContent=NICKNAME;
+    renderDmList(); renderFeed(currentFilter); renderStoryBar();
   }
 });
 
