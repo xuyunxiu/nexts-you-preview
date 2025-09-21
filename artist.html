@@ -33,8 +33,8 @@ a{text-decoration:none;color:inherit} button{font:inherit;cursor:pointer}
 .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
 .chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:#f3f5ff;border:1px solid var(--line);font-size:12px}
 
-/* pages（底部只保留安全區；鍵盤位移交給 DM footer + JS） */
-section.page{ display:none; padding:12px 12px calc(76px + var(--safe)); min-height:100svh; }
+/* pages */
+section.page{display:none;padding:12px 12px calc(76px + var(--safe));min-height:100svh}
 section.page.active{display:block;animation:fade .22s ease}
 @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 
@@ -88,21 +88,17 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 .nameRow{display:flex;align-items:center;gap:8px}
 .nameRow .stage{font-weight:900;letter-spacing:.3px}
 
-/* —— 方框 ARTIST 勳章（紫藍白；DM 與列表共用） —— */
+/* —— 方框 ARTIST 勳章 —— */
 .artistTag{
   display:inline-flex;align-items:center;justify-content:center;
-  padding:3px 8px;border-radius:6px;
-  font-size:10px;font-weight:900;letter-spacing:.6px;text-transform:uppercase;
-  color:#2e2a6f;
-  background:linear-gradient(90deg,#bca7ff 0%,#8fb4ff 64%,#ffffff 100%);
-  border:1px solid #ded6ff; box-shadow:0 1px 6px rgba(106,90,205,.18);
+  padding:3px 8px;border-radius:6px;font-size:10px;font-weight:900;letter-spacing:.6px;text-transform:uppercase;
+  color:#2e2a6f;background:linear-gradient(90deg,#bca7ff 0%,#8fb4ff 64%,#ffffff 100%);
+  border:1px solid #ded6ff;box-shadow:0 1px 6px rgba(106,90,205,.18);
 }
 
 /* ===== DM Detail ===== */
 #dmDetail{
-  position:relative;background:#000;
-  background-position:center;background-repeat:no-repeat;background-size:cover;
-  background-attachment:scroll;
+  position:relative;background:#000;background-position:center;background-repeat:no-repeat;background-size:cover;background-attachment:scroll;
 }
 #dmDetail::after{content:"";position:fixed;inset:0;pointer-events:none;background:rgba(0,0,0,var(--bgDim,.0));backdrop-filter:blur(var(--bgBlur,0px));z-index:-1}
 
@@ -115,20 +111,11 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 .back{width:44px;height:44px;border:none;background:transparent;border-radius:0;padding:0;display:grid;place-items:center}
 .back svg{width:22px;height:22px;stroke:#5b6ab0;stroke-width:2.6;fill:none}
 
-/* Thread */
-.thread{
-  position:absolute; left:0; right:0;
-  top:var(--hud-h); bottom:0;
-  overflow-y:auto; -webkit-overflow-scrolling:touch;
-  display:flex; flex-direction:column;
-  padding:8px 2px;
-  scrollbar-gutter:stable both-edges;
-}
-.thread .msg + .msg{ margin-top:12px; }
-
-/* 串尾 pad & 錨點 */
-#threadPad{ height:calc(var(--footer-h) + var(--kb-offset) + env(safe-area-inset-bottom,0px) + 2px); flex:0 0 auto; pointer-events:none; }
-#endAnchor{ height:1px; flex:0 0 auto; }
+/* thread */
+.thread{position:absolute;left:0;right:0;top:var(--hud-h);bottom:0;overflow-y:auto;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column;padding:8px 2px;scrollbar-gutter:stable both-edges}
+.thread .msg + .msg{margin-top:12px}
+#threadPad{height:calc(var(--footer-h) + var(--kb-offset) + env(safe-area-inset-bottom,0px) + 2px);flex:0 0 auto;pointer-events:none}
+#endAnchor{height:1px;flex:0 0 auto}
 
 .msg{display:flex;align-items:flex-end;gap:8px;max-width:88%;margin:0 6px}
 .msg.left{flex-direction:row;align-self:flex-start}
@@ -140,103 +127,74 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 .fromLabel{font-size:11px;font-weight:900;color:#6b78a8;margin-bottom:4px}
 .fanText{color:#111}
 
-/* 問題引用卡 */
-.replyCard{
-  align-self:flex-end; max-width:74%;
-  margin:14px 6px 0; padding:10px 12px; border-radius:14px;
-  background:rgba(255,255,255,.86);
-  border:1px solid rgba(0,0,0,.06);
-  box-shadow:0 8px 18px rgba(0,0,0,.12);
-  backdrop-filter:saturate(140%) blur(1.5px);
-  word-break:break-word;
-}
-.replyCard .fromLabel{ font-size:11px; font-weight:900; letter-spacing:.3px; color:#6d78aa; margin-bottom:4px; }
-.thread .msg + .replyCard, .thread .replyCard + .msg{ margin-top:12px; }
+/* 回覆卡 */
+.replyCard{align-self:flex-end;max-width:74%;margin:14px 6px 0;padding:10px 12px;border-radius:14px;background:rgba(255,255,255,.86);
+  border:1px solid rgba(0,0,0,.06);box-shadow:0 8px 18px rgba(0,0,0,.12);backdrop-filter:saturate(140%) blur(1.5px);word-break:break-word}
+.replyCard .fromLabel{font-size:11px;font-weight:900;letter-spacing:.3px;color:#6d78aa;margin-bottom:4px}
+.thread .msg + .replyCard,.thread .replyCard + .msg{margin-top:12px}
 
 /* 回覆箭頭 */
-.replyBtn{
-  position:absolute; top:50%;
-  right:calc(-1 * (var(--reply-size) + var(--reply-gap)));
-  transform:translateY(-50%);
-  width:var(--reply-size); height:var(--reply-size);
-  border-radius:999px; border:1px solid rgba(0,0,0,.08);
-  background:rgba(255,255,255,.92);
-  box-shadow:0 6px 14px rgba(0,0,0,.12);
-  display:flex;align-items:center;justify-content:center; z-index:2;
-}
-.replyBtn svg{ width:calc(var(--reply-size)*0.53); height:calc(var(--reply-size)*0.53); opacity:.85; }
+.replyBtn{position:absolute;top:50%;right:calc(-1*(var(--reply-size) + var(--reply-gap)));transform:translateY(-50%);width:var(--reply-size);height:var(--reply-size);
+  border-radius:999px;border:1px solid rgba(0,0,0,.08);background:rgba(255,255,255,.92);box-shadow:0 6px 14px rgba(0,0,0,.12);display:flex;align-items:center;justify-content:center;z-index:2}
+.replyBtn svg{width:calc(var(--reply-size)*0.53);height:calc(var(--reply-size)*0.53);opacity:.85}
 
-/* Composer 固定底部（鍵盤頂起） */
-.dmFooter{
-  position:fixed;left:0;right:0;bottom:0;z-index:50;
-  background:linear-gradient(180deg,rgba(255,255,255,.35),rgba(255,255,255,.96));
-  backdrop-filter:blur(10px);border-top:1px solid var(--line);
-  padding:10px 0 calc(10px + env(safe-area-inset-bottom));
-}
-
-/* 輸入列與按鈕 */
+/* Composer */
+.dmFooter{position:fixed;left:0;right:0;bottom:0;z-index:50;background:linear-gradient(180deg,rgba(255,255,255,.35),rgba(255,255,255,.96));
+  backdrop-filter:blur(10px);border-top:1px solid var(--line);padding:10px 0 calc(10px + env(safe-area-inset-bottom))}
 .dmInputBar{display:flex;align-items:center;gap:10px;padding:0 12px}
-.dmInputBar .box{
-  flex:1;min-width:0;display:flex;align-items:center;background:#fff;border:1px solid var(--line);
-  border-radius:22px;height:42px;padding:0 14px
-}
+.dmInputBar .box{flex:1;min-width:0;display:flex;align-items:center;background:#fff;border:1px solid var(--line);border-radius:22px;height:42px;padding:0 14px}
 .dmInputBar input{flex:1;border:none;outline:none;background:transparent;font-size:17px}
 
-.iconBtn{
-  width:34px;height:34px;border-radius:10px;border:1px solid var(--line);
-  background:#fff; display:grid; place-items:center; flex:0 0 auto;
-}
-.dmCam{font-size:20px; line-height:1; transform:translateY(.5px);}   /* 📸 微調置中 */
-.dmMic{font-size:20px; line-height:1;}                               /* 🎙️ */
-.dmSend{
-  width:40px;height:40px;border:none;border-radius:20px;
-  background:#e9ecf4; color:#b2b7c8;
-  display:grid;place-items:center;
-}
-.dmSend svg{width:20px;height:20px;fill:currentColor;stroke:currentColor;display:block;transform:translateY(-.5px)} /* 箭頭置中 */
-.dmSend[disabled]{opacity:1;cursor:default}
-.hasText .dmSend{ background:#111; color:#fff; }
+/* 左右 icon：置中 + 像素微調 */
+.iconBtn{width:42px;height:42px;border-radius:14px;border:1px solid var(--line);background:#fff;display:grid;place-items:center;flex:0 0 auto;font-size:22px;line-height:1}
+.iconBtn span{display:block;line-height:1}
+.camEmoji{transform:translate(-1px, .5px)}
+.micEmoji{transform:translate(-.5px, .5px)}
 
-/* 媒體樣式 */
+/* 發送鍵：置中 + 上移 0.5px */
+.dmSend{width:42px;height:42px;border:none;border-radius:14px;background:#e9ecf4;color:#b2b7c8;display:grid;place-items:center}
+.dmSend svg{width:20px;height:20px;display:block;transform:translateY(-.5px)}
+.hasText .dmSend{background:#111;color:#fff}
+
+/* 媒體 */
 .msgImg{max-width:min(68vw,300px);border-radius:12px;border:1px solid rgba(0,0,0,.08)}
 .msgVideo{width:min(68vw,300px);height:auto;border-radius:12px;border:1px solid rgba(0,0,0,.08)}
-.bubble.voice{padding:8px 10px}
-.voicePlayer{width:220px;height:36px;display:block}
 
-/* 右上 … 選單 */
-#dmMenu{position:fixed;right:12px;top:64px;display:none;z-index:70}
-#dmMenu .row{flex-direction:column;gap:6px}
+/* 自訂語音條（不顯示黑播放器） */
+.voiceBox{display:flex;align-items:center;gap:10px;background:rgba(0,0,0,.08);border-radius:999px;padding:6px 10px}
+.msg.right .voiceBox{background:rgba(255,255,255,.18)}
+.vBtn{width:28px;height:28px;border-radius:50%;border:none;display:grid;place-items:center;background:#fff;color:#333}
+.msg.right .vBtn{background:rgba(255,255,255,.92)}
+.vBar{position:relative;height:6px;width:140px;border-radius:999px;background:rgba(0,0,0,.12);overflow:hidden}
+.vFill{position:absolute;left:0;top:0;bottom:0;width:0%;background:#6a5acd}
+.msg.right .vFill{background:#fff}
+.vTime{font-size:12px;opacity:.85}
 
-/* Modal 通用 */
+/* Reply Chip */
+.replyChip{position:relative;display:flex;align-items:center;gap:8px;margin:0 14px 8px;padding:8px 36px 8px 12px;border-radius:13px;border:1px solid rgba(255,255,255,.28);
+  background:rgba(255,255,255,.12);backdrop-filter:saturate(140%) blur(1.5px)}
+.replyChipLabel{font-size:12px;font-weight:900;letter-spacing:.35px;color:#7a86b7;margin-right:2px;user-select:none}
+.replyChipText{flex:1;min-width:0;font-size:15px;line-height:1.25;font-weight:600;color:#2f3564;opacity:.95;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.replyChipClose{position:absolute;top:6px;right:6px;width:28px;height:28px;display:grid;place-items:center;border:none;background:transparent;color:#6f78aa;border-radius:6px;cursor:pointer}
+.replyChipClose:hover{background:rgba(255,255,255,.10)}
+.replyChipClose svg{width:18px;height:18px;display:block}
+
+/* Modal（背景裁切/預覽/語音修剪） */
 .modal{position:fixed;inset:0;z-index:80;display:none;background:rgba(0,0,0,.45)}
 .modal .panel{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(760px,94vw);background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px;box-shadow:0 12px 34px rgba(18,24,40,.16)}
-.modal .row{gap:10px}
-
-/* 背景裁切 */
 #cropStage{height:58vh;border:1px dashed var(--line);border-radius:12px;display:grid;place-items:center;overflow:hidden;background:#f8f9ff}
 #cropStage img{max-width:none;user-select:none;transform-origin:center center}
 .cropCtrls{display:flex;align-items:center;gap:10px;margin:12px 0}
 .cropCtrls .spacer{flex:1}
 
-/* 語音修剪 */
-#trimStage{padding:10px;border:1px dashed var(--line);border-radius:12px;background:#f8f9ff}
-#trimAudio{width:100%}
-.trimRow{display:flex;align-items:center;gap:8px;margin:8px 0}
-.trimRow input[type="range"]{flex:1}
-.trimMeta{font-size:12px;color:#6b78a8;font-weight:800}
-
-/* Reply Chip */
-.replyChip{
-  position:relative; display:flex; align-items:center; gap:8px;
-  margin:0 14px 8px; padding:8px 36px 8px 12px;
-  border-radius:13px; border:1px solid rgba(255,255,255,.28);
-  background:rgba(255,255,255,.12); backdrop-filter:saturate(140%) blur(1.5px);
-}
-.replyChipLabel{ font-size:12px; font-weight:900; letter-spacing:.35px; color:#7a86b7; margin-right:2px; user-select:none; }
-.replyChipText{ flex:1; min-width:0; font-size:15px; line-height:1.25; font-weight:600; color:#2f3564; opacity:.95; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.replyChipClose{ position:absolute; top:6px; right:6px; width:28px; height:28px; display:grid; place-items:center; border:none; background:transparent; color:#6f78aa; border-radius:6px; cursor:pointer;}
-.replyChipClose:hover{ background:rgba(255,255,255,.10); }
-.replyChipClose svg{ width:18px; height:18px; display:block; }
+/* 修剪視窗 */
+.trimBox{display:flex;flex-direction:column;gap:10px}
+.trimRow{display:flex;align-items:center;gap:10px}
+.range{flex:1}
+.tip{color:#667085;font-size:14px}
+.btnRow{display:flex;gap:10px;justify-content:flex-end}
+.btnPrimary{background:linear-gradient(180deg,var(--accent),var(--accent2));color:#fff;border:none}
+.btn{padding:6px 14px;border-radius:999px;border:1px solid var(--line);background:#fff}
 
 /* 小工具 */
 .badge{background:#ff3b30;color:#fff;font-size:12px;padding:2px 7px;border-radius:999px;min-width:22px;text-align:center}
@@ -277,15 +235,8 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 <!-- ====================== DM DETAIL ====================== -->
 <section id="dmDetail" class="page">
   <div class="chatHUD" id="dmHUD">
-    <button class="back" onclick="goBack()" aria-label="Back">
-      <svg viewBox="0 0 24 24"><path d="M15 19 8 12l7-7"/></svg>
-    </button>
-    <div class="center">
-      <div class="titleCol">
-        <span class="artistTag">ARTIST</span>
-        <b id="dmTitle" class="artistName">ANNIE</b>
-      </div>
-    </div>
+    <button class="back" onclick="goBack()" aria-label="Back"><svg viewBox="0 0 24 24"><path d="M15 19 8 12l7-7"/></svg></button>
+    <div class="center"><div class="titleCol"><span class="artistTag">ARTIST</span><b id="dmTitle" class="artistName">ANNIE</b></div></div>
     <button class="hudBtn" title="更多" onclick="toggleDmMenu()">⋯</button>
   </div>
 
@@ -296,30 +247,26 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
     <div id="replyChip" class="replyChip" style="display:none">
       <span class="replyChipLabel">回覆：</span>
       <span id="replyChipText" class="replyChipText">—</span>
-      <button class="replyChipClose" onclick="clearReply()">
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
-        </svg>
-      </button>
+      <button class="replyChipClose" onclick="clearReply()"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></button>
     </div>
 
-    <!-- 新輸入列 -->
+    <!-- 輸入列：📸 & 🎙️ 改成直接呼叫 OS 選單 -->
     <div class="dmInputBar">
-      <button class="iconBtn dmCam"  id="dmCamBtn"  aria-label="相片/影片">📸</button>
+      <button class="iconBtn" id="btnCamera" aria-label="相機/相簿"><span class="camEmoji">📸</span></button>
       <div class="box"><input id="dmMessageInput" placeholder="輸入訊息…" /></div>
-      <button class="iconBtn dmMic"  id="dmVoiceBtn" aria-label="語音/影片">🎙️</button>
+      <button class="iconBtn" id="btnMic" aria-label="語音"><span class="micEmoji">🎙️</span></button>
       <button class="dmSend" id="dmSendBtn" aria-label="Send" disabled>
-        <svg viewBox="0 0 24 24"><path d="M3.4 12.6l16.7-7.2c.6-.3 1.2.3.9.9l-7.2 16.7c-.3.7-1.3.6-1.5-.1l-2.1-6.1-6.1-2.1c-.7-.2-.8-1.2-.1-1.5z"/></svg>
+        <svg viewBox="0 0 24 24"><path d="M3.4 12.6l16.7-7.2c.6-.3 1.2.3.9.9l-7.2 16.7c-.3.7-1.3.6-1.5-.1l-2.1-6.1-6.1-2.1c-.7-.2-.8-1.2-.1-1.5z" fill="currentColor"/></svg>
       </button>
 
-      <!-- 隱藏挑選器（呼叫原生選單） -->
-      <input id="pickerMedia" type="file" accept="image/*,video/*" multiple style="display:none">
-      <input id="pickerVoice" type="file" accept="audio/*,video/*" style="display:none">
+      <!-- 隱藏挑選器（直接叫出原生 action sheet） -->
+      <input id="pickMedia" type="file" accept="image/*,video/*" multiple style="display:none">
+      <input id="pickVoice" type="file" accept="audio/*,video/*" style="display:none">
     </div>
   </div>
 
   <!-- 右上 … 選單 -->
-  <div id="dmMenu" class="card soft">
+  <div id="dmMenu" class="card soft" style="display:none">
     <div class="row" style="flex-direction:column;gap:6px">
       <button class="chip" onclick="renameChat(); hideDmMenu()">更改聊天室名稱</button>
       <button class="chip" onclick="startPickBg(); hideDmMenu()">更改背景</button>
@@ -327,7 +274,7 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
   </div>
 </section>
 
-<!-- ===== 背景：挑圖 / 裁切 / 預覽 ===== -->
+<!-- ====================== 背景：挑圖 / 裁切 / 預覽 ====================== -->
 <input id="bgChooser" type="file" accept="image/*" style="display:none">
 <div id="cropModal" class="modal">
   <div class="panel">
@@ -338,7 +285,7 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
       <label class="chip">縮放 <input id="cropScale" type="range" min="80" max="220" value="140" style="vertical-align:middle"></label>
       <div class="spacer"></div>
       <button class="chip" onclick="closeCrop()">取消</button>
-      <button class="chip" style="background:linear-gradient(180deg,var(--accent),var(--accent2));color:#fff;border:none" onclick="applyCrop()">下一步</button>
+      <button class="chip btnPrimary" onclick="applyCrop()">下一步</button>
     </div>
   </div>
 </div>
@@ -350,32 +297,41 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
     </div>
     <div class="cropCtrls" style="justify-content:flex-end">
       <button class="chip" onclick="closePreview()">返回</button>
-      <button class="chip" style="background:linear-gradient(180deg,var(--accent),var(--accent2));color:#fff;border:none" onclick="confirmPreview()">確認</button>
+      <button class="chip btnPrimary" onclick="confirmPreview()">確認</button>
     </div>
   </div>
 </div>
 
-<!-- ===== 語音修剪（高階 UI；可接你自己的剪輯條） ===== -->
+<!-- ====================== 語音修剪（可試聽） ====================== -->
 <div id="trimModal" class="modal">
   <div class="panel">
     <b style="font-weight:900">修剪語音（可試聽）</b>
-    <div id="trimStage">
-      <audio id="trimAudio" controls preload="metadata"></audio>
+    <div class="trimBox">
+      <!-- 隱藏的解碼媒體：統一用 video，能播 audio/mov -->
+      <video id="trimMedia" playsinline style="display:none"></video>
+
       <div class="trimRow">
-        <span class="trimMeta">起點</span>
-        <input id="trimStart" type="range" min="0" max="0" step="0.1" value="0">
-        <span id="trimStartVal" class="trimMeta">0.0s</span>
+        <button class="btn" id="trimPlay">▶️ 播放</button>
+        <div class="vBar" style="flex:1"><div id="trimFill" class="vFill" style="background:#6a5acd"></div></div>
+        <div id="trimClock" class="vTime">0:00</div>
+      </div>
+
+      <div class="trimRow">
+        <span class="ghost" style="width:36px">起點</span>
+        <input id="trimStart" class="range" type="range" min="0" max="1000" value="0">
+        <span id="trimStartLabel" class="ghost">0.0s</span>
       </div>
       <div class="trimRow">
-        <span class="trimMeta">終點</span>
-        <input id="trimEnd" type="range" min="0" max="0" step="0.1" value="0">
-        <span id="trimEndVal" class="trimMeta">0.0s</span>
+        <span class="ghost" style="width:36px">終點</span>
+        <input id="trimEnd" class="range" type="range" min="0" max="1000" value="1000">
+        <span id="trimEndLabel" class="ghost">0.0s</span>
       </div>
-      <div class="sub" style="margin-top:6px">提示：播放時會自動從「起點」開始，跑到「終點」就停止。</div>
-    </div>
-    <div class="row" style="justify-content:flex-end;margin-top:10px">
-      <button class="chip" onclick="closeTrim()">取消</button>
-      <button class="chip" style="background:linear-gradient(180deg,var(--accent),var(--accent2));color:#fff;border:none" id="trimUseBtn">使用這段</button>
+
+      <div class="tip">提示：播放時會自動從「起點」開始，跑到「終點」就停止。</div>
+      <div class="btnRow">
+        <button class="btn" onclick="closeTrim()">取消</button>
+        <button class="btn btnPrimary" id="trimUse">使用這段</button>
+      </div>
     </div>
   </div>
 </div>
@@ -383,9 +339,7 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 <!-- ====================== Composer（＋） ====================== -->
 <section id="composerArtist" class="page">
   <div class="row" style="gap:10px;margin-bottom:10px">
-    <button class="back" onclick="goBack()" aria-label="Back">
-      <svg viewBox="0 0 24 24"><path d="M15 19 8 12l7-7"/></svg>
-    </button>
+    <button class="back" onclick="goBack()" aria-label="Back"><svg viewBox="0 0 24 24"><path d="M15 19 8 12l7-7"/></svg></button>
     <b style="font-weight:900">NEXT ONE</b>
     <div class="sub" id="composerWho" style="margin-left:auto;font-weight:800;letter-spacing:.3px">—</div>
   </div>
@@ -400,7 +354,7 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
       <input id="composeMedia" type="file" multiple accept="image/*,video/*" onchange="previewComposeMedia(event)" style="display:none">
     </label>
     <span id="composeFilesHint" class="ghost">未選取檔案</span>
-    <button class="chip" style="background:linear-gradient(180deg,var(--accent),var(--accent2));color:#fff;border:none" onclick="publishDraft()">發佈（暫存流程）</button>
+    <button class="chip btnPrimary" onclick="publishDraft()">發佈（暫存流程）</button>
   </div>
 </section>
 
@@ -425,6 +379,11 @@ const LS = {
   setStr(k,v){ localStorage.setItem(k,v) }
 };
 const fmtTime = ts => new Date(ts).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+const s2clock = s => {
+  s = Math.max(0, s||0);
+  const m = Math.floor(s/60), r = Math.floor(s%60);
+  return `${m}:${r.toString().padStart(2,'0')}`;
+};
 const escapeHtml = s => (s||'').toString().replace(/[&<>"']/g, m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;" }[m]));
 
 /* 舞台名（大寫）、暱稱（DM 顯示）、頭像 */
@@ -445,11 +404,9 @@ const POSTS = LS.get('artistPosts',[
   {id:'p2',artistId:'woo',artistStage:'WOOCHAN',avatar:'https://picsum.photos/80?u=wc',text:'今天吃拉麵 🍜',img:'https://picsum.photos/1200?u=wc1',ts:Date.now()-1000*60*50},
   {id:'p1',artistId:'me',artistStage:STAGE_NAME,avatar:ME.avatar,text:'大家好，我是 Annie ✨',img:'',ts:Date.now()-1000*60*60}
 ]);
-
-/* 假粉絲 */
 const FANS=[{id:'f1',name:'Michelle',avatar:'https://picsum.photos/40?u=f1'},{id:'f2',name:'粉絲 B',avatar:'https://picsum.photos/40?u=f2'}];
 
-/* 訊息（可含文字 / image / video / audio/voice 及 voice 的起訖時間） */
+/* 訊息 */
 let GROUP_MSGS=LS.get('groupMsgs',[
   {id:'m1',from:'fan',fanId:'f1',text:'偶像好～',ts:Date.now()-1000*60*45},
   {id:'m2',from:'fan',fanId:'f2',text:'今天吃什麼？',ts:Date.now()-1000*60*43},
@@ -570,13 +527,8 @@ function renderDmList(){
   box.innerHTML=`<div class="dmCard" onclick="showPage('dmDetail')">
     <img src="${ME.avatar}" onerror="imgFallback(this)">
     <div class="nameBlock">
-      <div class="nameRow">
-        <span class="artistTag">ARTIST</span>
-        <div class="stage">${escapeHtml(getRoomTitle().toUpperCase())}</div>
-      </div>
-      <small class="ghost" style="display:block;max-width:62vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
-        ${escapeHtml(lastPreview(last))}
-      </small>
+      <div class="nameRow"><span class="artistTag">ARTIST</span><div class="stage">${escapeHtml(getRoomTitle().toUpperCase())}</div></div>
+      <small class="ghost" style="display:block;max-width:62vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(lastPreview(last))}</small>
     </div><span></span></div>`;
 }
 
@@ -595,33 +547,47 @@ function renderThread(){
 
     const bubble=document.createElement('div'); bubble.className='bubble';
 
-    // 內容渲染
+    // 內容
     if(m.type==='image'){
       bubble.innerHTML = `<img class="msgImg" src="${m.src}" alt="">`;
     }else if(m.type==='video'){
       bubble.innerHTML = `<video class="msgVideo" src="${m.src}" controls playsinline></video>`;
-    }else if(m.type==='audio' || m.type==='voice'){
-      bubble.classList.add('voice');
-      // 使用 <audio> 呈現（影片也用 audio 播放它的聲音軌）
-      const start = m.start ?? 0, end = m.end ?? null;
-      const a = document.createElement('audio');
-      a.className='voicePlayer';
-      a.controls = true; a.preload='metadata'; a.src=m.src; a.dataset.start=start; if(end!=null) a.dataset.end=end;
-      // 播放區間控制
-      a.addEventListener('loadedmetadata', ()=>{ if(a.dataset.start){ a.currentTime = parseFloat(a.dataset.start)||0; }});
-      a.addEventListener('play', ()=>{ if(a.dataset.start){ a.currentTime = parseFloat(a.dataset.start)||0; }});
-      a.addEventListener('timeupdate', ()=>{
-        const e=parseFloat(a.dataset.end||'NaN');
-        if(!Number.isNaN(e) && a.currentTime>=e){ a.pause(); }
-      });
-      bubble.appendChild(a);
-    }else{
+    }else if(m.type==='voice'){   // 我們的自訂語音條（含夾取區間）
+      const boxV = document.createElement('div'); boxV.className='voiceBox';
+      const btn  = document.createElement('button'); btn.className='vBtn'; btn.textContent='▶︎';
+      const bar  = document.createElement('div'); bar.className='vBar';
+      const fill = document.createElement('div'); fill.className='vFill'; bar.appendChild(fill);
+      const tLbl = document.createElement('div'); tLbl.className='vTime'; tLbl.textContent='0:00';
+      const tag  = document.createElement(m.isVideo?'video':'audio');
+      tag.src = m.src; tag.playsInline = true; tag.preload='metadata'; tag.style.display='none';
+      boxV.append(btn, bar, tLbl, tag);
+      bubble.appendChild(boxV);
+
+      let playing=false, raf=0;
+      function tick(){
+        const st=m.start||0, ed=m.end||tag.duration||0;
+        const cur=tag.currentTime||0;
+        const pct = ed>st? ( (cur-st)/(ed-st) )*100 : 0;
+        fill.style.width = Math.max(0,Math.min(100,pct)) + '%';
+        tLbl.textContent = s2clock(Math.max(0, cur-st));
+        if(cur>=ed-0.02){ tag.pause(); tag.currentTime = ed; stop(); }
+        else { raf=requestAnimationFrame(tick); }
+      }
+      function play(){
+        const st=m.start||0;
+        try{ tag.currentTime = st; }catch(_){}
+        tag.play().catch(()=>{}); btn.textContent='⏸'; playing=true; tick();
+      }
+      function stop(){ cancelAnimationFrame(raf); btn.textContent='▶︎'; playing=false; }
+      btn.addEventListener('click', ()=>{ playing? (tag.pause(),stop()) : play(); });
+      tag.addEventListener('pause', stop);
+    }else{ // 純文字
       if(m.from==='fan'){
         const lab=document.createElement('div'); lab.className='fromLabel'; lab.textContent='FROM FAN';
         const txt=document.createElement('div'); txt.className='fanText'; txt.innerHTML=escapeHtml(m.text);
         bubble.append(lab,txt);
       }else{
-        bubble.innerHTML=escapeHtml(m.text); // ✅ 藝人端保留原樣（含 @@@）
+        bubble.innerHTML=escapeHtml(m.text);
       }
     }
 
@@ -668,7 +634,7 @@ function sendArtistMsg(){
   GROUP_MSGS.push({
     id:'u'+Date.now(),
     from:'artist',
-    text:t,  // ✅ 不替換 @@@
+    text:t,             // ✅ 藝人端保留 @@@
     ts:Date.now(),
     replyTo:replyDraft?{text:replyDraft.text}:null
   });
@@ -682,9 +648,7 @@ const dmInput = document.getElementById('dmMessageInput');
 dmInput.addEventListener('keydown', e=>{
   if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); sendArtistMsg(); }
 });
-dmInput.addEventListener('focus', ()=>{ autoStick=true; setTimeout(hardStickBottom,0); setTimeout(hardStickBottom,120); });
-
-/* 發送鍵狀態：有字→黑色；沒字→灰 */
+/* 發送鍵狀態 */
 const sendBtn = document.getElementById('dmSendBtn');
 const footerEl = document.getElementById('dmFooter');
 function updateComposerUI(){
@@ -693,17 +657,18 @@ function updateComposerUI(){
   sendBtn.disabled = !has;
 }
 dmInput.addEventListener('input', updateComposerUI);
-
-/* ---------- 上傳：📸（原生選單） / 🎙️（修剪） ---------- */
-const pickerMedia = document.getElementById('pickerMedia');
-const pickerVoice = document.getElementById('pickerVoice');
-document.getElementById('dmCamBtn').addEventListener('click', ()=>{
-  // 直接觸發 input[type=file] => iOS/Android 原生底部選單
-  pickerMedia.click();
+dmInput.addEventListener('focus', ()=>{
+  setTimeout(hardStickBottom,0);
+  setTimeout(hardStickBottom,200);
+  setTimeout(hardStickBottom,600);
 });
-document.getElementById('dmVoiceBtn').addEventListener('click', ()=>pickerVoice.click());
 
-/* 檔案轉 DataURL（為了能存進 LS） */
+/* ---------- 媒體：📸 / 🎙️ ---------- */
+const pickMedia = document.getElementById('pickMedia');
+const pickVoice = document.getElementById('pickVoice');
+document.getElementById('btnCamera').addEventListener('click', ()=>pickMedia.click());
+document.getElementById('btnMic').addEventListener('click', ()=>pickVoice.click());
+
 function toDataURL(file){
   return new Promise((res,rej)=>{
     const fr=new FileReader();
@@ -713,87 +678,112 @@ function toDataURL(file){
   });
 }
 
-/* 圖片/影片：直接送進聊天室 */
-pickerMedia.addEventListener('change', async e=>{
+/* 📸：直接進聊天室（照片/影片） */
+pickMedia.addEventListener('change', async e=>{
   const files=[...e.target.files];
   for(const f of files){
     const data = await toDataURL(f);
     const isVideo = f.type.startsWith('video/');
-    GROUP_MSGS.push({
-      id:'m'+Date.now()+Math.random(),
-      from:'artist',
-      type: isVideo ? 'video' : 'image',
-      src: data,
-      ts: Date.now()
-    });
+    GROUP_MSGS.push({ id:'m'+Date.now()+Math.random(), from:'artist', type:isVideo?'video':'image', src:data, ts:Date.now() });
   }
   LS.set('groupMsgs', GROUP_MSGS);
   renderThread(); renderDmList(); hardStickBottom();
   e.target.value='';
 });
 
-/* 🎙️：開修剪視窗（可用於音訊或影片，影片取其聲音） */
-let _trimCtx=null; // {src, duration}
+/* 🎙️：先進修剪視窗（支援 audio / mov / mp4） */
+let trimState = { blob:null, url:'', dur:0, start:0, end:0 };
 const trimModal = document.getElementById('trimModal');
-const trimAudio = document.getElementById('trimAudio');
+const trimMedia = document.getElementById('trimMedia');
+const trimPlay  = document.getElementById('trimPlay');
 const trimStart = document.getElementById('trimStart');
 const trimEnd   = document.getElementById('trimEnd');
-const trimStartVal=document.getElementById('trimStartVal');
-const trimEndVal=document.getElementById('trimEndVal');
+const trimStartLabel=document.getElementById('trimStartLabel');
+const trimEndLabel=document.getElementById('trimEndLabel');
+const trimClock = document.getElementById('trimClock');
+const trimFill  = document.getElementById('trimFill');
+const trimUse   = document.getElementById('trimUse');
 
-function openTrim(src){
-  _trimCtx={src, duration:0};
-  trimAudio.src=src; trimAudio.load();
-  trimStart.disabled = trimEnd.disabled = true;
-  trimStartVal.textContent = '0.0s'; trimEndVal.textContent='0.0s';
-  trimModal.style.display='block';
-  setTimeout(()=>hardStickBottom(),0);
-}
-function closeTrim(){ trimModal.style.display='none'; trimAudio.pause(); _trimCtx=null; }
-trimAudio.addEventListener('loadedmetadata', ()=>{
-  const dur = Math.max(0, trimAudio.duration||0);
-  _trimCtx.duration = dur;
-  trimStart.min=0; trimStart.max=Math.max(0,(dur-0.1).toFixed(1)); trimStart.step=0.1; trimStart.value=0;
-  trimEnd.min=0.1; trimEnd.max=dur.toFixed(1); trimEnd.step=0.1; trimEnd.value=dur.toFixed(1);
-  trimStart.disabled = trimEnd.disabled = false;
-  trimStartVal.textContent = '0.0s';
-  trimEndVal.textContent = dur.toFixed(1)+'s';
+pickVoice.addEventListener('change', async e=>{
+  const f=e.target.files?.[0]; if(!f) return;
+  // 用 video 解碼所有格式，避免 <audio> 報「錯誤」
+  trimState.blob = f;
+  trimState.url  = URL.createObjectURL(f);
+  trimMedia.src = trimState.url;
+  trimMedia.load();
+  trimOpen();
+  e.target.value='';
 });
-function clampTrim(){
-  let s=parseFloat(trimStart.value)||0;
-  let e=parseFloat(trimEnd.value)||0;
-  if(e<=s+0.1){ e=s+0.1; trimEnd.value=e.toFixed(1); }
-  if(s>=e-0.1){ s=e-0.1; trimStart.value=s.toFixed(1); }
-  trimStartVal.textContent=s.toFixed(1)+'s';
-  trimEndVal.textContent=e.toFixed(1)+'s';
-  // 立即試聽從起點開始
-  if(!trimAudio.paused){ trimAudio.currentTime=s; }
+function trimOpen(){
+  trimModal.style.display='block';
+  trimPlay.disabled=true; trimUse.disabled=true;
+  trimMedia.addEventListener('loadedmetadata', onLoadedMeta, {once:true});
+  trimMedia.addEventListener('timeupdate', onTick);
 }
-trimStart.addEventListener('input', clampTrim);
-trimEnd.addEventListener('input', clampTrim);
+function onLoadedMeta(){
+  const d = trimMedia.duration || 0;
+  trimState.dur = d;
+  trimState.start = 0; trimState.end = d;
+  trimStart.value = 0; trimEnd.value = 1000;
+  trimStartLabel.textContent = '0.0s';
+  trimEndLabel.textContent = d ? `${d.toFixed(1)}s` : '0.0s';
+  trimClock.textContent = '0:00';
+  trimPlay.disabled=false; trimUse.disabled=false;
+}
+function onTick(){
+  const st = val2sec(trimStart.value), ed = val2sec(trimEnd.value);
+  const cur = trimMedia.currentTime;
+  const w = (ed>st)? ((cur-st)/(ed-st))*100 : 0;
+  trimFill.style.width = Math.max(0,Math.min(100,w)) + '%';
+  trimClock.textContent = s2clock(Math.max(0, cur-st));
+  if(cur>=ed-0.02){ trimMedia.pause(); }
+}
+function closeTrim(){
+  trimModal.style.display='none';
+  try{ URL.revokeObjectURL(trimState.url); }catch(_){}
+  trimMedia.pause(); trimMedia.src=''; trimFill.style.width='0%';
+}
+function val2sec(v){ return (Number(v)/1000) * (trimState.dur||0); }
+function syncRange(which){
+  let st = val2sec(trimStart.value), ed = val2sec(trimEnd.value);
+  if(ed<=st){ if(which==='start') ed = Math.min(trimState.dur, st + 0.3); else st = Math.max(0, ed - 0.3); }
+  trimState.start = st; trimState.end = ed;
+  trimStartLabel.textContent = `${st.toFixed(1)}s`;
+  trimEndLabel.textContent   = `${ed.toFixed(1)}s`;
+}
+trimStart.addEventListener('input', ()=>{ syncRange('start'); });
+trimEnd.addEventListener('input',   ()=>{ syncRange('end'); });
 
-// 使用這段 => 存成 voice 訊息（播放時依 start/end 停止）
-document.getElementById('trimUseBtn').addEventListener('click', ()=>{
-  if(!_trimCtx) return;
-  const s=parseFloat(trimStart.value)||0, e=parseFloat(trimEnd.value)||_trimCtx.duration||0;
+let playing=false;
+trimPlay.addEventListener('click', ()=>{
+  if(!playing){
+    try{ trimMedia.currentTime = trimState.start; }catch(_){}
+    trimMedia.play().catch(()=>{});
+    trimPlay.textContent='⏸ 暫停';
+    playing=true;
+  }else{
+    trimMedia.pause();
+    trimPlay.textContent='▶️ 播放';
+    playing=false;
+  }
+});
+trimMedia.addEventListener('pause', ()=>{ trimPlay.textContent='▶️ 播放'; playing=false; });
+
+trimUse.addEventListener('click', async ()=>{
+  // 存成 DataURL（保持離線），並記錄裁切區間
+  const data = await toDataURL(trimState.blob);
   GROUP_MSGS.push({
     id:'v'+Date.now()+Math.random(),
     from:'artist',
     type:'voice',
-    src:_trimCtx.src,
-    start:s, end:e,
+    isVideo: trimState.blob.type.startsWith('video/'),
+    src:data,
+    start:trimState.start,
+    end:trimState.end,
     ts:Date.now()
   });
   LS.set('groupMsgs', GROUP_MSGS);
   closeTrim(); renderThread(); renderDmList(); hardStickBottom();
-});
-
-// 取得檔案後不直接送，先修剪
-pickerVoice.addEventListener('change', async e=>{
-  const f=e.target.files?.[0]; if(!f){ e.target.value=''; return; }
-  const data = await toDataURL(f);
-  openTrim(data);
-  e.target.value='';
 });
 
 /* ---------- DM 菜單 ---------- */
@@ -876,7 +866,7 @@ function scrollToEndDuring(ms=800){
 function hardStickBottom(){
   const t=document.getElementById('dmThread'); if(!t) return;
   t.scrollTop = t.scrollHeight + 9999;
-  let frames=24;
+  let frames=36;
   function pump(){ t.scrollTop = t.scrollHeight + 9999; if(--frames>0) requestAnimationFrame(pump); }
   requestAnimationFrame(()=>requestAnimationFrame(pump));
 }
@@ -895,7 +885,7 @@ function bindBottomObserver(){
       const e = entries[0]; autoStick = e.isIntersecting && e.intersectionRatio >= 0.96;
     },{root:t,threshold:[0.01,0.5,0.96],rootMargin:'0px 0px -1px 0px'});
     io.observe(a);
-  }catch(_){ /* 老環境用 scroll guard */ }
+  }catch(_){}
 }
 
 /* ---------- Composer（首頁草稿） ---------- */
@@ -934,9 +924,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
 
   renderStoryBar(); renderFeed(currentFilter); renderDmList();
 
-  measureHUD(); measureFooter();
-  updateComposerUI();
-
+  measureHUD(); measureFooter(); updateComposerUI();
   if(document.getElementById('dmThread')){ scrollToEndDuring(800); setTimeout(hardStickBottom,0); }
 });
 
