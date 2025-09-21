@@ -143,11 +143,23 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 }
 #dmDetail::after{content:"";position:fixed;inset:0;pointer-events:none;background:rgba(0,0,0,var(--bgDim,.0));backdrop-filter:blur(var(--bgBlur,0px));z-index:-1}
 
-/* header */
-.chatHUD{display:flex;align-items:center;justify-content:space-between;padding:4px 0 8px}
-.chatHUD .center{flex:1;min-width:0}
-.titleCol{display:flex;flex-direction:column;align-items:flex-start;gap:4px}
-.artistName{font-weight:900;letter-spacing:.6px;font-size:18px}
+/* ---------- header（聊天室 HUD）：置中標題、隱藏徽章，且不改變高度 ---------- */
+.chatHUD{
+  position:relative; /* 置中容器參考點 */
+  display:flex;align-items:center;justify-content:space-between;padding:4px 0 8px;
+}
+.chatHUD .center{
+  position:absolute;left:50%;top:50%;
+  transform:translate(-50%,-50%);
+  width:70%;min-width:0;text-align:center;
+  pointer-events:none; /* 不擋住左右按鈕 */
+}
+.chatHUD .titleCol{
+  display:flex;flex-direction:column;align-items:center;gap:2px;
+}
+.chatHUD .artistTag{ display:none !important; }      /* 只在 HUD 隱藏徽章 */
+.artistName{font-weight:900;letter-spacing:.6px;font-size:18px;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
 /* —— HUD 右上「…」：取消底色與描邊，只留 icon —— */
 .hudBtn{
   width:40px;height:40px;
@@ -193,44 +205,42 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
   border-radius:999px;border:1px solid rgba(0,0,0,.08);background:rgba(255,255,255,.92);box-shadow:0 6px 14px rgba(0,0,0,.12);display:flex;align-items:center;justify-content:center;z-index:2}
 .replyBtn svg{width:calc(var(--reply-size)*0.53);height:calc(var(--reply-size)*0.53);opacity:.85}
 
+/* ------------ Footer（縮小、輸入框更長更細） ------------ */
 .dmFooter{
   position:fixed;left:0;right:0;
-  /* 這一行是關鍵：用鍵盤高度把輸入列往上推；同時考慮 safe area */
   bottom: max(env(safe-area-inset-bottom, 0px), var(--kb-offset));
   z-index:50;
   background:linear-gradient(180deg,rgba(255,255,255,.35),rgba(255,255,255,.96));
   backdrop-filter:blur(10px);
   border-top:1px solid var(--line);
-  padding:10px 0 calc(10px + env(safe-area-inset-bottom));
+  padding:6px 0 calc(6px + env(safe-area-inset-bottom));  /* 由 10px → 6px */
 }
-
-  /* —— 輸入框：拉高（看起來更長） —— */
-.dmInputBar{display:flex;align-items:center;gap:10px;padding:0 12px}
+.dmInputBar{display:flex;align-items:center;gap:8px;padding:0 12px}
 .dmInputBar .box{
   flex:1;min-width:0;display:flex;align-items:center;
   background:#fff;border:1px solid var(--line);
-  height:50px;                     /* 由 42px → 50px */
-  padding:0 16px;border-radius:26px;
+  height:40px;                     /* 由 50px → 40px：更細 */
+  padding:0 14px;border-radius:22px;
 }
 .dmInputBar input{
   flex:1;border:none;outline:none;background:transparent;
-  font-size:17px;
+  font-size:16px;
 }
-  
-/* —— 底部相機/麥克風：取消底色與描邊，只留白底頁面的表情符號 —— */
+
+/* 底部相機/麥克風：縮小圖鈕尺寸，讓輸入框更長 */
 .iconBtn{
-  width:40px;height:40px;
+  width:34px;height:34px;          /* 由 40 → 34 */
   border:none;background:transparent;
   display:grid;place-items:center;
-  flex:0 0 auto;font-size:22px;line-height:1;
+  flex:0 0 auto;font-size:20px;line-height:1;
 }
 .iconBtn span{display:block;line-height:1}
 .camEmoji{transform:translate(-1px,.5px)}
 .micEmoji{transform:translate(-.5px,.5px)}
 
-/* —— 發送鍵：取消底色；僅以箭頭顏色表達狀態 —— */
+/* 發送鍵：維持透明，縮小按鈕本體 */
 .dmSend{
-  width:40px;height:40px;border:none;border-radius:0;
+  width:34px;height:34px;border:none;border-radius:0; /* 由 40 → 34 */
   background:transparent;
   color:#b2b7c8;                   /* 無字/不可送 → 灰 */
   display:grid;place-items:center;
@@ -256,12 +266,15 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
   overflow:hidden;
 }
 
-/* 讓 video 視覺上脫離泡泡（仍沿用現有 DOM） */
+/* 讓圖片/影片視覺上脫離泡泡（仍沿用現有 DOM） */
 .bubble.mediaWrap{ background:transparent; border:none; padding:0; border-radius:0; }
   
-/* ===== 語音泡泡（簡化款） ===== */
+/* ===== 語音泡泡（簡化款；顏色統一為右側藝人紫漸層） ===== */
 .bubble.voice{border-radius:18px;border:1px solid rgba(0,0,0,.08);background:#fff}
-.msg.right .bubble.voice{background:#2b2d3a;border-color:transparent;color:#fff}
+.msg.right .bubble.voice{
+  background:linear-gradient(180deg,var(--accent),var(--accent2));  /* 與右側文字一致 */
+  border-color:transparent;color:#fff;
+}
 
 .voiceUI{display:flex;align-items:center;gap:10px;min-width:190px}
 .voicePlay{
@@ -772,13 +785,13 @@ function renderThread(){
     const bubble=document.createElement('div'); bubble.className='bubble';
 
     if(m.type==='image'){
-  const img=document.createElement('img'); img.className='msgImg'; img.alt='';
-  bubble.classList.add('mediaWrap');   // ✅ 讓圖片脫離泡泡樣式
-  bubble.appendChild(img);
-  resolveMediaSrc(m).then(url=>{ img.src=url; }).catch(()=>{});
-}else if(m.type==='video'){
+      const img=document.createElement('img'); img.className='msgImg'; img.alt='';
+      bubble.classList.add('mediaWrap');   // ✅ 圖片脫離泡泡
+      bubble.appendChild(img);
+      resolveMediaSrc(m).then(url=>{ img.src=url; }).catch(()=>{});
+    }else if(m.type==='video'){
       const v=document.createElement('video'); v.className='msgVideo'; v.controls=true; v.playsInline=true; v.setAttribute('webkit-playsinline','');
-      bubble.classList.add('mediaWrap');  // 讓上面的 CSS 生效
+      bubble.classList.add('mediaWrap');  // ✅ 影片脫離泡泡
       bubble.appendChild(v);
       resolveMediaSrc(m).then(url=>{ v.src=url; }).catch(()=>{});
     }else if(m.type==='voice'){
