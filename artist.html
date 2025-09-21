@@ -165,12 +165,19 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 #threadPad{height:calc(var(--footer-h) + var(--kb-offset) + env(safe-area-inset-bottom,0px) + 2px);flex:0 0 auto;pointer-events:none}
 #endAnchor{height:1px;flex:0 0 auto}
 
-.msg{display:flex;align-items:flex-end;gap:8px;max-width:88%;margin:0 6px}
+:root{ --bubble-px:10px; --bubble-py:7px; --bubble-r:13px; --msg-max:78%; }
+.msg{display:flex;align-items:flex-end;gap:6px;max-width:var(--msg-max);margin:0 6px}
 .msg.left{flex-direction:row;align-self:flex-start}
 .msg.right{flex-direction:row-reverse;align-self:flex-end}
 .time{font-size:11px;color:rgba(255,255,255,.88);text-shadow:0 1px 2px rgba(0,0,0,.35)}
 .time.dark{color:#8b93a7}
-.bubble{max-width:100%;padding:10px 12px;border-radius:16px;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.92);position:relative}
+.bubble{
+  max-width:100%;
+  padding:var(--bubble-py) var(--bubble-px);
+  border-radius:var(--bubble-r);
+  border:1px solid rgba(255,255,255,.22);
+  background:rgba(255,255,255,.92);
+  position:relative;}
 .msg.right .bubble{background:linear-gradient(180deg,var(--accent),var(--accent2));color:#fff;border-color:transparent}
 .fromLabel{font-size:11px;font-weight:900;color:#6b78a8;margin-bottom:4px}
 .fanText{color:#111}
@@ -233,26 +240,37 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
   
 /* 媒體（圖片/影片） */
 .msgImg{max-width:min(68vw,300px);border-radius:12px;border:1px solid rgba(0,0,0,.08)}
-.msgVideo{width:min(68vw,300px);height:auto;border-radius:12px;border:1px solid rgba(0,0,0,.08)}
-
-/* ===== 語音泡泡（LINE 風） ===== */
-.bubble.voice{padding:12px 14px;border-radius:18px}
-.voiceUI{display:flex;align-items:center;gap:12px;min-width:210px}
-.voicePlay{
-  flex:0 0 auto;width:32px;height:32px;border-radius:50%;
-  display:grid;place-items:center;background:rgba(255,255,255,.24);
-  border:1px solid rgba(255,255,255,.32);color:#2b356f;
+.msgVideo{
+  display:block;
+  width:min(76vw,340px);
+  height:auto;
+  border-radius:12px;
+  border:1px solid rgba(0,0,0,.08);
+  overflow:hidden;
 }
-.msg.left .voicePlay{background:#f1f3ff;border-color:#e5e8f5;color:#2b356f}
-.msg.right .voicePlay{background:rgba(255,255,255,.20);border-color:rgba(255,255,255,.34);color:#fff}
-.voicePlay svg{width:16px;height:16px;display:block;fill:currentColor}
-.voiceBars{position:relative;flex:1;height:18px;display:flex;align-items:flex-end;gap:4px}
-.voiceBar{width:4px;height:8px;border-radius:3px;background:rgba(42,57,124,.25);transition:height .18s ease, background .18s ease;}
-.msg.right .voiceBar{background:rgba(255,255,255,.55)}
-.voiceUI.playing .voiceBar{animation:vbob .9s ease-in-out infinite}
-.voiceUI.playing .voiceBar:nth-child(odd){animation-delay:.12s}
-@keyframes vbob{0%,100%{height:6px}40%{height:18px}70%{height:10px}}
-.voiceDur{font-variant-numeric:tabular-nums;min-width:44px;text-align:right;font-weight:800;opacity:.85}
+
+/* 讓 video 視覺上脫離泡泡（仍沿用現有 DOM） */
+.bubble.mediaWrap{ background:transparent; border:none; padding:0; border-radius:0; }
+  
+/* ===== 語音泡泡（簡化款） ===== */
+.bubble.voice{border-radius:18px;border:1px solid rgba(0,0,0,.08);background:#fff}
+.msg.right .bubble.voice{background:#2b2d3a;border-color:transparent;color:#fff}
+
+.voiceUI{display:flex;align-items:center;gap:10px;min-width:190px}
+.voicePlay{
+  width:30px;height:30px;border-radius:50%;
+  display:grid;place-items:center;
+  background:rgba(0,0,0,.06); border:1px solid rgba(0,0,0,.08); color:#2b356f;
+}
+.msg.right .voicePlay{background:rgba(255,255,255,.18);border-color:rgba(255,255,255,.28);color:#fff}
+.voicePlay svg{width:16px;height:16px;fill:currentColor}
+
+.voiceBars{display:none!important}  /* 關掉原本的動畫條 */
+.voiceDur{
+  margin-left:6px;
+  font-variant-numeric:tabular-nums;
+  min-width:46px;text-align:right;font-weight:800;opacity:.9;
+}
 .msg.right .voiceDur{color:#fff}
 
 /* Reply Chip */
@@ -710,12 +728,15 @@ function buildVoiceUI(msg){
     dur.textContent = mmss(d||0);
   });
   media.addEventListener('timeupdate', ()=>{
-    if(segEnd>segStart && media.currentTime >= segEnd - 0.05){ toPause(); }
-  });
-  media.addEventListener('ended', toPause);
+  const total = (segEnd>segStart) ? (segEnd - segStart) : (media.duration||0);
+  const played = Math.max(0, (media.currentTime || 0) - (segStart||0));
+  const left = Math.max(0, total - played);
+  dur.textContent = mmss(Math.ceil(left));  // 右側顯示倒數
 
-  return ui;
-}
+  if(segEnd>segStart && media.currentTime >= segEnd - 0.05){
+    toPause();
+  }
+});
 
 /* ===================== DM Thread（渲染） ===================== */
 let replyDraft=null;
@@ -745,6 +766,7 @@ function renderThread(){
       resolveMediaSrc(m).then(url=>{ img.src=url; }).catch(()=>{});
     }else if(m.type==='video'){
       const v=document.createElement('video'); v.className='msgVideo'; v.controls=true; v.playsInline=true; v.setAttribute('webkit-playsinline','');
+      bubble.classList.add('mediaWrap');  // 讓上面的 CSS 生效
       bubble.appendChild(v);
       resolveMediaSrc(m).then(url=>{ v.src=url; }).catch(()=>{});
     }else if(m.type==='voice'){
