@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>NEXT’S YOU — artist（修正版：原生媒體選單／🎙️／圖示置中）</title>
+<title>NEXT’S YOU — artist（完整修正版）</title>
 
 <style>
 :root{
@@ -34,7 +34,7 @@ a{text-decoration:none;color:inherit} button{font:inherit;cursor:pointer}
 .chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:#f3f5ff;border:1px solid var(--line);font-size:12px}
 
 /* pages（底部只保留安全區；鍵盤位移交給 DM footer + JS） */
-section.page{display:none; padding:12px 12px calc(76px + var(--safe)); min-height:100svh;}
+section.page{ display:none; padding:12px 12px calc(76px + var(--safe)); min-height:100svh; }
 section.page.active{display:block;animation:fade .22s ease}
 @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 
@@ -88,7 +88,7 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 .nameRow{display:flex;align-items:center;gap:8px}
 .nameRow .stage{font-weight:900;letter-spacing:.3px}
 
-/* —— 方框 ARTIST 勳章 —— */
+/* —— 方框 ARTIST 勳章（紫藍白；DM 與列表共用） —— */
 .artistTag{
   display:inline-flex;align-items:center;justify-content:center;
   padding:3px 8px;border-radius:6px;
@@ -115,7 +115,7 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 .back{width:44px;height:44px;border:none;background:transparent;border-radius:0;padding:0;display:grid;place-items:center}
 .back svg{width:22px;height:22px;stroke:#5b6ab0;stroke-width:2.6;fill:none}
 
-/* 佔滿容器（底部墊高交給 #threadPad） */
+/* Thread */
 .thread{
   position:absolute; left:0; right:0;
   top:var(--hud-h); bottom:0;
@@ -127,7 +127,7 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 .thread .msg + .msg{ margin-top:12px; }
 
 /* 串尾 pad & 錨點 */
-#threadPad{height:calc(var(--footer-h) + var(--kb-offset) + env(safe-area-inset-bottom,0px) + 2px); flex:0 0 auto; pointer-events:none;}
+#threadPad{ height:calc(var(--footer-h) + var(--kb-offset) + env(safe-area-inset-bottom,0px) + 2px); flex:0 0 auto; pointer-events:none; }
 #endAnchor{ height:1px; flex:0 0 auto; }
 
 .msg{display:flex;align-items:flex-end;gap:8px;max-width:88%;margin:0 6px}
@@ -166,7 +166,7 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 }
 .replyBtn svg{ width:calc(var(--reply-size)*0.53); height:calc(var(--reply-size)*0.53); opacity:.85; }
 
-/* Composer */
+/* Composer 固定底部（鍵盤頂起） */
 .dmFooter{
   position:fixed;left:0;right:0;bottom:0;z-index:50;
   background:linear-gradient(180deg,rgba(255,255,255,.35),rgba(255,255,255,.96));
@@ -182,19 +182,18 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 }
 .dmInputBar input{flex:1;border:none;outline:none;background:transparent;font-size:17px}
 
-.dmIconBtn{
-  width:32px;height:32px;border-radius:10px;border:1px solid var(--line);
-  background:rgba(255,255,255,.88);
-  display:grid;place-items:center;flex:0 0 auto;
+.iconBtn{
+  width:34px;height:34px;border-radius:10px;border:1px solid var(--line);
+  background:#fff; display:grid; place-items:center; flex:0 0 auto;
 }
-.dmIconBtn .emo{font-size:19px;line-height:1;display:block;transform:translateX(-.5px)} /* 📸 右偏校正 */
-
+.dmCam{font-size:20px; line-height:1; transform:translateY(.5px);}   /* 📸 微調置中 */
+.dmMic{font-size:20px; line-height:1;}                               /* 🎙️ */
 .dmSend{
   width:40px;height:40px;border:none;border-radius:20px;
   background:#e9ecf4; color:#b2b7c8;
   display:grid;place-items:center;
 }
-.dmSend svg{width:20px;height:20px;fill:currentColor;stroke:currentColor;display:block;transform:translateY(-1px)} /* 箭頭微上移置中 */
+.dmSend svg{width:20px;height:20px;fill:currentColor;stroke:currentColor;display:block;transform:translateY(-.5px)} /* 箭頭置中 */
 .dmSend[disabled]{opacity:1;cursor:default}
 .hasText .dmSend{ background:#111; color:#fff; }
 
@@ -208,13 +207,23 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 #dmMenu{position:fixed;right:12px;top:64px;display:none;z-index:70}
 #dmMenu .row{flex-direction:column;gap:6px}
 
-/* Modal（背景裁切/預覽） */
+/* Modal 通用 */
 .modal{position:fixed;inset:0;z-index:80;display:none;background:rgba(0,0,0,.45)}
 .modal .panel{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(760px,94vw);background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px;box-shadow:0 12px 34px rgba(18,24,40,.16)}
+.modal .row{gap:10px}
+
+/* 背景裁切 */
 #cropStage{height:58vh;border:1px dashed var(--line);border-radius:12px;display:grid;place-items:center;overflow:hidden;background:#f8f9ff}
 #cropStage img{max-width:none;user-select:none;transform-origin:center center}
 .cropCtrls{display:flex;align-items:center;gap:10px;margin:12px 0}
 .cropCtrls .spacer{flex:1}
+
+/* 語音修剪 */
+#trimStage{padding:10px;border:1px dashed var(--line);border-radius:12px;background:#f8f9ff}
+#trimAudio{width:100%}
+.trimRow{display:flex;align-items:center;gap:8px;margin:8px 0}
+.trimRow input[type="range"]{flex:1}
+.trimMeta{font-size:12px;color:#6b78a8;font-weight:800}
 
 /* Reply Chip */
 .replyChip{
@@ -288,23 +297,24 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
       <span class="replyChipLabel">回覆：</span>
       <span id="replyChipText" class="replyChipText">—</span>
       <button class="replyChipClose" onclick="clearReply()">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+        </svg>
       </button>
     </div>
 
-    <!-- 新輸入列（📸 / 🎙️ / 送出） -->
+    <!-- 新輸入列 -->
     <div class="dmInputBar">
-      <button class="dmIconBtn" id="dmPlusBtn" aria-label="媒體"><span class="emo">📸</span></button>
+      <button class="iconBtn dmCam"  id="dmCamBtn"  aria-label="相片/影片">📸</button>
       <div class="box"><input id="dmMessageInput" placeholder="輸入訊息…" /></div>
-      <button class="dmIconBtn" id="dmVoiceBtn" aria-label="語音或錄影"><span class="emo">🎙️</span></button>
+      <button class="iconBtn dmMic"  id="dmVoiceBtn" aria-label="語音/影片">🎙️</button>
       <button class="dmSend" id="dmSendBtn" aria-label="Send" disabled>
-        <!-- 紙飛機箭頭（置中） -->
         <svg viewBox="0 0 24 24"><path d="M3.4 12.6l16.7-7.2c.6-.3 1.2.3.9.9l-7.2 16.7c-.3.7-1.3.6-1.5-.1l-2.1-6.1-6.1-2.1c-.7-.2-.8-1.2-.1-1.5z"/></svg>
       </button>
 
-      <!-- 隱藏的原生選單觸發器（只保留系統 action sheet） -->
+      <!-- 隱藏挑選器（呼叫原生選單） -->
       <input id="pickerMedia" type="file" accept="image/*,video/*" multiple style="display:none">
-      <input id="pickerVoice" type="file" accept="audio/*,video/*" multiple style="display:none">
+      <input id="pickerVoice" type="file" accept="audio/*,video/*" style="display:none">
     </div>
   </div>
 
@@ -317,7 +327,7 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
   </div>
 </section>
 
-<!-- ====================== 背景：挑圖 / 裁切 / 預覽 ====================== -->
+<!-- ===== 背景：挑圖 / 裁切 / 預覽 ===== -->
 <input id="bgChooser" type="file" accept="image/*" style="display:none">
 <div id="cropModal" class="modal">
   <div class="panel">
@@ -341,6 +351,31 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
     <div class="cropCtrls" style="justify-content:flex-end">
       <button class="chip" onclick="closePreview()">返回</button>
       <button class="chip" style="background:linear-gradient(180deg,var(--accent),var(--accent2));color:#fff;border:none" onclick="confirmPreview()">確認</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 語音修剪（高階 UI；可接你自己的剪輯條） ===== -->
+<div id="trimModal" class="modal">
+  <div class="panel">
+    <b style="font-weight:900">修剪語音（可試聽）</b>
+    <div id="trimStage">
+      <audio id="trimAudio" controls preload="metadata"></audio>
+      <div class="trimRow">
+        <span class="trimMeta">起點</span>
+        <input id="trimStart" type="range" min="0" max="0" step="0.1" value="0">
+        <span id="trimStartVal" class="trimMeta">0.0s</span>
+      </div>
+      <div class="trimRow">
+        <span class="trimMeta">終點</span>
+        <input id="trimEnd" type="range" min="0" max="0" step="0.1" value="0">
+        <span id="trimEndVal" class="trimMeta">0.0s</span>
+      </div>
+      <div class="sub" style="margin-top:6px">提示：播放時會自動從「起點」開始，跑到「終點」就停止。</div>
+    </div>
+    <div class="row" style="justify-content:flex-end;margin-top:10px">
+      <button class="chip" onclick="closeTrim()">取消</button>
+      <button class="chip" style="background:linear-gradient(180deg,var(--accent),var(--accent2));color:#fff;border:none" id="trimUseBtn">使用這段</button>
     </div>
   </div>
 </div>
@@ -414,7 +449,7 @@ const POSTS = LS.get('artistPosts',[
 /* 假粉絲 */
 const FANS=[{id:'f1',name:'Michelle',avatar:'https://picsum.photos/40?u=f1'},{id:'f2',name:'粉絲 B',avatar:'https://picsum.photos/40?u=f2'}];
 
-/* 訊息 */
+/* 訊息（可含文字 / image / video / audio/voice 及 voice 的起訖時間） */
 let GROUP_MSGS=LS.get('groupMsgs',[
   {id:'m1',from:'fan',fanId:'f1',text:'偶像好～',ts:Date.now()-1000*60*45},
   {id:'m2',from:'fan',fanId:'f2',text:'今天吃什麼？',ts:Date.now()-1000*60*43},
@@ -567,8 +602,19 @@ function renderThread(){
       bubble.innerHTML = `<video class="msgVideo" src="${m.src}" controls playsinline></video>`;
     }else if(m.type==='audio' || m.type==='voice'){
       bubble.classList.add('voice');
-      const tag = m.type==='audio' ? 'audio' : 'video'; // 影片也當語音條
-      bubble.innerHTML = `<${tag} class="voicePlayer" src="${m.src}" controls playsinline></${tag}>`;
+      // 使用 <audio> 呈現（影片也用 audio 播放它的聲音軌）
+      const start = m.start ?? 0, end = m.end ?? null;
+      const a = document.createElement('audio');
+      a.className='voicePlayer';
+      a.controls = true; a.preload='metadata'; a.src=m.src; a.dataset.start=start; if(end!=null) a.dataset.end=end;
+      // 播放區間控制
+      a.addEventListener('loadedmetadata', ()=>{ if(a.dataset.start){ a.currentTime = parseFloat(a.dataset.start)||0; }});
+      a.addEventListener('play', ()=>{ if(a.dataset.start){ a.currentTime = parseFloat(a.dataset.start)||0; }});
+      a.addEventListener('timeupdate', ()=>{
+        const e=parseFloat(a.dataset.end||'NaN');
+        if(!Number.isNaN(e) && a.currentTime>=e){ a.pause(); }
+      });
+      bubble.appendChild(a);
     }else{
       if(m.from==='fan'){
         const lab=document.createElement('div'); lab.className='fromLabel'; lab.textContent='FROM FAN';
@@ -619,11 +665,10 @@ function sendArtistMsg(){
   let t=(inp.value||'').trim(); 
   if(!t) return;
 
-  // ✅ 不做任何替換：藝人端保留 @@@
   GROUP_MSGS.push({
     id:'u'+Date.now(),
     from:'artist',
-    text:t,
+    text:t,  // ✅ 不替換 @@@
     ts:Date.now(),
     replyTo:replyDraft?{text:replyDraft.text}:null
   });
@@ -633,12 +678,13 @@ function sendArtistMsg(){
   hardStickBottom();
 }
 document.getElementById('dmSendBtn').addEventListener('click', sendArtistMsg);
-document.getElementById('dmMessageInput').addEventListener('keydown', e=>{
+const dmInput = document.getElementById('dmMessageInput');
+dmInput.addEventListener('keydown', e=>{
   if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); sendArtistMsg(); }
 });
+dmInput.addEventListener('focus', ()=>{ autoStick=true; setTimeout(hardStickBottom,0); setTimeout(hardStickBottom,120); });
 
 /* 發送鍵狀態：有字→黑色；沒字→灰 */
-const dmInput = document.getElementById('dmMessageInput');
 const sendBtn = document.getElementById('dmSendBtn');
 const footerEl = document.getElementById('dmFooter');
 function updateComposerUI(){
@@ -648,13 +694,16 @@ function updateComposerUI(){
 }
 dmInput.addEventListener('input', updateComposerUI);
 
-/* ---------- 上傳：📸（原生 action sheet） / 🎙️（音訊或錄影） ---------- */
+/* ---------- 上傳：📸（原生選單） / 🎙️（修剪） ---------- */
 const pickerMedia = document.getElementById('pickerMedia');
 const pickerVoice = document.getElementById('pickerVoice');
-document.getElementById('dmPlusBtn').addEventListener('click', ()=>pickerMedia.click());
+document.getElementById('dmCamBtn').addEventListener('click', ()=>{
+  // 直接觸發 input[type=file] => iOS/Android 原生底部選單
+  pickerMedia.click();
+});
 document.getElementById('dmVoiceBtn').addEventListener('click', ()=>pickerVoice.click());
 
-/* 檔案轉 DataURL（為了能存進 LS，避免 blob 失效） */
+/* 檔案轉 DataURL（為了能存進 LS） */
 function toDataURL(file){
   return new Promise((res,rej)=>{
     const fr=new FileReader();
@@ -664,6 +713,7 @@ function toDataURL(file){
   });
 }
 
+/* 圖片/影片：直接送進聊天室 */
 pickerMedia.addEventListener('change', async e=>{
   const files=[...e.target.files];
   for(const f of files){
@@ -682,21 +732,67 @@ pickerMedia.addEventListener('change', async e=>{
   e.target.value='';
 });
 
-pickerVoice.addEventListener('change', async e=>{
-  const files=[...e.target.files];
-  for(const f of files){
-    const data = await toDataURL(f);
-    const isAudio = f.type.startsWith('audio/');
-    GROUP_MSGS.push({
-      id:'v'+Date.now()+Math.random(),
-      from:'artist',
-      type: isAudio ? 'audio' : 'voice', // 影片也當語音泡泡（細長播放器）
-      src: data,
-      ts: Date.now()
-    });
-  }
+/* 🎙️：開修剪視窗（可用於音訊或影片，影片取其聲音） */
+let _trimCtx=null; // {src, duration}
+const trimModal = document.getElementById('trimModal');
+const trimAudio = document.getElementById('trimAudio');
+const trimStart = document.getElementById('trimStart');
+const trimEnd   = document.getElementById('trimEnd');
+const trimStartVal=document.getElementById('trimStartVal');
+const trimEndVal=document.getElementById('trimEndVal');
+
+function openTrim(src){
+  _trimCtx={src, duration:0};
+  trimAudio.src=src; trimAudio.load();
+  trimStart.disabled = trimEnd.disabled = true;
+  trimStartVal.textContent = '0.0s'; trimEndVal.textContent='0.0s';
+  trimModal.style.display='block';
+  setTimeout(()=>hardStickBottom(),0);
+}
+function closeTrim(){ trimModal.style.display='none'; trimAudio.pause(); _trimCtx=null; }
+trimAudio.addEventListener('loadedmetadata', ()=>{
+  const dur = Math.max(0, trimAudio.duration||0);
+  _trimCtx.duration = dur;
+  trimStart.min=0; trimStart.max=Math.max(0,(dur-0.1).toFixed(1)); trimStart.step=0.1; trimStart.value=0;
+  trimEnd.min=0.1; trimEnd.max=dur.toFixed(1); trimEnd.step=0.1; trimEnd.value=dur.toFixed(1);
+  trimStart.disabled = trimEnd.disabled = false;
+  trimStartVal.textContent = '0.0s';
+  trimEndVal.textContent = dur.toFixed(1)+'s';
+});
+function clampTrim(){
+  let s=parseFloat(trimStart.value)||0;
+  let e=parseFloat(trimEnd.value)||0;
+  if(e<=s+0.1){ e=s+0.1; trimEnd.value=e.toFixed(1); }
+  if(s>=e-0.1){ s=e-0.1; trimStart.value=s.toFixed(1); }
+  trimStartVal.textContent=s.toFixed(1)+'s';
+  trimEndVal.textContent=e.toFixed(1)+'s';
+  // 立即試聽從起點開始
+  if(!trimAudio.paused){ trimAudio.currentTime=s; }
+}
+trimStart.addEventListener('input', clampTrim);
+trimEnd.addEventListener('input', clampTrim);
+
+// 使用這段 => 存成 voice 訊息（播放時依 start/end 停止）
+document.getElementById('trimUseBtn').addEventListener('click', ()=>{
+  if(!_trimCtx) return;
+  const s=parseFloat(trimStart.value)||0, e=parseFloat(trimEnd.value)||_trimCtx.duration||0;
+  GROUP_MSGS.push({
+    id:'v'+Date.now()+Math.random(),
+    from:'artist',
+    type:'voice',
+    src:_trimCtx.src,
+    start:s, end:e,
+    ts:Date.now()
+  });
   LS.set('groupMsgs', GROUP_MSGS);
-  renderThread(); renderDmList(); hardStickBottom();
+  closeTrim(); renderThread(); renderDmList(); hardStickBottom();
+});
+
+// 取得檔案後不直接送，先修剪
+pickerVoice.addEventListener('change', async e=>{
+  const f=e.target.files?.[0]; if(!f){ e.target.value=''; return; }
+  const data = await toDataURL(f);
+  openTrim(data);
   e.target.value='';
 });
 
@@ -838,11 +934,9 @@ document.addEventListener('DOMContentLoaded', ()=>{
 
   renderStoryBar(); renderFeed(currentFilter); renderDmList();
 
-  // 初始量測
   measureHUD(); measureFooter();
   updateComposerUI();
 
-  // 若一開始就停在 DM 頁，保險貼底
   if(document.getElementById('dmThread')){ scrollToEndDuring(800); setTimeout(hardStickBottom,0); }
 });
 
