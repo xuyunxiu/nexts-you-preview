@@ -12,12 +12,10 @@
   --radius:16px; --shadow:0 12px 34px rgba(18,24,40,.08);
   --safe:env(safe-area-inset-bottom,0px);
   --kb-offset:0px;
-  --footer-h:72px;
+  --footer-h:60px;       /* ↓ footer 改小 */
   --hud-h:68px;
   --reply-size:30px;
   --reply-gap:18px;
-  /* 新增：媒體寬度上限 */
-  --media-max: min(64vw, 280px);
 }
 *{box-sizing:border-box}
 html,body{height:100%}
@@ -49,19 +47,13 @@ nav#nav.hidden{transform:translateY(120%)}
 nav#nav button{flex:1;border:none;background:transparent;padding:8px 0 6px;border-radius:12px;color:var(--sub);font-weight:800;font-size:13px}
 nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid var(--line)}
 
-/* header (home) */
-#homeHeader{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:6px 6px 10px}
-#homeHeader .me{display:flex;align-items:center;gap:10px}
-#homeHeader .me img{width:44px;height:44px;border-radius:50%;object-fit:cover;border:1px solid var(--line)}
-#homeHeader .me .id{font-size:12px;color:var(--ghost)}
-
-/* Verified 勳章 */
-.verified-badge{display:inline-block;width:18px;height:18px;margin-left:6px;vertical-align:middle}
+/* ---------- Verified 勳章：距離更近 ---------- */
+.verified-badge{display:inline-block;width:18px;height:18px;margin-left:4px;vertical-align:middle}
 .verified-badge svg{width:100%;height:100%;display:block}
 .verified-badge .gear{stroke:#fff;stroke-width:.9;filter:drop-shadow(0 1px 2px rgba(0,0,0,.25))}
 .verified-badge .tick{fill:#fff;filter:drop-shadow(0 1px 0 rgba(0,0,0,.18))}
 
-/* story bar */
+/* story bar（留在首頁） */
 #storyWrap{
   position:sticky;top:0;z-index:5;
   background:linear-gradient(180deg,rgba(245,247,255,.96),rgba(245,247,255,.90));
@@ -72,19 +64,23 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
   border-bottom:1px solid var(--line);scrollbar-width:none
 }
 #storyBar::-webkit-scrollbar{display:none}
-.story-item{
-  flex:0 0 auto;width:64px;text-align:center;cursor:pointer;position:relative
-}
-/* 重點：把圓頭像置中 */
-.story-item img{
-  width:56px;height:56px;border-radius:50%;
-  object-fit:cover;border:2px solid #d5d8f3;margin:0 auto
-}
+.story-item{flex:0 0 auto;width:64px;text-align:center;cursor:pointer;position:relative}
+.story-item img{width:56px;height:56px;border-radius:50%;object-fit:cover;border:2px solid #d5d8f3;margin:0 auto}
 .story-item .name{font-size:12px;margin-top:4px;color:#9aa1ad}
 .story-item.active img{border-color:var(--accent);box-shadow:0 0 0 2px rgba(106,90,205,.18)}
 .story-item.active .name{color:var(--accent);font-weight:700}
 .story-item .dot{position:absolute;right:6px;top:2px;width:8px;height:8px;background:var(--danger);border-radius:50%;box-shadow:0 0 0 2px #fff}
 .story-item.pinned img{border-color:#111}
+
+/* Home 右上標題（社群） */
+.homeTop{
+  display:flex;align-items:center;justify-content:flex-end;
+  padding:8px 8px 4px;
+}
+.homeTitle{
+  font-weight:900;letter-spacing:.6px;
+  font-size:22px;line-height:1;
+}
   
 /* post card */
 .post{margin:12px 6px}
@@ -95,70 +91,26 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 .post .body{margin-top:8px}
 .post .hero{width:100%;height:360px;object-fit:cover;border-radius:12px;border:1px solid var(--line)}
 
-/* DM 列表卡片：靠左排、緊鄰頭像但保留間距 */
-#dm .dmCard{
-  display:flex;
-  align-items:center;
-  justify-content:flex-start;
-  gap:12px;
-  padding:12px;
-  border:1px solid var(--line);
-  border-radius:14px;
-  background:var(--card);
-  margin:10px 0;
-  cursor:pointer;
-}
-
-/* 頭像維持不變 */
-#dm .dmCard img{
-  width:52px;height:52px;border-radius:50%;
-  object-fit:cover;border:1px solid var(--line);
-}
-
-/* 文案區靠左、可伸展，避免被擠壓 */
+/* DM 列表卡片 */
+#dm .dmCard{display:flex;align-items:center;justify-content:flex-start;gap:12px;padding:12px;border:1px solid var(--line);border-radius:14px;background:var(--card);margin:10px 0;cursor:pointer}
+#dm .dmCard img{width:52px;height:52px;border-radius:50%;object-fit:cover;border:1px solid var(--line)}
 .nameBlock{display:flex;flex-direction:column;gap:6px;flex:1;min-width:0}
-
-/* 徽章 + 名稱 同一行，貼近但留 8px 間距；名稱單行溢出省略 */
 .nameRow{display:flex;align-items:center;gap:8px;min-width:0}
-.nameRow .stage{
-  font-weight:900;letter-spacing:.3px;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-}
-
-/* 預覽文字一行省略，顏色淡一點 */
-.dmPreview{
-  display:block;color:var(--ghost);
-  max-width:62vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-}
-
-/* 徽章（沿用聊天室樣式） */
-.artistTag{
-  display:inline-flex;align-items:center;justify-content:center;
-  padding:3px 8px;border-radius:6px;font-size:10px;font-weight:900;letter-spacing:.6px;text-transform:uppercase;
-  color:#2e2a6f;background:linear-gradient(90deg,#bca7ff 0%,#8fb4ff 64%,#ffffff 100%);
-  border:1px solid #ded6ff;box-shadow:0 1px 6px rgba(106,90,205,.18);
-}
+.nameRow .stage{font-weight:900;letter-spacing:.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dmPreview{display:block;color:var(--ghost);max-width:62vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.artistTag{display:inline-flex;align-items:center;justify-content:center;padding:3px 8px;border-radius:6px;font-size:10px;font-weight:900;letter-spacing:.6px;text-transform:uppercase;color:#2e2a6f;background:linear-gradient(90deg,#bca7ff 0%,#8fb4ff 64%,#ffffff 100%);border:1px solid #ded6ff;box-shadow:0 1px 6px rgba(106,90,205,.18)}
 
 /* ===== DM Detail ===== */
-#dmDetail{
-  position:relative;background:#000;background-position:center;background-repeat:no-repeat;background-size:cover;background-attachment:scroll;
-}
+#dmDetail{position:relative;background:#000;background-position:center;background-repeat:no-repeat;background-size:cover;background-attachment:scroll;}
 #dmDetail::after{content:"";position:fixed;inset:0;pointer-events:none;background:rgba(0,0,0,var(--bgDim,.0));backdrop-filter:blur(var(--bgBlur,0px));z-index:-1}
 
-/* ======= HUD（置中標題、移除徽章，不影響貼底） ======= */
-.chatHUD{
-  /* 改成三欄 grid：左← / 中央標題 / 右… */
-  display:grid;grid-template-columns:44px 1fr 40px;align-items:center;
-  padding:6px 0 8px;
-}
-.chatHUD .center{min-width:0;text-align:center}
-.artistName{font-weight:900;letter-spacing:.6px;font-size:20px;color:#222}
-.hudBtn{
-  width:40px;height:40px;border:none;background:transparent;color:#fff;display:grid;place-items:center;
-}
-.hudBtn:active{ transform:scale(.96); }
-.back{width:44px;height:44px;border:none;background:transparent;border-radius:0;padding:0;display:grid;place-items:center}
+/* ---------- HUD：標題置中、移除徽章 ---------- */
+.chatHUD{display:flex;align-items:center;justify-content:space-between;padding:4px 0 8px}
+.back,.hudBtn{width:44px;height:44px;border:none;background:transparent;display:grid;place-items:center}
 .back svg{width:22px;height:22px;stroke:#5b6ab0;stroke-width:2.6;fill:none}
+.hudBtn{color:#fff}
+.chatHUD .center{flex:1;min-width:0;display:flex;justify-content:center}
+.artistName{font-weight:900;letter-spacing:.6px;font-size:18px}
 
 /* thread */
 .thread{position:absolute;left:0;right:0;top:var(--hud-h);bottom:0;overflow-y:auto;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column;padding:8px 2px;scrollbar-gutter:stable both-edges}
@@ -166,37 +118,28 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 #threadPad{height:calc(var(--footer-h) + var(--kb-offset) + env(safe-area-inset-bottom,0px) + 2px);flex:0 0 auto;pointer-events:none}
 #endAnchor{height:1px;flex:0 0 auto}
 
+/* 氣泡 & 位置 */
 :root{ --bubble-px:10px; --bubble-py:7px; --bubble-r:13px; --msg-max:78%; }
 .msg{display:flex;align-items:flex-end;gap:6px;max-width:var(--msg-max);margin:0 6px}
 .msg.left{flex-direction:row;align-self:flex-start}
 .msg.right{flex-direction:row-reverse;align-self:flex-end}
-.time{font-size:11px;color:rgba(255,255,255,.88);text-shadow:0 1px 2px rgba(0,0,0,.35)}
-.time.dark{color:#8b93a7}
-.bubble{
-  max-width:100%;
-  padding:var(--bubble-py) var(--bubble-px);
-  border-radius:var(--bubble-r);
-  border:1px solid rgba(255,255,255,.22);
-  background:rgba(255,255,255,.92);
-  position:relative;
-}
-/* 重要：避免覆蓋脫泡泡的媒體 */
-.msg.right .bubble:not(.mediaWrap){background:linear-gradient(180deg,var(--accent),var(--accent2));color:#fff;border-color:transparent}
+.time{font-size:11px;color:rgba(255,255,255,.88);text-shadow:0 1px 2px rgba(0,0,0,.35);white-space:nowrap}
+.time.dark{color:#8b93a7;white-space:nowrap}
+.bubble{max-width:100%;padding:var(--bubble-py) var(--bubble-px);border-radius:var(--bubble-r);border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.92);position:relative}
+.msg.right .bubble{background:linear-gradient(180deg,var(--accent),var(--accent2));color:#fff;border-color:transparent}
 .fromLabel{font-size:11px;font-weight:900;color:#6b78a8;margin-bottom:4px}
 .fanText{color:#111}
 
 /* 回覆卡 */
-.replyCard{align-self:flex-end;max-width:74%;margin:14px 6px 0;padding:10px 12px;border-radius:14px;background:rgba(255,255,255,.86);
-  border:1px solid rgba(0,0,0,.06);box-shadow:0 8px 18px rgba(0,0,0,.12);backdrop-filter:saturate(140%) blur(1.5px);word-break:break-word}
+.replyCard{align-self:flex-end;max-width:74%;margin:14px 6px 0;padding:10px 12px;border-radius:14px;background:rgba(255,255,255,.86);border:1px solid rgba(0,0,0,.06);box-shadow:0 8px 18px rgba(0,0,0,.12);backdrop-filter:saturate(140%) blur(1.5px);word-break:break-word}
 .replyCard .fromLabel{font-size:11px;font-weight:900;letter-spacing:.3px;color:#6d78aa;margin-bottom:4px}
 .thread .msg + .replyCard,.thread .replyCard + .msg{margin-top:12px}
 
 /* 回覆箭頭 */
-.replyBtn{position:absolute;top:50%;right:calc(-1*(var(--reply-size) + var(--reply-gap)));transform:translateY(-50%);width:var(--reply-size);height:var(--reply-size);
-  border-radius:999px;border:1px solid rgba(0,0,0,.08);background:rgba(255,255,255,.92);box-shadow:0 6px 14px rgba(0,0,0,.12);display:flex;align-items:center;justify-content:center;z-index:2}
+.replyBtn{position:absolute;top:50%;right:calc(-1*(var(--reply-size) + var(--reply-gap)));transform:translateY(-50%);width:var(--reply-size);height:var(--reply-size);border-radius:999px;border:1px solid rgba(0,0,0,.08);background:rgba(255,255,255,.92);box-shadow:0 6px 14px rgba(0,0,0,.12);display:flex;align-items:center;justify-content:center;z-index:2}
 .replyBtn svg{width:calc(var(--reply-size)*0.53);height:calc(var(--reply-size)*0.53);opacity:.85}
 
-/* ===== Footer（縮小、長而細的輸入框） ===== */
+/* ---------- Footer（更小、輸入框更長更細） ---------- */
 .dmFooter{
   position:fixed;left:0;right:0;
   bottom: max(env(safe-area-inset-bottom, 0px), var(--kb-offset));
@@ -204,76 +147,59 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
   background:linear-gradient(180deg,rgba(255,255,255,.35),rgba(255,255,255,.96));
   backdrop-filter:blur(10px);
   border-top:1px solid var(--line);
-  padding:6px 0 calc(8px + env(safe-area-inset-bottom));
+  padding:6px 0 calc(6px + env(safe-area-inset-bottom));
 }
 .dmInputBar{display:flex;align-items:center;gap:8px;padding:0 10px}
-.dmInputBar .box{
-  flex:1;min-width:0;display:flex;align-items:center;
-  background:#fff;border:1px solid var(--line);
-  height:42px;                /* 更細 */
-  padding:0 16px;border-radius:24px;
-}
-.dmInputBar input{flex:1;border:none;outline:none;background:transparent;font-size:16px}
-.iconBtn{
-  width:34px;height:34px;border:none;background:transparent;display:grid;place-items:center;flex:0 0 auto;font-size:20px;line-height:1;
-}
+.iconBtn{width:34px;height:34px;border:none;background:transparent;display:grid;place-items:center;flex:0 0 auto;font-size:20px;line-height:1}
 .iconBtn span{display:block;line-height:1}
-.camEmoji{transform:translate(-1px,.5px)}
-.micEmoji{transform:translate(-.5px,.5px)}
+.camEmoji{transform:translate(-1px,.5px)} .micEmoji{transform:translate(-.5px,.5px)}
+.dmInputBar .box{flex:1;min-width:0;display:flex;align-items:center;background:#fff;border:1px solid var(--line);height:42px;padding:0 16px;border-radius:24px}
+.dmInputBar input{flex:1;border:none;outline:none;background:transparent;font-size:16px}
 .dmSend{width:34px;height:34px;border:none;border-radius:0;background:transparent;color:#b2b7c8;display:grid;place-items:center}
-.dmSend svg{width:20px;height:20px;display:block;transform:none}
-.hasText .dmSend{ color:#111; }
+.dmSend svg{width:22px;height:22px;display:block}
+.hasText .dmSend{color:#111}
 
-/* ===== 媒體（圖片/影片）尺寸下修，且全部脫離泡泡 ===== */
+/* ---------- 媒體（圖片/影片）尺寸一致、脫離泡泡 ---------- */
 .msgImg,.msgVideo{
   display:block;
-  width:var(--media-max);
+  width:min(66vw,300px);
   height:auto;
   border-radius:12px;
   border:1px solid rgba(0,0,0,.08);
   overflow:hidden;
 }
-.bubble.mediaWrap{ background:transparent!important; border:none!important; padding:0!important; border-radius:0!important; }
+.bubble.mediaWrap{background:transparent;border:none;padding:0;border-radius:0}
 
-/* ===== 語音泡泡（同右側顏色 & 依長度變化） ===== */
+/* ---------- 語音泡泡（右側同藝人顏色；寬度依時長） ---------- */
 .bubble.voice{border-radius:18px;border:1px solid rgba(0,0,0,.08);background:#fff}
 .msg.right .bubble.voice{background:linear-gradient(180deg,var(--accent),var(--accent2));border-color:transparent;color:#fff}
-.voiceUI{display:flex;align-items:center;gap:10px;min-width:120px}
-.voicePlay{
-  width:30px;height:30px;border-radius:50%;
-  display:grid;place-items:center;
-  background:rgba(0,0,0,.06); border:1px solid rgba(0,0,0,.08); color:#2b356f;
-}
+.voiceUI{display:flex;align-items:center;gap:10px;min-width:140px}
+.voicePlay{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:rgba(0,0,0,.06);border:1px solid rgba(0,0,0,.08);color:#2b356f}
 .msg.right .voicePlay{background:rgba(255,255,255,.18);border-color:rgba(255,255,255,.28);color:#fff}
 .voicePlay svg{width:16px;height:16px;fill:currentColor}
 .voiceBars{display:none!important}
 .voiceDur{margin-left:6px;font-variant-numeric:tabular-nums;min-width:46px;text-align:right;font-weight:800;opacity:.9}
 .msg.right .voiceDur{color:#fff}
 
-/* ===== 系統分隔：日期 & 未讀 ===== */
-.daySep{display:flex;justify-content:center;margin:10px 0}
-.daySep span{padding:6px 10px;border-radius:12px;border:1px solid rgba(255,255,255,.28);background:rgba(255,255,255,.16);backdrop-filter:blur(2px);font-weight:900;color:#fff;letter-spacing:.3px}
-.unreadSep{position:relative;margin:12px 6px;display:flex;justify-content:center}
-.unreadSep .pill{
-  padding:8px 14px;border-radius:12px;font-weight:900;letter-spacing:.3px;color:#fff;background:rgba(106,90,205,.85);
-  box-shadow:0 2px 10px rgba(0,0,0,.20)
-}
+/* Reply Chip */
+.replyChip{position:relative;display:flex;align-items:center;gap:8px;margin:0 14px 8px;padding:8px 36px 8px 12px;border-radius:13px;border:1px solid rgba(255,255,255,.28);background:rgba(255,255,255,.12);backdrop-filter:saturate(140%) blur(1.5px)}
+.replyChipLabel{font-size:12px;font-weight:900;letter-spacing:.35px;color:#7a86b7;margin-right:2px;user-select:none}
+.replyChipText{flex:1;min-width:0;font-size:15px;line-height:1.25;font-weight:600;color:#2f3564;opacity:.95;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.replyChipClose{position:absolute;top:6px;right:6px;width:28px;height:28px;display:grid;place-items:center;border:none;background:transparent;color:#6f78aa;border-radius:6px;cursor:pointer}
+.replyChipClose:hover{background:rgba(255,255,255,.10)}
+.replyChipClose svg{width:18px;height:18px;display:block}
 
 /* —— 系統通知（透明覆蓋在 Footer 上方） —— */
 .inlineNotice{
   position:fixed;left:16px;right:16px;
   bottom:calc(var(--footer-h) + var(--kb-offset) + env(safe-area-inset-bottom,0px) + 10px);
-  z-index:46;
-  text-align:center;font-weight:900;letter-spacing:.3px;
-  color:rgba(255,255,255,.96);
-  text-shadow:0 1px 2px rgba(0,0,0,.35);
-  pointer-events:none;user-select:none;
-  opacity:0;transform:translateY(6px);
+  z-index:46;text-align:center;font-weight:900;letter-spacing:.3px;color:rgba(255,255,255,.96);
+  text-shadow:0 1px 2px rgba(0,0,0,.35);pointer-events:none;user-select:none;opacity:0;transform:translateY(6px);
   transition:opacity .18s ease, transform .18s ease;
 }
 .inlineNotice.show{opacity:1;transform:none}
 
-/* Modal（背景裁切/預覽/語音修剪） */
+/* Modal：背景裁切/預覽/語音修剪 */
 .modal{position:fixed;inset:0;z-index:80;display:none;background:rgba(0,0,0,.45)}
 .modal .panel{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(760px,94vw);background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px;box-shadow:0 12px 34px rgba(18,24,40,.16)}
 #cropStage{height:58vh;border:1px dashed var(--line);border-radius:12px;display:grid;place-items:center;overflow:hidden;background:#f8f9ff}
@@ -290,25 +216,26 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 .btnPrimary{background:linear-gradient(180deg,var(--accent),var(--accent2));color:#fff;border:none}
 .btn{padding:6px 14px;border-radius:999px;border:1px solid var(--line);background:#fff}
 
+/* ---------- 日期分隔 & 未讀分隔 ---------- */
+.dayDivider{align-self:center;margin:10px 0;padding:4px 10px;border-radius:999px;background:rgba(0,0,0,.15);color:#fff;font-size:12px;font-weight:900;letter-spacing:.3px;backdrop-filter:blur(3px)}
+.unreadLine{align-self:center;margin:8px 0;padding:6px 12px;border-radius:8px;background:rgba(106,90,205,.18);color:#2e2a6f;font-size:12px;font-weight:900;border:1px solid rgba(106,90,205,.35)}
+
 /* 小工具 */
 .badge{background:#ff3b30;color:#fff;font-size:12px;padding:2px 7px;border-radius:999px;min-width:22px;text-align:center}
+
+/* ---- 全螢幕媒體檢視器 ---- */
+#viewer{position:fixed;inset:0;z-index:90;display:none;background:rgba(0,0,0,.9)}
+#viewer .stage{position:absolute;inset:0;display:grid;place-items:center}
+#viewerImg,#viewerVideo{max-width:94vw;max-height:88vh;border-radius:12px}
 </style>
 </head>
 <body>
 
 <!-- ====================== HOME（藝人） ====================== -->
 <section id="home" class="page active">
-  <div id="homeHeader">
-    <div class="me">
-      <img id="meAvatar" src="https://picsum.photos/80?u=artist" onerror="imgFallback(this)">
-      <div>
-        <div id="meNickname" style="font-weight:900">Annie</div>
-        <div class="id" id="meId">ARTIST-00001</div>
-      </div>
-    </div>
-    <button class="chip" id="btnEditNick">✏️ 更改我的暱稱</button>
-  </div>
-
+<div class="homeTop">
+  <div class="homeTitle">社群</div>
+</div>
   <div id="storyWrap"><div id="storyBar"></div></div>
   <div id="feedWrap"></div>
 
@@ -336,7 +263,7 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 
   <div id="dmThread" class="thread"></div>
 
-  <!-- ✅ 透明系統通知（僅在聊天室內顯示） -->
+  <!-- 透明通知 -->
   <div id="chatNotice" class="inlineNotice" style="display:none">粉絲在等你的訊息哦😊</div>
   
   <!-- Footer -->
@@ -355,7 +282,6 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
         <svg viewBox="0 0 24 24"><path d="M3.4 12.6l16.7-7.2c.6-.3 1.2.3.9.9l-7.2 16.7c-.3.7-1.3.6-1.5-.1l-2.1-6.1-6.1-2.1c-.7-.2-.8-1.2-.1-1.5z" fill="currentColor"/></svg>
       </button>
 
-      <!-- 隱藏挑選器 -->
       <input id="pickMedia" type="file" accept="image/*,video/*" multiple style="display:none">
       <input id="pickVoice" type="file" accept="audio/*,video/*" style="display:none">
     </div>
@@ -370,66 +296,72 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
   </div>
 </section>
 
+<!-- ====================== STORE = Profile ====================== -->
+<section id="store" class="page">
+  <div id="homeHeader" style="display:block;margin:6px 6px 10px">
+    <div class="me" style="display:flex;align-items:center;gap:10px">
+      <img id="meAvatar" src="https://picsum.photos/80?u=artist" onerror="imgFallback(this)" style="width:44px;height:44px;border-radius:50%;object-fit:cover;border:1px solid var(--line)">
+      <div>
+        <div id="meNickname" style="font-weight:900">Annie</div>
+        <div class="id" id="meId" style="font-size:12px;color:var(--ghost)">ARTIST-00001</div>
+      </div>
+    </div>
+    <button class="chip" id="btnEditNick" style="margin-left:auto;display:inline-flex">✏️ 更改我的暱稱</button>
+  </div>
+</section>
+
 <!-- ====================== 背景：挑圖 / 裁切 / 預覽 ====================== -->
 <input id="bgChooser" type="file" accept="image/*" style="display:none">
-<div id="cropModal" class="modal">
-  <div class="panel">
-    <b style="font-weight:900">裁切背景</b>
-    <div id="cropStage"><img id="cropImg" alt=""></div>
-    <div class="cropCtrls">
-      <button class="chip" onclick="rotateCrop()">↻ 旋轉 90°</button>
-      <label class="chip">縮放 <input id="cropScale" type="range" min="80" max="220" value="140" style="vertical-align:middle"></label>
-      <div class="spacer"></div>
-      <button class="chip" onclick="closeCrop()">取消</button>
-      <button class="chip btnPrimary" onclick="applyCrop()">下一步</button>
-    </div>
+<div id="cropModal" class="modal"><div class="panel">
+  <b style="font-weight:900">裁切背景</b>
+  <div id="cropStage"><img id="cropImg" alt=""></div>
+  <div class="cropCtrls">
+    <button class="chip" onclick="rotateCrop()">↻ 旋轉 90°</button>
+    <label class="chip">縮放 <input id="cropScale" type="range" min="80" max="220" value="140" style="vertical-align:middle"></label>
+    <div class="spacer"></div>
+    <button class="chip" onclick="closeCrop()">取消</button>
+    <button class="chip btnPrimary" onclick="applyCrop()">下一步</button>
   </div>
-</div>
-<div id="previewModal" class="modal">
-  <div class="panel">
-    <b style="font-weight:900">預覽背景</b>
-    <div style="height:48vh;border:1px dashed var(--line);border-radius:12px;overflow:hidden;background:#000">
-      <div id="bgPreviewMini" style="height:100%;background-position:center;background-size:cover;background-repeat:no-repeat"></div>
-    </div>
-    <div class="cropCtrls" style="justify-content:flex-end">
-      <button class="chip" onclick="closePreview()">返回</button>
-      <button class="chip btnPrimary" onclick="confirmPreview()">確認</button>
-    </div>
+</div></div>
+
+<div id="previewModal" class="modal"><div class="panel">
+  <b style="font-weight:900">預覽背景</b>
+  <div style="height:48vh;border:1px dashed var(--line);border-radius:12px;overflow:hidden;background:#000">
+    <div id="bgPreviewMini" style="height:100%;background-position:center;background-size:cover;background-repeat:no-repeat"></div>
   </div>
-</div>
+  <div class="cropCtrls" style="justify-content:flex-end">
+    <button class="chip" onclick="closePreview()">返回</button>
+    <button class="chip btnPrimary" onclick="confirmPreview()">確認</button>
+  </div>
+</div></div>
 
 <!-- ====================== 語音修剪（可試聽） ====================== -->
-<div id="trimModal" class="modal">
-  <div class="panel">
-    <b style="font-weight:900">修剪語音（可試聽）</b>
-    <div class="trimBox">
-      <video id="trimMedia" playsinline style="display:none"></video>
-
-      <div class="trimRow">
-        <button class="btn" id="trimPlay">▶️ 播放</button>
-        <div class="vBar" style="flex:1"><div id="trimFill" class="vFill" style="background:#6a5acd;height:6px;border-radius:999px;width:0%"></div></div>
-        <div id="trimClock" class="vTime">0:00</div>
-      </div>
-
-      <div class="trimRow">
-        <span class="ghost" style="width:36px">起點</span>
-        <input id="trimStart" class="range" type="range" min="0" max="1000" value="0">
-        <span id="trimStartLabel" class="ghost">0.0s</span>
-      </div>
-      <div class="trimRow">
-        <span class="ghost" style="width:36px">終點</span>
-        <input id="trimEnd" class="range" type="range" min="0" max="1000" value="1000">
-        <span id="trimEndLabel" class="ghost">0.0s</span>
-      </div>
-
-      <div class="tip">提示：播放時會自動從「起點」開始，跑到「終點」就停止。</div>
-      <div class="btnRow">
-        <button class="btn" onclick="closeTrim()">取消</button>
-        <button class="btn btnPrimary" id="trimUse">使用這段</button>
-      </div>
+<div id="trimModal" class="modal"><div class="panel">
+  <b style="font-weight:900">修剪語音（可試聽）</b>
+  <div class="trimBox">
+    <video id="trimMedia" playsinline style="display:none"></video>
+    <div class="trimRow">
+      <button class="btn" id="trimPlay">▶️ 播放</button>
+      <div class="vBar" style="flex:1"><div id="trimFill" class="vFill" style="background:#6a5acd;height:6px;border-radius:999px;width:0%"></div></div>
+      <div id="trimClock" class="vTime">0:00</div>
+    </div>
+    <div class="trimRow">
+      <span class="ghost" style="width:36px">起點</span>
+      <input id="trimStart" class="range" type="range" min="0" max="1000" value="0">
+      <span id="trimStartLabel" class="ghost">0.0s</span>
+    </div>
+    <div class="trimRow">
+      <span class="ghost" style="width:36px">終點</span>
+      <input id="trimEnd" class="range" type="range" min="0" max="1000" value="1000">
+      <span id="trimEndLabel" class="ghost">0.0s</span>
+    </div>
+    <div class="tip">提示：播放時會自動從「起點」開始，跑到「終點」就停止。</div>
+    <div class="btnRow">
+      <button class="btn" onclick="closeTrim()">取消</button>
+      <button class="btn btnPrimary" id="trimUse">使用這段</button>
     </div>
   </div>
-</div>
+</div></div>
 
 <!-- ====================== Composer（＋） ====================== -->
 <section id="composerArtist" class="page">
@@ -438,12 +370,10 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
     <b style="font-weight:900">NEXT ONE</b>
     <div class="sub" id="composerWho" style="margin-left:auto;font-weight:800;letter-spacing:.3px">—</div>
   </div>
-
   <div class="soft card" id="composeBox">
     <textarea id="composeText" rows="4" placeholder="在想些什麼？（輸入 @@@ 可自動帶入粉絲名稱示範）"></textarea>
     <div id="composePreview" class="row" style="flex-wrap:wrap;gap:8px;margin-top:10px"></div>
   </div>
-
   <div class="row" style="gap:10px;margin-top:12px">
     <label class="chip">選擇檔案
       <input id="composeMedia" type="file" multiple accept="image/*,video/*" onchange="previewComposeMedia(event)" style="display:none">
@@ -460,6 +390,14 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
   <button id="tabLive" onclick="showPage('live')">直播</button>
   <button id="tabStore" onclick="showPage('store')">商店</button>
 </nav>
+
+<!-- 全螢幕媒體檢視器 -->
+<div id="viewer" onclick="closeViewer()">
+  <div class="stage">
+    <img id="viewerImg" alt="" style="display:none">
+    <video id="viewerVideo" controls playsinline style="display:none"></video>
+  </div>
+</div>
 
 <script>
 /* ===================== 工具 ===================== */
@@ -478,7 +416,7 @@ const s2clock = s => { s = Math.max(0, s||0); const m = Math.floor(s/60), r = Ma
 const mmss = sec => { sec = Math.max(0, Math.floor(sec || 0)); const m = Math.floor(sec/60), s = sec % 60; return `${m}:${s.toString().padStart(2,'0')}`; };
 const escapeHtml = s => (s||'').toString().replace(/[&<>"']/g, m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;" }[m]));
 
-/* ===== IndexedDB：媒體存這裡（刷新不會消失） ===== */
+/* ===== IndexedDB：媒體存這裡 ===== */
 const MEDIA_DB = (()=> {
   const DB_NAME='nxu-media-db', STORE='media';
   let db=null; const urlCache=new Map();
@@ -533,15 +471,8 @@ let GROUP_MSGS=LS.get('groupMsgs',[
   {id:'m2',from:'fan',fanId:'f2',text:'今天吃什麼？',ts:Date.now()-1000*60*43},
   {id:'m3',from:'artist',text:'我午餐吃了沙拉 🥗',ts:Date.now()-1000*60*40,replyTo:{text:'今天吃什麼？'}}
 ]);
-
-/* ====== 既有 lastSeen（首頁故事用） ====== */
 const lastSeen = LS.get('lastSeen', {});
-
-/* ====== 新增：已讀時間（聊天室定位 & 未讀分隔） ====== */
-const READ_KEY = 'groupLastRead';
-function getLastRead(){ return LS.get(READ_KEY, 0); }
-function setLastRead(ts){ LS.set(READ_KEY, ts); }
-
+  
 /* ===================== 導航 ===================== */
 const HIDE_NAV_IN=['dmDetail','composerArtist'];
 let PAGE_STACK=['home'];
@@ -561,20 +492,15 @@ function showPage(id){
   if(id==='dm'){ renderDmList(); }
   if(id==='dmDetail'){
     measureHUD(); measureFooter(); renderThread(); applyChatBg();
-    // 進聊天室：捲到未讀；如果沒有未讀→貼底
-    const ua=document.getElementById('unreadAnchor');
-    if(ua){ autoStick=false; setTimeout(()=>{ ua.scrollIntoView({block:'center'}); },0); }
-    else{ autoStick=true; scrollToEndDuring(800); setTimeout(hardStickBottom,0); }
     bindBottomObserver(); bindScrollGuard();
+  autoStick=true;
+scrollToEndDuring(800);
+setTimeout(hardStickBottom,0);
     updateNoticeBanner();
   }
   if(id==='composerArtist'){ document.getElementById('composerWho').textContent=NICKNAME; }
 }
-function goBack(){
-  // 離開聊天室即更新已讀到目前最後一則
-  if(PAGE_STACK[PAGE_STACK.length-1]==='dmDetail'){ setLastRead(getLastTs()); }
-  PAGE_STACK.pop(); const prev=PAGE_STACK[PAGE_STACK.length-1]||'home'; showPage(prev);
-}
+function goBack(){ PAGE_STACK.pop(); const prev=PAGE_STACK[PAGE_STACK.length-1]||'home'; showPage(prev); }
 
 /* ===================== HOME：Story Bar / Feed ===================== */
 let currentFilter='me';
@@ -670,7 +596,13 @@ function renderDmList(){
     </div><span></span></div>`;
 }
 
-/* ============ 語音 UI（依秒數調整寬度） ============ */
+/* ===================== 語音泡泡（有影像軌用 <video>） ===================== */
+function voiceWidthByDur(sec){
+  const d = Math.max(0, sec||0);
+  const minW=140, maxW=280, cap=60; // 0s→140px，60s+→280px
+  const w = minW + (Math.min(d,cap)/cap)*(maxW-minW);
+  return Math.round(w);
+}
 function buildVoiceUI(msg){
   const segStart = Number(msg.segStart || msg.start || 0);
   const segEnd   = Number(msg.segEnd   || msg.end   || 0);
@@ -711,13 +643,9 @@ function buildVoiceUI(msg){
   btn.onclick = ()=> media.paused ? toPlay() : toPause();
 
   media.addEventListener('loadedmetadata', ()=>{
-    const clip = (segEnd>segStart) ? (segEnd - segStart) : (media.duration||0);
-    dur.textContent = mmss(clip||0);
-    // 依時長調整寬度：1s~60s → 120~300px（再限制不超過媒體上限）
-    const minW=120, maxW=300;
-    const secs = Math.max(1, Math.min(60, Math.round(clip||1)));
-    const px = Math.round(minW + (maxW-minW) * (secs/60));
-    ui.style.width = Math.min(px, 300) + 'px';
+    const d = (segEnd>segStart) ? (segEnd - segStart) : (media.duration||0);
+    dur.textContent = mmss(d||0);
+    ui.style.width = voiceWidthByDur(d||0) + 'px';
   });
 
   media.addEventListener('timeupdate', ()=>{
@@ -727,64 +655,47 @@ function buildVoiceUI(msg){
     dur.textContent = mmss(Math.ceil(left));
     if(segEnd>segStart && media.currentTime >= segEnd - 0.05){ toPause(); }
   });
+
   media.addEventListener('ended', toPause);
+
   return ui;
 }
   
-/* ===================== 日期/未讀輔助 ===================== */
-function isSameDay(a,b){
-  const da=new Date(a), db=new Date(b);
-  return da.getFullYear()==db.getFullYear() && da.getMonth()==db.getMonth() && da.getDate()==db.getDate();
-}
-function dayLabel(ts){
-  const now = new Date(); const d = new Date(ts);
-  const one = 24*60*60*1000;
-  const diffDays = Math.floor((new Date(now.getFullYear(),now.getMonth(),now.getDate()) - new Date(d.getFullYear(),d.getMonth(),d.getDate()))/one);
-  if(diffDays===0) return '今天';
-  if(diffDays===1) return '昨天';
-  if(diffDays>=7){
-    return `${d.getMonth()+1}/${d.getDate()}`;
-  }
-  return `${d.getMonth()+1}/${d.getDate()}`; // 2~6 天就直接顯示 M/D
-}
-
 /* ===================== DM Thread（渲染） ===================== */
 let replyDraft=null;
 
 async function resolveMediaSrc(m){
-  if(m.src) return m.src;
-  if(m.mediaId) return await MEDIA_DB.getURL(m.mediaId);
+  if(m.src) return m.src;                   // 舊資料（DataURL）仍可顯示
+  if(m.mediaId) return await MEDIA_DB.getURL(m.mediaId); // 新流程（IndexedDB）
   return '';
+}
+
+/* 日期分隔文字 */
+function dayLabel(ts){
+  const d=new Date(ts), now=new Date();
+  const ymd = (x)=>[x.getFullYear(),x.getMonth(),x.getDate()].join('-');
+  const diffDays = Math.floor((new Date(now.getFullYear(),now.getMonth(),now.getDate()) - new Date(d.getFullYear(),d.getMonth(),d.getDate()))/86400000);
+  if(ymd(d)===ymd(now)) return '今天';
+  if(diffDays===1) return '昨天';
+  if(diffDays>=7){
+    return `${d.getMonth()+1}月${d.getDate()}日`;
+  }
+  return `${d.getMonth()+1}月${d.getDate()}日`; // 一週內非今/昨，仍顯示月日
 }
 
 function renderThread(){
   const box=document.getElementById('dmThread'); box.innerHTML='';
-  const lastRead = getLastRead();
-  let lastDay = null;
-  let unreadInserted = false;
-
-  GROUP_MSGS.forEach((m, idx)=>{
-    // 日期分隔
-    const curDayKey = new Date(m.ts).toDateString();
-    if(curDayKey !== lastDay){
-      const sep=document.createElement('div'); sep.className='daySep';
-      sep.innerHTML = `<span>${dayLabel(m.ts)}</span>`;
-      box.appendChild(sep);
-      lastDay = curDayKey;
+   let lastDivider='';
+   GROUP_MSGS.forEach(m=>{
+    /* 日期分隔 */
+    const label=dayLabel(m.ts);
+    if(label!==lastDivider){
+      const div=document.createElement('div'); div.className='dayDivider'; div.textContent=label;
+      box.appendChild(div); lastDivider=label;
     }
-
-    // 未讀分隔：插在第一則未讀之前
-    if(!unreadInserted && m.ts>lastRead){
-      const un=document.createElement('div'); un.className='unreadSep'; un.id='unreadAnchor';
-      un.innerHTML=`<div class="pill">以下為尚未閱讀的訊息</div>`;
-      box.appendChild(un);
-      unreadInserted=true;
-    }
-
-    // 一般訊息
     const wrap=document.createElement('div');
-    wrap.className='msg '+(m.from==='artist'?'right':'left');
-
+    const isMedia=(m.type==='image'||m.type==='video');
+    wrap.className='msg '+(m.from==='artist'?'right':'left')+(isMedia?' media':'');
     const timeEl=document.createElement('div');
     timeEl.className='time'+(m.from==='artist'?'':' dark');
     timeEl.textContent=fmtTime(m.ts);
@@ -793,14 +704,14 @@ function renderThread(){
 
     if(m.type==='image'){
       const img=document.createElement('img'); img.className='msgImg'; img.alt='';
-      bubble.classList.add('mediaWrap');   // 圖片脫泡泡
+      bubble.classList.add('mediaWrap');
       bubble.appendChild(img);
-      resolveMediaSrc(m).then(url=>{ img.src=url; }).catch(()=>{});
+      resolveMediaSrc(m).then(url=>{ img.src=url; img.addEventListener('click',()=>openViewer(url,'img')); }).catch(()=>{});
     }else if(m.type==='video'){
       const v=document.createElement('video'); v.className='msgVideo'; v.controls=true; v.playsInline=true; v.setAttribute('webkit-playsinline','');
-      bubble.classList.add('mediaWrap');   // 影片脫泡泡
+      bubble.classList.add('mediaWrap');
       bubble.appendChild(v);
-      resolveMediaSrc(m).then(url=>{ v.src=url; }).catch(()=>{});
+      resolveMediaSrc(m).then(url=>{ v.src=url; v.addEventListener('click',()=>openViewer(url,'video')); }).catch(()=>{});
     }else if(m.type==='voice'){
       resolveMediaSrc(m).then(url=>{
         bubble.classList.add('voice');
@@ -843,7 +754,7 @@ function renderThread(){
   if(!box.querySelector('#endAnchor')){ const a=document.createElement('div'); a.id='endAnchor'; box.appendChild(a); }
 }
 
-/* ===================== 系統通知：粉絲在等你的訊息 ===================== */
+/* ===================== 系統通知 ===================== */
 function getLastTs(role){
   let t=0; for(const m of GROUP_MSGS){ if(!role || m.from===role){ if(m.ts>t) t=m.ts; } } return t;
 }
@@ -879,8 +790,6 @@ function sendArtistMsg(){
   LS.set('groupMsgs', GROUP_MSGS);
   inp.value=''; updateComposerUI(); clearReply(); renderThread(); renderDmList();
   clearNoticeNow();
-  // 發送代表已讀到最後
-  setLastRead(getLastTs());
   hardStickBottom();
   updateNoticeBanner();
 }
@@ -917,11 +826,11 @@ pickMedia.addEventListener('change', async e=>{
     GROUP_MSGS.push({ id:'m'+Date.now()+Math.random(), from:'artist', type:isVideo?'video':'image', mediaId:id, ts:Date.now() });
   }
   LS.set('groupMsgs', GROUP_MSGS);
-  renderThread(); renderDmList(); clearNoticeNow(); setLastRead(getLastTs()); hardStickBottom(); updateNoticeBanner();
+  renderThread(); renderDmList(); clearNoticeNow(); hardStickBottom(); updateNoticeBanner();
   e.target.value='';
 });
 
-/* 語音修剪（支援 audio / mov / mp4） */
+/* 語音修剪 */
 let trimState = { blob:null, url:'', dur:0, start:0, end:0 };
 const trimModal = document.getElementById('trimModal');
 const trimMedia = document.getElementById('trimMedia');
@@ -1011,7 +920,7 @@ trimUse.addEventListener('click', async ()=>{
     ts:Date.now()
   });
   LS.set('groupMsgs', GROUP_MSGS);
-  closeTrim(); renderThread(); renderDmList(); clearNoticeNow(); setLastRead(getLastTs()); hardStickBottom(); updateNoticeBanner();
+  closeTrim(); renderThread(); renderDmList(); clearNoticeNow(); hardStickBottom(); updateNoticeBanner();
 });
 
 /* ===================== DM 菜單 / 改名 ===================== */
@@ -1102,7 +1011,10 @@ function bindScrollGuard(){
   const t=document.getElementById('dmThread'); if(!t) return;
   const nearBottom = ()=>((t.scrollHeight - t.clientHeight) - t.scrollTop) < 6;
   autoStick = nearBottom();
-  t.addEventListener('scroll', ()=>{ autoStick = nearBottom(); }, {passive:true});
+  t.addEventListener('scroll', ()=>{
+    const nb=nearBottom();
+    autoStick = nb;
+  }, {passive:true});
 }
 function bindBottomObserver(){
   const t=document.getElementById('dmThread'), a=document.getElementById('endAnchor');
@@ -1153,9 +1065,11 @@ document.addEventListener('DOMContentLoaded', ()=>{
   renderStoryBar(); renderFeed(currentFilter); renderDmList();
 
   measureHUD(); measureFooter(); updateComposerUI();
-  if(document.getElementById('dmThread')){ scrollToEndDuring(800); setTimeout(hardStickBottom,0); }
+  renderThread();
   updateNoticeBanner();
-});
+
+  scrollToEndDuring(800);
+  setTimeout(hardStickBottom,0);
 
 /* 監看 footer 高度變化（鍵盤/回覆 chip） */
 (()=>{ const footer=document.getElementById('dmFooter'); if(!footer) return;
@@ -1175,12 +1089,22 @@ document.addEventListener('DOMContentLoaded', ()=>{
   window.addEventListener('resize', ()=>{ measureHUD(); measureFooter(); scrollToEndDuring(600); });
   window.addEventListener('orientationchange', ()=>{ setTimeout(()=>{ measureHUD(); measureFooter(); scrollToEndDuring(800); },120); });
   window.addEventListener('pageshow', ()=>{ measureFooter(); scrollToEndDuring(800); });
-  document.addEventListener('visibilitychange', ()=>{ 
-    if(!document.hidden){ scrollToEndDuring(600); } 
-    else{ setLastRead(getLastTs()); }   // 后台時也更新已讀
-  });
+  document.addEventListener('visibilitychange', ()=>{ if(!document.hidden){ scrollToEndDuring(600); } });
   if(document.fonts && document.fonts.ready){ document.fonts.ready.then(()=>scrollToEndDuring(800)); }
 })();
+
+/* ===================== 全螢幕媒體檢視器 ===================== */
+function openViewer(url, kind){
+  const v=document.getElementById('viewer'), img=document.getElementById('viewerImg'), vid=document.getElementById('viewerVideo');
+  img.style.display='none'; vid.style.display='none';
+  if(kind==='img'){ img.src=url; img.style.display='block'; }
+  else{ vid.src=url; vid.style.display='block'; }
+  v.style.display='block';
+}
+function closeViewer(){
+  const v=document.getElementById('viewer'), img=document.getElementById('viewerImg'), vid=document.getElementById('viewerVideo');
+  v.style.display='none'; img.src=''; vid.src='';
+}
 </script>
 </body>
 </html>
