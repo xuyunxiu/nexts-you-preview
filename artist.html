@@ -74,8 +74,8 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 
 /* Home 右上標題（社群） */
 .homeTop{
-  display:flex;align-items:center;justify-content:flex-end;
-  padding:8px 8px 4px;
+  display:flex;align-items:center;justify-content:flex-start;
+  padding:8px 12px 4px;
 }
 .homeTitle{
   font-weight:900;letter-spacing:.6px;
@@ -525,8 +525,8 @@ function renderStoryBar(){
     const dot=hasNewDots(a.id)?'<span class="dot"></span>':'';
     const label = (a.id==='me') ? 'ME' : a.name;
     return `<div class="story-item ${active} ${pinned}" data-id="${a.id}">
-      <img src="${a.avatar}" onerror="imgFallback(this)">
-      <div class="name">${label}</div></div>`;
+  <img src="${a.avatar}" onerror="imgFallback(this)">${dot}
+  <div class="name">${label}</div></div>`;
   }).join('');
   bar.querySelectorAll('.story-item').forEach(el=>{
     el.addEventListener('click', ()=>{
@@ -1070,6 +1070,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
 
   scrollToEndDuring(800);
   setTimeout(hardStickBottom,0);
+  });
 
 /* 監看 footer 高度變化（鍵盤/回覆 chip） */
 (()=>{ const footer=document.getElementById('dmFooter'); if(!footer) return;
