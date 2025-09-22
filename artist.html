@@ -233,10 +233,35 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 /* Modal：背景裁切/預覽/語音修剪 */
 .modal{position:fixed;inset:0;z-index:80;display:none;background:rgba(0,0,0,.45)}
 .modal .panel{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(760px,94vw);background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px;box-shadow:0 12px 34px rgba(18,24,40,.16)}
-#cropStage{height:58vh;border:1px dashed var(--line);border-radius:12px;display:grid;place-items:center;overflow:hidden;background:#f8f9ff}
-#cropStage img{max-width:none;user-select:none;transform-origin:center center}
-.cropCtrls{display:flex;align-items:center;gap:10px;margin:12px 0}
+/* ===== 裁切背景 ===== */
+#cropStage{
+  height:58vh;border:1px dashed var(--line);border-radius:12px;
+  display:grid;place-items:center;overflow:hidden;background:#f8f9ff;
+  touch-action:none;  /* 允許拖曳 */
+}
+#cropStage img{
+  max-width:none; user-select:none; transform-origin:center center;
+  will-change:transform;
+}
+
+/* 控制列：更簡潔 */
+.cropCtrls{display:flex;align-items:center;gap:10px;margin:12px 0;flex-wrap:wrap}
 .cropCtrls .spacer{flex:1}
+.scaleRow{display:flex;align-items:center;gap:10px}
+#scaleLabel{min-width:48px;text-align:right;color:#6b7280;font-weight:800}
+
+/* 客製化縮放滑桿（含已填色軌道） */
+#cropScale{
+  -webkit-appearance:none; appearance:none;
+  width:clamp(160px, 36vw, 280px); height:4px; border-radius:999px; outline:none;
+  background:linear-gradient(90deg,var(--accent) var(--scaleFill,50%), #e1e4f0 0);
+}
+#cropScale::-webkit-slider-thumb{
+  -webkit-appearance:none; appearance:none;
+  width:18px;height:18px;border-radius:50%;
+  background:#fff;border:1.5px solid var(--accent);
+  box-shadow:0 2px 8px rgba(0,0,0,.15);
+}
 
 /* 修剪視窗 */
 .trimBox{display:flex;flex-direction:column;gap:10px}
@@ -246,6 +271,8 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 .btnRow{display:flex;gap:10px;justify-content:flex-end}
 .btnPrimary{background:linear-gradient(180deg,var(--accent),var(--accent2));color:#fff;border:none}
 .btn{padding:6px 14px;border-radius:999px;border:1px solid var(--line);background:#fff}
+
+.btnMini{padding:6px 10px;border-radius:999px;border:1px solid var(--line);background:#fff;font-weight:900}
 
 /* ---------- 日期分隔 & 未讀分隔 ---------- */
 .dayDivider{align-self:center;margin:10px 0;padding:4px 10px;border-radius:999px;background:rgba(0,0,0,.15);color:#fff;font-size:12px;font-weight:900;letter-spacing:.3px;backdrop-filter:blur(3px)}
@@ -344,12 +371,18 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
   <b style="font-weight:900">裁切背景</b>
   <div id="cropStage"><img id="cropImg" alt=""></div>
   <div class="cropCtrls">
-    <button class="chip" onclick="rotateCrop()">↻ 旋轉 90°</button>
-    <label class="chip">縮放 <input id="cropScale" type="range" min="80" max="220" value="140" style="vertical-align:middle"></label>
-    <div class="spacer"></div>
-    <button class="chip" onclick="closeCrop()">取消</button>
-    <button class="chip btnPrimary" onclick="applyCrop()">下一步</button>
+  <button class="btnMini" id="btnRotate">↻ 旋轉</button>
+  <div class="spacer"></div>
+  <div class="scaleRow">
+    <button class="btnMini" id="zoomOut">－</button>
+    <input id="cropScale" type="range" min="80" max="220" value="140">
+    <button class="btnMini" id="zoomIn">＋</button>
+    <span id="scaleLabel">140%</span>
   </div>
+  <div class="spacer"></div>
+  <button class="chip" onclick="closeCrop()">取消</button>
+  <button class="chip btnPrimary" onclick="applyCrop()">下一步</button>
+</div>
 </div></div>
 
 <div id="previewModal" class="modal"><div class="panel">
@@ -998,42 +1031,111 @@ function renameChat(){
   renderDmList();
 }
 
-/* ===================== 背景：挑圖/裁切/預覽/套用 ===================== */
-let cropDataURL='', cropDeg=0, cropScale=1.4;
-const chooser=document.getElementById('bgChooser');
-function startPickBg(){ chooser.click(); }
-chooser.addEventListener('change', e=>{
-  const f=e.target.files?.[0]; if(!f) return;
-  const reader=new FileReader();
-  reader.onload=ev=>{
-    cropDataURL=ev.target.result;
-    document.getElementById('cropImg').src=cropDataURL;
-    cropDeg=0; document.getElementById('cropScale').value=140; cropScale=1.4;
+/* === 裁切背景：旋轉 / 縮放 / 拖曳（完整覆蓋） === */
+let cropDataURL = '', cropDeg = 0, cropScale = 1.4, cropTx = 0, cropTy = 0;
+
+const chooser      = document.getElementById('bgChooser');
+const cropImg      = document.getElementById('cropImg');
+const cropScaleEl  = document.getElementById('cropScale');
+const scaleLabel   = document.getElementById('scaleLabel');
+
+function startPickBg(){ chooser?.click(); }
+
+chooser?.addEventListener('change', e=>{
+  const f = e.target.files?.[0]; if(!f) return;
+  const reader = new FileReader();
+  reader.onload = ev=>{
+    cropDataURL = ev.target.result;
+    if (cropImg) cropImg.src = cropDataURL;
+    cropDeg = 0; cropScale = 1.4; cropTx = 0; cropTy = 0;
+    if (cropScaleEl) cropScaleEl.value = 140;
+    if (scaleLabel)  scaleLabel.textContent = '140%';
+    document.documentElement.style.setProperty('--scaleFill', (cropScaleEl?.value || 140) + '%');
     updateCropTransform(); openModal('cropModal');
   };
   reader.readAsDataURL(f);
 });
-function rotateCrop(){ cropDeg=(cropDeg+90)%360; updateCropTransform(); }
-document.getElementById('cropScale').addEventListener('input', e=>{ cropScale=(+e.target.value)/100; updateCropTransform(); });
-function updateCropTransform(){ const img=document.getElementById('cropImg'); img.style.transform=`scale(${cropScale}) rotate(${cropDeg}deg)`; }
-function applyCrop(){ document.getElementById('bgPreviewMini').style.backgroundImage=`url("${cropDataURL}")`; closeCrop(); openModal('previewModal'); }
-function confirmPreview(){
-  if(cropDataURL) LS.setStr('artistChatBg', cropDataURL);
-  LS.setStr('artistChatBgScale','100'); LS.setStr('artistChatBgBlur','0'); LS.setStr('artistChatBgDim','25');
-  applyChatBg(); closePreview();
+
+function updateCropTransform(){
+  if (!cropImg) return;
+  cropImg.style.transform =
+    `translate(${cropTx}px, ${cropTy}px) scale(${cropScale}) rotate(${cropDeg}deg)`;
 }
-function openModal(id){ document.getElementById(id).style.display='block'; }
-function closeCrop(){ document.getElementById('cropModal').style.display='none'; }
-function closePreview(){ document.getElementById('previewModal').style.display='none'; }
+
+/* 旋轉 / 縮放按鈕 */
+document.getElementById('btnRotate')?.addEventListener('click', ()=>{
+  cropDeg = (cropDeg + 90) % 360; updateCropTransform();
+});
+document.getElementById('zoomIn')?.addEventListener('click', ()=>{
+  const v = Math.min(220, Number(cropScaleEl?.value || 140) + 5);
+  if (cropScaleEl) cropScaleEl.value = v; onScaleInput();
+});
+document.getElementById('zoomOut')?.addEventListener('click', ()=>{
+  const v = Math.max(80, Number(cropScaleEl?.value || 140) - 5);
+  if (cropScaleEl) cropScaleEl.value = v; onScaleInput();
+});
+
+function onScaleInput(){
+  const v = Number(cropScaleEl?.value || 140);
+  cropScale = v / 100;
+  if (scaleLabel) scaleLabel.textContent = v + '%';
+  document.documentElement.style.setProperty('--scaleFill', v + '%');
+  updateCropTransform();
+}
+cropScaleEl?.addEventListener('input', onScaleInput);
+
+/* 拖曳移動圖片（Pointer Events） */
+let dragging=false, sx=0, sy=0, bx=0, by=0;
+cropImg?.addEventListener('pointerdown', e=>{
+  dragging = true; cropImg.setPointerCapture(e.pointerId);
+  sx = e.clientX; sy = e.clientY; bx = cropTx; by = cropTy;
+});
+cropImg?.addEventListener('pointermove', e=>{
+  if(!dragging) return;
+  cropTx = bx + (e.clientX - sx);
+  cropTy = by + (e.clientY - sy);
+  updateCropTransform();
+});
+['pointerup','pointercancel','lostpointercapture'].forEach(evt=>{
+  cropImg?.addEventListener(evt, ()=>{ dragging=false; });
+});
+
+/* 舊函式名相容 */
+function rotateCrop(){ cropDeg = (cropDeg + 90) % 360; updateCropTransform(); }
+
+/* 流程：套預覽 → 確認 → 寫入並套用背景 */
+function applyCrop(){
+  const mini = document.getElementById('bgPreviewMini');
+  if (mini) mini.style.backgroundImage = `url("${cropDataURL}")`;
+  closeCrop(); openModal('previewModal');
+}
+
+function openModal(id){ const m = document.getElementById(id); if(m) m.style.display='block'; }
+function closeCrop(){ const m = document.getElementById('cropModal'); if(m) m.style.display='none'; }
+function closePreview(){ const m = document.getElementById('previewModal'); if(m) m.style.display='none'; }
+
 function applyChatBg(){
-  const url=LS.getStr('artistChatBg',''); const blur=LS.getStr('artistChatBgBlur','2'); const dim=LS.getStr('artistChatBgDim','25');
-  const el=document.getElementById('dmDetail');
-  if(!url){ el.style.backgroundImage='none'; el.style.setProperty('--bgDim','0'); el.style.setProperty('--bgBlur','0px'); }
-  else{
-    el.style.backgroundImage=`url("${url}")`;
+  const url  = LS.getStr('artistChatBg','');
+  const blur = LS.getStr('artistChatBgBlur','2');
+  const dim  = LS.getStr('artistChatBgDim','25');
+  const el   = document.getElementById('dmDetail'); if(!el) return;
+
+  if(!url){
+    el.style.backgroundImage='none';
+    el.style.setProperty('--bgDim','0');
+    el.style.setProperty('--bgBlur','0px');
+  }else{
+    el.style.backgroundImage = `url("${url}")`;
     el.style.setProperty('--bgDim', dim/100);
     el.style.setProperty('--bgBlur', `${blur}px`);
   }
+
+function confirmPreview(){
+  if(cropDataURL) LS.setStr('artistChatBg', cropDataURL);
+  LS.setStr('artistChatBgScale','100');
+  LS.setStr('artistChatBgBlur','0');
+  LS.setStr('artistChatBgDim','25');
+  applyChatBg(); closePreview();
 }
 
 /* ===================== 尺寸量測 & 貼底核心 ===================== */
