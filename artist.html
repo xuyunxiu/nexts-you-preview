@@ -161,24 +161,34 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 .replyBtn{position:absolute;top:50%;right:calc(-1*(var(--reply-size) + var(--reply-gap)));transform:translateY(-50%);width:var(--reply-size);height:var(--reply-size);border-radius:999px;border:1px solid rgba(0,0,0,.08);background:rgba(255,255,255,.92);box-shadow:0 6px 14px rgba(0,0,0,.12);display:flex;align-items:center;justify-content:center;z-index:2}
 .replyBtn svg{width:calc(var(--reply-size)*0.53);height:calc(var(--reply-size)*0.53);opacity:.85}
 
-/* ===== footer：變瘦版 ===== */
+/* ----- DM Footer：瘦版 ----- */
 .dmFooter{
-  position: fixed;
-  left: 0; right: 0;
-  bottom: max(env(safe-area-inset-bottom, 0px), var(--kb-offset));
-  z-index: 50;
-  background: linear-gradient(180deg, rgba(255,255,255,.35), rgba(255,255,255,.96));
-  backdrop-filter: blur(10px);
-  border-top: 1px solid var(--line);
-  padding: 6px 0 calc(6px + env(safe-area-inset-bottom));   /* ← 扁 */
+  position:fixed; left:0; right:0;
+  bottom: max(env(safe-area-inset-bottom,0px), var(--kb-offset));
+  z-index:50;
+  background:linear-gradient(180deg,rgba(255,255,255,.35),rgba(255,255,255,.96));
+  backdrop-filter:blur(10px);
+  border-top:1px solid var(--line);
+  padding:6px 0 calc(8px + env(safe-area-inset-bottom));
 }
-.dmInputBar{ display:flex; align-items:center; gap:8px; padding:0 10px }
-.iconBtn{ width:28px; height:28px; border:none; background:transparent; display:grid; place-items:center; flex:0 0 auto; font-size:20px; line-height:1 }
-.dmInputBar .box{ flex:1; min-width:0; display:flex; align-items:center; background:#fff; border:1px solid var(--line); height:44px; padding:0 16px; border-radius:24px }
-.dmInputBar input{ flex:1; border:none; outline:none; background:transparent; font-size:16px }
-.dmSend{ width:28px; height:28px; border:none; border-radius:0; background:transparent; color:#b2b7c8; display:grid; place-items:center }
-.dmSend svg{ width:20px; height:20px }
-.hasText .dmSend{ color:#111 }
+.dmInputBar{display:flex;align-items:center;gap:8px;padding:0 10px}
+.iconBtn{width:30px;height:30px;border:none;background:transparent;display:grid;place-items:center;flex:0 0 auto;font-size:20px;line-height:1}
+.dmInputBar .box{flex:1;min-width:0;display:flex;align-items:center;background:#fff;border:1px solid var(--line);height:44px;padding:0 14px;border-radius:20px}
+.dmInputBar input{flex:1;border:none;outline:none;background:transparent;font-size:16px}
+.dmSend{width:30px;height:30px;border:none;background:transparent;color:#b2b7c8;display:grid;place-items:center}
+.hasText .dmSend{color:#111}
+
+/* ----- 系統通知：放在 thread 內、非覆蓋、無圓角、滿版 ----- */
+.noticeBar{
+  align-self:stretch;
+  width:calc(100% + 4px);   /* 把 thread 左右 2px 內距吃掉 → 真正貼邊 */
+  margin:0 -2px 6px;        /* 緊貼左右、與輸入框留 6px 間距 */
+  padding:8px 12px;
+  text-align:center;
+  font-weight:900; letter-spacing:.3px; color:#fff;
+  background:linear-gradient(180deg, rgba(0,0,0,.40), rgba(0,0,0,.30));
+  border:none; border-radius:0; box-shadow:none;
+}
   
 /* ---------- 媒體（圖片/影片）尺寸一致、脫離泡泡 ---------- */
 /* 媒體訊息：完全脫離泡泡樣式（包含右側氣泡的覆寫） */
@@ -212,27 +222,6 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 .replyChipClose{position:absolute;top:6px;right:6px;width:28px;height:28px;display:grid;place-items:center;border:none;background:transparent;color:#6f78aa;border-radius:6px;cursor:pointer}
 .replyChipClose:hover{background:rgba(255,255,255,.10)}
 .replyChipClose svg{width:18px;height:18px;display:block}
-
-/* ===== 通知條：滿版、貼齊 footer、不起飛 ===== */
-.inlineNotice{
-  position: fixed;
-  left: 0; right: 0;
-  /* 先卡在鍵盤上緣，再往上位移 footer 高度（所以不會「起飛」） */
-  bottom: calc(max(env(safe-area-inset-bottom,0px), var(--kb-offset)));
-  transform: translateY(calc(-1 * var(--footer-h)));  /* 與 footer 零距離，如要縫隙可再 -6px */
-  z-index: 70;
-
-  padding: 8px 0;               /* 長條厚度可改 */
-  border-radius: 0;              /* 直角 */
-  border: 0; box-shadow: none;   /* 無邊線、無陰影 */
-  background: rgba(0,0,0,.40);
-  color: #fff;
-  text-align: center;
-  font-weight: 900;
-  letter-spacing: .3px;
-}
-.inlineNotice.show{opacity:1; transform:none}
-.page:not(#dmDetail) .inlineNotice{ display:none; } /* 只在 DM 詳細頁顯示（可移除） */
 
 /* Modal：背景裁切/預覽/語音修剪 */
 .modal{position:fixed;inset:0;z-index:80;display:none;background:rgba(0,0,0,.45)}
@@ -300,8 +289,6 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
   
   <!-- Footer -->
     <div class="dmFooter" id="dmFooter">
-    <!-- 通知條：長方形長條、滿版、貼齊 footer -->
-  <div id="chatNotice" class="inlineNotice">粉絲在等你的訊息喔 😊</div>
     <div id="replyChip" class="replyChip" style="display:none">
       <span class="replyChipLabel">回覆：</span>
       <span id="replyChipText" class="replyChipText">—</span>
@@ -813,7 +800,21 @@ function renderThread(){
       bubble.appendChild(btn);
     }
   });
-
+/* ----- 系統通知：塞在 thread 內最底，不覆蓋 ----- */
+(function injectNotice(){
+  const box = document.getElementById('dmThread');
+  if(!box) return;
+  let n = document.getElementById('noticeRow');
+  if(!n){
+    n = document.createElement('div');
+    n.id = 'noticeRow';
+    n.className = 'noticeBar';
+    n.textContent = '粉絲在等你的訊息喔 😊';
+  }
+  const pad = document.getElementById('threadPad');
+  box.insertBefore(n, pad || null); // 一直保持在最底、輸入框上面
+})();
+  
   if(!box.querySelector('#threadPad')){ const pad=document.createElement('div'); pad.id='threadPad'; box.appendChild(pad); }
   if(!box.querySelector('#endAnchor')){ const a=document.createElement('div'); a.id='endAnchor'; box.appendChild(a); }
 }
@@ -821,16 +822,6 @@ function renderThread(){
 /* ===================== 系統通知 ===================== */
 function getLastTs(role){
   let t=0; for(const m of GROUP_MSGS){ if(!role || m.from===role){ if(m.ts>t) t=m.ts; } } return t;
-}
-
-function updateNoticeBanner(){
-  const el = document.getElementById('chatNotice');
-  if(!el) return;
-  el.style.display = 'block';
-  el.classList.add('show');   // 你的 CSS 已有 .inlineNotice.show
-}
-function clearNoticeNow(){
-  /* 這版改成常駐，不做清除 */
 }
   
 /* ===================== 送訊息 / 回覆 ===================== */
