@@ -161,26 +161,25 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 .replyBtn{position:absolute;top:50%;right:calc(-1*(var(--reply-size) + var(--reply-gap)));transform:translateY(-50%);width:var(--reply-size);height:var(--reply-size);border-radius:999px;border:1px solid rgba(0,0,0,.08);background:rgba(255,255,255,.92);box-shadow:0 6px 14px rgba(0,0,0,.12);display:flex;align-items:center;justify-content:center;z-index:2}
 .replyBtn svg{width:calc(var(--reply-size)*0.53);height:calc(var(--reply-size)*0.53);opacity:.85}
 
-/* ---------- Footer（更小、輸入框更長更細） ---------- */
+/* ===== footer：變瘦版 ===== */
 .dmFooter{
-  position:fixed;left:0;right:0;
+  position: fixed;
+  left: 0; right: 0;
   bottom: max(env(safe-area-inset-bottom, 0px), var(--kb-offset));
-  z-index:50;
-  background:linear-gradient(180deg,rgba(255,255,255,.35),rgba(255,255,255,.96));
-  backdrop-filter:blur(10px);
-  border-top:1px solid var(--line);
-  padding:10px 0 calc(12px + env(safe-area-inset-bottom));
+  z-index: 50;
+  background: linear-gradient(180deg, rgba(255,255,255,.35), rgba(255,255,255,.96));
+  backdrop-filter: blur(10px);
+  border-top: 1px solid var(--line);
+  padding: 6px 0 calc(6px + env(safe-area-inset-bottom));   /* ← 扁 */
 }
-.dmInputBar{display:flex;align-items:center;gap:8px;padding:0 10px}
-.iconBtn{width:34px;height:34px;border:none;background:transparent;display:grid;place-items:center;flex:0 0 auto;font-size:20px;line-height:1}
-.iconBtn span{display:block;line-height:1}
-.camEmoji{transform:translate(-1px,.5px)} .micEmoji{transform:translate(-.5px,.5px)}
-.dmInputBar .box{flex:1;min-width:0;display:flex;align-items:center;background:#fff;border:1px solid var(--line);height:54px;padding:0 16px;border-radius:24px}
-.dmInputBar input{flex:1;border:none;outline:none;background:transparent;font-size:16px}
-.dmSend{width:34px;height:34px;border:none;border-radius:0;background:transparent;color:#b2b7c8;display:grid;place-items:center}
-.dmSend svg{width:22px;height:22px;display:block}
-.hasText .dmSend{color:#111}
-
+.dmInputBar{ display:flex; align-items:center; gap:8px; padding:0 10px }
+.iconBtn{ width:28px; height:28px; border:none; background:transparent; display:grid; place-items:center; flex:0 0 auto; font-size:20px; line-height:1 }
+.dmInputBar .box{ flex:1; min-width:0; display:flex; align-items:center; background:#fff; border:1px solid var(--line); height:44px; padding:0 16px; border-radius:24px }
+.dmInputBar input{ flex:1; border:none; outline:none; background:transparent; font-size:16px }
+.dmSend{ width:28px; height:28px; border:none; border-radius:0; background:transparent; color:#b2b7c8; display:grid; place-items:center }
+.dmSend svg{ width:20px; height:20px }
+.hasText .dmSend{ color:#111 }
+  
 /* ---------- 媒體（圖片/影片）尺寸一致、脫離泡泡 ---------- */
 /* 媒體訊息：完全脫離泡泡樣式（包含右側氣泡的覆寫） */
 .msg .bubble.mediaWrap{background:transparent!important;border:none!important;padding:0;border-radius:0;color:inherit}
@@ -214,24 +213,26 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 .replyChipClose:hover{background:rgba(255,255,255,.10)}
 .replyChipClose svg{width:18px;height:18px;display:block}
 
-/* —— 系統通知（改成整條、一直顯示、在輸入列正上方） —— */
+/* ===== 通知條：滿版、貼齊 footer、不起飛 ===== */
 .inlineNotice{
-  position:fixed;
-  left:0px;                     /* 幾乎滿版；要更滿就改成 0 */
-  right:0px;
-  bottom:calc(var(--footer-h) + var(--kb-offset) + env(safe-area-inset-bottom,0px) + 8px);
-  z-index:46;
-  padding:10px 14px;
-  border-radius:999px;
-  text-align:center;
-  font-weight:900; letter-spacing:.3px;
-  color:#ffffff;
-  background:linear-gradient(180deg, rgba(0,0,0,.40), rgba(0,0,0,.30));
-  border:1px solid rgba(255,255,255,.25);
-  box-shadow:0 10px 28px rgba(0,0,0,.18);
-  pointer-events:none; user-select:none;
+  position: fixed;
+  left: 0; right: 0;
+  /* 先卡在鍵盤上緣，再往上位移 footer 高度（所以不會「起飛」） */
+  bottom: calc(max(env(safe-area-inset-bottom,0px), var(--kb-offset)));
+  transform: translateY(calc(-1 * var(--footer-h)));  /* 與 footer 零距離，如要縫隙可再 -6px */
+  z-index: 70;
+
+  padding: 8px 0;               /* 長條厚度可改 */
+  border-radius: 0;              /* 直角 */
+  border: 0; box-shadow: none;   /* 無邊線、無陰影 */
+  background: rgba(0,0,0,.40);
+  color: #fff;
+  text-align: center;
+  font-weight: 900;
+  letter-spacing: .3px;
 }
 .inlineNotice.show{opacity:1; transform:none}
+.page:not(#dmDetail) .inlineNotice{ display:none; } /* 只在 DM 詳細頁顯示（可移除） */
 
 /* Modal：背景裁切/預覽/語音修剪 */
 .modal{position:fixed;inset:0;z-index:80;display:none;background:rgba(0,0,0,.45)}
@@ -298,8 +299,9 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
   <div id="dmThread" class="thread"></div>
   
   <!-- Footer -->
-  <div class="dmFooter" id="dmFooter">
-    <div id="chatNotice" class="inlineNotice">粉絲在等你的訊息喔 😊</div>
+    <div class="dmFooter" id="dmFooter">
+    <!-- 通知條：長方形長條、滿版、貼齊 footer -->
+  <div id="chatNotice" class="inlineNotice">粉絲在等你的訊息喔 😊</div>
     <div id="replyChip" class="replyChip" style="display:none">
       <span class="replyChipLabel">回覆：</span>
       <span id="replyChipText" class="replyChipText">—</span>
