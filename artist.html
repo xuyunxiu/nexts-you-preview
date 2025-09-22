@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>NEXT’S YOU — artist（整合版）</title>
+<title>NEXT’S YOU — artist（整合版，裁切修好）</title>
 
 <style>
 :root{
@@ -12,7 +12,7 @@
   --radius:16px; --shadow:0 12px 34px rgba(18,24,40,.08);
   --safe:env(safe-area-inset-bottom,0px);
   --kb-offset:0px;
-  --footer-h:96px;  /* 更厚的基準值 */       /* ↓ footer 改小 */
+  --footer-h:96px;
   --hud-h:68px;
   --reply-size:30px;
   --reply-gap:18px;
@@ -47,22 +47,15 @@ nav#nav.hidden{transform:translateY(120%)}
 nav#nav button{flex:1;border:none;background:transparent;padding:8px 0 6px;border-radius:12px;color:var(--sub);font-weight:800;font-size:13px}
 nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid var(--line)}
 
-/* ---------- Verified 勳章：距離更近 ---------- */
+/* Verified 勳章 */
 .verified-badge{display:inline-block;width:18px;height:18px;margin-left:4px;vertical-align:middle}
 .verified-badge svg{width:100%;height:100%;display:block}
 .verified-badge .gear{stroke:#fff;stroke-width:.9;filter:drop-shadow(0 1px 2px rgba(0,0,0,.25))}
 .verified-badge .tick{fill:#fff;filter:drop-shadow(0 1px 0 rgba(0,0,0,.18))}
 
-/* story bar（留在首頁） */
-#storyWrap{
-  position:sticky;top:0;z-index:5;
-  background:linear-gradient(180deg,rgba(245,247,255,.96),rgba(245,247,255,.90));
-  backdrop-filter:blur(6px)
-}
-#storyBar{
-  display:flex;gap:12px;overflow-x:auto;padding:10px 8px 12px;
-  border-bottom:1px solid var(--line);scrollbar-width:none
-}
+/* story bar */
+#storyWrap{position:sticky;top:0;z-index:5;background:linear-gradient(180deg,rgba(245,247,255,.96),rgba(245,247,255,.90));backdrop-filter:blur(6px)}
+#storyBar{display:flex;gap:12px;overflow-x:auto;padding:10px 8px 12px;border-bottom:1px solid var(--line);scrollbar-width:none}
 #storyBar::-webkit-scrollbar{display:none}
 .story-item{flex:0 0 auto;width:64px;text-align:center;cursor:pointer;position:relative}
 .story-item img{width:56px;height:56px;border-radius:50%;object-fit:cover;border:2px solid #d5d8f3;margin:0 auto}
@@ -72,7 +65,7 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 .story-item .dot{position:absolute;right:6px;top:2px;width:8px;height:8px;background:var(--danger);border-radius:50%;box-shadow:0 0 0 2px #fff}
 .story-item.pinned img{border-color:#111}
 
-/* ⭐ 貼文動作列 + 評論列 */
+/* 帖文動作列 + 評論列 */
 .post .actions{margin-top:10px;padding-top:10px;border-top:1px dashed #e1e4f0}
 .reacts{display:flex;gap:8px;flex-wrap:wrap}
 .react{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;border:1px solid #e6e8f5;background:#fafbff;font-size:13px;font-weight:800;color:#5748b3;cursor:pointer}
@@ -80,23 +73,12 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 .commentBar{display:flex;align-items:center;justify-content:space-between;margin-top:8px}
 .commentBar .left{display:flex;align-items:center;gap:12px;color:#6b7287;font-weight:800}
 .commentBar .right button{border:none;background:transparent;color:#5b6ab0;font-weight:900}
+.react.active{background:linear-gradient(180deg,var(--accent),var(--accent2));color:#fff;border-color:transparent;box-shadow:0 6px 18px rgba(123,109,255,.30)}
 
-.react.active{
-  background:linear-gradient(180deg,var(--accent),var(--accent2));
-  color:#fff; border-color:transparent;
-  box-shadow:0 6px 18px rgba(123,109,255,.30);
-}
+/* Home 標題 */
+.homeTop{display:flex;align-items:center;justify-content:flex-start;padding:8px 12px 4px}
+.homeTitle{font-weight:900;letter-spacing:.6px;font-size:22px;line-height:1}
 
-/* Home 右上標題（社群） */
-.homeTop{
-  display:flex;align-items:center;justify-content:flex-start;
-  padding:8px 12px 4px;
-}
-.homeTitle{
-  font-weight:900;letter-spacing:.6px;
-  font-size:22px;line-height:1;
-}
-  
 /* post card */
 .post{margin:12px 6px}
 .post .hdr{display:flex;align-items:center;gap:10px}
@@ -119,18 +101,11 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 #dmDetail{position:relative;background:#000;background-position:center;background-repeat:no-repeat;background-size:cover;background-attachment:scroll;}
 #dmDetail::after{content:"";position:fixed;inset:0;pointer-events:none;background:rgba(0,0,0,var(--bgDim,.0));backdrop-filter:blur(var(--bgBlur,0px));z-index:-1}
 
-/* ---------- HUD：標題置中、移除徽章 ---------- */
+/* HUD */
 .chatHUD{display:flex;align-items:center;justify-content:space-between;padding:4px 0 8px}
 .back,.hudBtn{width:44px;height:44px;border:none;background:transparent;display:grid;place-items:center}
 .back svg{width:22px;height:22px;stroke:#5b6ab0;stroke-width:2.6;fill:none}
-/* 右上 ... 自動與背景反差 + 保底描邊 */
-.hudBtn{
-  color:#fff;
-  mix-blend-mode:difference;                 /* 核心：自動反色，白底變黑、黑底保持白 */
-  text-shadow:
-    0 0 1px rgba(0,0,0,.65),                 /* 保底描邊：即使混合模式失效也清楚 */
-    0 0 8px rgba(0,0,0,.25);
-}
+.hudBtn{color:#fff;mix-blend-mode:difference;text-shadow:0 0 1px rgba(0,0,0,.65),0 0 8px rgba(0,0,0,.25)}
 .chatHUD .center{flex:1;min-width:0;display:flex;justify-content:center}
 .artistName{font-weight:900;letter-spacing:.6px;font-size:18px}
 
@@ -140,44 +115,32 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 #threadPad{height:calc(var(--footer-h) + var(--kb-offset) + env(safe-area-inset-bottom,0px) + 2px);flex:0 0 auto;pointer-events:none}
 #endAnchor{height:1px;flex:0 0 auto}
 
-/* 氣泡 & 位置 */
+/* 氣泡 */
 :root{ --bubble-px:10px; --bubble-py:7px; --bubble-r:13px; --msg-max:78%; }
 .msg{display:flex;align-items:flex-end;gap:6px;max-width:var(--msg-max);margin:0 6px}
 .msg.left{flex-direction:row;align-self:flex-start}
 .msg.right{flex-direction:row-reverse;align-self:flex-end}
 .time{font-size:11px;color:rgba(255,255,255,.88);text-shadow:0 1px 2px rgba(0,0,0,.35);white-space:nowrap}
-.time.dark{color:#8b93a7;white-space:nowrap}
+.time.dark{color:#8b93a7}
 .bubble{max-width:100%;padding:var(--bubble-py) var(--bubble-px);border-radius:var(--bubble-r);border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.92);position:relative}
 .msg.right .bubble{background:linear-gradient(180deg,var(--accent),var(--accent2));color:#fff;border-color:transparent}
 .fromLabel{font-size:11px;font-weight:900;color:#6b78a8;margin-bottom:4px}
 .fanText{color:#111}
-  /* DM 右上角選單（浮層） */
-#dmMenu{
-  position:absolute;top:52px;right:8px;z-index:60;
-  background:rgba(255,255,255,.96);backdrop-filter:blur(10px);
-  border:1px solid var(--line);border-radius:12px;padding:8px;box-shadow:var(--shadow);
-}
+
+/* DM 右上選單 */
+#dmMenu{position:absolute;top:52px;right:8px;z-index:60;background:rgba(255,255,255,.96);backdrop-filter:blur(10px);border:1px solid var(--line);border-radius:12px;padding:8px;box-shadow:var(--shadow)}
 #dmMenu .chip{width:100%;justify-content:flex-start}
 
 /* 回覆卡 */
 .replyCard{align-self:flex-end;max-width:74%;margin:14px 6px 0;padding:10px 12px;border-radius:14px;background:rgba(255,255,255,.86);border:1px solid rgba(0,0,0,.06);box-shadow:0 8px 18px rgba(0,0,0,.12);backdrop-filter:saturate(140%) blur(1.5px);word-break:break-word}
 .replyCard .fromLabel{font-size:11px;font-weight:900;letter-spacing:.3px;color:#6d78aa;margin-bottom:4px}
-.thread .msg + .replyCard,.thread .replyCard + .msg{margin-top:12px}
 
 /* 回覆箭頭 */
 .replyBtn{position:absolute;top:50%;right:calc(-1*(var(--reply-size) + var(--reply-gap)));transform:translateY(-50%);width:var(--reply-size);height:var(--reply-size);border-radius:999px;border:1px solid rgba(0,0,0,.08);background:rgba(255,255,255,.92);box-shadow:0 6px 14px rgba(0,0,0,.12);display:flex;align-items:center;justify-content:center;z-index:2}
 .replyBtn svg{width:calc(var(--reply-size)*0.53);height:calc(var(--reply-size)*0.53);opacity:.85}
 
-/* ----- DM Footer：瘦版 ----- */
-.dmFooter{
-  position:fixed; left:0; right:0;
-  bottom: max(env(safe-area-inset-bottom,0px), var(--kb-offset));
-  z-index:50;
-  background:linear-gradient(180deg,rgba(255,255,255,.35),rgba(255,255,255,.96));
-  backdrop-filter:blur(10px);
-  border-top:1px solid var(--line);
-  padding:6px 0 calc(8px + env(safe-area-inset-bottom));
-}
+/* Footer */
+.dmFooter{position:fixed;left:0;right:0;bottom:max(env(safe-area-inset-bottom,0px),var(--kb-offset));z-index:50;background:linear-gradient(180deg,rgba(255,255,255,.35),rgba(255,255,255,.96));backdrop-filter:blur(10px);border-top:1px solid var(--line);padding:6px 0 calc(8px + env(safe-area-inset-bottom))}
 .dmInputBar{display:flex;align-items:center;gap:8px;padding:0 10px}
 .iconBtn{width:30px;height:30px;border:none;background:transparent;display:grid;place-items:center;flex:0 0 auto;font-size:20px;line-height:1}
 .dmInputBar .box{flex:1;min-width:0;display:flex;align-items:center;background:#fff;border:1px solid var(--line);height:44px;padding:0 14px;border-radius:20px}
@@ -185,33 +148,15 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 .dmSend{width:30px;height:30px;border:none;background:transparent;color:#b2b7c8;display:grid;place-items:center}
 .hasText .dmSend{color:#111}
 
-/* ----- 系統通知：放在 thread 內、非覆蓋、無圓角、滿版 ----- */
-.noticeBar{
-  align-self:stretch;
-  width:calc(100% + 4px);   /* 把 thread 左右 2px 內距吃掉 → 真正貼邊 */
-  margin:0 -2px 6px;        /* 緊貼左右、與輸入框留 6px 間距 */
-  padding:8px 12px;
-  text-align:center;
-  font-weight:900; letter-spacing:.3px; color:#fff;
-  background:linear-gradient(180deg, rgba(0,0,0,.40), rgba(0,0,0,.30));
-  border:none; border-radius:0; box-shadow:none;
-}
-  
-/* ---------- 媒體（圖片/影片）尺寸一致、脫離泡泡 ---------- */
-/* 媒體訊息：完全脫離泡泡樣式（包含右側氣泡的覆寫） */
+/* 系統通知：thread 內非覆蓋 */
+.noticeBar{align-self:stretch;width:calc(100% + 4px);margin:0 -2px 6px;padding:8px 12px;text-align:center;font-weight:900;letter-spacing:.3px;color:#fff;background:linear-gradient(180deg,rgba(0,0,0,.40),rgba(0,0,0,.30));border:none;border-radius:0;box-shadow:none}
+
+/* 媒體訊息脫離泡泡 */
 .msg .bubble.mediaWrap{background:transparent!important;border:none!important;padding:0;border-radius:0;color:inherit}
 .msg.right .bubble.mediaWrap{background:transparent!important;border:none!important}
-  .msgImg,.msgVideo{
-  display:block;
-  width:min(66vw,300px);
-  height:auto;
-  border-radius:12px;
-  border:1px solid rgba(0,0,0,.08);
-  overflow:hidden;
-}
-.bubble.mediaWrap{background:transparent;border:none;padding:0;border-radius:0}
+.msgImg,.msgVideo{display:block;width:min(66vw,300px);height:auto;border-radius:12px;border:1px solid rgba(0,0,0,.08);overflow:hidden}
 
-/* ---------- 語音泡泡（右側同藝人顏色；寬度依時長） ---------- */
+/* 語音泡泡 */
 .bubble.voice{border-radius:18px;border:1px solid rgba(0,0,0,.08);background:#fff}
 .msg.right .bubble.voice{background:linear-gradient(180deg,var(--accent),var(--accent2));border-color:transparent;color:#fff}
 .voiceUI{display:flex;align-items:center;gap:10px;min-width:140px}
@@ -230,38 +175,26 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 .replyChipClose:hover{background:rgba(255,255,255,.10)}
 .replyChipClose svg{width:18px;height:18px;display:block}
 
-/* Modal：背景裁切/預覽/語音修剪 */
+/* ===== Modal：背景裁切/預覽/語音修剪 ===== */
 .modal{position:fixed;inset:0;z-index:80;display:none;background:rgba(0,0,0,.45)}
 .modal .panel{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(760px,94vw);background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px;box-shadow:0 12px 34px rgba(18,24,40,.16)}
-/* ===== 裁切背景 ===== */
+
+/* 裁切舞台 + 遮罩 */
 #cropStage{
+  position:relative;
   height:58vh;border:1px dashed var(--line);border-radius:12px;
   display:grid;place-items:center;overflow:hidden;background:#f8f9ff;
-  touch-action:none;  /* 允許拖曳 */
+  touch-action:none;
 }
-#cropStage img{
-  max-width:none; user-select:none; transform-origin:center center;
-  will-change:transform;
+#cropStage img{max-width:none;user-select:none;transform-origin:center center;will-change:transform}
+#cropMask{position:absolute;inset:0;pointer-events:none}
+#cropMask::before{
+  content:"";position:absolute;inset:0;border-radius:12px;
+  box-shadow:0 0 0 2000px rgba(0,0,0,.08);
+  border:2px dashed rgba(0,0,0,.18);
 }
-
-/* 控制列：更簡潔 */
-.cropCtrls{display:flex;align-items:center;gap:10px;margin:12px 0;flex-wrap:wrap}
-.cropCtrls .spacer{flex:1}
-.scaleRow{display:flex;align-items:center;gap:10px}
-#scaleLabel{min-width:48px;text-align:right;color:#6b7280;font-weight:800}
-
-/* 客製化縮放滑桿（含已填色軌道） */
-#cropScale{
-  -webkit-appearance:none; appearance:none;
-  width:clamp(160px, 36vw, 280px); height:4px; border-radius:999px; outline:none;
-  background:linear-gradient(90deg,var(--accent) var(--scaleFill,50%), #e1e4f0 0);
-}
-#cropScale::-webkit-slider-thumb{
-  -webkit-appearance:none; appearance:none;
-  width:18px;height:18px;border-radius:50%;
-  background:#fff;border:1.5px solid var(--accent);
-  box-shadow:0 2px 8px rgba(0,0,0,.15);
-}
+/* 放手回彈動畫 */
+#cropImg.animating{transition:transform .18s ease-out}
 
 /* 修剪視窗 */
 .trimBox{display:flex;flex-direction:column;gap:10px}
@@ -271,17 +204,15 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 .btnRow{display:flex;gap:10px;justify-content:flex-end}
 .btnPrimary{background:linear-gradient(180deg,var(--accent),var(--accent2));color:#fff;border:none}
 .btn{padding:6px 14px;border-radius:999px;border:1px solid var(--line);background:#fff}
-
 .btnMini{padding:6px 10px;border-radius:999px;border:1px solid var(--line);background:#fff;font-weight:900}
 
-/* ---------- 日期分隔 & 未讀分隔 ---------- */
+/* 日期分隔 */
 .dayDivider{align-self:center;margin:10px 0;padding:4px 10px;border-radius:999px;background:rgba(0,0,0,.15);color:#fff;font-size:12px;font-weight:900;letter-spacing:.3px;backdrop-filter:blur(3px)}
-.unreadLine{align-self:center;margin:8px 0;padding:6px 12px;border-radius:8px;background:rgba(106,90,205,.18);color:#2e2a6f;font-size:12px;font-weight:900;border:1px solid rgba(106,90,205,.35)}
 
 /* 小工具 */
 .badge{background:#ff3b30;color:#fff;font-size:12px;padding:2px 7px;border-radius:999px;min-width:22px;text-align:center}
 
-/* ---- 全螢幕媒體檢視器 ---- */
+/* 查看器 */
 #viewer{position:fixed;inset:0;z-index:90;display:none;background:rgba(0,0,0,.9)}
 #viewer .stage{position:absolute;inset:0;display:grid;place-items:center}
 #viewerImg,#viewerVideo{max-width:94vw;max-height:88vh;border-radius:12px}
@@ -291,9 +222,7 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 
 <!-- ====================== HOME（藝人） ====================== -->
 <section id="home" class="page active">
-<div class="homeTop">
-  <div class="homeTitle">社群</div>
-</div>
+  <div class="homeTop"><div class="homeTitle">社群</div></div>
   <div id="storyWrap"><div id="storyBar"></div></div>
   <div id="feedWrap"></div>
 
@@ -320,9 +249,9 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
   </div>
 
   <div id="dmThread" class="thread"></div>
-  
+
   <!-- Footer -->
-    <div class="dmFooter" id="dmFooter">
+  <div class="dmFooter" id="dmFooter">
     <div id="replyChip" class="replyChip" style="display:none">
       <span class="replyChipLabel">回覆：</span>
       <span id="replyChipText" class="replyChipText">—</span>
@@ -351,7 +280,7 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
   </div>
 </section>
 
-<!-- ====================== STORE = Profile ====================== -->
+<!-- ====================== STORE ====================== -->
 <section id="store" class="page">
   <div id="homeHeader" style="display:block;margin:6px 6px 10px">
     <div class="me" style="display:flex;align-items:center;gap:10px">
@@ -367,22 +296,27 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 
 <!-- ====================== 背景：挑圖 / 裁切 / 預覽 ====================== -->
 <input id="bgChooser" type="file" accept="image/*" style="display:none">
+
 <div id="cropModal" class="modal"><div class="panel">
   <b style="font-weight:900">裁切背景</b>
-  <div id="cropStage"><img id="cropImg" alt=""></div>
-  <div class="cropCtrls">
-  <button class="btnMini" id="btnRotate">↻ 旋轉</button>
-  <div class="spacer"></div>
-  <div class="scaleRow">
-    <button class="btnMini" id="zoomOut">－</button>
-    <input id="cropScale" type="range" min="50" max="250" value="100">
-    <button class="btnMini" id="zoomIn">＋</button>
-    <span id="scaleLabel">140%</span>
+  <div id="cropStage">
+    <img id="cropImg" alt="">
+    <div id="cropMask" aria-hidden="true"></div>
   </div>
-  <div class="spacer"></div>
-  <button class="chip" onclick="backToCrop()">返回</button>
-  <button class="chip btnPrimary" onclick="applyCrop()">下一步</button>
-</div>
+  <div class="cropCtrls row" style="gap:10px;margin:12px 0">
+    <button class="btnMini" id="btnRotate">↻ 旋轉</button>
+    <button class="btnMini" id="btnReset">⟲ 重置</button>
+    <div class="spacer"></div>
+    <div class="scaleRow">
+      <button class="btnMini" id="zoomOut">－</button>
+      <input id="cropScale" type="range" min="50" max="250" value="100">
+      <button class="btnMini" id="zoomIn">＋</button>
+      <span id="scaleLabel">100%</span>
+    </div>
+    <div class="spacer"></div>
+    <button class="chip" onclick="closeCrop()">取消</button>
+    <button class="chip btnPrimary" onclick="applyCrop()">下一步</button>
+  </div>
 </div></div>
 
 <div id="previewModal" class="modal"><div class="panel">
@@ -391,7 +325,7 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
     <div id="bgPreviewMini" style="height:100%;background-position:center;background-size:cover;background-repeat:no-repeat"></div>
   </div>
   <div class="cropCtrls" style="justify-content:flex-end">
-    <button class="chip" onclick="closePreview()">返回</button>
+    <button class="chip" onclick="backToCrop()">返回</button>
     <button class="chip btnPrimary" onclick="confirmPreview()">確認</button>
   </div>
 </div></div>
@@ -513,7 +447,7 @@ function stopActive(){ if (ACTIVE_AUDIO){ ACTIVE_AUDIO.pause(); ACTIVE_AUDIO._ow
 
 /* ===== 個人資料／假資料 ===== */
 const STAGE_NAME = LS.getStr('artistStage','ANNIE');
-let   NICKNAME   = LS.getStr('artistNickname','Annie');      // 自己看到的暱稱
+let   NICKNAME   = LS.getStr('artistNickname','Annie');
 let   AVATAR     = LS.getStr('artistAvatar','https://picsum.photos/80?u=artist');
 const ME = { id:'me', name:STAGE_NAME, avatar:AVATAR };
 
@@ -536,7 +470,7 @@ let GROUP_MSGS=LS.get('groupMsgs',[
   {id:'m3',from:'artist',text:'我午餐吃了沙拉 🥗',ts:Date.now()-1000*60*40,replyTo:{text:'今天吃什麼？'}}
 ]);
 const lastSeen = LS.get('lastSeen', {});
-  
+
 /* ===================== 導航 ===================== */
 const HIDE_NAV_IN=['dmDetail','composerArtist'];
 let PAGE_STACK=['home'];
@@ -557,9 +491,7 @@ function showPage(id){
   if(id==='dmDetail'){
     measureHUD(); measureFooter(); renderThread(); applyChatBg();
     bindBottomObserver(); bindScrollGuard();
-  autoStick=true;
-scrollToEndDuring(800);
-setTimeout(hardStickBottom,0);
+    autoStick=true; scrollToEndDuring(800); setTimeout(hardStickBottom,0);
     updateNoticeBanner();
   }
   if(id==='composerArtist'){ document.getElementById('composerWho').textContent=NICKNAME; }
@@ -626,15 +558,11 @@ function renderFeed(filter='me'){
   const wrap=document.getElementById('feedWrap');
   const list=feedOf(filter);
   if(!list.length){ wrap.innerHTML=`<div class="ghost" style="text-align:center;margin-top:20vh">尚無貼文</div>`; return; }
-
   wrap.innerHTML=list.map(p=>{
-    // ⭐ 補預設欄位（不影響你原本資料）
     p.reacts = p.reacts || {thumb:0,heart:0,joy:0,shock:0,cry:0};
-    p.cmts   = p.cmts   || [];   // 每則 {id, text}
-
+    p.cmts   = p.cmts   || [];
     const stage=(p.artistStage||STAGE_NAME||'').toString().toUpperCase();
     const displayName = (p.artistId==='me') ? NICKNAME.toUpperCase() : stage;
-
     return `<div class="card soft post" data-post="${p.id}">
       <div class="hdr">
         <img class="avatar" src="${p.avatar}" onerror="imgFallback(this)">
@@ -645,21 +573,19 @@ function renderFeed(filter='me'){
       </div>
       <div class="body"><p>${escapeHtml(p.text)}</p>
       ${p.img?`<img class="hero" src="${p.img}" onerror="imgFallback(this)">`:``}</div>
-
-      <!-- ⭐ Action bar -->
-<div class="actions">
-  <div class="reacts">
-    ${reactBtnHTML(p,'thumb','👍')}
-    ${reactBtnHTML(p,'heart','❤️')}
-    ${reactBtnHTML(p,'joy','🤣')}
-    ${reactBtnHTML(p,'shock','😲')}
-    ${reactBtnHTML(p,'cry','🥲')}
-  </div>
-  <div class="commentBar">
-    <div class="left">💬 <span class="cmtCount">${p.cmts.length}</span> 則評論</div>
-    <div class="right"><button class="addCmt">發表評論</button></div>
-  </div>
-</div>
+      <div class="actions">
+        <div class="reacts">
+          ${reactBtnHTML(p,'thumb','👍')}
+          ${reactBtnHTML(p,'heart','❤️')}
+          ${reactBtnHTML(p,'joy','🤣')}
+          ${reactBtnHTML(p,'shock','😲')}
+          ${reactBtnHTML(p,'cry','🥲')}
+        </div>
+        <div class="commentBar">
+          <div class="left">💬 <span class="cmtCount">${p.cmts.length}</span> 則評論</div>
+          <div class="right"><button class="addCmt">發表評論</button></div>
+        </div>
+      </div>
     </div>`;
   }).join('');
 }
@@ -687,58 +613,40 @@ function renderDmList(){
     </div><span></span></div>`;
 }
 
-/* ===================== 語音泡泡（有影像軌用 <video>） ===================== */
+/* ===================== 語音泡泡 ===================== */
 function voiceWidthByDur(sec){
   const d = Math.max(0, sec||0);
-  const minW=140, maxW=280, cap=60; // 0s→140px，60s+→280px
+  const minW=140, maxW=280, cap=60;
   const w = minW + (Math.min(d,cap)/cap)*(maxW-minW);
   return Math.round(w);
 }
 function buildVoiceUI(msg){
   const segStart = Number(msg.segStart || msg.start || 0);
   const segEnd   = Number(msg.segEnd   || msg.end   || 0);
-
   const ui  = document.createElement('div'); ui.className='voiceUI';
   const btn = document.createElement('button'); btn.className='voicePlay';
   btn.innerHTML = `<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>`;
-
   const bars = document.createElement('div'); bars.className='voiceBars';
   for(let i=0;i<12;i++){ const b=document.createElement('div'); b.className='voiceBar'; bars.appendChild(b); }
-
   const dur = document.createElement('div'); dur.className='voiceDur'; dur.textContent = '0:00';
   ui.append(btn,bars,dur);
-
   const media = document.createElement(msg.isVideo ? 'video' : 'audio');
-  media.src = msg.src;
-  media.preload = 'metadata';
-  media.style.display = 'none';
+  media.src = msg.src; media.preload='metadata'; media.style.display='none';
   if (msg.isVideo) { media.playsInline = true; media.setAttribute('webkit-playsinline',''); }
-  ui.appendChild(media);
-  media._owner = ui;
-
+  ui.appendChild(media); media._owner = ui;
   function toPlay(){
     stopActive();
     try{ media.currentTime = segStart || 0; }catch(_){}
-    media.play().then(()=>{
-      ACTIVE_AUDIO = media;
-      ui.classList.add('playing');
-      btn.innerHTML=`<svg viewBox="0 0 24 24"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>`;
-    }).catch(()=>{});
+    media.play().then(()=>{ ACTIVE_AUDIO = media; ui.classList.add('playing');
+      btn.innerHTML=`<svg viewBox="0 0 24 24"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>`;}).catch(()=>{});
   }
-  function toPause(){
-    media.pause();
-    ui.classList.remove('playing');
-    btn.innerHTML=`<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>`;
-    if (ACTIVE_AUDIO===media) ACTIVE_AUDIO=null;
-  }
+  function toPause(){ media.pause(); ui.classList.remove('playing');
+    btn.innerHTML=`<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>`; if (ACTIVE_AUDIO===media) ACTIVE_AUDIO=null; }
   btn.onclick = ()=> media.paused ? toPlay() : toPause();
-
   media.addEventListener('loadedmetadata', ()=>{
     const d = (segEnd>segStart) ? (segEnd - segStart) : (media.duration||0);
-    dur.textContent = mmss(d||0);
-    ui.style.width = voiceWidthByDur(d||0) + 'px';
+    dur.textContent = mmss(d||0); ui.style.width = voiceWidthByDur(d||0) + 'px';
   });
-
   media.addEventListener('timeupdate', ()=>{
     const total  = (segEnd>segStart) ? (segEnd - segStart) : (media.duration||0);
     const played = Math.max(0, (media.currentTime || 0) - (segStart||0));
@@ -746,21 +654,17 @@ function buildVoiceUI(msg){
     dur.textContent = mmss(Math.ceil(left));
     if(segEnd>segStart && media.currentTime >= segEnd - 0.05){ toPause(); }
   });
-
   media.addEventListener('ended', toPause);
-
   return ui;
 }
-  
+
 /* ===================== DM Thread（渲染） ===================== */
 let replyDraft=null;
-
 async function resolveMediaSrc(m){
-  if(m.src) return m.src;                   // 舊資料（DataURL）仍可顯示
-  if(m.mediaId) return await MEDIA_DB.getURL(m.mediaId); // 新流程（IndexedDB）
+  if(m.src) return m.src;
+  if(m.mediaId) return await MEDIA_DB.getURL(m.mediaId);
   return '';
 }
-
 /* 日期分隔文字 */
 function dayLabel(ts){
   const d=new Date(ts), now=new Date();
@@ -768,17 +672,26 @@ function dayLabel(ts){
   const diffDays = Math.floor((new Date(now.getFullYear(),now.getMonth(),now.getDate()) - new Date(d.getFullYear(),d.getMonth(),d.getDate()))/86400000);
   if(ymd(d)===ymd(now)) return '今天';
   if(diffDays===1) return '昨天';
-  if(diffDays>=7){
-    return `${d.getMonth()+1}月${d.getDate()}日`;
-  }
-  return `${d.getMonth()+1}月${d.getDate()}日`; // 一週內非今/昨，仍顯示月日
+  return `${d.getMonth()+1}月${d.getDate()}日`;
 }
-
+function ensureNoticeRow(){
+  const box = document.getElementById('dmThread');
+  if(!box) return null;
+  let n = document.getElementById('noticeRow');
+  if(!n){
+    n = document.createElement('div');
+    n.id = 'noticeRow';
+    n.className = 'noticeBar';
+    n.textContent = '粉絲在等你的訊息喔 😊';
+    const pad = document.getElementById('threadPad');
+    box.insertBefore(n, pad || null);
+  }
+  return n;
+}
 function renderThread(){
   const box=document.getElementById('dmThread'); box.innerHTML='';
-   let lastDivider='';
-   GROUP_MSGS.forEach(m=>{
-    /* 日期分隔 */
+  let lastDivider='';
+  GROUP_MSGS.forEach(m=>{
     const label=dayLabel(m.ts);
     if(label!==lastDivider){
       const div=document.createElement('div'); div.className='dayDivider'; div.textContent=label;
@@ -792,16 +705,13 @@ function renderThread(){
     timeEl.textContent=fmtTime(m.ts);
 
     const bubble=document.createElement('div'); bubble.className='bubble';
-
     if(m.type==='image'){
       const img=document.createElement('img'); img.className='msgImg'; img.alt='';
-      bubble.classList.add('mediaWrap');
-      bubble.appendChild(img);
+      bubble.classList.add('mediaWrap'); bubble.appendChild(img);
       resolveMediaSrc(m).then(url=>{ img.src=url; img.addEventListener('click',()=>openViewer(url,'img', img)); }).catch(()=>{});
     }else if(m.type==='video'){
       const v=document.createElement('video'); v.className='msgVideo'; v.controls=true; v.playsInline=true; v.setAttribute('webkit-playsinline','');
-      bubble.classList.add('mediaWrap');
-      bubble.appendChild(v);
+      bubble.classList.add('mediaWrap'); bubble.appendChild(v);
       resolveMediaSrc(m).then(url=>{ v.src=url; v.addEventListener('click',()=>openViewer(url,'video', v)); }).catch(()=>{});
     }else if(m.type==='voice'){
       resolveMediaSrc(m).then(url=>{
@@ -818,7 +728,6 @@ function renderThread(){
         bubble.innerHTML=escapeHtml(m.text);
       }
     }
-
     wrap.append(bubble,timeEl); box.appendChild(wrap);
 
     if(m.from==='artist'&&m.replyTo&&m.replyTo.text){
@@ -840,21 +749,8 @@ function renderThread(){
       bubble.appendChild(btn);
     }
   });
-/* ----- 系統通知：塞在 thread 內最底，不覆蓋 ----- */
-(function injectNotice(){
-  const box = document.getElementById('dmThread');
-  if(!box) return;
-  let n = document.getElementById('noticeRow');
-  if(!n){
-    n = document.createElement('div');
-    n.id = 'noticeRow';
-    n.className = 'noticeBar';
-    n.textContent = '粉絲在等你的訊息喔 😊';
-  }
-  const pad = document.getElementById('threadPad');
-  box.insertBefore(n, pad || null); // 一直保持在最底、輸入框上面
-})();
-  
+
+  ensureNoticeRow();
   if(!box.querySelector('#threadPad')){ const pad=document.createElement('div'); pad.id='threadPad'; box.appendChild(pad); }
   if(!box.querySelector('#endAnchor')){ const a=document.createElement('div'); a.id='endAnchor'; box.appendChild(a); }
 }
@@ -863,44 +759,27 @@ function renderThread(){
 function getLastTs(role){
   let t=0; for(const m of GROUP_MSGS){ if(!role || m.from===role){ if(m.ts>t) t=m.ts; } } return t;
 }
- function updateNoticeBanner(){
+function updateNoticeBanner(){
   const n = ensureNoticeRow(); if(!n) return;
   const lastFan = getLastTs('fan');
   const lastArtist = getLastTs('artist');
-  // 粉絲最後一則比藝人新 → 顯示提示
   n.style.display = (lastFan > lastArtist) ? 'block' : 'none';
 }
-function clearNoticeNow(){
-  const n = document.getElementById('noticeRow');
-  if(n) n.style.display = 'none';
-} 
-  
+function clearNoticeNow(){ const n = document.getElementById('noticeRow'); if(n) n.style.display = 'none'; }
+
 /* ===================== 送訊息 / 回覆 ===================== */
 function clearReply(){ replyDraft=null; document.getElementById('replyChip').style.display='none'; scrollToEndDuring(400); }
 function sendArtistMsg(){
   const inp=document.getElementById('dmMessageInput');
-  let t=(inp.value||'').trim(); 
-  if(!t) return;
-
-  GROUP_MSGS.push({
-    id:'u'+Date.now(),
-    from:'artist',
-    text:t,
-    ts:Date.now(),
-    replyTo:replyDraft?{text:replyDraft.text}:null
-  });
-
+  let t=(inp.value||'').trim(); if(!t) return;
+  GROUP_MSGS.push({ id:'u'+Date.now(), from:'artist', text:t, ts:Date.now(), replyTo:replyDraft?{text:replyDraft.text}:null });
   LS.set('groupMsgs', GROUP_MSGS);
   inp.value=''; updateComposerUI(); clearReply(); renderThread(); renderDmList();
-  clearNoticeNow();
-  hardStickBottom();
-  updateNoticeBanner();
+  clearNoticeNow(); hardStickBottom(); updateNoticeBanner();
 }
 document.getElementById('dmSendBtn').addEventListener('click', sendArtistMsg);
 const dmInput = document.getElementById('dmMessageInput');
-dmInput.addEventListener('keydown', e=>{
-  if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); sendArtistMsg(); }
-});
+dmInput.addEventListener('keydown', e=>{ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); sendArtistMsg(); }});
 const sendBtn = document.getElementById('dmSendBtn');
 const footerEl = document.getElementById('dmFooter');
 function updateComposerUI(){
@@ -933,119 +812,28 @@ pickMedia.addEventListener('change', async e=>{
   e.target.value='';
 });
 
-/* 語音修剪 */
-let trimState = { blob:null, url:'', dur:0, start:0, end:0 };
-const trimModal = document.getElementById('trimModal');
-const trimMedia = document.getElementById('trimMedia');
-const trimPlay  = document.getElementById('trimPlay');
-const trimStart = document.getElementById('trimStart');
-const trimEnd   = document.getElementById('trimEnd');
-const trimStartLabel=document.getElementById('trimStartLabel');
-const trimEndLabel=document.getElementById('trimEndLabel');
-const trimClock = document.getElementById('trimClock');
-const trimFill  = document.getElementById('trimFill');
-const trimUse   = document.getElementById('trimUse');
-
-pickVoice.addEventListener('change', async e=>{
-  const f=e.target.files?.[0]; if(!f) return;
-  trimState.blob = f;
-  trimState.url  = URL.createObjectURL(f);
-  trimMedia.src = trimState.url;
-  trimMedia.load();
-  trimOpen();
-  e.target.value='';
-});
-function trimOpen(){
-  trimModal.style.display='block';
-  trimPlay.disabled=true; trimUse.disabled=true;
-  trimMedia.addEventListener('loadedmetadata', onLoadedMeta, {once:true});
-  trimMedia.addEventListener('timeupdate', onTick);
-}
-function onLoadedMeta(){
-  const d = trimMedia.duration || 0;
-  trimState.dur = d;
-  trimState.start = 0; trimState.end = d;
-  trimStart.value = 0; trimEnd.value = 1000;
-  trimStartLabel.textContent = '0.0s';
-  trimEndLabel.textContent = d ? `${d.toFixed(1)}s` : '0.0s';
-  trimClock.textContent = '0:00';
-  trimPlay.disabled=false; trimUse.disabled=false;
-}
-function onTick(){
-  const st = val2sec(trimStart.value), ed = val2sec(trimEnd.value);
-  const cur = trimMedia.currentTime;
-  const w = (ed>st)? ((cur-st)/(ed-st))*100 : 0;
-  trimFill.style.width = Math.max(0,Math.min(100,w)) + '%';
-  trimClock.textContent = s2clock(Math.max(0, cur-st));
-  if(cur>=ed-0.02){ trimMedia.pause(); }
-}
-function closeTrim(){
-  trimModal.style.display='none';
-  try{ URL.revokeObjectURL(trimState.url); }catch(_){}
-  trimMedia.pause(); trimMedia.src=''; trimFill.style.width='0%';
-}
-function val2sec(v){ return (Number(v)/1000) * (trimState.dur||0); }
-function syncRange(which){
-  let st = val2sec(trimStart.value), ed = val2sec(trimEnd.value);
-  if(ed<=st){ if(which==='start') ed = Math.min(trimState.dur, st + 0.3); else st = Math.max(0, ed - 0.3); }
-  trimState.start = st; trimState.end = ed;
-  trimStartLabel.textContent = `${st.toFixed(1)}s`;
-  trimEndLabel.textContent   = `${ed.toFixed(1)}s`;
-}
-trimStart.addEventListener('input', ()=>{ syncRange('start'); });
-trimEnd.addEventListener('input',   ()=>{ syncRange('end'); });
-
-let playing=false;
-trimPlay.addEventListener('click', ()=>{
-  if(!playing){
-    try{ trimMedia.currentTime = trimState.start; }catch(_){}
-    trimMedia.play().catch(()=>{});
-    trimPlay.textContent='⏸ 暫停'; playing=true;
+/* ====== 背景套用 ====== */
+function applyChatBg(){
+  const url  = LS.getStr('artistChatBg','');
+  const blur = LS.getStr('artistChatBgBlur','0');
+  const dim  = LS.getStr('artistChatBgDim','25');
+  const el   = document.getElementById('dmDetail'); if(!el) return;
+  if(!url){
+    el.style.backgroundImage='none';
+    el.style.setProperty('--bgDim','0');
+    el.style.setProperty('--bgBlur','0px');
   }else{
-    trimMedia.pause(); trimPlay.textContent='▶️ 播放'; playing=false;
+    el.style.backgroundImage = `url("${url}")`;
+    el.style.setProperty('--bgDim', dim/100);
+    el.style.setProperty('--bgBlur', `${blur}px`);
   }
-});
-trimMedia.addEventListener('pause', ()=>{ trimPlay.textContent='▶️ 播放'; playing=false; });
-
-trimUse.addEventListener('click', async ()=>{
-  const dur = Math.max(0, (trimState.end||0) - (trimState.start||0));
-  if(!confirm(`要發送 ${mmss(dur)} 的語音片段嗎？`)) return;
-
-  const id = await MEDIA_DB.put(trimState.blob);
-  GROUP_MSGS.push({
-    id:'v'+Date.now()+Math.random(),
-    from:'artist',
-    type:'voice',
-    isVideo: trimState.blob.type.startsWith('video/'),
-    mediaId:id,
-    start:trimState.start,
-    end:trimState.end,
-    ts:Date.now()
-  });
-  LS.set('groupMsgs', GROUP_MSGS);
-  closeTrim(); renderThread(); renderDmList(); clearNoticeNow(); hardStickBottom(); updateNoticeBanner();
-});
-
-/* ===================== DM 菜單 / 改名 ===================== */
-function toggleDmMenu(){ const m=document.getElementById('dmMenu'); m.style.display=(m.style.display==='block')?'none':'block'; }
-function hideDmMenu(){ document.getElementById('dmMenu').style.display='none'; }
-document.addEventListener('click',(e)=>{
-  const m=document.getElementById('dmMenu');
-  if(m.style.display==='block'&&!m.contains(e.target)&&!e.target.closest('.hudBtn')) hideDmMenu();
-});
-function renameChat(){
-  const cur=getRoomTitle(); const n=prompt('更改聊天室名稱（同：藝人暱稱）', cur); if(!n) return;
-  NICKNAME=n.trim()||cur; LS.setStr('artistNickname', NICKNAME);
-  document.getElementById('dmTitle').textContent=NICKNAME.toUpperCase();
-  document.getElementById('meNickname')?.textContent && (document.getElementById('meNickname').textContent=NICKNAME);
-  document.getElementById('composerWho')?.textContent && (document.getElementById('composerWho').textContent=NICKNAME);
-  renderDmList();
 }
 
-/* === 裁切背景：旋轉 / 縮放 / 拖曳（新版：會真的裁切） === */
-let cropDataURL = '', cropDeg = 0, cropTx = 0, cropTy = 0;
-let natW = 0, natH = 0;         // 原圖像素
-let baseScale = 1;              // 讓影像「剛好鋪滿舞台」的基準縮放（cover）
+/* === 裁切背景：旋轉 / 雙指縮放 / 拖曳（會真的裁切） === */
+let cropDataURL = '', croppedURL = '';
+let cropDeg = 0, cropTx = 0, cropTy = 0;
+let natW = 0, natH = 0;
+let baseScale = 1;
 const chooser     = document.getElementById('bgChooser');
 const cropImg     = document.getElementById('cropImg');
 const cropStage   = document.getElementById('cropStage');
@@ -1053,7 +841,6 @@ const cropScaleEl = document.getElementById('cropScale');
 const scaleLabel  = document.getElementById('scaleLabel');
 
 function startPickBg(){ chooser?.click(); }
-
 chooser?.addEventListener('change', e=>{
   const f=e.target.files?.[0]; if(!f) return;
   const reader=new FileReader();
@@ -1061,11 +848,7 @@ chooser?.addEventListener('change', e=>{
     cropDataURL = ev.target.result;
     cropImg.onload = ()=>{
       natW = cropImg.naturalWidth; natH = cropImg.naturalHeight;
-      cropDeg = 0; cropTx = 0; cropTy = 0;
-      cropScaleEl.value = 100;  // 100% = 剛好鋪滿
-      updateScaleUI();
-      computeBaseScale();        // 依舞台/圖片計算基準縮放
-      updateCropTransform();
+      hardResetTransform();           // 重置到 cover 舞台
       openModal('cropModal');
     };
     cropImg.src = cropDataURL;
@@ -1073,83 +856,155 @@ chooser?.addEventListener('change', e=>{
   reader.readAsDataURL(f);
 });
 
+/* 基準縮放（cover） */
 function computeBaseScale(){
   const sw = cropStage.clientWidth, sh = cropStage.clientHeight;
-  // 90/270° 交換寬高
   const imgW = (cropDeg % 180 === 0) ? natW : natH;
   const imgH = (cropDeg % 180 === 0) ? natH : natW;
-  // cover：至少一邊貼齊舞台
   baseScale = Math.max(sw / imgW, sh / imgH);
-  clampPan(); // 重新算好邊界，避免出現空白
 }
 
-function uiScale(){                   // 目前滑桿倍率（相對基準）
-  return (Number(cropScaleEl?.value || 100) / 100);
-}
-function cssScale(){                  // 實際套到 <img> 的縮放
-  return baseScale * uiScale();
+/* 目前 UI 縮放（滑桿） & 實際縮放 */
+function uiScale(){ return (Number(cropScaleEl?.value||100)/100); }
+function cssScale(){ return baseScale * uiScale(); }
+
+/* 旋轉後外接框 */
+function rotatedBounds(w, h, rad){
+  const c=Math.cos(rad), s=Math.sin(rad);
+  return { w: Math.abs(w*c)+Math.abs(h*s), h: Math.abs(w*s)+Math.abs(h*c) };
 }
 
-function rotatedBounds(w, h, rad){    // 旋轉後外接矩形
-  const c = Math.cos(rad), s = Math.sin(rad);
-  return { w: Math.abs(w*c) + Math.abs(h*s),
-           h: Math.abs(w*s) + Math.abs(h*c) };
-}
-
-function clampPan(){
-  const sw = cropStage.clientWidth, sh = cropStage.clientHeight;
-  const s  = cssScale();
-  const rad = cropDeg * Math.PI / 180;
-  const bb = rotatedBounds(natW*s, natH*s, rad); // 影像外框（px）
-  const maxX = Math.max(0, (bb.w - sw)/2);
-  const maxY = Math.max(0, (bb.h - sh)/2);
+/* 鬆弛量（放手回彈） */
+const PAN_SLACK = 28;
+function clampPan({withSlack=false}={}){
+  const sw=cropStage.clientWidth, sh=cropStage.clientHeight;
+  const s=cssScale(), rad=cropDeg*Math.PI/180;
+  const bb=rotatedBounds(natW*s, natH*s, rad);
+  const slack = withSlack ? PAN_SLACK : 0;
+  const maxX = Math.max(0, (bb.w - sw)/2) + slack;
+  const maxY = Math.max(0, (bb.h - sh)/2) + slack;
   cropTx = Math.max(-maxX, Math.min(maxX, cropTx));
   cropTy = Math.max(-maxY, Math.min(maxY, cropTy));
 }
-
-function updateCropTransform(){
-  clampPan();
+function updateCropTransform({withSlack=false}={}){
+  clampPan({withSlack});
   cropImg.style.transform =
     `translate(${cropTx}px, ${cropTy}px) rotate(${cropDeg}deg) scale(${cssScale()})`;
 }
-
 function updateScaleUI(){
-  const v = Number(cropScaleEl?.value || 100);
+  const v=Number(cropScaleEl?.value||100);
   scaleLabel && (scaleLabel.textContent = v + '%');
   document.documentElement.style.setProperty('--scaleFill', v + '%');
 }
 
+/* 旋轉 / 重置 */
 document.getElementById('btnRotate')?.addEventListener('click', ()=>{
   cropDeg = (cropDeg + 90) % 360;
-  computeBaseScale();                 // 旋轉後重算基準縮放
-  updateCropTransform();
+  computeBaseScale(); updateCropTransform({withSlack:true}); bounceToLegal();
 });
+document.getElementById('btnReset')?.addEventListener('click', hardResetTransform);
+function hardResetTransform(){
+  cropDeg = 0; cropTx = 0; cropTy = 0;
+  cropScaleEl.value = 100; updateScaleUI();
+  computeBaseScale(); updateCropTransform({withSlack:false}); bounceToLegal();
+}
+
+/* 滑桿 +/- */
 document.getElementById('zoomIn')?.addEventListener('click', ()=>{
-  cropScaleEl.value = Math.min(250, Number(cropScaleEl.value)+5); onScaleInput();
+  cropScaleEl.value = Math.min(250, Number(cropScaleEl.value)+5);
+  updateScaleUI(); updateCropTransform({withSlack:true}); bounceToLegal();
 });
 document.getElementById('zoomOut')?.addEventListener('click', ()=>{
-  cropScaleEl.value = Math.max(50, Number(cropScaleEl.value)-5); onScaleInput();
+  cropScaleEl.value = Math.max(50, Number(cropScaleEl.value)-5);
+  updateScaleUI(); updateCropTransform({withSlack:true}); bounceToLegal();
 });
-function onScaleInput(){ updateScaleUI(); updateCropTransform(); }
-cropScaleEl?.addEventListener('input', onScaleInput);
+cropScaleEl?.addEventListener('input', ()=>{ updateScaleUI(); updateCropTransform({withSlack:true}); });
 
-/* 拖曳（有邊界，避免露白） */
+/* 拖曳 */
 let dragging=false, sx=0, sy=0, bx=0, by=0;
 cropImg?.addEventListener('pointerdown', e=>{
   dragging=true; cropImg.setPointerCapture(e.pointerId);
   sx=e.clientX; sy=e.clientY; bx=cropTx; by=cropTy;
 });
 cropImg?.addEventListener('pointermove', e=>{
-  if(!dragging) return;
+  if(!dragging || activePointers.size>=2) return;
   cropTx = bx + (e.clientX - sx);
   cropTy = by + (e.clientY - sy);
-  updateCropTransform();
+  updateCropTransform({withSlack:true});
 });
 ['pointerup','pointercancel','lostpointercapture'].forEach(evt=>{
-  cropImg?.addEventListener(evt, ()=>{ dragging=false; });
+  cropImg?.addEventListener(evt, ()=>{ dragging=false; bounceToLegal(); });
 });
 
-/* 匯出真正裁切後的圖片（依舞台尺寸 + 裝置 DPR） */
+/* 雙指縮放 */
+const activePointers = new Map();
+let pinchStartDist = 0, pinchStartScale = 1;
+let pinchAnchor = {x:0,y:0};
+cropStage.addEventListener('pointerdown', e=>{ activePointers.set(e.pointerId, {x:e.clientX, y:e.clientY}); });
+cropStage.addEventListener('pointermove', e=>{
+  if(!activePointers.has(e.pointerId)) return;
+  activePointers.set(e.pointerId, {x:e.clientX, y:e.clientY});
+  if(activePointers.size===2){
+    const pts=[...activePointers.values()];
+    const dx=pts[0].x-pts[1].x, dy=pts[0].y-pts[1].y;
+    const dist=Math.hypot(dx,dy);
+    if(!pinchStartDist){
+      pinchStartDist = dist; pinchStartScale = Number(cropScaleEl.value);
+      const rect=cropStage.getBoundingClientRect();
+      pinchAnchor.x = (pts[0].x+pts[1].x)/2 - rect.left;
+      pinchAnchor.y = (pts[0].y+pts[1].y)/2 - rect.top;
+    }else{
+      const k = dist / pinchStartDist;
+      const newUi = Math.max(50, Math.min(250, pinchStartScale * k));
+      const oldS = cssScale();
+      cropScaleEl.value = newUi; updateScaleUI();
+      const newS = cssScale();
+      const sw=cropStage.clientWidth, sh=cropStage.clientHeight;
+      const kk=newS/oldS, dxA=(pinchAnchor.x - sw/2), dyA=(pinchAnchor.y - sh/2);
+      cropTx = cropTx + (1 - kk) * dxA;
+      cropTy = cropTy + (1 - kk) * dyA;
+      updateCropTransform({withSlack:true});
+    }
+  }
+});
+['pointerup','pointercancel','lostpointercapture'].forEach(evt=>{
+  cropStage.addEventListener(evt, e=>{
+    activePointers.delete(e.pointerId);
+    if(activePointers.size<2){ pinchStartDist=0; bounceToLegal(); }
+  });
+});
+
+/* 滾輪縮放（桌機） */
+cropStage.addEventListener('wheel', e=>{
+  e.preventDefault();
+  const delta = Math.sign(e.deltaY) * 5;
+  const before = Number(cropScaleEl.value);
+  const after  = Math.max(50, Math.min(250, before - delta));
+  if(before===after) return;
+  const rect=cropStage.getBoundingClientRect();
+  const anchor={x:e.clientX-rect.left, y:e.clientY-rect.top};
+  const oldS = cssScale();
+  cropScaleEl.value = after; updateScaleUI();
+  const newS = cssScale();
+  const sw=cropStage.clientWidth, sh=cropStage.clientHeight;
+  const kk=newS/oldS, dxA=(anchor.x - sw/2), dyA=(anchor.y - sh/2);
+  cropTx = cropTx + (1 - kk) * dxA;
+  cropTy = cropTy + (1 - kk) * dyA;
+  updateCropTransform({withSlack:true}); bounceToLegal();
+},{passive:false});
+
+/* 回彈動畫到合法邊界 */
+function bounceToLegal(){
+  clampPan({withSlack:false});
+  cropImg.classList.add('animating');
+  requestAnimationFrame(()=>{
+    cropImg.style.transform =
+      `translate(${cropTx}px, ${cropTy}px) rotate(${cropDeg}deg) scale(${cssScale()})`;
+  });
+  setTimeout(()=> cropImg.classList.remove('animating'), 200);
+}
+
+/* 匯出真正裁切圖 */
 function exportCroppedDataURL(mime='image/jpeg', quality=.92){
   const dpr = window.devicePixelRatio || 1;
   const sw  = cropStage.clientWidth,  sh = cropStage.clientHeight;
@@ -1158,32 +1013,140 @@ function exportCroppedDataURL(mime='image/jpeg', quality=.92){
   canvas.height = Math.round(sh * dpr);
   const ctx = canvas.getContext('2d', {alpha:false});
   ctx.imageSmoothingQuality = 'high';
-
-  // 把座標系先放大到 CSS 像素 → 裝置像素
   ctx.scale(dpr, dpr);
-  // 以舞台中心為原點，套同一套 transform
   ctx.translate(sw/2, sh/2);
   ctx.translate(cropTx, cropTy);
   ctx.rotate(cropDeg * Math.PI/180);
   ctx.scale(cssScale(), cssScale());
-  ctx.drawImage(cropImg, -natW/2, -natH/2);   // 以圖片中心對齊
-
+  ctx.drawImage(cropImg, -natW/2, -natH/2);
   return canvas.toDataURL(mime, quality);
 }
 
-/* 流程：下一步 → 預覽裁切圖 → 確認寫入並套用 */
+/* 流程：下一步 → 預覽 → 確認 */
 function applyCrop(){
-  const url = exportCroppedDataURL(); // ← 用真正裁切結果預覽
+  croppedURL = exportCroppedDataURL();               // 真裁切結果
   const mini = document.getElementById('bgPreviewMini');
-  if(mini) mini.style.backgroundImage = `url("${url}")`;
+  if(mini) mini.style.backgroundImage = `url("${croppedURL}")`;
   closeCrop(); openModal('previewModal');
 }
 function backToCrop(){ closePreview(); openModal('cropModal'); }
+function confirmPreview(){
+  if(croppedURL) LS.setStr('artistChatBg', croppedURL);
+  LS.setStr('artistChatBgBlur','0');
+  LS.setStr('artistChatBgDim','25');
+  applyChatBg(); closePreview();
+}
 
-/* 舊函式名相容 */
-function rotateCrop(){ cropDeg=(cropDeg+90)%360; computeBaseScale(); updateCropTransform(); }
+/* Modal 控制 */
+function openModal(id){ const m=document.getElementById(id); if(m) m.style.display='block'; }
+function closeCrop(){ const m=document.getElementById('cropModal'); if(m) m.style.display='none'; }
+function closePreview(){ const m=document.getElementById('previewModal'); if(m) m.style.display='none'; }
 
-/* ===================== 尺寸量測 & 貼底核心 ===================== */
+/* ===================== Composer（首頁草稿） ===================== */
+function previewComposeMedia(e){
+  const box=document.getElementById('composePreview'); const hint=document.getElementById('composeFilesHint');
+  box.innerHTML=''; if(!e.target.files.length){ hint.textContent='未選取檔案'; return; }
+  hint.textContent=`已選 ${e.target.files.length} 個檔案`;
+  [...e.target.files].forEach(f=>{
+    const url=URL.createObjectURL(f); const isVideo=f.type.startsWith('video/');
+    const el=document.createElement(isVideo?'video':'img');
+    el.src=url; el.controls=isVideo; el.onload=el.onloadeddata=()=>URL.revokeObjectURL(url);
+    el.style.width='110px'; el.style.height='110px'; el.style.objectFit='cover'; el.style.borderRadius='12px'; el.style.border='1px solid var(--line)';
+    box.appendChild(el);
+  });
+}
+function publishDraft(){ alert('先存草稿＆預覽；發佈規則等我們接首頁串流。'); showPage('home'); }
+
+/* ===================== 暱稱按鈕 ===================== */
+document.getElementById('btnEditNick')?.addEventListener('click', ()=>{
+  const v=prompt('輸入新的暱稱（= 聊天室名稱）', NICKNAME);
+  if(v&&v.trim()){
+    NICKNAME=v.trim(); LS.setStr('artistNickname', NICKNAME);
+    document.getElementById('meNickname')?.textContent && (document.getElementById('meNickname').textContent=NICKNAME);
+    document.getElementById('dmTitle').textContent=NICKNAME.toUpperCase();
+    document.getElementById('composerWho')?.textContent && (document.getElementById('composerWho').textContent=NICKNAME);
+    renderDmList();
+  }
+});
+
+/* 帖文行為 */
+document.addEventListener('click', (e)=>{
+  const postEl = e.target.closest('.post'); if(!postEl) return;
+  const postId = postEl.getAttribute('data-post');
+  const post = POSTS.find(x=>x.id===postId); if(!post) return;
+  post.reacts = post.reacts || {thumb:0,heart:0,joy:0,shock:0,cry:0};
+  post.cmts   = post.cmts   || [];
+
+  const rBtn = e.target.closest('.react');
+  if(rBtn){
+    const key = rBtn.getAttribute('data-react');
+    const storeKey = `myreact:${postId}`;
+    const mine = LS.getStr(storeKey, '');
+    if(mine === key){
+      post.reacts[key] = Math.max((post.reacts[key]||0)-1, 0);
+      LS.setStr(storeKey, '');
+    }else{
+      if(mine){ post.reacts[mine] = Math.max((post.reacts[mine]||0)-1, 0); }
+      post.reacts[key] = (post.reacts[key]||0) + 1;
+      LS.setStr(storeKey, key);
+    }
+    LS.set('artistPosts', POSTS);
+    const area = rBtn.closest('.reacts'); const nowMine = LS.getStr(storeKey, '');
+    area.querySelectorAll('.react').forEach(btn=>{
+      const k = btn.getAttribute('data-react');
+      btn.classList.toggle('active', nowMine === k);
+      btn.querySelector('.num').textContent = post.reacts[k] || '';
+    });
+    return;
+  }
+
+  if(e.target.classList.contains('addCmt')){
+    const t = (prompt('輸入留言')||'').trim(); if(!t) return;
+    post.cmts.push({id:'c'+Date.now(), text:t});
+    LS.set('artistPosts', POSTS);
+    postEl.querySelector('.cmtCount').textContent = post.cmts.length;
+  }
+});
+
+/* ===================== 啟動 ===================== */
+document.addEventListener('DOMContentLoaded', ()=>{
+  document.getElementById('meNickname') && (document.getElementById('meNickname').textContent=NICKNAME);
+  document.getElementById('dmTitle').textContent=NICKNAME.toUpperCase();
+  document.getElementById('composerWho') && (document.getElementById('composerWho').textContent=NICKNAME);
+  document.getElementById('meId') && (document.getElementById('meId').textContent='ARTIST-00001');
+  document.getElementById('meAvatar') && (document.getElementById('meAvatar').src=AVATAR);
+
+  renderStoryBar(); renderFeed(currentFilter); renderDmList();
+  measureHUD(); measureFooter(); updateComposerUI();
+  renderThread(); updateNoticeBanner();
+
+  scrollToEndDuring(800);
+  setTimeout(hardStickBottom,0);
+});
+
+/* 監看 footer 高度變化 */
+(()=>{ const footer=document.getElementById('dmFooter'); if(!footer) return;
+  if('ResizeObserver' in window){ new ResizeObserver(()=>{ measureFooter(); scrollToEndDuring(600); }).observe(footer); }
+})();
+
+/* iOS Safari：視窗/鍵盤變化 */
+;(function(){
+  const vv=window.visualViewport;
+  function applyVV(){
+    if(!vv) return;
+    const offset=Math.max(0, window.innerHeight - vv.height);
+    document.documentElement.style.setProperty('--kb-offset', offset + 'px');
+    measureFooter(); scrollToEndDuring(600);
+  }
+  if(vv){ vv.addEventListener('resize', applyVV); vv.addEventListener('scroll', applyVV); applyVV(); }
+  window.addEventListener('resize', ()=>{ measureHUD(); measureFooter(); scrollToEndDuring(600); });
+  window.addEventListener('orientationchange', ()=>{ setTimeout(()=>{ measureHUD(); measureFooter(); scrollToEndDuring(800); },120); });
+  window.addEventListener('pageshow', ()=>{ measureFooter(); scrollToEndDuring(800); });
+  document.addEventListener('visibilitychange', ()=>{ if(!document.hidden){ scrollToEndDuring(600); } });
+  if(document.fonts && document.fonts.ready){ document.fonts.ready.then(()=>scrollToEndDuring(800)); }
+})();
+
+/* 貼底 */
 function measureFooter(){
   const f=document.getElementById('dmFooter'); if(!f) return;
   const h=Math.ceil(f.getBoundingClientRect().height);
@@ -1233,174 +1196,30 @@ function bindBottomObserver(){
   }catch(_){}
 }
 
-/* ===================== Composer（首頁草稿） ===================== */
-function previewComposeMedia(e){
-  const box=document.getElementById('composePreview'); const hint=document.getElementById('composeFilesHint');
-  box.innerHTML=''; if(!e.target.files.length){ hint.textContent='未選取檔案'; return; }
-  hint.textContent=`已選 ${e.target.files.length} 個檔案`;
-  [...e.target.files].forEach(f=>{
-    const url=URL.createObjectURL(f); const isVideo=f.type.startsWith('video/');
-    const el=document.createElement(isVideo?'video':'img');
-    el.src=url; el.controls=isVideo; el.onload=el.onloadeddata=()=>URL.revokeObjectURL(url);
-    el.style.width='110px'; el.style.height='110px'; el.style.objectFit='cover'; el.style.borderRadius='12px'; el.style.border='1px solid var(--line)';
-    box.appendChild(el);
-  });
-}
-function publishDraft(){ alert('先存草稿＆預覽；發佈規則等我們接首頁串流。'); showPage('home'); }
-
-/* ===================== 暱稱按鈕 ===================== */
-document.getElementById('btnEditNick')?.addEventListener('click', ()=>{
-  const v=prompt('輸入新的暱稱（= 聊天室名稱）', NICKNAME);
-  if(v&&v.trim()){
-    NICKNAME=v.trim(); LS.setStr('artistNickname', NICKNAME);
-    document.getElementById('meNickname')?.textContent && (document.getElementById('meNickname').textContent=NICKNAME);
-    document.getElementById('dmTitle').textContent=NICKNAME.toUpperCase();
-    document.getElementById('composerWho')?.textContent && (document.getElementById('composerWho').textContent=NICKNAME);
-    renderDmList();
-  }
-});
-
-  // ⭐ Action bar 事件（點擊反應 / 發表評論）
-document.addEventListener('click', (e)=>{
-  const postEl = e.target.closest('.post');
-  if(!postEl) return;
-  const postId = postEl.getAttribute('data-post');
-  const post = POSTS.find(x=>x.id===postId);
-  if(!post) return;
-  post.reacts = post.reacts || {thumb:0,heart:0,joy:0,shock:0,cry:0};
-  post.cmts   = post.cmts   || [];
-
-  // 反應（單選＋可取消）
-const rBtn = e.target.closest('.react');
-if(rBtn){
-  const key = rBtn.getAttribute('data-react');
-  const storeKey = `myreact:${postId}`;
-  const mine = LS.getStr(storeKey, '');
-
-  post.reacts = post.reacts || {thumb:0,heart:0,joy:0,shock:0,cry:0};
-
-  if(mine === key){
-    // 取消
-    post.reacts[key] = Math.max((post.reacts[key]||0)-1, 0);
-    LS.setStr(storeKey, '');
-  }else{
-    // 換選（扣舊＋加新）
-    if(mine){ post.reacts[mine] = Math.max((post.reacts[mine]||0)-1, 0); }
-    post.reacts[key] = (post.reacts[key]||0) + 1;
-    LS.setStr(storeKey, key);
-  }
-  LS.set('artistPosts', POSTS);
-
-  // 更新這張卡的所有按鈕外觀與數字
-  const area = rBtn.closest('.reacts');
-  const nowMine = LS.getStr(storeKey, '');
-  area.querySelectorAll('.react').forEach(btn=>{
-    const k = btn.getAttribute('data-react');
-    btn.classList.toggle('active', nowMine === k);
-    btn.querySelector('.num').textContent = post.reacts[k] || '';
-  });
-  return;
-}
-
-  // 發表評論（簡易：prompt；你要改 modal 也可以）
-  if(e.target.classList.contains('addCmt')){
-    const t = (prompt('輸入留言')||'').trim();
-    if(!t) return;
-    post.cmts.push({id:'c'+Date.now(), text:t});
-    LS.set('artistPosts', POSTS);
-    postEl.querySelector('.cmtCount').textContent = post.cmts.length;
-  }
-});
-
-/* ===================== 啟動 ===================== */
-document.addEventListener('DOMContentLoaded', ()=>{
-  document.getElementById('meNickname') && (document.getElementById('meNickname').textContent=NICKNAME);
-  document.getElementById('dmTitle').textContent=NICKNAME.toUpperCase();
-  document.getElementById('composerWho') && (document.getElementById('composerWho').textContent=NICKNAME);
-  document.getElementById('meId') && (document.getElementById('meId').textContent='ARTIST-00001');
-  document.getElementById('meAvatar') && (document.getElementById('meAvatar').src=AVATAR);
-
-  renderStoryBar(); renderFeed(currentFilter); renderDmList();
-
-  measureHUD(); measureFooter(); updateComposerUI();
-  renderThread();
-  updateNoticeBanner();
-
-  scrollToEndDuring(800);
-  setTimeout(hardStickBottom,0);
-  });
-
-/* 監看 footer 高度變化（鍵盤/回覆 chip） */
-(()=>{ const footer=document.getElementById('dmFooter'); if(!footer) return;
-  if('ResizeObserver' in window){ new ResizeObserver(()=>{ measureFooter(); scrollToEndDuring(600); }).observe(footer); }
-})();
-
-/* iOS Safari：視窗/鍵盤變化（visualViewport） */
-;(function(){
-  const vv=window.visualViewport;
-  function applyVV(){
-    if(!vv) return;
-    const offset=Math.max(0, window.innerHeight - vv.height);
-    document.documentElement.style.setProperty('--kb-offset', offset + 'px');
-    measureFooter(); scrollToEndDuring(600);
-  }
-  if(vv){ vv.addEventListener('resize', applyVV); vv.addEventListener('scroll', applyVV); applyVV(); }
-  window.addEventListener('resize', ()=>{ measureHUD(); measureFooter(); scrollToEndDuring(600); });
-  window.addEventListener('orientationchange', ()=>{ setTimeout(()=>{ measureHUD(); measureFooter(); scrollToEndDuring(800); },120); });
-  window.addEventListener('pageshow', ()=>{ measureFooter(); scrollToEndDuring(800); });
-  document.addEventListener('visibilitychange', ()=>{ if(!document.hidden){ scrollToEndDuring(600); } });
-  if(document.fonts && document.fonts.ready){ document.fonts.ready.then(()=>scrollToEndDuring(800)); }
-})();
-
 /* ====== 全螢幕媒體檢視器 ====== */
 let CURRENT_INLINE_MEDIA = null;
-
 function openViewer(url, kind, srcEl){
-  // 暫停聊天室內原來那個 video（避免聲音重疊）
   if (srcEl && srcEl.tagName === 'VIDEO') { try{ srcEl.pause(); }catch(_){} }
   CURRENT_INLINE_MEDIA = srcEl || null;
-
-  const v = document.getElementById('viewer');
-  const img = document.getElementById('viewerImg');
-  const vid = document.getElementById('viewerVideo');
-
+  const v = document.getElementById('viewer'), img = document.getElementById('viewerImg'), vid = document.getElementById('viewerVideo');
   img.style.display='none'; vid.style.display='none';
   if(kind==='img'){ img.src=url; img.style.display='block'; }
   else{ vid.src=url; vid.style.display='block'; }
-
   v.style.display='block';
 }
-
 function closeViewer(){
-  const v = document.getElementById('viewer');
-  const img = document.getElementById('viewerImg');
-  const vid = document.getElementById('viewerVideo');
-  v.style.display='none';
-  img.src=''; vid.src='';
+  const v = document.getElementById('viewer'); const img = document.getElementById('viewerImg'); const vid = document.getElementById('viewerVideo');
+  v.style.display='none'; img.src=''; vid.src='';
 }
-
-/* 只點「背景」才關；點內容不關 */
 (function initViewerGuard(){
   const v = document.getElementById('viewer');
   const stage = v.querySelector('.stage');
   const img = document.getElementById('viewerImg');
   const vid = document.getElementById('viewerVideo');
   const btn = document.getElementById('viewerClose');
-
-  // 點背景關閉
-  v.addEventListener('click', e=>{
-    if(e.target === v) closeViewer();
-  });
-
-  // 阻擋事件往外冒泡（點內容不關閉）
-  [stage,img,vid].forEach(el=>{
-    el.addEventListener('click', e=> e.stopPropagation());
-  });
-
-  // 關閉鈕
+  v.addEventListener('click', e=>{ if(e.target === v) closeViewer(); });
+  [stage,img,vid].forEach(el=>{ el.addEventListener('click', e=> e.stopPropagation()); });
   btn?.addEventListener('click', e=>{ e.stopPropagation(); closeViewer(); });
-
-  // Esc 關閉（鍵盤）
   document.addEventListener('keydown', e=>{ if(e.key==='Escape' && v.style.display==='block') closeViewer(); });
 })();
 </script>
