@@ -375,12 +375,12 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
   <div class="spacer"></div>
   <div class="scaleRow">
     <button class="btnMini" id="zoomOut">－</button>
-    <input id="cropScale" type="range" min="80" max="220" value="140">
+    <input id="cropScale" type="range" min="50" max="250" value="100">
     <button class="btnMini" id="zoomIn">＋</button>
     <span id="scaleLabel">140%</span>
   </div>
   <div class="spacer"></div>
-  <button class="chip" onclick="closeCrop()">取消</button>
+  <button class="chip" onclick="backToCrop()">返回</button>
   <button class="chip btnPrimary" onclick="applyCrop()">下一步</button>
 </div>
 </div></div>
@@ -1042,64 +1042,102 @@ function renameChat(){
   renderDmList();
 }
 
-/* === 裁切背景：旋轉 / 縮放 / 拖曳（完整覆蓋） === */
-let cropDataURL = '', cropDeg = 0, cropScale = 1.4, cropTx = 0, cropTy = 0;
-
-const chooser      = document.getElementById('bgChooser');
-const cropImg      = document.getElementById('cropImg');
-const cropScaleEl  = document.getElementById('cropScale');
-const scaleLabel   = document.getElementById('scaleLabel');
+/* === 裁切背景：旋轉 / 縮放 / 拖曳（新版：會真的裁切） === */
+let cropDataURL = '', cropDeg = 0, cropTx = 0, cropTy = 0;
+let natW = 0, natH = 0;         // 原圖像素
+let baseScale = 1;              // 讓影像「剛好鋪滿舞台」的基準縮放（cover）
+const chooser     = document.getElementById('bgChooser');
+const cropImg     = document.getElementById('cropImg');
+const cropStage   = document.getElementById('cropStage');
+const cropScaleEl = document.getElementById('cropScale');
+const scaleLabel  = document.getElementById('scaleLabel');
 
 function startPickBg(){ chooser?.click(); }
 
 chooser?.addEventListener('change', e=>{
-  const f = e.target.files?.[0]; if(!f) return;
-  const reader = new FileReader();
-  reader.onload = ev=>{
+  const f=e.target.files?.[0]; if(!f) return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
     cropDataURL = ev.target.result;
-    if (cropImg) cropImg.src = cropDataURL;
-    cropDeg = 0; cropScale = 1.4; cropTx = 0; cropTy = 0;
-    if (cropScaleEl) cropScaleEl.value = 140;
-    if (scaleLabel)  scaleLabel.textContent = '140%';
-    document.documentElement.style.setProperty('--scaleFill', (cropScaleEl?.value || 140) + '%');
-    updateCropTransform(); openModal('cropModal');
+    cropImg.onload = ()=>{
+      natW = cropImg.naturalWidth; natH = cropImg.naturalHeight;
+      cropDeg = 0; cropTx = 0; cropTy = 0;
+      cropScaleEl.value = 100;  // 100% = 剛好鋪滿
+      updateScaleUI();
+      computeBaseScale();        // 依舞台/圖片計算基準縮放
+      updateCropTransform();
+      openModal('cropModal');
+    };
+    cropImg.src = cropDataURL;
   };
   reader.readAsDataURL(f);
 });
 
-function updateCropTransform(){
-  if (!cropImg) return;
-  cropImg.style.transform =
-    `translate(${cropTx}px, ${cropTy}px) scale(${cropScale}) rotate(${cropDeg}deg)`;
+function computeBaseScale(){
+  const sw = cropStage.clientWidth, sh = cropStage.clientHeight;
+  // 90/270° 交換寬高
+  const imgW = (cropDeg % 180 === 0) ? natW : natH;
+  const imgH = (cropDeg % 180 === 0) ? natH : natW;
+  // cover：至少一邊貼齊舞台
+  baseScale = Math.max(sw / imgW, sh / imgH);
+  clampPan(); // 重新算好邊界，避免出現空白
 }
 
-/* 旋轉 / 縮放按鈕 */
+function uiScale(){                   // 目前滑桿倍率（相對基準）
+  return (Number(cropScaleEl?.value || 100) / 100);
+}
+function cssScale(){                  // 實際套到 <img> 的縮放
+  return baseScale * uiScale();
+}
+
+function rotatedBounds(w, h, rad){    // 旋轉後外接矩形
+  const c = Math.cos(rad), s = Math.sin(rad);
+  return { w: Math.abs(w*c) + Math.abs(h*s),
+           h: Math.abs(w*s) + Math.abs(h*c) };
+}
+
+function clampPan(){
+  const sw = cropStage.clientWidth, sh = cropStage.clientHeight;
+  const s  = cssScale();
+  const rad = cropDeg * Math.PI / 180;
+  const bb = rotatedBounds(natW*s, natH*s, rad); // 影像外框（px）
+  const maxX = Math.max(0, (bb.w - sw)/2);
+  const maxY = Math.max(0, (bb.h - sh)/2);
+  cropTx = Math.max(-maxX, Math.min(maxX, cropTx));
+  cropTy = Math.max(-maxY, Math.min(maxY, cropTy));
+}
+
+function updateCropTransform(){
+  clampPan();
+  cropImg.style.transform =
+    `translate(${cropTx}px, ${cropTy}px) rotate(${cropDeg}deg) scale(${cssScale()})`;
+}
+
+function updateScaleUI(){
+  const v = Number(cropScaleEl?.value || 100);
+  scaleLabel && (scaleLabel.textContent = v + '%');
+  document.documentElement.style.setProperty('--scaleFill', v + '%');
+}
+
 document.getElementById('btnRotate')?.addEventListener('click', ()=>{
-  cropDeg = (cropDeg + 90) % 360; updateCropTransform();
+  cropDeg = (cropDeg + 90) % 360;
+  computeBaseScale();                 // 旋轉後重算基準縮放
+  updateCropTransform();
 });
 document.getElementById('zoomIn')?.addEventListener('click', ()=>{
-  const v = Math.min(220, Number(cropScaleEl?.value || 140) + 5);
-  if (cropScaleEl) cropScaleEl.value = v; onScaleInput();
+  cropScaleEl.value = Math.min(250, Number(cropScaleEl.value)+5); onScaleInput();
 });
 document.getElementById('zoomOut')?.addEventListener('click', ()=>{
-  const v = Math.max(80, Number(cropScaleEl?.value || 140) - 5);
-  if (cropScaleEl) cropScaleEl.value = v; onScaleInput();
+  cropScaleEl.value = Math.max(50, Number(cropScaleEl.value)-5); onScaleInput();
 });
-
-function onScaleInput(){
-  const v = Number(cropScaleEl?.value || 140);
-  cropScale = v / 100;
-  if (scaleLabel) scaleLabel.textContent = v + '%';
-  document.documentElement.style.setProperty('--scaleFill', v + '%');
-  updateCropTransform();
-}
+function onScaleInput(){ updateScaleUI(); updateCropTransform(); }
 cropScaleEl?.addEventListener('input', onScaleInput);
 
-/* 拖曳移動圖片（Pointer Events） */
+/* 拖曳（有邊界，避免露白） */
 let dragging=false, sx=0, sy=0, bx=0, by=0;
 cropImg?.addEventListener('pointerdown', e=>{
-  dragging = true; cropImg.setPointerCapture(e.pointerId);
-  sx = e.clientX; sy = e.clientY; bx = cropTx; by = cropTy;
+  dragging=true; cropImg.setPointerCapture(e.pointerId);
+  sx=e.clientX; sy=e.clientY; bx=cropTx; by=cropTy;
 });
 cropImg?.addEventListener('pointermove', e=>{
   if(!dragging) return;
@@ -1111,43 +1149,39 @@ cropImg?.addEventListener('pointermove', e=>{
   cropImg?.addEventListener(evt, ()=>{ dragging=false; });
 });
 
-/* 舊函式名相容 */
-function rotateCrop(){ cropDeg = (cropDeg + 90) % 360; updateCropTransform(); }
+/* 匯出真正裁切後的圖片（依舞台尺寸 + 裝置 DPR） */
+function exportCroppedDataURL(mime='image/jpeg', quality=.92){
+  const dpr = window.devicePixelRatio || 1;
+  const sw  = cropStage.clientWidth,  sh = cropStage.clientHeight;
+  const canvas = document.createElement('canvas');
+  canvas.width  = Math.round(sw * dpr);
+  canvas.height = Math.round(sh * dpr);
+  const ctx = canvas.getContext('2d', {alpha:false});
+  ctx.imageSmoothingQuality = 'high';
 
-/* 流程：套預覽 → 確認 → 寫入並套用背景 */
+  // 把座標系先放大到 CSS 像素 → 裝置像素
+  ctx.scale(dpr, dpr);
+  // 以舞台中心為原點，套同一套 transform
+  ctx.translate(sw/2, sh/2);
+  ctx.translate(cropTx, cropTy);
+  ctx.rotate(cropDeg * Math.PI/180);
+  ctx.scale(cssScale(), cssScale());
+  ctx.drawImage(cropImg, -natW/2, -natH/2);   // 以圖片中心對齊
+
+  return canvas.toDataURL(mime, quality);
+}
+
+/* 流程：下一步 → 預覽裁切圖 → 確認寫入並套用 */
 function applyCrop(){
+  const url = exportCroppedDataURL(); // ← 用真正裁切結果預覽
   const mini = document.getElementById('bgPreviewMini');
-  if (mini) mini.style.backgroundImage = `url("${cropDataURL}")`;
+  if(mini) mini.style.backgroundImage = `url("${url}")`;
   closeCrop(); openModal('previewModal');
 }
+function backToCrop(){ closePreview(); openModal('cropModal'); }
 
-function openModal(id){ const m = document.getElementById(id); if(m) m.style.display='block'; }
-function closeCrop(){ const m = document.getElementById('cropModal'); if(m) m.style.display='none'; }
-function closePreview(){ const m = document.getElementById('previewModal'); if(m) m.style.display='none'; }
-
-function applyChatBg(){
-  const url  = LS.getStr('artistChatBg','');
-  const blur = LS.getStr('artistChatBgBlur','2');
-  const dim  = LS.getStr('artistChatBgDim','25');
-  const el   = document.getElementById('dmDetail'); if(!el) return;
-
-  if(!url){
-    el.style.backgroundImage='none';
-    el.style.setProperty('--bgDim','0');
-    el.style.setProperty('--bgBlur','0px');
-  }else{
-    el.style.backgroundImage = `url("${url}")`;
-    el.style.setProperty('--bgDim', dim/100);
-    el.style.setProperty('--bgBlur', `${blur}px`);
-  }
-}
-function confirmPreview(){
-  if(cropDataURL) LS.setStr('artistChatBg', cropDataURL);
-  LS.setStr('artistChatBgScale','100');
-  LS.setStr('artistChatBgBlur','0');
-  LS.setStr('artistChatBgDim','25');
-  applyChatBg(); closePreview();
-}
+/* 舊函式名相容 */
+function rotateCrop(){ cropDeg=(cropDeg+90)%360; computeBaseScale(); updateCropTransform(); }
 
 /* ===================== 尺寸量測 & 貼底核心 ===================== */
 function measureFooter(){
