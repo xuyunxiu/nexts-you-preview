@@ -863,6 +863,17 @@ function renderThread(){
 function getLastTs(role){
   let t=0; for(const m of GROUP_MSGS){ if(!role || m.from===role){ if(m.ts>t) t=m.ts; } } return t;
 }
+ function updateNoticeBanner(){
+  const n = ensureNoticeRow(); if(!n) return;
+  const lastFan = getLastTs('fan');
+  const lastArtist = getLastTs('artist');
+  // 粉絲最後一則比藝人新 → 顯示提示
+  n.style.display = (lastFan > lastArtist) ? 'block' : 'none';
+}
+function clearNoticeNow(){
+  const n = document.getElementById('noticeRow');
+  if(n) n.style.display = 'none';
+} 
   
 /* ===================== 送訊息 / 回覆 ===================== */
 function clearReply(){ replyDraft=null; document.getElementById('replyChip').style.display='none'; scrollToEndDuring(400); }
@@ -1129,7 +1140,7 @@ function applyChatBg(){
     el.style.setProperty('--bgDim', dim/100);
     el.style.setProperty('--bgBlur', `${blur}px`);
   }
-
+}
 function confirmPreview(){
   if(cropDataURL) LS.setStr('artistChatBg', cropDataURL);
   LS.setStr('artistChatBgScale','100');
