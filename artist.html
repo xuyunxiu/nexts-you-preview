@@ -129,6 +129,13 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 .msg.right .bubble{background:linear-gradient(180deg,var(--accent),var(--accent2));color:#fff;border-color:transparent}
 .fromLabel{font-size:11px;font-weight:900;color:#6b78a8;margin-bottom:4px}
 .fanText{color:#111}
+  /* DM 右上角選單（浮層） */
+#dmMenu{
+  position:absolute;top:52px;right:8px;z-index:60;
+  background:rgba(255,255,255,.96);backdrop-filter:blur(10px);
+  border:1px solid var(--line);border-radius:12px;padding:8px;box-shadow:var(--shadow);
+}
+#dmMenu .chip{width:100%;justify-content:flex-start}
 
 /* 回覆卡 */
 .replyCard{align-self:flex-end;max-width:74%;margin:14px 6px 0;padding:10px 12px;border-radius:14px;background:rgba(255,255,255,.86);border:1px solid rgba(0,0,0,.06);box-shadow:0 8px 18px rgba(0,0,0,.12);backdrop-filter:saturate(140%) blur(1.5px);word-break:break-word}
@@ -160,7 +167,10 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 .hasText .dmSend{color:#111}
 
 /* ---------- 媒體（圖片/影片）尺寸一致、脫離泡泡 ---------- */
-.msgImg,.msgVideo{
+/* 媒體訊息：完全脫離泡泡樣式（包含右側氣泡的覆寫） */
+.msg .bubble.mediaWrap{background:transparent!important;border:none!important;padding:0;border-radius:0;color:inherit}
+.msg.right .bubble.mediaWrap{background:transparent!important;border:none!important}
+  .msgImg,.msgVideo{
   display:block;
   width:min(66vw,300px);
   height:auto;
@@ -227,6 +237,9 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 #viewer{position:fixed;inset:0;z-index:90;display:none;background:rgba(0,0,0,.9)}
 #viewer .stage{position:absolute;inset:0;display:grid;place-items:center}
 #viewerImg,#viewerVideo{max-width:94vw;max-height:88vh;border-radius:12px}
+<button id="viewerClose" aria-label="close" style="
+  position:fixed;right:14px;top:14px;z-index:95;border:none;border-radius:10px;
+  background:rgba(255,255,255,.14);backdrop-filter:blur(6px);color:#fff;padding:6px 10px;">✕</button>
 </style>
 </head>
 <body>
@@ -392,11 +405,14 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 </nav>
 
 <!-- 全螢幕媒體檢視器 -->
-<div id="viewer" onclick="closeViewer()">
+<div id="viewer">
   <div class="stage">
     <img id="viewerImg" alt="" style="display:none">
     <video id="viewerVideo" controls playsinline style="display:none"></video>
   </div>
+  <button id="viewerClose" aria-label="close" style="
+    position:fixed;right:14px;top:14px;z-index:95;border:none;border-radius:10px;
+    background:rgba(255,255,255,.14);backdrop-filter:blur(6px);color:#fff;padding:6px 10px;">✕</button>
 </div>
 
 <script>
@@ -706,12 +722,12 @@ function renderThread(){
       const img=document.createElement('img'); img.className='msgImg'; img.alt='';
       bubble.classList.add('mediaWrap');
       bubble.appendChild(img);
-      resolveMediaSrc(m).then(url=>{ img.src=url; img.addEventListener('click',()=>openViewer(url,'img')); }).catch(()=>{});
+      resolveMediaSrc(m).then(url=>{ img.src=url; img.addEventListener('click',()=>openViewer(url,'img', img)); }).catch(()=>{});
     }else if(m.type==='video'){
       const v=document.createElement('video'); v.className='msgVideo'; v.controls=true; v.playsInline=true; v.setAttribute('webkit-playsinline','');
       bubble.classList.add('mediaWrap');
       bubble.appendChild(v);
-      resolveMediaSrc(m).then(url=>{ v.src=url; v.addEventListener('click',()=>openViewer(url,'video')); }).catch(()=>{});
+      resolveMediaSrc(m).then(url=>{ v.src=url; v.addEventListener('click',()=>openViewer(url,'video', v)); }).catch(()=>{});
     }else if(m.type==='voice'){
       resolveMediaSrc(m).then(url=>{
         bubble.classList.add('voice');
@@ -1094,18 +1110,57 @@ document.addEventListener('DOMContentLoaded', ()=>{
   if(document.fonts && document.fonts.ready){ document.fonts.ready.then(()=>scrollToEndDuring(800)); }
 })();
 
-/* ===================== 全螢幕媒體檢視器 ===================== */
-function openViewer(url, kind){
-  const v=document.getElementById('viewer'), img=document.getElementById('viewerImg'), vid=document.getElementById('viewerVideo');
+/* ====== 全螢幕媒體檢視器 ====== */
+let CURRENT_INLINE_MEDIA = null;
+
+function openViewer(url, kind, srcEl){
+  // 暫停聊天室內原來那個 video（避免聲音重疊）
+  if (srcEl && srcEl.tagName === 'VIDEO') { try{ srcEl.pause(); }catch(_){} }
+  CURRENT_INLINE_MEDIA = srcEl || null;
+
+  const v = document.getElementById('viewer');
+  const img = document.getElementById('viewerImg');
+  const vid = document.getElementById('viewerVideo');
+
   img.style.display='none'; vid.style.display='none';
   if(kind==='img'){ img.src=url; img.style.display='block'; }
   else{ vid.src=url; vid.style.display='block'; }
+
   v.style.display='block';
 }
+
 function closeViewer(){
-  const v=document.getElementById('viewer'), img=document.getElementById('viewerImg'), vid=document.getElementById('viewerVideo');
-  v.style.display='none'; img.src=''; vid.src='';
+  const v = document.getElementById('viewer');
+  const img = document.getElementById('viewerImg');
+  const vid = document.getElementById('viewerVideo');
+  v.style.display='none';
+  img.src=''; vid.src='';
 }
+
+/* 只點「背景」才關；點內容不關 */
+(function initViewerGuard(){
+  const v = document.getElementById('viewer');
+  const stage = v.querySelector('.stage');
+  const img = document.getElementById('viewerImg');
+  const vid = document.getElementById('viewerVideo');
+  const btn = document.getElementById('viewerClose');
+
+  // 點背景關閉
+  v.addEventListener('click', e=>{
+    if(e.target === v) closeViewer();
+  });
+
+  // 阻擋事件往外冒泡（點內容不關閉）
+  [stage,img,vid].forEach(el=>{
+    el.addEventListener('click', e=> e.stopPropagation());
+  });
+
+  // 關閉鈕
+  btn?.addEventListener('click', e=>{ e.stopPropagation(); closeViewer(); });
+
+  // Esc 關閉（鍵盤）
+  document.addEventListener('keydown', e=>{ if(e.key==='Escape' && v.style.display==='block') closeViewer(); });
+})();
 </script>
 </body>
 </html>
