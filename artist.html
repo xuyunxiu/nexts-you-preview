@@ -12,7 +12,7 @@
   --radius:16px; --shadow:0 12px 34px rgba(18,24,40,.08);
   --safe:env(safe-area-inset-bottom,0px);
   --kb-offset:0px;
-  --footer-h:60px;       /* ↓ footer 改小 */
+  --footer-h:96px;  /* 更厚的基準值 */       /* ↓ footer 改小 */
   --hud-h:68px;
   --reply-size:30px;
   --reply-gap:18px;
@@ -72,6 +72,15 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 .story-item .dot{position:absolute;right:6px;top:2px;width:8px;height:8px;background:var(--danger);border-radius:50%;box-shadow:0 0 0 2px #fff}
 .story-item.pinned img{border-color:#111}
 
+/* ⭐ 貼文動作列 + 評論列 */
+.post .actions{margin-top:10px;padding-top:10px;border-top:1px dashed #e1e4f0}
+.reacts{display:flex;gap:8px;flex-wrap:wrap}
+.react{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;border:1px solid #e6e8f5;background:#fafbff;font-size:13px;font-weight:800;color:#5748b3;cursor:pointer}
+.react .num{opacity:.9}
+.commentBar{display:flex;align-items:center;justify-content:space-between;margin-top:8px}
+.commentBar .left{display:flex;align-items:center;gap:12px;color:#6b7287;font-weight:800}
+.commentBar .right button{border:none;background:transparent;color:#5b6ab0;font-weight:900}
+  
 /* Home 右上標題（社群） */
 .homeTop{
   display:flex;align-items:center;justify-content:flex-start;
@@ -154,13 +163,13 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
   background:linear-gradient(180deg,rgba(255,255,255,.35),rgba(255,255,255,.96));
   backdrop-filter:blur(10px);
   border-top:1px solid var(--line);
-  padding:6px 0 calc(6px + env(safe-area-inset-bottom));
+  padding:10px 0 calc(12px + env(safe-area-inset-bottom));
 }
 .dmInputBar{display:flex;align-items:center;gap:8px;padding:0 10px}
 .iconBtn{width:34px;height:34px;border:none;background:transparent;display:grid;place-items:center;flex:0 0 auto;font-size:20px;line-height:1}
 .iconBtn span{display:block;line-height:1}
 .camEmoji{transform:translate(-1px,.5px)} .micEmoji{transform:translate(-.5px,.5px)}
-.dmInputBar .box{flex:1;min-width:0;display:flex;align-items:center;background:#fff;border:1px solid var(--line);height:42px;padding:0 16px;border-radius:24px}
+.dmInputBar .box{flex:1;min-width:0;display:flex;align-items:center;background:#fff;border:1px solid var(--line);height:54px;padding:0 16px;border-radius:24px}
 .dmInputBar input{flex:1;border:none;outline:none;background:transparent;font-size:16px}
 .dmSend{width:34px;height:34px;border:none;border-radius:0;background:transparent;color:#b2b7c8;display:grid;place-items:center}
 .dmSend svg{width:22px;height:22px;display:block}
@@ -199,15 +208,12 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 .replyChipClose:hover{background:rgba(255,255,255,.10)}
 .replyChipClose svg{width:18px;height:18px;display:block}
 
-/* —— 系統通知（透明覆蓋在 Footer 上方） —— */
-.inlineNotice{
-  position:fixed;left:16px;right:16px;
-  bottom:calc(var(--footer-h) + var(--kb-offset) + env(safe-area-inset-bottom,0px) + 10px);
-  z-index:46;text-align:center;font-weight:900;letter-spacing:.3px;color:rgba(255,255,255,.96);
-  text-shadow:0 1px 2px rgba(0,0,0,.35);pointer-events:none;user-select:none;opacity:0;transform:translateY(6px);
-  transition:opacity .18s ease, transform .18s ease;
+/* ⭐ 常駐系統通知（在聊天室內容裡） */
+.systemNotice{
+  align-self:center;margin:8px 0 6px;padding:6px 12px;border-radius:10px;
+  background:rgba(255,255,255,.12);backdrop-filter:blur(1.5px);
+  color:#f6f7ff;font-weight:900;letter-spacing:.3px;border:1px solid rgba(255,255,255,.24)
 }
-.inlineNotice.show{opacity:1;transform:none}
 
 /* Modal：背景裁切/預覽/語音修剪 */
 .modal{position:fixed;inset:0;z-index:80;display:none;background:rgba(0,0,0,.45)}
@@ -275,9 +281,6 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
   </div>
 
   <div id="dmThread" class="thread"></div>
-
-  <!-- 透明通知 -->
-  <div id="chatNotice" class="inlineNotice" style="display:none">粉絲在等你的訊息哦😊</div>
   
   <!-- Footer -->
   <div class="dmFooter" id="dmFooter">
@@ -401,7 +404,7 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
   <button id="tabHome" class="active" onclick="showPage('home')">首頁</button>
   <button id="tabDM" onclick="showPage('dm')">DM</button>
   <button id="tabLive" onclick="showPage('live')">直播</button>
-  <button id="tabStore" onclick="showPage('store')">商店</button>
+  <button id="tabStore" onclick="showPage('store')">我</button>
 </nav>
 
 <!-- 全螢幕媒體檢視器 -->
@@ -572,10 +575,16 @@ function renderFeed(filter='me'){
   const wrap=document.getElementById('feedWrap');
   const list=feedOf(filter);
   if(!list.length){ wrap.innerHTML=`<div class="ghost" style="text-align:center;margin-top:20vh">尚無貼文</div>`; return; }
+
   wrap.innerHTML=list.map(p=>{
+    // ⭐ 補預設欄位（不影響你原本資料）
+    p.reacts = p.reacts || {thumb:0,heart:0,joy:0,shock:0,cry:0};
+    p.cmts   = p.cmts   || [];   // 每則 {id, text}
+
     const stage=(p.artistStage||STAGE_NAME||'').toString().toUpperCase();
     const displayName = (p.artistId==='me') ? NICKNAME.toUpperCase() : stage;
-    return `<div class="card soft post">
+
+    return `<div class="card soft post" data-post="${p.id}">
       <div class="hdr">
         <img class="avatar" src="${p.avatar}" onerror="imgFallback(this)">
         <div class="meta">
@@ -585,6 +594,21 @@ function renderFeed(filter='me'){
       </div>
       <div class="body"><p>${escapeHtml(p.text)}</p>
       ${p.img?`<img class="hero" src="${p.img}" onerror="imgFallback(this)">`:``}</div>
+
+      <!-- ⭐ Action bar -->
+      <div class="actions">
+        <div class="reacts">
+          <button class="react" data-react="thumb">👍 <span class="num">${p.reacts.thumb}</span></button>
+          <button class="react" data-react="heart">❤️ <span class="num">${p.reacts.heart}</span></button>
+          <button class="react" data-react="joy">🤣 <span class="num">${p.reacts.joy}</span></button>
+          <button class="react" data-react="shock">😲 <span class="num">${p.reacts.shock}</span></button>
+          <button class="react" data-react="cry">🥲 <span class="num">${p.reacts.cry}</span></button>
+        </div>
+        <div class="commentBar">
+          <div class="left">💬 <span class="cmtCount">${p.cmts.length}</span> 則評論</div>
+          <div class="right"><button class="addCmt">發表評論</button></div>
+        </div>
+      </div>
     </div>`;
   }).join('');
 }
@@ -766,6 +790,13 @@ function renderThread(){
     }
   });
 
+// ⭐ 常駐通知（只加一次）
+if(!box.querySelector('.systemNotice')){
+  const notice = document.createElement('div');
+  notice.className = 'systemNotice';
+  notice.textContent = '粉絲在等你的訊息喔 😊';
+  box.appendChild(notice);
+}
   if(!box.querySelector('#threadPad')){ const pad=document.createElement('div'); pad.id='threadPad'; box.appendChild(pad); }
   if(!box.querySelector('#endAnchor')){ const a=document.createElement('div'); a.id='endAnchor'; box.appendChild(a); }
 }
@@ -773,19 +804,6 @@ function renderThread(){
 /* ===================== 系統通知 ===================== */
 function getLastTs(role){
   let t=0; for(const m of GROUP_MSGS){ if(!role || m.from===role){ if(m.ts>t) t=m.ts; } } return t;
-}
-function updateNoticeBanner(){
-  const el = document.getElementById('chatNotice'); if(!el) return;
-  const lastFanTs     = getLastTs('fan');
-  const lastArtistTs  = getLastTs('artist');
-  const clearedAt     = LS.get('noticeClearedAt', 0);
-  const needShow = lastFanTs > Math.max(lastArtistTs, clearedAt);
-  el.style.display = needShow ? 'block' : 'none';
-  el.classList.toggle('show', needShow);
-}
-function clearNoticeNow(){
-  LS.set('noticeClearedAt', Date.now());
-  const el=document.getElementById('chatNotice'); if(el){ el.classList.remove('show'); el.style.display='none'; }
 }
 
 /* ===================== 送訊息 / 回覆 ===================== */
@@ -1067,6 +1085,37 @@ document.getElementById('btnEditNick')?.addEventListener('click', ()=>{
     document.getElementById('dmTitle').textContent=NICKNAME.toUpperCase();
     document.getElementById('composerWho')?.textContent && (document.getElementById('composerWho').textContent=NICKNAME);
     renderDmList();
+  }
+});
+
+  // ⭐ Action bar 事件（點擊反應 / 發表評論）
+document.addEventListener('click', (e)=>{
+  const postEl = e.target.closest('.post');
+  if(!postEl) return;
+  const postId = postEl.getAttribute('data-post');
+  const post = POSTS.find(x=>x.id===postId);
+  if(!post) return;
+  post.reacts = post.reacts || {thumb:0,heart:0,joy:0,shock:0,cry:0};
+  post.cmts   = post.cmts   || [];
+
+  // 反應
+  const rBtn = e.target.closest('.react');
+  if(rBtn){
+    const key = rBtn.getAttribute('data-react');
+    post.reacts[key] = (post.reacts[key]||0) + 1;
+    LS.set('artistPosts', POSTS);
+    // 更新畫面中的數字
+    rBtn.querySelector('.num').textContent = post.reacts[key];
+    return;
+  }
+
+  // 發表評論（簡易：prompt；你要改 modal 也可以）
+  if(e.target.classList.contains('addCmt')){
+    const t = (prompt('輸入留言')||'').trim();
+    if(!t) return;
+    post.cmts.push({id:'c'+Date.now(), text:t});
+    LS.set('artistPosts', POSTS);
+    postEl.querySelector('.cmtCount').textContent = post.cmts.length;
   }
 });
 
