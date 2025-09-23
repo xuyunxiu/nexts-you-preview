@@ -867,8 +867,11 @@ function renderThread(){
   
   if(!box.querySelector('#threadPad')){ const pad=document.createElement('div'); pad.id='threadPad'; box.appendChild(pad); }
   if(!box.querySelector('#endAnchor')){ const a=document.createElement('div'); a.id='endAnchor'; box.appendChild(a); }
-}
 
+  ensureNoticeRow();
+  updateNoticeBanner(); 
+}
+  
   /* ----- 系統通知：塞在 thread 內最底，不覆蓋 ----- */
 // 保證 notice 列存在；回傳節點或 null
 function ensureNoticeRow(){
@@ -879,28 +882,30 @@ function ensureNoticeRow(){
     n = document.createElement('div');
     n.id = 'noticeRow';
     n.className = 'noticeBar';
-    n.textContent = '粉絲在等你的訊息喔 😊';
+    n.setAttribute('role','status');
+    n.setAttribute('aria-live','polite');
+    n.textContent = '粉絲在等你的訊息喔 🤩';
     const pad = document.getElementById('threadPad');
     box.insertBefore(n, pad || null);
   }
   return n;
 }
 
+function updateNoticeBanner(){
+  const n = ensureNoticeRow(); if (!n) return;
+  n.style.display = 'block'; // 常駐
+}
+
+function clearNoticeNow(){} // 常駐模式：不做事
+  
 /* ===================== 系統通知 ===================== */
 function getLastTs(role){
   let t=0; for(const m of GROUP_MSGS){ if(!role || m.from===role){ if(m.ts>t) t=m.ts; } } return t;
 }
- function updateNoticeBanner(){
-  const n = ensureNoticeRow(); if(!n) return;
-  const lastFan = getLastTs('fan');
-  const lastArtist = getLastTs('artist');
-  // 粉絲最後一則比藝人新 → 顯示提示
-  n.style.display = (lastFan > lastArtist) ? 'block' : 'none';
+ function updateNoticeBanner() {
+  const n = ensureNoticeRow(); if (!n) return;
+  n.style.display = 'block';     // ← 永遠顯示
 }
-function clearNoticeNow(){
-  const n = document.getElementById('noticeRow');
-  if(n) n.style.display = 'none';
-} 
   
 /* ===================== 送訊息 / 回覆 ===================== */
 function clearReply(){ replyDraft=null; document.getElementById('replyChip').style.display='none'; scrollToEndDuring(400); }
