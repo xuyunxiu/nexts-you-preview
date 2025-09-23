@@ -307,6 +307,32 @@ html, body { overflow-x: hidden; }
   /* 往外位移「自己的寬度 + gap」，外觀等同原本的 -(size+gap) */
   transform: translateY(-50%) translateX(calc(100% + var(--reply-gap)));
 }
+
+/* LIVE */
+.livePreview{
+  position:relative;height:46vh;min-height:300px;border:1px solid var(--line);
+  border-radius:12px;background:linear-gradient(180deg,#0f1533,#2a3470);
+  display:grid;place-items:center;color:#fff;overflow:hidden;
+}
+.liveLabel{
+  position:absolute;left:10px;top:10px;
+  font-weight:900;letter-spacing:.4px;background:rgba(255,255,255,.14);
+  padding:4px 8px;border-radius:8px;backdrop-filter:blur(4px)
+}
+.countOverlay{
+  position:absolute;inset:0;display:grid;place-items:center;
+  font-size:64px;font-weight:900;background:rgba(0,0,0,.35)
+}
+.liveChat{
+  flex:1;min-height:220px;max-height:36vh;overflow:auto;border:1px solid var(--line);
+  border-radius:12px;padding:10px;background:#fff
+}
+.liveChat .c{padding:6px 8px;border-radius:10px;background:#f6f7ff;border:1px solid var(--line);margin:6px 0}
+.liveTools{flex:1;min-width:220px}
+.livePane{display:none}
+.livePane.active{display:block}
+.sceneRow{flex-wrap:wrap;gap:8px}
+.scene.active{background:linear-gradient(180deg,var(--accent),var(--accent2));color:#fff;border-color:transparent}
 </style>
 </head>
 <body>
@@ -449,6 +475,103 @@ html, body { overflow-x: hidden; }
   </div>
 </div></div>
 
+<!-- ====================== LIVE（藝人端控制台） ====================== -->
+<section id="live" class="page">
+  <div class="row" style="justify-content:space-between;align-items:center;margin:6px 0 10px">
+    <b class="liveTitle" style="font-weight:900;letter-spacing:.6px">直播控制台</b>
+    <span id="liveStatus" class="chip">準備中</span>
+  </div>
+
+  <div class="card soft" id="livePreviewCard">
+    <div id="livePreview" class="livePreview">
+      <div class="liveLabel" id="liveLabel">PREVIEW</div>
+      <div id="countOverlay" class="countOverlay" style="display:none">3</div>
+    </div>
+
+    <div class="row" style="justify-content:space-between;margin-top:10px">
+      <div class="row">
+        <button id="btnCam" class="chip">📷 相機：開</button>
+        <button id="btnMic" class="chip">🎙️ 麥克風：開</button>
+        <button id="btnFlip" class="chip">🔁 翻轉</button>
+      </div>
+      <div class="row">
+        <button id="btnGoLive" class="chip btnPrimary">3·2·1 開始</button>
+        <button id="btnEndLive" class="chip" style="display:none;background:#fff;border:1px solid var(--danger);color:var(--danger)">結束</button>
+      </div>
+    </div>
+
+    <div class="row liveHealth" style="margin-top:10px;flex-wrap:wrap;gap:8px">
+      <span class="chip" id="netChip">🟢 網路良好</span>
+      <span class="chip">📶 4500 kbps</span>
+      <span class="chip">⚙️ 30 FPS</span>
+      <span class="chip">⏱️ <span id="liveClock">00:00</span></span>
+      <span class="chip">🧷 <span id="markerCount">0</span> 標記</span>
+    </div>
+  </div>
+
+  <div class="row" style="gap:8px;margin:12px 0 8px">
+    <button class="chip liveTab active" data-tab="interact">互動</button>
+    <button class="chip liveTab" data-tab="manage">管理</button>
+    <button class="chip liveTab" data-tab="assets">素材</button>
+  </div>
+
+  <!-- 互動 -->
+  <div id="pane-interact" class="card soft livePane active">
+    <div class="row" style="gap:10px;align-items:flex-start">
+      <div class="liveChat" id="liveChat"></div>
+      <div class="liveTools">
+        <b class="sub" style="font-weight:900">快速操作</b>
+        <div class="row" style="flex-wrap:wrap;gap:8px;margin:8px 0">
+          <button class="chip" id="btnAnnounce">📣 發公告</button>
+          <button class="chip" id="btnPoll">🗳️ 建投票</button>
+          <button class="chip" id="btnPin">📌 置頂留言</button>
+          <button class="chip" id="btnMarker">🎬 下標記</button>
+        </div>
+        <div class="row" style="gap:8px">
+          <input id="quickReply" placeholder="輸入快速回覆…" style="flex:1;border:1px solid var(--line);height:40px;border-radius:12px;padding:0 12px">
+          <button class="chip btnPrimary" id="btnSendQuick">送出</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 管理 -->
+  <div id="pane-manage" class="card soft livePane">
+    <div class="row" style="flex-direction:column;gap:10px">
+      <label class="row" style="justify-content:space-between">
+        <span>慢速模式</span>
+        <input id="slowMode" type="checkbox">
+      </label>
+      <label class="row" style="justify-content:space-between">
+        <span>粉絲限定聊天室</span>
+        <input id="fansOnly" type="checkbox">
+      </label>
+      <div class="row" style="flex-wrap:wrap;gap:8px">
+        <button class="chip">🧹 清除聊天</button>
+        <button class="chip">🚫 封鎖 1 小時</button>
+        <button class="chip">🛡️ 開啟敏感詞過濾</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 素材 -->
+  <div id="pane-assets" class="card soft livePane">
+    <b class="sub" style="font-weight:900">場景</b>
+    <div class="row sceneRow">
+      <button class="scene chip" data-scene="cam">🎥 鏡頭</button>
+      <button class="scene chip" data-scene="poster">🖼️ 宣傳海報</button>
+      <button class="scene chip" data-scene="brb">☕ 暫離畫面</button>
+      <button class="scene chip" data-scene="ending">🏁 結束畫面</button>
+    </div>
+    <b class="sub" style="font-weight:900;margin-top:10px">貼圖 / BGM</b>
+    <div class="row" style="flex-wrap:wrap;gap:8px">
+      <button class="chip">✨ 愛心貼圖</button>
+      <button class="chip">🎉 彩帶</button>
+      <button class="chip">🎵 BGM 開/關</button>
+    </div>
+  </div>
+</section> 
+  
 <!-- ====================== Composer（＋） ====================== -->
 <section id="composerArtist" class="page">
   <div class="row" style="gap:10px;margin-bottom:10px">
@@ -487,8 +610,8 @@ html, body { overflow-x: hidden; }
     position:fixed;right:14px;top:14px;z-index:95;border:none;border-radius:10px;
     background:rgba(255,255,255,.14);backdrop-filter:blur(6px);color:#fff;padding:6px 10px;">✕</button>
 </div>
-
 <script>
+  
 /* ===================== 工具 ===================== */
 function imgFallback(img){
   const svg = encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><rect width='100%' height='100%' fill='#eaeef8'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='#9aa0b4' font-family='sans-serif' font-size='20'>NO IMG</text></svg>`);
@@ -1453,6 +1576,124 @@ if(rBtn){
     postEl.querySelector('.cmtCount').textContent = post.cmts.length;
   }
 });
+
+/* ===== LIVE：狀態與事件 ===== */
+let LIVE_ON = false, LIVE_T0 = 0, LIVE_TIMER = null, MARKERS = 0;
+function fmtClock(sec){ const m=Math.floor(sec/60), s=sec%60; return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0'); }
+
+function initLive(){
+  // 分頁切換
+  document.querySelectorAll('.liveTab').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      document.querySelectorAll('.liveTab').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelectorAll('.livePane').forEach(p=>p.classList.remove('active'));
+      document.getElementById('pane-'+btn.dataset.tab).classList.add('active');
+    });
+  });
+
+  // 場景切換（只改 preview 樣式，實際串流端日後接）
+  document.querySelectorAll('.scene').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      document.querySelectorAll('.scene').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      swapScene(btn.dataset.scene);
+    });
+  });
+  document.querySelector('.scene[data-scene="cam"]')?.classList.add('active');
+
+  // 控制列
+  document.getElementById('btnCam')?.addEventListener('click', toggleBtnText);
+  document.getElementById('btnMic')?.addEventListener('click', toggleBtnText);
+  document.getElementById('btnFlip')?.addEventListener('click', ()=>toast('已切換鏡頭'));
+
+  document.getElementById('btnGoLive')?.addEventListener('click', startLiveCountdown);
+  document.getElementById('btnEndLive')?.addEventListener('click', endLive);
+
+  // 快速互動
+  document.getElementById('btnAnnounce')?.addEventListener('click', ()=>addChat('【公告】今晚 9 點釋出新花絮 🎬'));
+  document.getElementById('btnPoll')?.addEventListener('click', ()=>addChat('【投票】下一首唱什麼？A. 抒情 B. 快歌'));
+  document.getElementById('btnPin')?.addEventListener('click', ()=>toast('已置頂留言'));
+  document.getElementById('btnMarker')?.addEventListener('click', ()=>{ MARKERS++; document.getElementById('markerCount').textContent=MARKERS; toast('已下標記'); });
+
+  document.getElementById('btnSendQuick')?.addEventListener('click', ()=>{
+    const t=(document.getElementById('quickReply').value||'').trim();
+    if(!t) return; addChat('ARTIST：'+t); document.getElementById('quickReply').value='';
+  });
+
+  // 假資料訊息（模擬彈幕）
+  fakeChatPump();
+}
+
+function toggleBtnText(e){
+  const on = !/關/.test(e.target.textContent);
+  e.target.textContent = e.target.textContent.replace(on?'開':'關', on?'關':'開');
+}
+
+function startLiveCountdown(){
+  const overlay = document.getElementById('countOverlay');
+  const status  = document.getElementById('liveStatus');
+  let n = 3; overlay.style.display='grid'; overlay.textContent = n;
+  const tick = setInterval(()=>{
+    n--; if(n>0){ overlay.textContent=n; }
+    else { clearInterval(tick); overlay.style.display='none'; goLive(); }
+  }, 700);
+  status.textContent = '倒數…';
+}
+
+function goLive(){
+  LIVE_ON = true; LIVE_T0 = Math.floor(Date.now()/1000);
+  document.getElementById('liveStatus').textContent = '直播中';
+  document.getElementById('btnGoLive').style.display='none';
+  document.getElementById('btnEndLive').style.display='inline-flex';
+  document.getElementById('liveLabel').textContent = 'ON AIR';
+  LIVE_TIMER = setInterval(()=>{
+    const t = Math.floor(Date.now()/1000) - LIVE_T0;
+    document.getElementById('liveClock').textContent = fmtClock(t);
+  }, 1000);
+  toast('已開始直播 ✨');
+}
+
+function endLive(){
+  LIVE_ON = false; clearInterval(LIVE_TIMER);
+  document.getElementById('liveStatus').textContent = '已結束';
+  document.getElementById('btnGoLive').style.display='inline-flex';
+  document.getElementById('btnEndLive').style.display='none';
+  document.getElementById('liveLabel').textContent = 'PREVIEW';
+  toast('直播結束，記得複盤標記 🎬');
+}
+
+function swapScene(key){
+  const box = document.getElementById('livePreview');
+  if(!box) return;
+  if(key==='cam')       box.style.background = 'linear-gradient(180deg,#0f1533,#2a3470)';
+  if(key==='poster')    box.style.background = 'url(https://picsum.photos/900/1600?u=poster) center/cover no-repeat';
+  if(key==='brb')       box.style.background = 'linear-gradient(135deg,#222,#555)';
+  if(key==='ending')    box.style.background = 'linear-gradient(180deg,#252525,#000)';
+}
+
+function addChat(t){
+  const c = document.createElement('div'); c.className='c'; c.textContent=t;
+  const box = document.getElementById('liveChat'); box.appendChild(c);
+  box.scrollTop = box.scrollHeight + 9999;
+}
+function fakeChatPump(){
+  const sample=['好帥！','今天唱什麼～','能說生日祝福嗎？','我也在吃拉麵','請喝水！','新歌期待'];
+  setInterval(()=>{ if(!LIVE_ON) return; addChat('FAN：'+sample[Math.floor(Math.random()*sample.length)]); }, 1800);
+}
+function toast(msg){
+  // 簡易吐司（用 noticeBar 的樣式）
+  const t = document.createElement('div');
+  t.className='noticeBar'; t.textContent = msg;
+  t.style.position='fixed'; t.style.left='0'; t.style.right='0'; t.style.bottom='calc(80px + env(safe-area-inset-bottom))';
+  t.style.zIndex='70';
+  document.body.appendChild(t);
+  setTimeout(()=>{ t.remove(); }, 1600);
+}
+
+// 啟動
+document.addEventListener('DOMContentLoaded', ()=>{ initLive(); });
+  
 
 /* ===================== 啟動 ===================== */
 document.addEventListener('DOMContentLoaded', ()=>{
