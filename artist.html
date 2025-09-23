@@ -235,13 +235,17 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 .modal .panel{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(760px,94vw);background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px;box-shadow:0 12px 34px rgba(18,24,40,.16)}
 /* ===== 裁切背景 ===== */
 #cropStage{
+  position:relative;
   height:58vh;border:1px dashed var(--line);border-radius:12px;
-  display:grid;place-items:center;overflow:hidden;background:#f8f9ff;
-  touch-action:none;  /* 允許拖曳 */
+  overflow:hidden;background:#f8f9ff;
+  touch-action:none;
 }
 #cropStage img{
-  max-width:none; user-select:none; transform-origin:center center;
-  will-change:transform;
+  position:absolute; left:50%; top:50%;
+  /* 先把元素本體置中，再套你的平移/旋轉/縮放 */
+  transform:translate(-50%,-50%);
+  max-width:none; user-select:none; touch-action:none;
+  transform-origin:center center; will-change:transform;
 }
 
 /* 控制列：更簡潔 */
@@ -377,10 +381,12 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
     <button class="btnMini" id="zoomOut">－</button>
     <input id="cropScale" type="range" min="50" max="250" value="100">
     <button class="btnMini" id="zoomIn">＋</button>
-    <span id="scaleLabel">140%</span>
+    <span id="scaleLabel">100%</span>
   </div>
   <div class="spacer"></div>
-  <button class="chip" onclick="backToCrop()">返回</button>
+  <!-- 裁切背景 modal 裡 -->
+<!-- 裁切背景 modal 裡 -->
+<button class="chip" onclick="rePickBg()">返回選圖片</button>
   <button class="chip btnPrimary" onclick="applyCrop()">下一步</button>
 </div>
 </div></div>
@@ -391,7 +397,8 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
     <div id="bgPreviewMini" style="height:100%;background-position:center;background-size:cover;background-repeat:no-repeat"></div>
   </div>
   <div class="cropCtrls" style="justify-content:flex-end">
-    <button class="chip" onclick="closePreview()">返回</button>
+    <!-- 預覽背景 modal 裡 -->
+<button class="chip" onclick="backToCrop()">返回</button>
     <button class="chip btnPrimary" onclick="confirmPreview()">確認</button>
   </div>
 </div></div>
@@ -542,6 +549,16 @@ function openModal(id){ const m = document.getElementById(id); if(m) m.style.dis
 function closeModal(id){ const m = document.getElementById(id); if(m) m.style.display='none'; }
 function closeCrop(){ closeModal('cropModal'); }
 function closePreview(){ closeModal('previewModal'); }
+
+function dataURLtoBlob(dataURL){
+  const [meta, b64] = dataURL.split(',');
+  const mime = (meta.match(/data:(.*?);/)||[])[1] || 'image/jpeg';
+  const bin = atob(b64);
+  const len = bin.length;
+  const u8  = new Uint8Array(len);
+  for(let i=0;i<len;i++) u8[i] = bin.charCodeAt(i);
+  return new Blob([u8], {type:mime});
+}
   
 /* ===================== 導航 ===================== */
 const HIDE_NAV_IN=['dmDetail','composerArtist'];
@@ -1059,6 +1076,7 @@ let baseScale = 1;              // 讓影像「剛好鋪滿舞台」的基準縮
 let CROP_RESULT_URL = '';
 const chooser     = document.getElementById('bgChooser');
 const cropImg     = document.getElementById('cropImg');
+cropImg.setAttribute('draggable','false');
 const cropStage   = document.getElementById('cropStage');
 const cropScaleEl = document.getElementById('cropScale');
 const scaleLabel  = document.getElementById('scaleLabel');
@@ -1099,13 +1117,16 @@ function computeBaseScale(){
 function computeBaseScaleAfterOpen(){
   let tries = 0;
   const tick = ()=>{
-    if (computeBaseScale()) {
+    // 面板打開後，等到舞台真的有寬高再算（iOS 有時需要多幀）
+    if (cropStage.clientWidth && cropStage.clientHeight) {
+      computeBaseScale();
       updateCropTransform();
-    } else if (tries++ < 10) {
-      requestAnimationFrame(tick);         // 等到真正有寬高為止
+    } else if (tries++ < 20) {
+      requestAnimationFrame(tick);
     }
   };
-  tick();
+  // 先等一幀，避免 display:block 的佈局還沒完成
+  requestAnimationFrame(tick);
 }  
 
 function uiScale(){                   // 目前滑桿倍率（相對基準）
@@ -1135,7 +1156,7 @@ function clampPan(){
 function updateCropTransform(){
   clampPan();
   cropImg.style.transform =
-    `translate(${cropTx}px, ${cropTy}px) rotate(${cropDeg}deg) scale(${cssScale()})`;
+    `translate(-50%,-50%) translate(${cropTx}px, ${cropTy}px) rotate(${cropDeg}deg) scale(${cssScale()})`;
 }
 
 function updateScaleUI(){
@@ -1175,7 +1196,7 @@ cropImg?.addEventListener('pointermove', e=>{
 });
 
 /* 匯出真正裁切後的圖片（依舞台尺寸 + 裝置 DPR） */
-function exportCroppedDataURL(mime='image/jpeg', quality=.92){
+function exportCroppedDataURL(mime='image/jpeg', quality=.85){
   const dpr = window.devicePixelRatio || 1;
   const sw  = cropStage.clientWidth,  sh = cropStage.clientHeight;
   const canvas = document.createElement('canvas');
@@ -1204,32 +1225,65 @@ function applyCrop(){
   closeCrop(); openModal('previewModal');
 }
 
-// 把裁切結果套到 DM 背景，支援淡化與模糊（可再做 UI 讓藝人調整）
-function applyChatBg(){
-  const url = LS.getStr('chatBg','');
-  const opt = LS.get('chatBgOpt', {dim:0.18, blur:6});   // 預設：18% 遮罩、6px 模糊
+// 把裁切結果套到 DM 背景，支援：直接傳入 URL、LS、或 IndexedDB 後援
+function applyChatBg(forceUrl){
   const panel = document.getElementById('dmDetail');
   if(!panel) return;
-  if(url){
-    panel.style.backgroundImage = `url("${url}")`;
-    document.documentElement.style.setProperty('--bgDim', String(opt.dim));
-    document.documentElement.style.setProperty('--bgBlur', opt.blur + 'px');
-  }else{
-    panel.style.backgroundImage = '';
-    document.documentElement.style.setProperty('--bgDim', '0');
-    document.documentElement.style.setProperty('--bgBlur', '0px');
+
+  const setBg = (u)=>{
+    if(u){
+      panel.style.backgroundImage = `url(${u})`; // 不加引號，避開 Safari 對超長 url() 的小毛病
+      const opt = LS.get('chatBgOpt', {dim:0.18, blur:6});
+      document.documentElement.style.setProperty('--bgDim', String(opt.dim));
+      document.documentElement.style.setProperty('--bgBlur', opt.blur + 'px');
+    }else{
+      panel.style.backgroundImage = '';
+      document.documentElement.style.setProperty('--bgDim', '0');
+      document.documentElement.style.setProperty('--bgBlur', '0px');
+    }
+  };
+
+  if (forceUrl) { setBg(forceUrl); return; }
+
+  // 先試著用 LS 純字串
+  let url = LS.getStr('chatBg','');
+  if (url) { setBg(url); return; }
+
+  // 再用 IndexedDB 後援
+  const id = LS.getStr('chatBgId','');
+  if (id) {
+    MEDIA_DB.getURL(id).then(u=> setBg(u||'')).catch(()=> setBg(''));
+  } else {
+    setBg('');
   }
 }
 
-// 「預覽」→ 按下「確認」：存入 LS 並套用
-function confirmPreview(){
-  if (CROP_RESULT_URL){
+async function confirmPreview(){
+  if (!CROP_RESULT_URL){ closePreview(); return; }
+
+  // 立刻顯示（不等持久化）
+  applyChatBg(CROP_RESULT_URL);
+
+  // 儲存（先試 LS，失敗就存 IndexedDB）
+  try{
     LS.setStr('chatBg', CROP_RESULT_URL);
-    if(!LS.get('chatBgOpt', null)){ LS.set('chatBgOpt', {dim:0.18, blur:6}); }
-    applyChatBg();
+    if (LS.getStr('chatBg','') !== CROP_RESULT_URL) throw new Error('ls-mismatch');
+  }catch(e){
+    try{
+      const blob = dataURLtoBlob(CROP_RESULT_URL);
+      const id   = await MEDIA_DB.put(blob);
+      LS.setStr('chatBg','');              // 清掉失敗的舊值
+      LS.setStr('chatBgId', id);           // 存 id，開頁時再轉成 ObjectURL
+      // 再保險一次：用 DB 取回的 URL 套上（避免某些機型對 dataURL 不爽）
+      const u = await MEDIA_DB.getURL(id);
+      if (u) applyChatBg(u);
+    }catch(err){
+      console.warn('Save chatBg fallback failed:', err);
+    }
   }
+
   closePreview();
-} 
+}
   
 function backToCrop(){ closePreview(); openModal('cropModal'); }
 
@@ -1285,6 +1339,16 @@ function bindBottomObserver(){
     io.observe(a);
   }catch(_){}
 }
+
+function rePickBg(){
+  closeCrop();                  // 關掉裁切面板
+  try{ chooser.value=''; }catch(_){}   // 清空，才能重選同一檔
+  // 重置一下暫存狀態（非必需，但比較乾淨）
+  cropDeg=0; cropTx=0; cropTy=0; cropScaleEl.value=100; updateScaleUI();
+  // 重新打開挑檔（這是使用者手勢觸發，iOS 可以）
+  setTimeout(()=> chooser && chooser.click(), 0);
+}
+  
 
 /* ===================== Composer（首頁草稿） ===================== */
 function previewComposeMedia(e){
