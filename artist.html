@@ -359,7 +359,7 @@ html, body { overflow-x: hidden; }
 nav#nav.hidden{transform:translateY(120%)}
 </style>
 </head>
-</body>
+<body>
 
 <!-- ====================== HOME（藝人） ====================== -->
 <section id="home" class="page active">
@@ -499,7 +499,7 @@ nav#nav.hidden{transform:translateY(120%)}
   </div>
 </div></div>
 
-<<!-- ====================== LIVE（純文字版） ====================== -->
+<!-- ====================== LIVE（純文字版） ====================== -->
 <section id="live" class="page">
   <div class="homeTop"><div class="homeTitle">直播</div></div>
 
@@ -556,7 +556,6 @@ nav#nav.hidden{transform:translateY(120%)}
         <button class="chip">🎯 貼圖</button>
       </div>
     </div>
-  </div>
 </section> 
   
 <!-- ====================== Composer（＋） ====================== -->
@@ -1026,8 +1025,7 @@ function renderThread(){
   if(!box.querySelector('#threadPad')){ const pad=document.createElement('div'); pad.id='threadPad'; box.appendChild(pad); }
   if(!box.querySelector('#endAnchor')){ const a=document.createElement('div'); a.id='endAnchor'; box.appendChild(a); }
 
-  ensureNoticeRow();
-  updateNoticeBanner(); 
+  ensureNoticeRow(); 
 }
   
   /* ----- 系統通知：塞在 thread 內最底，不覆蓋 ----- */
@@ -1641,9 +1639,6 @@ function liveStart(){
   document.getElementById('liveInputBox').disabled = false;
   document.getElementById('liveSend').disabled = false;
 
-  // 隱藏底部 nav（避免誤觸）
-  document.getElementById('nav')?.classList.add('hidden');
-
   // 系統訊息
   livePushArtist('（直播開始）');
 }
@@ -1678,13 +1673,10 @@ function liveEnd(){
   document.getElementById('liveInputBox').disabled = true;
   document.getElementById('liveSend').disabled = true;
 
-  // 顯示 nav
-  document.getElementById('nav')?.classList.remove('hidden');
-
   livePushArtist('（直播已結束）');
 }
 
-// 送出（藝人 → 左側）
+// 送出（藝人 → 右側）
 function liveSend(){
   if(!LIVE_ON || LIVE_PAUSED) return;
   const inp = document.getElementById('liveInputBox');
