@@ -1055,6 +1055,7 @@ function renameChat(){
 let cropDataURL = '', cropDeg = 0, cropTx = 0, cropTy = 0;
 let natW = 0, natH = 0;         // 原圖像素
 let baseScale = 1;              // 讓影像「剛好鋪滿舞台」的基準縮放（cover）
+let CROP_RESULT_URL = '';
 const chooser     = document.getElementById('bgChooser');
 const cropImg     = document.getElementById('cropImg');
 const cropStage   = document.getElementById('cropStage');
@@ -1064,18 +1065,20 @@ const scaleLabel  = document.getElementById('scaleLabel');
 function startPickBg(){ chooser?.click(); }
 
 chooser?.addEventListener('change', e=>{
-  const f=e.target.files?.[0]; if(!f) return;
-  const reader=new FileReader();
-  reader.onload=ev=>{
+  const f = e.target.files?.[0]; if(!f) return;
+  const reader = new FileReader();
+  reader.onload = ev=>{
     cropDataURL = ev.target.result;
     cropImg.onload = ()=>{
-      natW = cropImg.naturalWidth; natH = cropImg.naturalHeight;
+      natW = cropImg.naturalWidth;
+      natH = cropImg.naturalHeight;
       cropDeg = 0; cropTx = 0; cropTy = 0;
-      cropScaleEl.value = 100;  // 100% = 剛好鋪滿
+      cropScaleEl.value = 100;
       updateScaleUI();
-      computeBaseScale();        // 依舞台/圖片計算基準縮放
-      updateCropTransform();
+
+      // 先打開面板，等有實際尺寸後再算 baseScale
       openModal('cropModal');
+      requestAnimationFrame(()=>{ computeBaseScaleAfterOpen(); });
     };
     cropImg.src = cropDataURL;
   };
@@ -1084,13 +1087,25 @@ chooser?.addEventListener('change', e=>{
 
 function computeBaseScale(){
   const sw = cropStage.clientWidth, sh = cropStage.clientHeight;
-  // 90/270° 交換寬高
+  if(!sw || !sh) return 0;                 // 面板未顯示時尺寸為 0，先跳過
   const imgW = (cropDeg % 180 === 0) ? natW : natH;
   const imgH = (cropDeg % 180 === 0) ? natH : natW;
-  // cover：至少一邊貼齊舞台
   baseScale = Math.max(sw / imgW, sh / imgH);
-  clampPan(); // 重新算好邊界，避免出現空白
+  clampPan();
+  return baseScale;
 }
+
+function computeBaseScaleAfterOpen(){
+  let tries = 0;
+  const tick = ()=>{
+    if (computeBaseScale()) {
+      updateCropTransform();
+    } else if (tries++ < 10) {
+      requestAnimationFrame(tick);         // 等到真正有寬高為止
+    }
+  };
+  tick();
+}  
 
 function uiScale(){                   // 目前滑桿倍率（相對基準）
   return (Number(cropScaleEl?.value || 100) / 100);
@@ -1182,9 +1197,9 @@ function exportCroppedDataURL(mime='image/jpeg', quality=.92){
 
 /* 流程：下一步 → 預覽裁切圖 → 確認寫入並套用 */
 function applyCrop(){
-  const url = exportCroppedDataURL(); // ← 用真正裁切結果預覽
+  CROP_RESULT_URL = exportCroppedDataURL();        // 直接存起來
   const mini = document.getElementById('bgPreviewMini');
-  if(mini) mini.style.backgroundImage = `url("${url}")`;
+  if(mini) mini.style.backgroundImage = `url("${CROP_RESULT_URL}")`;
   closeCrop(); openModal('previewModal');
 }
 
@@ -1207,20 +1222,13 @@ function applyChatBg(){
 
 // 「預覽」→ 按下「確認」：存入 LS 並套用
 function confirmPreview(){
-  const mini = document.getElementById('bgPreviewMini');
-  let bg = '';
-  if(mini){
-    const bi = getComputedStyle(mini).backgroundImage; // url("data:...") 形式
-    const m = bi && bi.match(/url\(["']?(.*?)["']?\)/);
-    bg = m ? m[1] : '';
-  }
-  if(bg){
-    LS.setStr('chatBg', bg);
+  if (CROP_RESULT_URL){
+    LS.setStr('chatBg', CROP_RESULT_URL);
     if(!LS.get('chatBgOpt', null)){ LS.set('chatBgOpt', {dim:0.18, blur:6}); }
     applyChatBg();
   }
   closePreview();
-}  
+} 
   
 function backToCrop(){ closePreview(); openModal('cropModal'); }
 
