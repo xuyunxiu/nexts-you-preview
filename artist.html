@@ -308,44 +308,76 @@ html, body { overflow-x: hidden; }
   transform: translateY(-50%) translateX(calc(100% + var(--reply-gap)));
 }
 
-/* ===== LIVE Studio ===== */
-#live .panel{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:12px}
-#live .stage{
-  position:relative;height:44vh;min-height:280px;border-radius:14px;border:1px solid var(--line);
-  background:linear-gradient(180deg,#0f1c3a,#1b2450);overflow:hidden
+/* ===== Artist Live（融合粉絲端互動） ===== */
+#live{padding:12px 12px calc(76px + var(--safe))}
+.liveTitle{font-weight:900;letter-spacing:.6px;font-size:22px;line-height:1;margin:8px 6px 10px}
+.liveCard{background:var(--card);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow);padding:12px}
+#liveStage{
+  position:relative; height:260px; border:1px solid var(--line); border-radius:18px; overflow:hidden;
+  background:radial-gradient(120% 120% at 10% 0%, #0b1c46 0%, #132056 32%, #1b2154 52%, #111b46 100%);
+  color:#fff; display:grid; place-items:center; user-select:none;
 }
-#live .stage video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none}
-#live .stage .noCam{position:absolute;inset:0;display:grid;place-items:center;color:#cfd6ff;font-weight:900;letter-spacing:.6px}
-#live .hud{
-  position:absolute;left:10px;top:10px;display:flex;gap:8px;align-items:center;
-  padding:6px 10px;border-radius:10px;background:rgba(0,0,0,.35);backdrop-filter:blur(4px);color:#fff;font-weight:900
+#camHint{opacity:.85;font-weight:900;letter-spacing:.3px}
+.liveHUD{
+  position:absolute; inset:10px 10px auto 10px; display:flex; align-items:center; justify-content:space-between;
+  pointer-events:none;
 }
-#live .dot{width:8px;height:8px;border-radius:50%;background:#ff5151;box-shadow:0 0 8px rgba(255,81,81,.6)}
-#live .countdown{
-  position:absolute;inset:0;display:none;align-items:center;justify-content:center;
-  font-size:64px;font-weight:900;color:#fff;text-shadow:0 4px 18px rgba(0,0,0,.45);background:rgba(0,0,0,.25)
+.liveTag{
+  display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:999px;
+  background:#ff2e2e; color:#fff; font-weight:900; font-size:12px; box-shadow:0 6px 20px rgba(255,46,46,.25);
+  opacity:0; transform:translateY(-6px); transition:.18s ease;
+}
+.liveHearts{
+  margin-left:auto; color:#fff; font-weight:900; font-size:12px; padding:4px 10px; border-radius:999px;
+  background:rgba(0,0,0,.28); box-shadow:0 6px 18px rgba(0,0,0,.15);
+  opacity:0; transform:translateY(-6px); transition:.18s ease;
+}
+.liveOn .liveTag,.liveOn .liveHearts{opacity:1; transform:none}
+
+/* 控制列 */
+.ctrlRow{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin:10px 0 2px}
+.switchChip{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;border:1px solid var(--line);background:#f3f5ff;font-weight:900}
+.switchChip .dot{width:8px;height:8px;border-radius:50%}
+.switch-on  .dot{background:#10b981}
+.switch-off .dot{background:#cbd5e1}
+#startBtn{
+  margin-left:auto; border:none; padding:12px 18px; border-radius:16px; color:#fff; font-weight:900;
+  background:linear-gradient(180deg,var(--accent),var(--accent2));
+  box-shadow:0 12px 28px rgba(106,90,205,.28); min-width:120px;
 }
 
-#live .ctrls{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:10px}
-#live .ctrls .chip{font-weight:900}
-#live .ctrls .startBtn{
-  margin-left:auto;padding:10px 16px;border-radius:999px;border:none;
-  background:linear-gradient(180deg,var(--accent),var(--accent2));color:#fff;font-weight:900
+/* 分頁（互動 / 管理 / 素材） */
+.liveTabs{display:flex; gap:10px; margin:10px 0}
+.liveTabs .tab{padding:8px 14px; border-radius:12px; border:1px solid var(--line); background:#f5f7ff; color:#5b6ab0; font-weight:900}
+.liveTabs .tab.active{background:#f5f3ff; color:var(--accent)}
+.tabPane{display:none}
+.tabPane.active{display:block}
+.quick{display:flex; flex-wrap:wrap; gap:10px}
+.quick .chip{font-weight:900}
+.quickInput{display:flex; align-items:center; gap:8px; margin-top:10px}
+.quickInput .box{flex:1; min-width:0; display:flex; align-items:center; background:#fff; border:1px solid var(--line); height:44px; padding:0 14px; border-radius:12px}
+.quickInput input{flex:1; border:none; outline:none; background:transparent}
+.sendBtn{min-width:46px; height:44px; border-radius:12px; border:none; background:linear-gradient(180deg,var(--accent),var(--accent2)); color:#fff; font-weight:900}
+
+/* 倒數覆蓋層 */
+#countOverlay{position:absolute; inset:0; display:none; align-items:center; justify-content:center; background:rgba(0,0,0,.35)}
+#countOverlay .num{font-size:70px; font-weight:900; color:#fff; text-shadow:0 8px 26px rgba(0,0,0,.45)}
+
+/* 心心飛出 */
+.flying-heart{position:fixed; z-index:60; font-size:18px; pointer-events:none; animation:floatUp 1.1s ease forwards}
+@keyframes floatUp{
+  0%{opacity:0; transform:translateY(10px) scale(.9)}
+  15%{opacity:1}
+  100%{opacity:0; transform:translateY(-120px) scale(1.6)}
 }
-#live .ctrls .stop{background:#111;color:#fff}
-
-#live .tabs{display:flex;gap:8px;margin:12px 0 8px}
-#live .tabs button{border:none;background:#f3f5ff;border:1px solid var(--line);padding:6px 12px;border-radius:999px;color:#5a63a7;font-weight:900}
-#live .tabs button.active{background:#f0ebff;color:#5748b3}
-#live .tabPanel{display:none}
-#live .tabPanel.active{display:block}
-
-#live .qaGrid{display:grid;grid-template-columns:1.1fr 1fr;gap:12px}
-#live .qaLeft{min-height:160px;border:1px dashed var(--line);border-radius:12px}
-#live .qaRight .row{gap:10px;flex-wrap:wrap}
-#live .sendBox{display:flex;gap:8px;margin-top:8px}
-#live .sendBox input{flex:1;height:40px;border-radius:10px;border:1px solid var(--line);padding:0 12px}
-#live .sendBtn{border:none;border-radius:999px;background:linear-gradient(180deg,var(--accent),var(--accent2));color:#fff;font-weight:900;padding:0 14px}
+/* 結束畫面（沿用粉絲端視覺） */
+.liveEndedScene{
+  position:fixed; inset:0; z-index:70; background:#000;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; color:#fff;
+}
+.liveEndedScene img{ width:120px; height:120px; border-radius:50%; border:2px solid #fff; object-fit:cover }
+.liveEndedScene .name{ margin-top:16px; font-weight:900; letter-spacing:.6px }
+.liveEndedScene .text{ margin-top:8px; font-size:20px; font-weight:900 }
 </style>
 </head>
 <body>
@@ -488,79 +520,64 @@ html, body { overflow-x: hidden; }
   </div>
 </div></div>
 
-<!-- ====================== LIVE ====================== -->
+<!-- ====================== LIVE（藝人端） ====================== -->
 <section id="live" class="page">
-  <div class="homeTop"><div class="homeTitle">直播</div></div>  <!-- ← 新增標題列 -->
+  <div class="liveTitle">直播</div>
 
-  <div class="panel">
-    <!-- 預覽舞台 -->
-    <div class="stage">
-      <video id="liveCam" playsinline muted></video>
-      <div id="liveNoCam" class="noCam">相機關閉中</div>
-
-      <div id="liveHUD" class="hud" style="display:none">
-        <span class="dot"></span><span>LIVE</span><span id="liveClock">00:00</span>
+  <div class="liveCard">
+    <div id="liveStage">
+      <div class="liveHUD">
+        <span class="liveTag">LIVE</span>
+        <div class="liveHearts"><span id="heartCount">0</span></div>
       </div>
-      <div id="liveCountdown" class="countdown">3</div>
+      <div id="countOverlay"><div class="num" id="countNum">3</div></div>
+      <div id="camHint">相機關閉中</div>
     </div>
 
-      <!-- 321 倒數 -->
-      <div id="liveCountdown" class="countdown">3</div>
-    </div>
-
-    <!-- 控制列（沒有你不要的那排狀態晶片） -->
-    <div class="ctrls">
-      <button id="btnLiveCam" class="chip">📷 相機：<b>關</b></button>
-      <button id="btnLiveMic" class="chip">🎙️ 麥克風：<b>關</b></button>
-      <button id="btnLiveFlip" class="chip" disabled>🔁 翻轉</button>
-      <button id="btnLiveStart" class="startBtn">3・2・1 開始</button>
+    <div class="ctrlRow">
+      <button id="camSwitch"  class="switchChip switch-off"><span class="dot"></span> 相機：關</button>
+      <button id="micSwitch"  class="switchChip switch-off"><span class="dot"></span> 麥克風：關</button>
+      <button id="flipBtn"    class="chip" disabled>↻ 翻轉</button>
+      <button id="startBtn">3・2・1 開始</button>
     </div>
   </div>
 
-  <!-- 分頁 -->
-  <div class="tabs">
-    <button class="active" data-tab="t-interact">互動</button>
-    <button data-tab="t-manage">管理</button>
-    <button data-tab="t-assets">素材</button>
-  </div>
+  <div class="card soft" style="margin-top:12px">
+    <div class="liveTabs">
+      <button class="tab active" data-tab="t1">互動</button>
+      <button class="tab" data-tab="t2">管理</button>
+      <button class="tab" data-tab="t3">素材</button>
+    </div>
 
-  <!-- 互動 -->
-  <div id="t-interact" class="tabPanel active panel">
-    <div class="qaGrid">
-      <div class="qaLeft"></div>
-      <div class="qaRight">
-        <b style="font-weight:900">快速操作</b>
-        <div class="row" style="margin-top:8px">
-          <button class="chip">📣 發公告</button>
-          <button class="chip">🗳 建投票</button>
-          <button class="chip">📌 置頂留言</button>
-          <button class="chip">🎬 下標記</button>
-        </div>
-        <div class="sendBox">
-          <input id="quickReply" placeholder="輸入快速回覆…">
-          <button class="sendBtn">送出</button>
-        </div>
+    <!-- 互動 -->
+    <div id="t1" class="tabPane active">
+      <b style="font-weight:900">快速操作</b>
+      <div class="quick" style="margin-top:10px">
+        <button class="chip">📣 發公告</button>
+        <button class="chip">📦 建投票</button>
+        <button class="chip">📌 置頂留言</button>
+        <button class="chip">🎬 下標記</button>
+        <button class="chip" id="testHearts">💗 模擬粉絲愛心</button>
+      </div>
+      <div class="quickInput">
+        <div class="box"><input id="quickReply" placeholder="輸入快速回覆…" /></div>
+        <button class="sendBtn" id="quickSend">送出</button>
       </div>
     </div>
-  </div>
 
-  <!-- 管理 -->
-  <div id="t-manage" class="tabPanel panel">
-    <div class="row" style="flex-wrap:wrap">
-      <button class="chip">🕒 排程</button>
-      <button class="chip">💬 限制留言</button>
-      <button class="chip">🧹 清理聊天室</button>
-      <button class="chip">👤 僅會員</button>
+    <!-- 管理（占位） -->
+    <div id="t2" class="tabPane">
+      <div class="ghost">（預留）聊天室管理、禁言、關鍵字過濾、慢速模式…</div>
     </div>
-  </div>
 
-  <!-- 素材 -->
-  <div id="t-assets" class="tabPanel panel">
-    <div class="row" style="flex-wrap:wrap">
-      <button class="chip">＋ 新增素材</button>
-      <button class="chip">📁 背景圖</button>
-      <button class="chip">🔊 BGM</button>
-      <button class="chip">🎯 貼圖</button>
+    <!-- 素材 -->
+    <div id="t3" class="tabPane">
+      <div class="quick">
+        <button class="chip">＋ 新增素材</button>
+        <button class="chip">🗂 背景圖</button>
+        <button class="chip">🎧 BGM</button>
+        <button class="chip">🎯 貼圖</button>
+      </div>
     </div>
   </div>
 </section> 
@@ -1570,128 +1587,105 @@ if(rBtn){
   }
 });
 
-/* ===== LIVE Studio 行為 ===== */
+/* ===== Artist Live Logic ===== */
 const Live = {
-  isLive:false, camOn:false, micOn:false, useFront:true,
-  startedAt:0, clockTimer:null, stream:null
+  on:false, cam:false, mic:false, hearts:0, cntTimer:null
 };
 
-function fmtClock(sec){
-  sec = Math.max(0, Math.floor(sec||0));
-  const m = Math.floor(sec/60), s = sec % 60;
-  return `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-}
+function el(id){ return document.getElementById(id); }
 
-async function toggleCamera(){
-  const v = document.getElementById('liveCam');
-  const no = document.getElementById('liveNoCam');
-  if(!Live.camOn){
-    try{
-      Live.stream = await navigator.mediaDevices.getUserMedia({
-        video:{facingMode: Live.useFront ? 'user' : 'environment'},
-        audio:false
-      });
-      v.srcObject = Live.stream; await v.play();
-      v.style.display='block'; no.style.display='none';
-      Live.camOn = true;
-      document.querySelector('#btnLiveCam b').textContent = '開';
-      document.getElementById('btnLiveFlip').disabled = false;
-    }catch(e){
-      alert('無法開啟相機：' + (e.message||e));
-    }
-  }else{
-    // 關相機
-    try{ Live.stream?.getVideoTracks().forEach(t=>t.stop()); }catch(_){}
-    v.pause(); v.srcObject=null; v.style.display='none'; no.style.display='grid';
-    Live.camOn=false;
-    document.querySelector('#btnLiveCam b').textContent = '關';
-    document.getElementById('btnLiveFlip').disabled = true;
-  }
-}
-
-async function flipCamera(){
-  if(!Live.camOn) return;
-  Live.useFront = !Live.useFront;
-  // 重新開啟指定鏡頭
-  Live.camOn=false;
-  await toggleCamera();
-}
-
-function toggleMic(){
-  Live.micOn = !Live.micOn;
-  document.querySelector('#btnLiveMic b').textContent = Live.micOn ? '開' : '關';
-  // 這裡只做 UI；若之後串推流，可把 audio track 加入/移除
-}
-
-function showHUD(on){
-  const hud = document.getElementById('liveHUD');
-  hud.style.display = on ? 'flex' : 'none';
-}
-
-function startClock(){
-  Live.startedAt = Date.now();
-  const clock = document.getElementById('liveClock');
-  Live.clockTimer && clearInterval(Live.clockTimer);
-  Live.clockTimer = setInterval(()=> {
-    const sec = (Date.now() - Live.startedAt)/1000;
-    clock.textContent = fmtClock(sec);
-  }, 250);
-}
-function stopClock(){ clearInterval(Live.clockTimer); Live.clockTimer=null; document.getElementById('liveClock').textContent='00:00'; }
-
-async function startLiveCountDown(){
-  const cd = document.getElementById('liveCountdown');
-  cd.style.display='flex';
-  for(let n of [3,2,1]){
-    cd.textContent = n;
-    await new Promise(r=> setTimeout(r, 800));
-  }
-  cd.style.display='none';
-}
-
-async function startOrStopLive(){
-  const btn = document.getElementById('btnLiveStart');
-  if(!Live.isLive){
-    await startLiveCountDown();
-    Live.isLive = true;
-    btn.textContent = '結束直播';
-    btn.classList.add('stop');
-    showHUD(true);
-    startClock();
-  }else{
-    if(!confirm('要結束直播嗎？')) return;
-    Live.isLive = false;
-    btn.textContent = '3・2・1 開始';
-    btn.classList.remove('stop');
-    showHUD(false);
-    stopClock();
-  }
-}
-
-/* 分頁切換 */
-function bindLiveTabs(){
-  document.querySelectorAll('#live .tabs button').forEach(b=>{
-    b.addEventListener('click', ()=>{
-      document.querySelectorAll('#live .tabs button').forEach(x=>x.classList.remove('active'));
-      document.querySelectorAll('#live .tabPanel').forEach(x=>x.classList.remove('active'));
-      b.classList.add('active');
-      document.getElementById(b.dataset.tab).classList.add('active');
+function setupArtistLive(){
+  // tab 切換
+  document.querySelectorAll('.liveTabs .tab').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      document.querySelectorAll('.liveTabs .tab').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      const id = btn.getAttribute('data-tab');
+      document.querySelectorAll('.tabPane').forEach(p=> p.classList.toggle('active', p.id===id));
     });
   });
+
+  // 開關
+  el('camSwitch').onclick = ()=>{
+    Live.cam = !Live.cam;
+    el('camSwitch').className = 'switchChip ' + (Live.cam?'switch-on':'switch-off');
+    el('camSwitch').innerHTML = `<span class="dot"></span> 相機：${Live.cam?'開':'關'}`;
+    el('flipBtn').disabled = !Live.cam;
+    el('camHint').textContent = Live.cam ? '（相機預覽 — Demo）' : '相機關閉中';
+  };
+  el('micSwitch').onclick = ()=>{
+    Live.mic = !Live.mic;
+    el('micSwitch').className = 'switchChip ' + (Live.mic?'switch-on':'switch-off');
+    el('micSwitch').innerHTML = `<span class="dot"></span> 麥克風：${Live.mic?'開':'關'}`;
+  };
+
+  // 開始 / 結束
+  el('startBtn').onclick = ()=> Live.on ? endLive() : startLive();
+
+  // 模擬粉絲愛心
+  el('testHearts').onclick = ()=> addHearts(1 + Math.floor(Math.random()*3));
+  el('quickSend').onclick = ()=>{ const t=(el('quickReply').value||'').trim(); if(t){ alert('（DEMO）已發送：「'+t+'」'); el('quickReply').value=''; } };
 }
 
-/* 綁事件（一次即可） */
-function initLiveOnce(){
-  if (window.__liveInitDone) return;
-  window.__liveInitDone = true;
-
-  document.getElementById('btnLiveCam').addEventListener('click', toggleCamera);
-  document.getElementById('btnLiveMic').addEventListener('click', toggleMic);
-  document.getElementById('btnLiveFlip').addEventListener('click', flipCamera);
-  document.getElementById('btnLiveStart').addEventListener('click', startOrStopLive);
-  bindLiveTabs();
+function startLive(){
+  // 倒數
+  const overlay = el('countOverlay'); const num = el('countNum');
+  overlay.style.display='flex'; let n=3; num.textContent=n;
+  const tick = setInterval(()=>{
+    n--; if(n<=0){ clearInterval(tick); overlay.style.display='none'; reallyStart(); }
+    else num.textContent = n;
+  }, 700);
 }
-document.addEventListener('DOMContentLoaded', initLiveOnce);
+function reallyStart(){
+  Live.on = true; Live.hearts = 0;
+  el('heartCount').textContent = '0';
+  el('startBtn').textContent = '結束直播';
+  el('liveStage').classList.add('liveOn');
+}
+
+function endLive(){
+  Live.on = false;
+  el('startBtn').textContent = '3・2・1 開始';
+  el('liveStage').classList.remove('liveOn');
+  showLiveEndedScene('ANNIE', LS.getStr('artistAvatar',''));
+}
+
+function addHearts(n=1){
+  if(!Live.on) return;
+  Live.hearts += n;
+  el('heartCount').textContent = String(Live.hearts);
+  const btnRect = el('testHearts').getBoundingClientRect();
+  for(let i=0;i<n;i++){
+    const h = document.createElement('div');
+    h.className = 'flying-heart'; h.textContent = '💗';
+    document.body.appendChild(h);
+    const x = btnRect.left + btnRect.width/2 + (Math.random()*30-15);
+    const y = btnRect.top  + (Math.random()*10-5);
+    h.style.left = `${x}px`; h.style.top = `${y}px`;
+    h.animate(
+      [{opacity:0, transform:'translate(0,10px) scale(.9)'},
+       {opacity:1, offset:.15},
+       {opacity:0, transform:'translate(0,-120px) scale(1.6)'}],
+      {duration: 900 + Math.random()*300, easing:'ease-out'}
+    ).onfinish = ()=> h.remove();
+  }
+}
+
+function showLiveEndedScene(host, avatar){
+  const o = document.createElement('div');
+  o.className = 'liveEndedScene';
+  o.id = 'liveEndedOverlay';
+  o.innerHTML = `
+    ${avatar? `<img src="${avatar}" onerror="imgFallback(this)">` : ''}
+    <div class="name">${escapeHtml(host||'')}</div>
+    <div class="text">直播已結束。</div>
+  `;
+  document.body.appendChild(o);
+  setTimeout(()=> o.remove(), 1400);
+}
+
+/* 把 Live 初始化掛進 DOMContentLoaded */
+document.addEventListener('DOMContentLoaded', setupArtistLive);
   
 
 /* ===================== 啟動 ===================== */
