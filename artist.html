@@ -289,6 +289,24 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 #viewer{position:fixed;inset:0;z-index:90;display:none;background:rgba(0,0,0,.9)}
 #viewer .stage{position:absolute;inset:0;display:grid;place-items:center}
 #viewerImg,#viewerVideo{max-width:94vw;max-height:88vh;border-radius:12px}
+
+/* A. 保底：關掉橫向滾動 */
+html, body { overflow-x: hidden; }
+#dmDetail, .thread { overflow-x: hidden; touch-action: pan-y; }
+
+/* B. noticeBar 不再撐寬（保留視覺貼邊） */
+.noticeBar{
+  align-self: stretch;
+  width: auto;              /* ← 取消 100%+4px */
+  margin: 0 -2px 6px;       /* 仍吃掉 thread 左右 2px 內距 */
+}
+
+/* C. replyBtn 改用 transform 推出去，不佔版寬 */
+.replyBtn{
+  right: 0;  /* 不再用負 right */
+  /* 往外位移「自己的寬度 + gap」，外觀等同原本的 -(size+gap) */
+  transform: translateY(-50%) translateX(calc(100% + var(--reply-gap)));
+}
 </style>
 </head>
 <body>
