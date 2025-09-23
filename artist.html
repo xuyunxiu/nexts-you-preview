@@ -847,7 +847,12 @@ function renderThread(){
     }
   });
   
-/* ----- 系統通知：塞在 thread 內最底，不覆蓋 ----- */
+  
+  if(!box.querySelector('#threadPad')){ const pad=document.createElement('div'); pad.id='threadPad'; box.appendChild(pad); }
+  if(!box.querySelector('#endAnchor')){ const a=document.createElement('div'); a.id='endAnchor'; box.appendChild(a); }
+}
+
+  /* ----- 系統通知：塞在 thread 內最底，不覆蓋 ----- */
 // 保證 notice 列存在；回傳節點或 null
 function ensureNoticeRow(){
   const box = document.getElementById('dmThread');
@@ -862,10 +867,6 @@ function ensureNoticeRow(){
     box.insertBefore(n, pad || null);
   }
   return n;
-}
-  
-  if(!box.querySelector('#threadPad')){ const pad=document.createElement('div'); pad.id='threadPad'; box.appendChild(pad); }
-  if(!box.querySelector('#endAnchor')){ const a=document.createElement('div'); a.id='endAnchor'; box.appendChild(a); }
 }
 
 /* ===================== 系統通知 ===================== */
