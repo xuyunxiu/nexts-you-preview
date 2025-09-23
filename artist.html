@@ -488,18 +488,21 @@ html, body { overflow-x: hidden; }
   </div>
 </div></div>
 
-<<!-- ====================== LIVE ====================== -->
+<!-- ====================== LIVE ====================== -->
 <section id="live" class="page">
+  <div class="homeTop"><div class="homeTitle">直播</div></div>  <!-- ← 新增標題列 -->
+
   <div class="panel">
     <!-- 預覽舞台 -->
     <div class="stage">
       <video id="liveCam" playsinline muted></video>
       <div id="liveNoCam" class="noCam">相機關閉中</div>
 
-      <!-- 開播後的 HUD -->
       <div id="liveHUD" class="hud" style="display:none">
         <span class="dot"></span><span>LIVE</span><span id="liveClock">00:00</span>
       </div>
+      <div id="liveCountdown" class="countdown">3</div>
+    </div>
 
       <!-- 321 倒數 -->
       <div id="liveCountdown" class="countdown">3</div>
