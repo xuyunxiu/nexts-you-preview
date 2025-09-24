@@ -650,56 +650,30 @@ html, body { overflow-x: hidden; }
 </div></div>
 
 <!-- ====================== LIVE（純文字版） ====================== -->
-  <section id="live" class="page">
+ <section id="live" class="page">
   <div class="homeTop"><div class="homeTitle">直播</div></div>
 
- <div id="liveHUD" class="liveHUD" style="display:none">
-  <span class="liveTag">LIVE</span>
-  <span class="liveHearts">💗 <span id="liveHeartCount">0</span></span>
-</div>
-
-  <div class="card soft" style="margin:6px">
-    <!-- 舞台：即時聊天室 -->
-    <div class="liveStage">
-      <div id="livePaused" class="pausedMask" style="display:none">暫時離開中</div>
-      <div id="liveChat" class="chatList">
-        <div class="ghost" style="align-self:center;margin-top:10vh">尚未開始直播</div>
-      </div>
-    </div>
-
-    <!-- 控制列 -->
-    <div class="ctrlRow">
-      <button id="liveStart" class="chip btnPrimary">開始</button>
-      <div class="spacer"></div>
-      <button id="livePause" class="chip" style="display:none">暫時離開</button>
-      <button id="liveEnd" class="chip danger" style="display:none">結束直播</button>
-    </div>
-
-    <!-- 輸入列（只給藝人；開播後啟用） -->
-    <div class="liveInput">
-      <input id="liveInputBox" placeholder="輸入直播訊息…" disabled />
-      <button id="liveSend" class="chip btnPrimary" disabled>送出</button>
-    </div>
+  <div id="liveHUD" class="liveHUD" style="display:none">
+    <span class="liveTag">LIVE</span>
+    <span class="liveHearts">💗 <span id="liveHeartCount">0</span></span>
   </div>
-</section>
-  
-<!-- ====================== Composer（＋） ====================== -->
-<section id="composerArtist" class="page">
-  <div class="row" style="gap:10px;margin-bottom:10px">
-    <button class="back" onclick="goBack()" aria-label="Back"><svg viewBox="0 0 24 24"><path d="M15 19 8 12l7-7"/></svg></button>
-    <b style="font-weight:900">NEXT ONE</b>
-    <div class="sub" id="composerWho" style="margin-left:auto;font-weight:800;letter-spacing:.3px">—</div>
+
+  <!-- 新：和粉絲端同一套 liveThread / msg 氣泡 -->
+  <div id="liveChat" class="liveThread">
+    <div class="msg welcome">尚未開始直播</div>
   </div>
-  <div class="soft card" id="composeBox">
-    <textarea id="composeText" rows="4" placeholder="在想些什麼？（輸入 @@@ 可自動帶入粉絲名稱示範）"></textarea>
-    <div id="composePreview" class="row" style="flex-wrap:wrap;gap:8px;margin-top:10px"></div>
+
+  <div class="liveInputBar">
+    <button id="liveHeartBtn" title="送愛心">💗</button>
+    <input id="liveInputBox" placeholder="輸入直播訊息…" disabled />
+    <button id="liveSend" class="chip btnPrimary" disabled>送出</button>
   </div>
-  <div class="row" style="gap:10px;margin-top:12px">
-    <label class="chip">選擇檔案
-      <input id="composeMedia" type="file" multiple accept="image/*,video/*" onchange="previewComposeMedia(event)" style="display:none">
-    </label>
-    <span id="composeFilesHint" class="ghost">未選取檔案</span>
-    <button class="chip btnPrimary" onclick="publishDraft()">發佈（暫存流程）</button>
+
+  <div class="ctrlRow" style="margin-top:8px">
+    <button id="liveStart" class="chip btnPrimary">開始</button>
+    <div class="spacer"></div>
+    <button id="livePause" class="chip" style="display:none">暫時離開</button>
+    <button id="liveEnd" class="chip danger" style="display:none">結束直播</button>
   </div>
 </section>
 
@@ -1734,29 +1708,20 @@ let LIVE_PAUSED = false;
 
 function livePushArtist(text){
   const box = document.getElementById('liveChat'); if(!box) return;
-  // 移除「尚未開始」提示
-  const ghost = box.querySelector('.ghost'); if(ghost) ghost.remove();
-
-  const wrap = document.createElement('div');
-  wrap.className = 'liveMsg artist';
-  wrap.innerHTML = `
-    <div class="bubble">${escapeHtml(text)}</div>
-    <div class="time">${new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}</div>
-  `;
-  box.appendChild(wrap);
+  box.querySelector('.welcome')?.remove();
+  const el = document.createElement('div');
+  el.className = 'msg host';
+  el.innerHTML = `${escapeHtml(text)}<span class="time">${new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}</span>`;
+  box.appendChild(el);
   box.scrollTop = box.scrollHeight;
 }
 
 function livePushFan(name, text){
   const box = document.getElementById('liveChat'); if(!box) return;
-  const wrap = document.createElement('div');
-  wrap.className = 'liveMsg fan';
-  wrap.innerHTML = `
-    <div class="name">${escapeHtml(name)}</div>
-    <div class="bubble">${escapeHtml(text)}</div>
-    <div class="time">${new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}</div>
-  `;
-  box.appendChild(wrap);
+  const el = document.createElement('div');
+  el.className = 'msg fan';
+  el.innerHTML = `<div class="name">${escapeHtml(name)}</div>${escapeHtml(text)}<span class="time">${new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}</span>`;
+  box.appendChild(el);
   box.scrollTop = box.scrollHeight;
 }
 
@@ -1926,8 +1891,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
   measureHUD(); measureFooter(); updateComposerUI();
   renderThread();
   updateNoticeBanner();
-
-  showPage('live');   
+  
   scrollToEndDuring(800);
   setTimeout(hardStickBottom,0);
   });
