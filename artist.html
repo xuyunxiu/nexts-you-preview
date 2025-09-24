@@ -527,7 +527,7 @@ html, body { overflow-x: hidden; }
 </section>
     
 <!-- ====================== DM LIST ====================== -->
-<section id="dm" class="page">
+<section id="home" class="page active">
   <div class="row" style="justify-content:space-between;margin:2px 0 10px">
     <b style="font-weight:900">DM</b>
   </div>
@@ -1761,7 +1761,7 @@ function liveTogglePause(){
   const btn  = document.getElementById('livePause');
   if(LIVE_PAUSED){
     if(mask) mask.style.display = 'grid';
-    btn.textContent = '繼續';
+    btn.textContent = '恢復';
     livePushArtist('（主持人暫時離開）');
   }else{
     if(mask) mask.style.display = 'none';
@@ -1776,9 +1776,7 @@ function liveEnd(){
 
   LIVE_ON = false; LIVE_PAUSED = false;
 
-document.getElementById('liveHUD').style.display = 'none';
-  
-  // UI 還原
+  document.getElementById('liveHUD').style.display = 'none';
   document.getElementById('livePaused').style.display = 'none';
   document.getElementById('liveStart').style.display = '';
   document.getElementById('livePause').style.display = 'none';
@@ -1786,11 +1784,18 @@ document.getElementById('liveHUD').style.display = 'none';
   document.getElementById('liveInputBox').disabled = true;
   document.getElementById('liveSend').disabled = true;
 
-
   syncNavVisibility();
   livePushArtist('（直播已結束）');
+
+  // 只在真正「結束」後顯示覆蓋畫面
+  const o = document.createElement('div');
+  o.className = 'liveEndedScene';
+  o.innerHTML = `<div class="text">直播已結束</div>`;
+  document.body.appendChild(o);
+  setTimeout(()=> o.remove(), 1200);
 }
 
+  
 // 送出（藝人 → 右側）
 function liveSend(){
   if(!LIVE_ON || LIVE_PAUSED) return;
@@ -1865,14 +1870,13 @@ document.addEventListener('DOMContentLoaded', ()=>{
     btnStart.style.display = 'none';
     btnPause.style.display = ''; btnEnd.style.display = '';
   });
-
-  btnEnd?.addEventListener('click', ()=>{
-    // 結束時給個小覆蓋畫面（可刪）
-    const o = document.createElement('div');
-    o.className = 'liveEndedScene';
-    o.innerHTML = `<div class="text">直播已結束</div>`;
-    document.body.appendChild(o);
-    setTimeout(()=> o.remove(), 1200);
+  
+  // 只在真正「結束」後顯示覆蓋畫面
+  const o = document.createElement('div');
+  o.className = 'liveEndedScene';
+  o.innerHTML = `<div class="text">直播已結束</div>`;
+  document.body.appendChild(o);
+  setTimeout(()=> o.remove(), 1200);
     // 按鈕回復預設
     btnStart.style.display = ''; btnPause.style.display = 'none'; btnEnd.style.display = 'none';
     inp.disabled = true; sendBtn.disabled = true;
@@ -1888,9 +1892,11 @@ document.addEventListener('DOMContentLoaded', ()=>{
 
 /* ===================== 啟動 ===================== */
 document.addEventListener('DOMContentLoaded', ()=>{
-  document.getElementById('meNickname') && (document.getElementById('meNickname').textContent=NICKNAME);
+  const el1 = document.getElementById('meNickname');
+if (el1) el1.textContent = NICKNAME;
   document.getElementById('dmTitle').textContent=NICKNAME.toUpperCase();
-  document.getElementById('composerWho') && (document.getElementById('composerWho').textContent=NICKNAME);
+  const el2 = document.getElementById('composerWho');
+if (el2) el2.textContent = NICKNAME;
   document.getElementById('meId') && (document.getElementById('meId').textContent='ARTIST-00001');
   document.getElementById('meAvatar') && (document.getElementById('meAvatar').src=AVATAR);
 
