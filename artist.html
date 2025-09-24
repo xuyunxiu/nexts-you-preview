@@ -159,6 +159,17 @@ nav#nav button.active{color:var(--accent);background:#f5f3ff;border:1px solid va
 }
 #dmMenu .chip{width:100%;justify-content:flex-start}
 
+/* DM 翻譯 UI */
+.bubble .translate-in{
+  display:inline-flex;align-items:center;gap:6px;
+  margin-top:8px;font-size:12px;padding:4px 10px;
+  border-radius:999px;border:1px solid #e3e6ef;
+  background:#f1f3f6;color:#6f7a94;cursor:pointer;user-select:none;
+}
+.bubble .translate-in svg{width:14px;height:14px;opacity:.7}
+.bubble .transDivider{height:1px;background:#e3e6ef;margin:8px 0}
+.bubble .by{margin-top:2px;font-size:10px;color:var(--ghost)}
+  
 /* 回覆卡 */
 .replyCard{align-self:flex-end;max-width:74%;margin:14px 6px 0;padding:10px 12px;border-radius:14px;background:rgba(255,255,255,.86);border:1px solid rgba(0,0,0,.06);box-shadow:0 8px 18px rgba(0,0,0,.12);backdrop-filter:saturate(140%) blur(1.5px);word-break:break-word}
 .replyCard .fromLabel{font-size:11px;font-weight:900;letter-spacing:.3px;color:#6d78aa;margin-bottom:4px}
@@ -1031,15 +1042,30 @@ function renderThread(){
         bubble.appendChild(ui);
       });
     }else{
-      if(m.from==='fan'){
-        const lab=document.createElement('div'); lab.className='fromLabel'; lab.textContent='FROM FAN';
-        const txt=document.createElement('div'); txt.className='fanText'; txt.innerHTML=escapeHtml(m.text);
-        bubble.append(lab,txt);
-      }else{
-        bubble.innerHTML=escapeHtml(m.text);
-      }
-    }
+  if(m.from==='fan'){
+    const showTrans = LS.getStr(`dmTranslated:${m.id}`,'0') === '1';
+    const lab = document.createElement('div'); lab.className='fromLabel'; lab.textContent='FROM FAN';
 
+    if(showTrans){
+      const orig = document.createElement('div'); orig.className='fanText'; orig.innerHTML=escapeHtml(m.text);
+      const div  = document.createElement('div'); div.className='transDivider';
+      const tran = document.createElement('div'); tran.style.fontWeight='800';
+      tran.textContent = m.text; // TODO：串翻譯 API 後改成譯文
+      const by   = document.createElement('div'); by.className='by'; by.textContent='Translated by Papago';
+      bubble.append(lab, orig, div, tran, by);
+    }else{
+      const txt = document.createElement('div'); txt.className='fanText'; txt.innerHTML=escapeHtml(m.text);
+      const btn = document.createElement('div');
+      btn.className='translate-in';
+      btn.innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M3 4h18v2H3V4zm8 4h2v2h-2V8zm-6 0h4v2H5V8zm0 4h14v2H5v-2zm0 4h10v2H5v-2z" fill="currentColor"/></svg> Translate`;
+      btn.onclick = ()=>{ LS.setStr(`dmTranslated:${m.id}`, '1'); renderThread(); };
+      bubble.append(lab, txt, btn);
+    }
+  }else{
+    bubble.innerHTML=escapeHtml(m.text);
+  }
+}
     wrap.append(bubble,timeEl); box.appendChild(wrap);
 
     if(m.from==='artist'&&m.replyTo&&m.replyTo.text){
