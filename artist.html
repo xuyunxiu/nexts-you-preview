@@ -8,6 +8,7 @@
 <style>
 :root{
   --bg:#f5f7ff; --card:#fff; --text:#1a1a1a; --sub:#667085; --line:#e7eaf3; --ghost:#9aa0b4;
+  --hover:#fff; /* 或 #f8f9ff，看你想要的淺底 */
   --accent:#6a5acd; --accent2:#836fff; --ok:#10b981; --danger:#ff4d4f;
   --radius:16px; --shadow:0 12px 34px rgba(18,24,40,.08);
   --safe:env(safe-area-inset-bottom,0px);
@@ -663,6 +664,8 @@ html, body { overflow-x: hidden; }
     <div class="msg welcome">尚未開始直播</div>
   </div>
 
+ <div id="livePaused" class="pausedMask" style="display:none">主持人暫時離開中</div>
+   
   <div class="liveInputBar">
     <button id="liveHeartBtn" title="送愛心">💗</button>
     <input id="liveInputBox" placeholder="輸入直播訊息…" disabled />
@@ -798,9 +801,11 @@ function syncNavVisibility(){
   document.body.classList.toggle('nav-hidden', mustHide); // ← 新增：讓 CSS 能收掉底部 padding
 }  
 function showPage(id){
-  document.querySelectorAll('section.page').forEach(s => s.classList.remove('active'));
-  document.getElementById(id)?.classList.add('active');
-  if (PAGE_STACK[PAGE_STACK.length - 1] !== id) PAGE_STACK.push(id);
+const target = document.getElementById(id);
+if(!target){ console.warn('Page not found:', id); return; }  // ← 防呆
+document.querySelectorAll('section.page').forEach(s => s.classList.remove('active'));
+target.classList.add('active');
+if (PAGE_STACK[PAGE_STACK.length - 1] !== id) PAGE_STACK.push(id);
 
   document.querySelectorAll('#nav button').forEach(b => b.classList.remove('active'));
   ({home:'tabHome', dm:'tabDM', live:'tabLive', store:'tabStore'}[id]) &&
@@ -1648,7 +1653,10 @@ document.getElementById('btnEditNick')?.addEventListener('click', ()=>{
   }
 });
   // FAB：打開藝人發文 Composer
-document.getElementById('fabNew')?.addEventListener('click', ()=> showPage('composerArtist'));
+document.getElementById('fabNew')?.addEventListener('click', ()=>{
+if (document.getElementById('composerArtist')) showPage('composerArtist');
+else alert('發文編輯器尚未掛上頁面。'); // 或者改成 showPage('home')
+});
 
   // ⭐ Action bar 事件（點擊反應 / 發表評論）
 document.addEventListener('click', (e)=>{
@@ -1749,14 +1757,14 @@ function liveStart(){
 function liveTogglePause(){
   if(!LIVE_ON) return;
   LIVE_PAUSED = !LIVE_PAUSED;
-  const mask = document.getElementById('livePaused');
+  const mask = document.getElementById('livePaused'); // 可能不存在
   const btn  = document.getElementById('livePause');
   if(LIVE_PAUSED){
-    mask.style.display = 'grid';
+    if(mask) mask.style.display = 'grid';
     btn.textContent = '繼續';
     livePushArtist('（主持人暫時離開）');
   }else{
-    mask.style.display = 'none';
+    if(mask) mask.style.display = 'none';
     btn.textContent = '暫時離開';
     livePushArtist('（主持人回來了）');
   }
