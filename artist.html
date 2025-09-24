@@ -446,7 +446,54 @@ html, body { overflow-x: hidden; }
 
 /* 9) LIVE 卡片邊框（延續舊設定） */
 #live .card{ border-color: rgba(231,234,243,.6); }
-  </style>
+
+ /* --- 兼容你現有的 LIVE 純文字結構 (.liveStage + .chatList + .liveMsg) --- */
+#live .chatList{
+  position:absolute; inset:0; padding:14px 12px;
+  display:flex; flex-direction:column; gap:10px;
+  overflow-y:auto; -webkit-overflow-scrolling:touch;
+  overscroll-behavior:contain; scrollbar-width:none;
+}
+#live .chatList::-webkit-scrollbar{ display:none }
+
+#live .liveMsg{ max-width:78%; display:flex; flex-direction:column; gap:4px }
+#live .liveMsg.artist{ align-self:flex-end }
+#live .liveMsg.fan{ align-self:flex-start }
+
+#live .liveMsg .name{
+  font-size:11px; color:#c8d1ff; font-weight:900; letter-spacing:.35px;
+}
+#live .liveMsg .bubble{
+  padding:10px 12px; border-radius:14px;
+  background:#fff; color:#111; border:1px solid #e5e7f2;
+  box-shadow:0 4px 10px rgba(0,0,0,.08);
+}
+#live .liveMsg.artist .bubble{
+  background:linear-gradient(180deg,var(--accent),var(--accent2));
+  color:#fff; border-color:transparent;
+  box-shadow:0 8px 18px rgba(106,90,205,.25);
+}
+#live .liveMsg .time{ font-size:11px; color:#aebbe9; align-self:flex-end }
+#live .liveMsg.fan .time{ color:#b8c2db }
+
+/* 你的 .liveInput 也補齊（沿用新風格） */
+#live .liveInput{
+  display:flex; gap:8px; align-items:center; margin-top:12px;
+  position:sticky; bottom:0; padding-top:8px;
+  background:linear-gradient(180deg,rgba(255,255,255,.3),rgba(255,255,255,.95));
+  backdrop-filter:blur(10px); border-top:1px solid var(--line);
+}
+#live .liveInput input{
+  flex:1; height:44px; padding:0 12px;
+  background:#fff; border:1px solid var(--line); border-radius:14px;
+}
+#live .liveInput .chip{ min-height:44px }
+#live #liveHeartBtn{
+  min-width:44px; height:44px; border-radius:12px; border:1px solid var(--live-hair);
+  background:linear-gradient(180deg,#ffb3d9,#ffc9f1);
+}
+#live #liveHeartBtn:active{ transform:scale(.96) } 
+</style>
 </head>
   <body>
 
@@ -578,10 +625,10 @@ html, body { overflow-x: hidden; }
   <section id="live" class="page">
   <div class="homeTop"><div class="homeTitle">直播</div></div>
 
-  <!-- LIVE HUD -->
-  <div id="liveHUD" class="liveHUD" style="display:none">
-    <span class="liveTag">LIVE</span><span></span>
-  </div>
+ <div id="liveHUD" class="liveHUD" style="display:none">
+  <span class="liveTag">LIVE</span>
+  <span class="liveHearts">💗 <span id="liveHeartCount">0</span></span>
+</div>
 
   <div class="card soft" style="margin:6px">
     <!-- 舞台：即時聊天室 -->
@@ -739,7 +786,7 @@ function dataURLtoBlob(dataURL){
   
 /* ===================== 導航 ===================== */
 const HIDE_NAV_IN = ['dmDetail','composerArtist'];
-let PAGE_STACK = ['home'];
+let PAGE_STACK = ['live'];
 
 function syncNavVisibility(){
   const nav = document.getElementById('nav');
@@ -1763,8 +1810,6 @@ document.addEventListener('DOMContentLoaded', ()=>{
   // 進頁面時算一次
   syncNavVisibility();
 });
-
-  <script>
 // 愛心數＆動畫
 (function(){
   let liveHearts = 0;
@@ -1843,12 +1888,13 @@ document.addEventListener('DOMContentLoaded', ()=>{
   document.getElementById('meId') && (document.getElementById('meId').textContent='ARTIST-00001');
   document.getElementById('meAvatar') && (document.getElementById('meAvatar').src=AVATAR);
 
-  renderStoryBar(); renderFeed(currentFilter); renderDmList();
+  renderStoryBar(); 
 
   measureHUD(); measureFooter(); updateComposerUI();
   renderThread();
   updateNoticeBanner();
 
+  showPage('live');   
   scrollToEndDuring(800);
   setTimeout(hardStickBottom,0);
   });
