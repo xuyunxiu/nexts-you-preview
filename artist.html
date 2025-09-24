@@ -1121,11 +1121,6 @@ function ensureNoticeRow(){
   return n;
 }
 
-function updateNoticeBanner(){
-  const n = ensureNoticeRow(); if (!n) return;
-  n.style.display = 'block'; // 常駐
-}
-
 function clearNoticeNow(){} // 常駐模式：不做事
   
 /* ===================== 系統通知 ===================== */
