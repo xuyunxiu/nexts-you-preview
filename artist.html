@@ -503,6 +503,12 @@ html, body { overflow-x: hidden; }
   box-shadow:0 10px 24px rgba(106,90,205,.28); cursor:pointer; z-index:45;
 }
 .fabNew:active{ transform:translateY(1px) }
+
+@media (prefers-reduced-motion: reduce){
+  *{ animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+  #live .flying-heart, #liveRoom .flying-heart{ display: none !important; }
+  #live .liveTag, #liveRoom .liveTag{ animation: none !important; }
+}
 </style>
 </head>
   <body>
@@ -870,9 +876,11 @@ function renderStoryBar(){
     const pinned=(a.id==='me'||a.id==='all')?'pinned':'';
     const dot=hasNewDots(a.id)?'<span class="dot"></span>':'';
     const label = (a.id==='me') ? 'ME' : a.name;
-    return `<div class="story-item ${active} ${pinned}" data-id="${a.id}">
-      <img src="${a.avatar}" onerror="imgFallback(this)">${dot}
-      <div class="name">${label}</div></div>`;
+    return `<div class="story-item ${active} ${pinned}" data-id="${a.id}"
+             role="button" tabindex="0" aria-label="查看 ${label} 的貼文">
+  <img src="${a.avatar}" alt="${label} 的頭像" onerror="imgFallback(this)">${dot}
+  <div class="name">${label}</div>
+</div>`;
   }).join('');
 
   bar.querySelectorAll('.story-item').forEach(el=>{
@@ -906,32 +914,34 @@ function reactBtnHTML(p, key, icon){
   return `<button class="react${on}" data-react="${key}">${icon} <span class="num">${n || ''}</span></button>`;
 } 
 function renderFeed(filter='me'){
-  const wrap=document.getElementById('feedWrap');
-  if(!wrap) return; // ← 容器不存在就先跳過
+  const wrap = document.getElementById('feedWrap');
+  if(!wrap) return;
 
-  const list=feedOf(filter);
+  const list = feedOf(filter);
   if(!list.length){
-    wrap.innerHTML=`<div class="ghost" style="text-align:center;margin-top:20vh">尚無貼文</div>`;
+    wrap.innerHTML = `<div class="ghost" style="text-align:center;margin-top:20vh">尚無貼文</div>`;
     return;
   }
 
-  wrap.innerHTML=list.map(p=>{
+  wrap.innerHTML = list.map(p=>{
     p.reacts = p.reacts || {thumb:0,heart:0,joy:0,shock:0,cry:0};
     p.cmts   = p.cmts   || [];
-    const stage=(p.artistStage||STAGE_NAME||'').toString().toUpperCase();
+    const stage = (p.artistStage||STAGE_NAME||'').toString().toUpperCase();
     const displayName = (p.artistId==='me') ? NICKNAME.toUpperCase() : stage;
 
-    return `<div class="card soft post" data-post="${p.id}">
+    return `
+    <div class="post card soft" data-post="${p.id}">
       <div class="hdr">
-        <img class="avatar" src="${p.avatar}" onerror="imgFallback(this)">
+        <img class="avatar" src="${p.avatar}" alt="${escapeHtml(displayName)} 的頭像" onerror="imgFallback(this)">
         <div class="meta">
           <b class="stage">${escapeHtml(displayName)} ${VB(18)}</b>
           <small class="ghost">${new Date(p.ts).toLocaleString()}</small>
         </div>
       </div>
-      <div class="body"><p>${escapeHtml(p.text)}</p>
-      ${p.img?`<img class="hero" src="${p.img}" onerror="imgFallback(this)">`:``}</div>
-
+      <div class="body">
+        <p>${escapeHtml(p.text)}</p>
+        ${p.img ? `<img class="hero" src="${p.img}" alt="貼文圖片" onerror="imgFallback(this)">` : ``}
+      </div>
       <div class="actions">
         <div class="reacts">
           ${reactBtnHTML(p,'thumb','👍')}
@@ -962,7 +972,7 @@ function renderDmList(){
   const box=document.getElementById('dmList');
   const last=GROUP_MSGS[GROUP_MSGS.length-1];
   box.innerHTML=`<div class="dmCard" onclick="showPage('dmDetail')">
-    <img src="${ME.avatar}" onerror="imgFallback(this)">
+    <img src="${ME.avatar}" alt="聊天室頭像" onerror="imgFallback(this)">
     <div class="nameBlock">
       <div class="nameRow" style="align-items:center;gap:8px">
         <span class="artistTag">ARTIST</span>
@@ -1079,7 +1089,9 @@ function renderThread(){
     const bubble=document.createElement('div'); bubble.className='bubble';
 
     if(m.type==='image'){
-      const img=document.createElement('img'); img.className='msgImg'; img.alt='';
+      const img=document.createElement('img');
+img.className='msgImg';
+img.alt='聊天圖片';
       bubble.classList.add('mediaWrap');
       bubble.appendChild(img);
       resolveMediaSrc(m).then(url=>{ img.src=url; img.addEventListener('click',()=>openViewer(url,'img', img)); }).catch(()=>{});
@@ -1508,16 +1520,20 @@ function applyChatBg(forceUrl){
 
   const setBg = (u)=>{
     if(u){
-      panel.style.backgroundImage = `url(${u})`; // 不加引號，避開 Safari 對超長 url() 的小毛病
-      const opt = LS.get('chatBgOpt', {dim:0.18, blur:6});
-      document.documentElement.style.setProperty('--bgDim', String(opt.dim));
-      document.documentElement.style.setProperty('--bgBlur', opt.blur + 'px');
-    }else{
-      panel.style.backgroundImage = '';
-      document.documentElement.style.setProperty('--bgDim', '0');
-      document.documentElement.style.setProperty('--bgBlur', '0px');
-    }
-  };
+  // 僅允許本地裁切結果（data:/blob:）。要開放 https 再擴充這裡。
+  if(!(u.startsWith('data:') || u.startsWith('blob:'))){
+    console.warn('Blocked non-local background URL');
+    return;
+  }
+  panel.style.backgroundImage = `url(${u})`;
+  const opt = LS.get('chatBgOpt', {dim:0.18, blur:6});
+  document.documentElement.style.setProperty('--bgDim', String(opt.dim));
+  document.documentElement.style.setProperty('--bgBlur', opt.blur + 'px');
+}else{
+  panel.style.backgroundImage = '';
+  document.documentElement.style.setProperty('--bgDim', '0');
+  document.documentElement.style.setProperty('--bgBlur', '0px');
+}
 
   if (forceUrl) { setBg(forceUrl); return; }
 
@@ -1787,17 +1803,12 @@ function liveEnd(){
   syncNavVisibility();
   livePushArtist('（直播已結束）');
 
-  // 只在真正「結束」後顯示覆蓋畫面
   const o = document.createElement('div');
   o.className = 'liveEndedScene';
   o.innerHTML = `<div class="text">直播已結束</div>`;
   document.body.appendChild(o);
   setTimeout(()=> o.remove(), 1200);
-    // 按鈕回復預設
-    btnStart.style.display = ''; btnPause.style.display = 'none'; btnEnd.style.display = 'none';
-    inp.disabled = true; sendBtn.disabled = true;
-    hud.style.display = 'none';
-  }
+}
 
   
 // 送出（藝人 → 右側）
