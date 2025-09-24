@@ -554,14 +554,13 @@ html, body { overflow-x: hidden; }
   <section id="live" class="page">
   <div class="homeTop"><div class="homeTitle">直播</div></div>
 
-<!-- LIVE HUD -->
-<div id="liveHUD" class="liveHUD" style="display:none">
-  <span class="liveTag">LIVE</span>
-  <span></span>
-</div>
-    
+  <!-- LIVE HUD -->
+  <div id="liveHUD" class="liveHUD" style="display:none">
+    <span class="liveTag">LIVE</span><span></span>
+  </div>
+
   <div class="card soft" style="margin:6px">
-    <!-- 舞台：改成即時聊天室 -->
+    <!-- 舞台：即時聊天室 -->
     <div class="liveStage">
       <div id="livePaused" class="pausedMask" style="display:none">暫時離開中</div>
       <div id="liveChat" class="chatList">
@@ -583,37 +582,7 @@ html, body { overflow-x: hidden; }
       <button id="liveSend" class="chip btnPrimary" disabled>送出</button>
     </div>
   </div>
-
-    <!-- 互動 -->
-    <div id="t1" class="tabPane active">
-      <b style="font-weight:900">快速操作</b>
-      <div class="quick" style="margin-top:10px">
-        <button class="chip">📣 發公告</button>
-        <button class="chip">📦 建投票</button>
-        <button class="chip">📌 置頂留言</button>
-        <button class="chip">🎬 下標記</button>
-      </div>
-      <div class="quickInput">
-        <div class="box"><input id="quickReply" placeholder="輸入快速回覆…" /></div>
-        <button class="sendBtn" id="quickSend">送出</button>
-      </div>
-    </div>
-
-    <!-- 管理（占位） -->
-    <div id="t2" class="tabPane">
-      <div class="ghost">（預留）聊天室管理、禁言、關鍵字過濾、慢速模式…</div>
-    </div>
-
-    <!-- 素材 -->
-    <div id="t3" class="tabPane">
-      <div class="quick">
-        <button class="chip">＋ 新增素材</button>
-        <button class="chip">🗂 背景圖</button>
-        <button class="chip">🎧 BGM</button>
-        <button class="chip">🎯 貼圖</button>
-      </div>
-    </div>
-</section> 
+</section>
   
 <!-- ====================== Composer（＋） ====================== -->
 <section id="composerArtist" class="page">
