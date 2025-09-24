@@ -395,6 +395,16 @@ html, body { overflow-x: hidden; }
   text-shadow:0 2px 12px rgba(0,0,0,.35); backdrop-filter:blur(2px);
 }
 
+  #live .liveStage { position: relative; } /* 你本來就有，保險再提一次 */
+#live .liveStage .pausedMask{
+  position:absolute;
+  inset:0;
+  display:none;         /* JS 會切成 grid */
+  place-items:center;
+  z-index:2;
+  border-radius:inherit;
+}
+
 /* 輸入列：維持你原本功能，樣式靠近粉絲端 */
 #live .liveInput input{
   background:#fff; border:1px solid #e4e7f2; border-radius:14px; height:44px;
@@ -744,28 +754,24 @@ function dataURLtoBlob(dataURL){
 const HIDE_NAV_IN = ['dmDetail','composerArtist'];
 let PAGE_STACK = ['home'];
 
+function syncNavVisibility(){
+  const nav = document.getElementById('nav');
+  const cur = PAGE_STACK[PAGE_STACK.length - 1] || 'home';
+  const mustHide = HIDE_NAV_IN.includes(cur) || (cur === 'live' && LIVE_ON);
+  nav.classList.toggle('hidden', mustHide);
+}
+  
 function showPage(id){
-  // 1) 顯示／隱藏對應的 section
   document.querySelectorAll('section.page').forEach(s => s.classList.remove('active'));
-  const page = document.getElementById(id);
-  if (page) page.classList.add('active');
-
-  // 2) 紀錄導覽堆疊
+  document.getElementById(id)?.classList.add('active');
   if (PAGE_STACK[PAGE_STACK.length - 1] !== id) PAGE_STACK.push(id);
 
-  // 3) 切換底部 nav 的 active 標籤
   document.querySelectorAll('#nav button').forEach(b => b.classList.remove('active'));
-  const tabMap = { home:'tabHome', dm:'tabDM', live:'tabLive', store:'tabStore' };
-  const tabId  = tabMap[id];
-  if (tabId) document.getElementById(tabId)?.classList.add('active');
+  ({home:'tabHome', dm:'tabDM', live:'tabLive', store:'tabStore'}[id]) &&
+    document.getElementById({home:'tabHome', dm:'tabDM', live:'tabLive', store:'tabStore'}[id]).classList.add('active');
 
-  // 4) 底部 nav 顯示規則（★關鍵）
-  //    - 原本就該隱藏的頁（dmDetail / composerArtist）
-  //    - 進入 live 且已開播（LIVE_ON=true）
-  const nav = document.getElementById('nav');
-  const liveOn = (typeof LIVE_ON !== 'undefined' && !!LIVE_ON);  // 兼容 let/var
-  const mustHide = HIDE_NAV_IN.includes(id) || (id === 'live' && liveOn);
-  nav.classList.toggle('hidden', mustHide);
+  // ★ 用統一函式
+  syncNavVisibility();
 
   // 5) 各頁進場時要做的事
   if (id === 'home') {
@@ -1772,12 +1778,8 @@ document.addEventListener('DOMContentLoaded', ()=>{
   document.getElementById('liveInputBox')?.addEventListener('keydown', e=>{
     if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); liveSend(); }
   });
-/* 同步底部 Nav 顯示：給直播開始/結束呼叫 */
-  const nav = document.getElementById('nav');
-  const cur = PAGE_STACK[PAGE_STACK.length - 1] || 'home';
-  const mustHide = HIDE_NAV_IN.includes(cur) || (cur === 'live' && LIVE_ON);
-  nav.classList.toggle('hidden', mustHide);
-}
+  // 進頁面時算一次
+  syncNavVisibility();
 });
   
 
