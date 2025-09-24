@@ -547,14 +547,15 @@ html, body { overflow-x: hidden; }
 </div></div>
 
 <!-- ====================== LIVE（純文字版） ====================== -->
+  <section id="live" class="page">
+  <div class="homeTop"><div class="homeTitle">直播</div></div>
+
 <!-- LIVE HUD -->
 <div id="liveHUD" class="liveHUD" style="display:none">
   <span class="liveTag">LIVE</span>
   <span></span>
 </div>
-  <section id="live" class="page">
-  <div class="homeTop"><div class="homeTitle">直播</div></div>
-
+    
   <div class="card soft" style="margin:6px">
     <!-- 舞台：改成即時聊天室 -->
     <div class="liveStage">
@@ -1699,14 +1700,15 @@ function liveStart(){
   if(LIVE_ON) return;
   LIVE_ON = true; LIVE_PAUSED = false;
 
+  document.getElementById('liveHUD').style.display = 'flex';
+  
   // UI 切換
   document.getElementById('liveStart').style.display = 'none';
   document.getElementById('livePause').style.display = '';
   document.getElementById('liveEnd').style.display = '';
   document.getElementById('liveInputBox').disabled = false;
   document.getElementById('liveSend').disabled = false;
-
-  syncNavVisibility();  
+ 
   livePushArtist('（直播開始）');
 }
 
@@ -1732,6 +1734,8 @@ function liveEnd(){
 
   LIVE_ON = false; LIVE_PAUSED = false;
 
+document.getElementById('liveHUD').style.display = 'flex';
+  
   // UI 還原
   document.getElementById('livePaused').style.display = 'none';
   document.getElementById('liveStart').style.display = '';
@@ -1739,8 +1743,7 @@ function liveEnd(){
   document.getElementById('liveEnd').style.display = 'none';
   document.getElementById('liveInputBox').disabled = true;
   document.getElementById('liveSend').disabled = true;
-  
-  syncNavVisibility();  
+   
   livePushArtist('（直播已結束）');
 }
 
@@ -1767,7 +1770,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
     if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); liveSend(); }
   });
 /* 同步底部 Nav 顯示：給直播開始/結束呼叫 */
-function syncNavVisibility(){
+  function syncNavVisibility(){
   const nav = document.getElementById('nav');
   const cur = PAGE_STACK[PAGE_STACK.length - 1] || 'home';
   const mustHide = HIDE_NAV_IN.includes(cur) || (cur === 'live' && LIVE_ON);
