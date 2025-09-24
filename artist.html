@@ -754,9 +754,28 @@ const MEDIA_DB = (()=> {
 })();
 
 /* 只允許同時播放一條 */
-let ACTIVE_AUDIO = null;
-function stopActive(){ if (ACTIVE_AUDIO){ ACTIVE_AUDIO.pause(); ACTIVE_AUDIO._owner?.classList.remove('playing'); ACTIVE_AUDIO = null; } }
+let ACTIVE_AUDIO = null;  function stopActive(){ if (ACTIVE_AUDIO){ ACTIVE_AUDIO.pause(); ACTIVE_AUDIO._owner?.classList.remove('playing'); ACTIVE_AUDIO = null; } }
 
+// 新增：離開 DM／切到背景 時，統一停掉所有可能的播放
+function haltDmMedia(){
+  // 語音泡泡（單例控制）
+  try{ stopActive(); }catch(_){}
+
+  // DM 內任何 <audio>/<video>（包含你用來當語音播放器的 <video>）
+  document.querySelectorAll('#dmThread audio, #dmThread video').forEach(m=>{
+    try{ m.pause(); }catch(_){}
+  });
+
+  // 修剪視窗的試聽
+  const t = document.getElementById('trimMedia');
+  if (t) { try{ t.pause(); }catch(_){} }
+
+  // 全螢幕檢視器
+  const vv = document.getElementById('viewerVideo');
+  if (vv) { try{ vv.pause(); }catch(_){} }
+  closeViewer();
+}
+  
 /* ===== 個人資料／假資料 ===== */
 const STAGE_NAME = LS.getStr('artistStage','ANNIE');
 let   NICKNAME   = LS.getStr('artistNickname','Annie');      // 自己看到的暱稱
@@ -811,18 +830,22 @@ function syncNavVisibility(){
   document.body.classList.toggle('nav-hidden', mustHide); // ← 新增：讓 CSS 能收掉底部 padding
 }  
 function showPage(id){
-const target = document.getElementById(id);
-if(!target){ console.warn('Page not found:', id); return; }  // ← 防呆
-document.querySelectorAll('section.page').forEach(s => s.classList.remove('active'));
-target.classList.add('active');
-if (PAGE_STACK[PAGE_STACK.length - 1] !== id) PAGE_STACK.push(id);
+  const prev = PAGE_STACK[PAGE_STACK.length - 1] || 'home';
+  // 上一頁是 dmDetail、而且要切去別頁 → 停掉 DM 裡所有聲音/影片
+  if (prev === 'dmDetail' && id !== 'dmDetail') { haltDmMedia(); }
+
+  const target = document.getElementById(id);
+  if(!target){ console.warn('Page not found:', id); return; }
+  document.querySelectorAll('section.page').forEach(s => s.classList.remove('active'));
+  target.classList.add('active');
+  if (PAGE_STACK[PAGE_STACK.length - 1] !== id) PAGE_STACK.push(id);
 
   document.querySelectorAll('#nav button').forEach(b => b.classList.remove('active'));
   ({home:'tabHome', dm:'tabDM', live:'tabLive', store:'tabStore'}[id]) &&
     document.getElementById({home:'tabHome', dm:'tabDM', live:'tabLive', store:'tabStore'}[id]).classList.add('active');
 
-  // ★ 用統一函式
   syncNavVisibility();
+
 
   // 5) 各頁進場時要做的事
   if (id === 'home') {
@@ -851,6 +874,10 @@ if (PAGE_STACK[PAGE_STACK.length - 1] !== id) PAGE_STACK.push(id);
 }
 
 function goBack(){
+  const from = PAGE_STACK[PAGE_STACK.length - 1] || 'home';
+  // 新增：從 DM 詳細頁返回時，先停媒體
+  if (from === 'dmDetail') haltDmMedia();
+
   PAGE_STACK.pop();
   const prev = PAGE_STACK[PAGE_STACK.length - 1] || 'home';
   showPage(prev);
@@ -1923,27 +1950,62 @@ if (el2) el2.textContent = NICKNAME;
 })();
 
 /* iOS Safari：視窗/鍵盤變化（visualViewport） */
-;(function(){
-  const vv=window.visualViewport;
-  function applyVV(){
-    if(!vv) return;
-    const offset=Math.max(0, window.innerHeight - vv.height);
+;(function () {
+  const vv = window.visualViewport;
+
+  function applyVV() {
+    if (!vv) return;
+    const offset = Math.max(0, window.innerHeight - vv.height);
     document.documentElement.style.setProperty('--kb-offset', offset + 'px');
-    measureFooter(); scrollToEndDuring(600);
+    measureFooter();
+    scrollToEndDuring(600);
   }
-  if(vv){ vv.addEventListener('resize', applyVV); vv.addEventListener('scroll', applyVV); applyVV(); }
-  window.addEventListener('resize', ()=>{ measureHUD(); measureFooter(); scrollToEndDuring(600); });
-  window.addEventListener('orientationchange', ()=>{ setTimeout(()=>{ measureHUD(); measureFooter(); scrollToEndDuring(800); },120); });
-  window.addEventListener('pageshow', ()=>{ measureFooter(); scrollToEndDuring(800); });
-  document.addEventListener('visibilitychange', ()=>{ if(!document.hidden){ scrollToEndDuring(600); } });
-  if(document.fonts && document.fonts.ready){ document.fonts.ready.then(()=>scrollToEndDuring(800)); }
+
+  if (vv) {
+    vv.addEventListener('resize', applyVV);
+    vv.addEventListener('scroll', applyVV);
+    applyVV();
+  }
+
+  window.addEventListener('resize', () => {
+    measureHUD();
+    measureFooter();
+    scrollToEndDuring(600);
+  });
+
+  window.addEventListener('orientationchange', () => {
+    setTimeout(() => {
+      measureHUD();
+      measureFooter();
+      scrollToEndDuring(800);
+    }, 120);
+  });
+
+  window.addEventListener('pageshow', () => {
+    measureFooter();
+    scrollToEndDuring(800);
+  });
+
+  // 前/後景切換：在這裡停掉 DM 內所有媒體
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      haltDmMedia();
+    } else {
+      scrollToEndDuring(600);
+    }
+  });
+
+  // 字體載入完成後再貼一次底，避免字體跳動影響卷軸
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(() => scrollToEndDuring(800));
+  }
 })();
 
 /* ====== 全螢幕媒體檢視器 ====== */
 let CURRENT_INLINE_MEDIA = null;
 
 function openViewer(url, kind, srcEl){
-  // 暫停聊天室內原來那個 video（避免聲音重疊）
+  stopActive(); // 先把任何語音播放關掉
   if (srcEl && srcEl.tagName === 'VIDEO') { try{ srcEl.pause(); }catch(_){} }
   CURRENT_INLINE_MEDIA = srcEl || null;
 
