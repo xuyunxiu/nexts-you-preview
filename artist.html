@@ -509,20 +509,25 @@ html, body { overflow-x: hidden; }
   #live .flying-heart, #liveRoom .flying-heart{ display: none !important; }
   #live .liveTag, #liveRoom .liveTag{ animation: none !important; }
 }
+ .pageTitle{
+  padding:8px 12px 4px;
+  font-weight:900; letter-spacing:.6px;
+  font-size:22px; line-height:1;
+} 
 </style>
 </head>
   <body>
 
 <!-- ====================== HOME ====================== -->
-<section id="home" class="page active">
+ <!-- 頁面抬頭（社群） -->
+  <div class="homeTop">
+    <div class="homeTitle">社群</div>
+  </div>
+    
+    <section id="home" class="page active">
   <!-- Story bar -->
   <div id="storyWrap">
     <div id="storyBar"></div>
-  </div>
-
-  <!-- 頁面抬頭（社群） -->
-  <div class="homeTop">
-    <div class="homeTitle">社群</div>
   </div>
 
   <!-- 動態牆 -->
@@ -534,9 +539,8 @@ html, body { overflow-x: hidden; }
     
 <!-- ====================== DM LIST ====================== -->
 <section id="dm" class="page">
-  <div class="row" style="justify-content:space-between;margin:2px 0 10px">
-    <b style="font-weight:900">DM</b>
-  </div>
+  <div class="pageTitle">DM</div>
+  <div id="dmList"></div>
   <div id="dmList"></div>
 </section>
 
@@ -658,8 +662,8 @@ html, body { overflow-x: hidden; }
 
 <!-- ====================== LIVE（純文字版） ====================== -->
  <section id="live" class="page">
-  <div class="homeTop"><div class="homeTitle">直播</div></div>
-
+  <div class="pageTitle">直播</div>
+   
   <div id="liveHUD" class="liveHUD" style="display:none">
     <span class="liveTag">LIVE</span>
     <span class="liveHearts">💗 <span id="liveHeartCount">0</span></span>
