@@ -508,7 +508,7 @@ html, body { overflow-x: hidden; }
   <body>
 
 <!-- ====================== HOME ====================== -->
-<section id="home" class="page">
+<section id="home" class="page active">
   <!-- Story bar -->
   <div id="storyWrap">
     <div id="storyBar"></div>
@@ -527,7 +527,7 @@ html, body { overflow-x: hidden; }
 </section>
     
 <!-- ====================== DM LIST ====================== -->
-<section id="home" class="page active">
+<section id="dm" class="page">
   <div class="row" style="justify-content:space-between;margin:2px 0 10px">
     <b style="font-weight:900">DM</b>
   </div>
@@ -1793,7 +1793,11 @@ function liveEnd(){
   o.innerHTML = `<div class="text">直播已結束</div>`;
   document.body.appendChild(o);
   setTimeout(()=> o.remove(), 1200);
-}
+    // 按鈕回復預設
+    btnStart.style.display = ''; btnPause.style.display = 'none'; btnEnd.style.display = 'none';
+    inp.disabled = true; sendBtn.disabled = true;
+    hud.style.display = 'none';
+  }
 
   
 // 送出（藝人 → 右側）
@@ -1869,18 +1873,6 @@ document.addEventListener('DOMContentLoaded', ()=>{
     inp.disabled = false; sendBtn.disabled = false;
     btnStart.style.display = 'none';
     btnPause.style.display = ''; btnEnd.style.display = '';
-  });
-  
-  // 只在真正「結束」後顯示覆蓋畫面
-  const o = document.createElement('div');
-  o.className = 'liveEndedScene';
-  o.innerHTML = `<div class="text">直播已結束</div>`;
-  document.body.appendChild(o);
-  setTimeout(()=> o.remove(), 1200);
-    // 按鈕回復預設
-    btnStart.style.display = ''; btnPause.style.display = 'none'; btnEnd.style.display = 'none';
-    inp.disabled = true; sendBtn.disabled = true;
-    hud.style.display = 'none';
   });
 
   btnPause?.addEventListener('click', ()=>{
