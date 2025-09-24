@@ -541,7 +541,6 @@ html, body { overflow-x: hidden; }
 <section id="dm" class="page">
   <div class="pageTitle">DM</div>
   <div id="dmList"></div>
-  <div id="dmList"></div>
 </section>
 
 <!-- ====================== DM DETAIL ====================== -->
@@ -1565,7 +1564,7 @@ function applyChatBg(forceUrl){
   document.documentElement.style.setProperty('--bgDim', '0');
   document.documentElement.style.setProperty('--bgBlur', '0px');
 }
-
+};
   if (forceUrl) { setBg(forceUrl); return; }
 
   // 先試著用 LS 純字串
