@@ -493,10 +493,38 @@ html, body { overflow-x: hidden; }
   background:linear-gradient(180deg,#ffb3d9,#ffc9f1);
 }
 #live #liveHeartBtn:active{ transform:scale(.96) } 
+
+.fabNew{
+  position:fixed; right:16px; bottom:calc(90px + var(--safe));
+  width:56px; height:56px; border:none; border-radius:16px;
+  background:linear-gradient(180deg,var(--accent),var(--accent2));
+  color:#fff; font-weight:900; font-size:24px; line-height:1;
+  box-shadow:0 10px 24px rgba(106,90,205,.28); cursor:pointer; z-index:45;
+}
+.fabNew:active{ transform:translateY(1px) }
 </style>
 </head>
   <body>
 
+<!-- ====================== HOME ====================== -->
+<section id="home" class="page">
+  <!-- Story bar -->
+  <div id="storyWrap">
+    <div id="storyBar"></div>
+  </div>
+
+  <!-- 頁面抬頭（社群） -->
+  <div class="homeTop">
+    <div class="homeTitle">社群</div>
+  </div>
+
+  <!-- 動態牆 -->
+  <div id="feedWrap" style="padding:0 6px 12px"></div>
+
+  <!-- 發文 FAB（對應你既有的 #fabNew 監聽） -->
+  <button id="fabNew" aria-label="新增貼文" class="fabNew">＋</button>
+</section>
+    
 <!-- ====================== DM LIST ====================== -->
 <section id="dm" class="page">
   <div class="row" style="justify-content:space-between;margin:2px 0 10px">
@@ -848,7 +876,9 @@ function hasNewDots(artistId){
   return latest>seen;
 }
 function renderStoryBar(){
-  const bar=document.getElementById('storyBar');
+  const bar = document.getElementById('storyBar');
+  if(!bar) return; // ← 容器不存在就先跳過
+
   const others=ARTISTS.filter(a=>a.id!=='me'&&a.id!=='all');
   others.sort((a,b)=>{
     const la=Math.max(0,...POSTS.filter(p=>p.artistId===a.id).map(p=>p.ts));
@@ -862,9 +892,10 @@ function renderStoryBar(){
     const dot=hasNewDots(a.id)?'<span class="dot"></span>':'';
     const label = (a.id==='me') ? 'ME' : a.name;
     return `<div class="story-item ${active} ${pinned}" data-id="${a.id}">
-  <img src="${a.avatar}" onerror="imgFallback(this)">${dot}
-  <div class="name">${label}</div></div>`;
+      <img src="${a.avatar}" onerror="imgFallback(this)">${dot}
+      <div class="name">${label}</div></div>`;
   }).join('');
+
   bar.querySelectorAll('.story-item').forEach(el=>{
     el.addEventListener('click', ()=>{
       const id=el.dataset.id; currentFilter=id;
@@ -897,14 +928,17 @@ function reactBtnHTML(p, key, icon){
 } 
 function renderFeed(filter='me'){
   const wrap=document.getElementById('feedWrap');
+  if(!wrap) return; // ← 容器不存在就先跳過
+
   const list=feedOf(filter);
-  if(!list.length){ wrap.innerHTML=`<div class="ghost" style="text-align:center;margin-top:20vh">尚無貼文</div>`; return; }
+  if(!list.length){
+    wrap.innerHTML=`<div class="ghost" style="text-align:center;margin-top:20vh">尚無貼文</div>`;
+    return;
+  }
 
   wrap.innerHTML=list.map(p=>{
-    // ⭐ 補預設欄位（不影響你原本資料）
     p.reacts = p.reacts || {thumb:0,heart:0,joy:0,shock:0,cry:0};
-    p.cmts   = p.cmts   || [];   // 每則 {id, text}
-
+    p.cmts   = p.cmts   || [];
     const stage=(p.artistStage||STAGE_NAME||'').toString().toUpperCase();
     const displayName = (p.artistId==='me') ? NICKNAME.toUpperCase() : stage;
 
@@ -919,20 +953,19 @@ function renderFeed(filter='me'){
       <div class="body"><p>${escapeHtml(p.text)}</p>
       ${p.img?`<img class="hero" src="${p.img}" onerror="imgFallback(this)">`:``}</div>
 
-      <!-- ⭐ Action bar -->
-<div class="actions">
-  <div class="reacts">
-    ${reactBtnHTML(p,'thumb','👍')}
-    ${reactBtnHTML(p,'heart','❤️')}
-    ${reactBtnHTML(p,'joy','🤣')}
-    ${reactBtnHTML(p,'shock','😲')}
-    ${reactBtnHTML(p,'cry','🥲')}
-  </div>
-  <div class="commentBar">
-    <div class="left">💬 <span class="cmtCount">${p.cmts.length}</span> 則評論</div>
-    <div class="right"><button class="addCmt">發表評論</button></div>
-  </div>
-</div>
+      <div class="actions">
+        <div class="reacts">
+          ${reactBtnHTML(p,'thumb','👍')}
+          ${reactBtnHTML(p,'heart','❤️')}
+          ${reactBtnHTML(p,'joy','🤣')}
+          ${reactBtnHTML(p,'shock','😲')}
+          ${reactBtnHTML(p,'cry','🥲')}
+        </div>
+        <div class="commentBar">
+          <div class="left">💬 <span class="cmtCount">${p.cmts.length}</span> 則評論</div>
+          <div class="right"><button class="addCmt">發表評論</button></div>
+        </div>
+      </div>
     </div>`;
   }).join('');
 }
