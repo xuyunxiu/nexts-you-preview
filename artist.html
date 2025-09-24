@@ -317,114 +317,138 @@ html, body { overflow-x: hidden; }
   transform: translateY(-50%) translateX(calc(100% + var(--reply-gap)));
 }
 
-/* ========== LIVE v2（整段替換；全部 #live 命名空間） ========== */
+/* ========== LIVE（整合：藝人端 #live + 粉絲端 #liveRoom） ========== */
+/* 作用域別名（兩個容器都支援） */
+#live, #liveRoom { --live-hair: var(--line); }
 
-/* 舞台 */
+/* 1) 頂部 HUD：LIVE 標＋愛心數 */
+#live .liveHUD, #liveRoom .liveHUD{
+  position:sticky; top:0; z-index:5;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:10px 4px 6px;
+  background:linear-gradient(180deg, rgba(245,247,255,.75), rgba(245,247,255,0));
+}
+#live .liveTag, #liveRoom .liveTag{
+  display:inline-flex; align-items:center; gap:6px;
+  padding:4px 10px; border-radius:999px;
+  background:#ff2e2e; color:#fff; font-weight:900; font-size:12px;
+  box-shadow:0 6px 20px rgba(255,46,46,.25);
+  animation:blink 1.1s infinite;
+}
+#live .liveTag::after, #liveRoom .liveTag::after{ content:"●"; font-size:10px }
+@keyframes blink{0%,55%{opacity:1}56%,100%{opacity:.35}}
+#live .liveHearts, #liveRoom .liveHearts{ font-weight:900; color:#333; }
+
+/* 2) 舞台（可選，保留你的需求） */
 #live .liveStage{
   position:relative; height:44vh; min-height:300px;
-  border:1px solid var(--line); border-radius:18px;
+  border:1px solid var(--live-hair); border-radius:18px;
   background:linear-gradient(180deg,#0f1c3a,#18224b);
   box-shadow:0 10px 28px rgba(0,0,0,.12) inset;
 }
 
-/* 訊息串 */
-#live .chatList{
-  position:absolute; inset:0; padding:14px 12px;
-  display:flex; flex-direction:column; gap:10px;
-  overflow-y:auto; -webkit-overflow-scrolling:touch;
-  overscroll-behavior:contain; scrollbar-width:none;
-}
-#live .chatList::-webkit-scrollbar{ display:none; }
-
-/* HUD */
-#live .liveHUD{
-  display:flex; align-items:center; justify-content:space-between;
-  margin:0 6px 10px;
-  background:linear-gradient(180deg, rgba(245,247,255,.75), rgba(245,247,255,0));
-  padding:10px 4px 6px;
-}
-#live .liveTag{
-  display:inline-flex; align-items:center; gap:6px;
-  padding:4px 10px; border-radius:999px;
-  background:#ff2e2e; color:#fff; font-weight:900; font-size:12px;
-  box-shadow:0 6px 18px rgba(255,46,46,.25) inset;
-  animation: blink 1.1s infinite;
-}
-#live .liveTag::after{ content:"●"; font-size:10px }
-@keyframes blink{0%,55%{opacity:1}56%,100%{opacity:.35}}
-#live .liveHUD .liveHearts{
-  display:inline-flex; align-items:center; gap:6px;
-  padding:4px 10px; border-radius:999px;
-  background:rgba(255,255,255,.15);
-  border:1px solid rgba(255,255,255,.25);
-  color:#fff; font-weight:900; text-shadow:0 1px 2px rgba(0,0,0,.35);
+/* 3) 聊天串（粉絲端視覺） */
+#live .liveThread, #liveRoom .liveThread{
+  display:flex; flex-direction:column; gap:8px;
+  height:calc(100vh - 280px);          /* 依頁面結構可微調 */
+  overflow-y:auto; padding:12px;
+  border:1px solid var(--live-hair); border-radius:16px;
+  background: radial-gradient(140% 120% at 0% 0%, #0e1630, #0b0f1f 60%, #0a0d18);
 }
 
-/* 訊息泡泡（LIVE 專用） */
-#live .liveMsg{max-width:78%; display:flex; flex-direction:column; gap:4px}
-#live .liveMsg.artist{align-self:flex-end}
-#live .liveMsg.fan{align-self:flex-start}
-
-#live .liveMsg .name{
-  font-size:11px; color:#c8d1ff; font-weight:900; letter-spacing:.35px;
-  pointer-events:none; user-select:text;
-}
-
-#live .liveMsg .bubble{
+/* 讓 #liveChat（或 #liveThread 直接塞子元素）任何直接子元素都像氣泡 */
+#live #liveChat > div,
+#liveRoom #liveChat > div,
+#live .liveThread   > div.msg,
+#liveRoom .liveThread > div.msg{
+  max-width:72%; align-self:flex-end;           /* 預設靠右：藝人/系統 */
   padding:10px 12px; border-radius:14px;
-  background:#fff; color:#111;
-  border:1px solid #e5e7f2;
-  box-shadow:0 4px 10px rgba(0,0,0,.08);
-}
-#live .liveMsg.artist .bubble{
   background:linear-gradient(180deg,var(--accent),var(--accent2));
-  color:#fff; border-color:transparent;
-  box-shadow:0 8px 18px rgba(106,90,205,.25);
+  color:#fff; box-shadow:var(--shadow);
+  border:1px solid transparent;
+}
+#live #liveChat > div.host,
+#liveRoom #liveChat > div.host{
+  align-self:flex-start;
+  background:var(--artist); color:inherit;
+  border:1px solid var(--live-hair);
+}
+#live #liveChat > div.fan,
+#liveRoom #liveChat > div.fan{
+  align-self:flex-end;                           /* 若你特別標 fan 也會靠右 */
+}
+#live #liveChat > div.welcome,
+#liveRoom #liveChat > div.welcome{
+  align-self:center; background:#ffeaa7; color:#111;
 }
 
-/* 時間 */
-#live .liveMsg .time{font-size:11px; color:#aebbe9; align-self:flex-end}
-#live .liveMsg.fan .time{color:#b8c2db}
+/* 名稱 / 時間戳（可選） */
+#live #liveChat .name, #liveRoom #liveChat .name{
+  font-size:11px; color:#c8d1ff; font-weight:900; letter-spacing:.35px;
+}
+#live #liveChat .time, #liveRoom #liveChat .time{
+  display:block; margin-top:2px; font-size:11px; color:#cfd3e1; text-align:right;
+}
+#live #liveChat .host .time, #liveRoom #liveChat .host .time{ color:#b8c2db }
 
-/* 暫離遮罩（LIVE 專用） */
-#live .liveStage .pausedMask{
+/* 4) 輸入列（含愛心鍵） */
+#live .liveInputBar, #liveRoom .liveInputBar{
+  display:flex; gap:8px; padding:10px 0; border-top:1px solid var(--live-hair);
+  position:sticky; bottom:0;
+  background:linear-gradient(180deg,rgba(255,255,255,.3),rgba(255,255,255,.95));
+  backdrop-filter:blur(10px);
+}
+#live .liveInputBar input, #liveRoom .liveInputBar input{
+  flex:1; border:1px solid var(--live-hair); padding:12px; border-radius:14px; background:var(--hover);
+}
+#live .liveInputBar button, #liveRoom .liveInputBar button{
+  min-width:60px; border:none; border-radius:12px; font-weight:900; cursor:pointer;
+}
+#live #liveHeartBtn, #liveRoom #liveHeartBtn{
+  min-width:44px; height:44px; border-radius:12px; border:1px solid var(--live-hair);
+  background:linear-gradient(180deg,#ffb3d9,#ffc9f1);
+}
+#live #liveHeartBtn:active, #liveRoom #liveHeartBtn:active{ transform:scale(.96) }
+
+/* 5) 飛心動畫（粉絲端一致） */
+#live .flying-heart, #liveRoom .flying-heart{
+  position:fixed; z-index:50; font-size:18px; pointer-events:none;
+  animation:floatUp 1.1s ease forwards;
+}
+@keyframes floatUp{
+  0%{ opacity:0; transform:translateY(10px) scale(.9) }
+  10%{ opacity:1 }
+  100%{ opacity:0; transform:translateY(-120px) scale(1.6) }
+}
+
+/* 6) 暫離遮罩（保留你的功能） */
+#live .pausedMask{
   position:absolute; inset:0; display:none; place-items:center; z-index:2; border-radius:inherit;
   background:rgba(0,0,0,.42); color:#fff; font-weight:900;
   text-shadow:0 2px 12px rgba(0,0,0,.35); backdrop-filter:blur(2px);
 }
 
-/* 輸入列（LIVE 專用） */
-#live .liveInput{ display:flex; gap:8px; align-items:center; margin-top:12px }
-#live .liveInput .box{ flex:1 }
-#live .liveInput input{
-  width:100%;
-  background:#fff; border:1px solid #e4e7f2; border-radius:14px; height:44px; padding:0 12px;
+/* 7) 直播結束覆蓋畫面（保留） */
+#live .liveEndedScene, #liveRoom .liveEndedScene{
+  position:fixed; inset:0; z-index:60; background:#000;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; color:#fff;
 }
-#live .btnPrimary{
+#live .liveEndedScene img, #liveRoom .liveEndedScene img{
+  width:120px; height:120px; border-radius:50%; border:2px solid #fff; object-fit:cover;
+}
+
+/* 8) 主按鈕樣式（保留） */
+#live .btnPrimary, #liveRoom .btnPrimary{
   background:linear-gradient(180deg,var(--accent),var(--accent2));
   color:#fff; border:1px solid transparent;
   box-shadow:0 6px 18px rgba(106,90,205,.25);
 }
 
-/* LIVE 頁卡片邊框弱化 */
+/* 9) LIVE 卡片邊框（延續舊設定） */
 #live .card{ border-color: rgba(231,234,243,.6); }
-</style>
+  </style>
 </head>
-<body>
-
-<!-- ====================== HOME（藝人） ====================== -->
-<section id="home" class="page active">
-<div class="homeTop">
-  <div class="homeTitle">社群</div>
-</div>
-  <div id="storyWrap"><div id="storyBar"></div></div>
-  <div id="feedWrap"></div>
-
-  <button class="fab" id="fabNew" style="
-    position:fixed;right:16px;bottom:calc(86px + var(--safe));z-index:35;width:56px;height:56px;border-radius:50%;
-    display:flex;align-items:center;justify-content:center;border:1px solid var(--line);
-    background:linear-gradient(180deg,var(--accent),var(--accent2));color:#fff;font-weight:900;font-size:22px;box-shadow:0 12px 28px rgba(106,90,205,.28);">＋</button>
-</section>
+  <body>
 
 <!-- ====================== DM LIST ====================== -->
 <section id="dm" class="page">
@@ -1739,6 +1763,76 @@ document.addEventListener('DOMContentLoaded', ()=>{
   // 進頁面時算一次
   syncNavVisibility();
 });
+
+  <script>
+// 愛心數＆動畫
+(function(){
+  let liveHearts = 0;
+  const heartBtn = document.getElementById('liveHeartBtn');
+  const heartCnt = document.getElementById('liveHeartCount');
+
+  function spawnHeart(el){
+    const r = el.getBoundingClientRect();
+    const n = 2 + Math.floor(Math.random()*2); // 2~3 顆
+    for(let i=0;i<n;i++){
+      const h = document.createElement('div');
+      h.className = 'flying-heart';
+      h.textContent = '💗';
+      document.body.appendChild(h);
+      const x = r.left + r.width/2 + (Math.random()*30-15);
+      const y = r.top  + (Math.random()*10-5);
+      h.style.left = x+'px'; h.style.top = y+'px';
+      h.animate(
+        [
+          { transform:'translate(0,0) scale(1)', opacity:1 },
+          { transform:`translate(${(Math.random()*40-20)}px,-120px) scale(1.6)`, opacity:0 }
+        ],
+        { duration: 900 + Math.random()*300, easing:'ease-out' }
+      ).onfinish = ()=> h.remove();
+    }
+  }
+
+  if(heartBtn){
+    heartBtn.addEventListener('click', ()=>{
+      liveHearts++;
+      if(heartCnt) heartCnt.textContent = liveHearts;
+      spawnHeart(heartBtn);
+    });
+  }
+
+  // UI 跟著開播/暫離/結束變化（不覆蓋你的業務邏輯）
+  const hud      = document.getElementById('liveHUD');
+  const inp      = document.getElementById('liveInputBox');
+  const sendBtn  = document.getElementById('liveSend');
+  const btnStart = document.getElementById('liveStart');
+  const btnPause = document.getElementById('livePause');
+  const btnEnd   = document.getElementById('liveEnd');
+
+  btnStart?.addEventListener('click', ()=>{
+    hud.style.display = 'flex';
+    inp.disabled = false; sendBtn.disabled = false;
+    btnStart.style.display = 'none';
+    btnPause.style.display = ''; btnEnd.style.display = '';
+  });
+
+  btnEnd?.addEventListener('click', ()=>{
+    // 結束時給個小覆蓋畫面（可刪）
+    const o = document.createElement('div');
+    o.className = 'liveEndedScene';
+    o.innerHTML = `<div class="text">直播已結束</div>`;
+    document.body.appendChild(o);
+    setTimeout(()=> o.remove(), 1200);
+    // 按鈕回復預設
+    btnStart.style.display = ''; btnPause.style.display = 'none'; btnEnd.style.display = 'none';
+    inp.disabled = true; sendBtn.disabled = true;
+    hud.style.display = 'none';
+  });
+
+  btnPause?.addEventListener('click', ()=>{
+    // 只做視覺提示；實際狀態由你原本 JS 處理
+    btnPause.textContent = (btnPause.textContent.includes('暫時離開')) ? '恢復' : '暫時離開';
+  });
+})();
   
 
 /* ===================== 啟動 ===================== */
