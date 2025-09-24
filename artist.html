@@ -1708,7 +1708,8 @@ function liveStart(){
   document.getElementById('liveEnd').style.display = '';
   document.getElementById('liveInputBox').disabled = false;
   document.getElementById('liveSend').disabled = false;
- 
+
+  syncNavVisibility();
   livePushArtist('（直播開始）');
 }
 
@@ -1743,7 +1744,9 @@ document.getElementById('liveHUD').style.display = 'none';
   document.getElementById('liveEnd').style.display = 'none';
   document.getElementById('liveInputBox').disabled = true;
   document.getElementById('liveSend').disabled = true;
-   
+
+
+  syncNavVisibility();
   livePushArtist('（直播已結束）');
 }
 
@@ -1770,7 +1773,6 @@ document.addEventListener('DOMContentLoaded', ()=>{
     if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); liveSend(); }
   });
 /* 同步底部 Nav 顯示：給直播開始/結束呼叫 */
-  function syncNavVisibility(){
   const nav = document.getElementById('nav');
   const cur = PAGE_STACK[PAGE_STACK.length - 1] || 'home';
   const mustHide = HIDE_NAV_IN.includes(cur) || (cur === 'live' && LIVE_ON);
