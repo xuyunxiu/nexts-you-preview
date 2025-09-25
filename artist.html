@@ -484,16 +484,28 @@ nav#nav button.active{
 #live .liveInput input{ flex:1; height:44px; padding:0 12px; background:#fff; border:1px solid var(--line); border-radius:14px; }
 #live .liveInput .chip{ min-height:44px }
 
-/* ========== FAB ========== */
+/* ========== FAB（圓形・高透液態玻璃） ========== */
 .fabNew{
-  position:fixed; right:16px; bottom:calc(90px + var(--safe));
-  width:56px; height:56px; border:none; border-radius:16px;
-  background:linear-gradient(180deg,var(--accent),var(--accent2));
-  color:#fff; font-weight:900; font-size:24px; line-height:1;
-  box-shadow:0 10px 24px rgba(106,90,205,.28); cursor:pointer; z-index:45;
+  position:fixed; right:16px; bottom:calc(90px + var(--safe)); z-index:45;
+  width:60px; height:60px; border-radius:999px; border:1px solid var(--glass-stroke);
+  background:linear-gradient(180deg, rgba(255,255,255,.28), rgba(255,255,255,.12));
+  backdrop-filter:saturate(160%) blur(var(--glass-blur));
+  -webkit-backdrop-filter:saturate(160%) blur(var(--glass-blur));
+  box-shadow:
+    0 10px 28px rgba(18,24,40,.18),
+    inset 0 1px 0 rgba(255,255,255,.55);
+  display:grid; place-items:center; cursor:pointer;
+  color:#2e2a6f; font-weight:900; font-size:28px; line-height:1;
+  transition:transform .12s ease, box-shadow .12s ease, background .12s ease;
 }
-.fabNew:active{ transform:translateY(1px) }
-
+.fabNew::before{
+  content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none;
+  background:radial-gradient(120% 120% at 30% 22%, rgba(255,255,255,.6), rgba(255,255,255,0) 55%);
+}
+.fabNew:active{
+  transform:translateY(1px) scale(.98);
+  box-shadow:0 8px 20px rgba(18,24,40,.16), inset 0 1px 0 rgba(255,255,255,.45);
+}
 /* 無動畫模式 */
 @media (prefers-reduced-motion: reduce){
   *{ animation: none !important; transition: none !important; scroll-behavior: auto !important; }
