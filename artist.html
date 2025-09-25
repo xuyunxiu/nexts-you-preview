@@ -484,35 +484,50 @@ nav#nav button.active{
 #live .liveInput input{ flex:1; height:44px; padding:0 12px; background:#fff; border:1px solid var(--line); border-radius:14px; }
 #live .liveInput .chip{ min-height:44px }
 
-/* ========== FAB（圓形・高透液態玻璃） ========== */
+/* ===== FAB：圓形・高透液態玻璃 ===== */
 .fabNew{
-  position:fixed; right:16px; bottom:calc(90px + var(--safe)); z-index:45;
-  width:60px; height:60px; border-radius:999px; border:1px solid var(--glass-stroke);
-  background:linear-gradient(180deg, rgba(255,255,255,.28), rgba(255,255,255,.12));
-  backdrop-filter:saturate(160%) blur(var(--glass-blur));
-  -webkit-backdrop-filter:saturate(160%) blur(var(--glass-blur));
+  position: fixed;
+  right: 16px;
+  bottom: calc(88px + var(--safe));
+  width: 64px; height: 64px;
+  border-radius: 50%;
+
+  /* 高透 + 模糊（核心） */
+  background: linear-gradient(180deg, rgba(255,255,255,.42), rgba(255,255,255,.12));
+  border: 1px solid rgba(255,255,255,.55);
+  backdrop-filter: saturate(180%) blur(14px);
+  -webkit-backdrop-filter: saturate(180%) blur(14px);
+
+  /* 立體感（內外陰影 + 高光） */
   box-shadow:
-    0 10px 28px rgba(18,24,40,.18),
-    inset 0 1px 0 rgba(255,255,255,.55);
-  display:grid; place-items:center; cursor:pointer;
-  color:#2e2a6f; font-weight:900; font-size:28px; line-height:1;
-  transition:transform .12s ease, box-shadow .12s ease, background .12s ease;
+    0 1px 0 rgba(255,255,255,.70) inset,   /* 上緣高光 */
+    0 -8px 20px rgba(0,0,0,.10) inset,     /* 內陰影 */
+    0 10px 28px rgba(17,23,41,.18);        /* 外擴散陰影 */
+
+  display: grid; place-items: center;
+  font-size: 28px; font-weight: 900; line-height: 1;
+
+  /* 加號用品牌色，對比清楚 */
+  color: var(--accent);
+  cursor: pointer; z-index: 45;
+  -webkit-tap-highlight-color: transparent;
 }
 .fabNew::before{
-  content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none;
-  background:radial-gradient(120% 120% at 30% 22%, rgba(255,255,255,.6), rgba(255,255,255,0) 55%);
+  /* 玻璃上的亮斑（不影響點擊） */
+  content:""; position:absolute; inset:1px; border-radius:50%;
+  background: radial-gradient(130% 80% at 28% 22%, rgba(255,255,255,.75), rgba(255,255,255,0) 62%);
+  pointer-events:none; mix-blend-mode:soft-light;
 }
-.fabNew:active{
-  transform:translateY(1px) scale(.98);
-  box-shadow:0 8px 20px rgba(18,24,40,.16), inset 0 1px 0 rgba(255,255,255,.45);
-}
-/* 無動畫模式 */
-@media (prefers-reduced-motion: reduce){
-  *{ animation: none !important; transition: none !important; scroll-behavior: auto !important; }
-  #live .flying-heart, #liveRoom .flying-heart{ display: none !important; }
-  #live .liveTag, #liveRoom .liveTag{ animation: none !important; }
+.fabNew:active{ transform: scale(.98); box-shadow:
+  0 1px 0 rgba(255,255,255,.70) inset,
+  0 -6px 16px rgba(0,0,0,.10) inset,
+  0 6px 18px rgba(17,23,41,.20);
 }
 
+/* 無 backdrop-filter 的降級：給一個比較實的白底 */
+@supports not ((backdrop-filter: blur(10px)) or (-webkit-backdrop-filter: blur(10px))){
+  .fabNew{ background: rgba(255,255,255,.9); }
+}
 /* Page Title */
 .pageTitle{ padding:8px 12px 4px; font-weight:900; letter-spacing:.6px; font-size:22px; line-height:1; }
 </style>
@@ -535,7 +550,11 @@ nav#nav button.active{
   <div id="feedWrap" style="padding:0 6px 12px"></div>
 
   <!-- 發文 FAB（對應你既有的 #fabNew 監聽） -->
-  <button id="fabNew" aria-label="新增貼文" class="fabNew">＋</button>
+  <button id="fabNew" aria-label="新增貼文" class="fabNew" title="新增貼文">
+  <svg class="fabPlus" viewBox="0 0 24 24" width="28" height="28" aria-hidden="true">
+    <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>
+  </svg>
+</button>
 </section>
     
 <!-- ====================== DM LIST ====================== -->
@@ -1192,7 +1211,6 @@ img.alt='聊天圖片';
 }
   
   /* ----- 系統通知：塞在 thread 內最底，不覆蓋 ----- */
-// 保證 notice 列存在；回傳節點或 null
 // 以前把 noticeBar 塞到 thread 裡 → 改成塞到 .dmFooter 裡
 function ensureNoticeRow(){
   const footer = document.getElementById('dmFooter');
