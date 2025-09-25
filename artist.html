@@ -174,26 +174,50 @@ nav#nav button.active{
 #threadPad{height:calc(var(--footer-h) + var(--kb-offset) + env(safe-area-inset-bottom,0px) + 2px);flex:0 0 auto;pointer-events:none}
 #endAnchor{height:1px;flex:0 0 auto}
 
-/* ========== 氣泡 & 位置 ========== */
+/* ========== 氣泡 & 位置（左白、翻譯玻璃、右品牌） ========== */
 :root{ --bubble-px:10px; --bubble-py:7px; --bubble-r:13px; --msg-max:78%; }
 .msg{display:flex;align-items:flex-end;gap:6px;max-width:var(--msg-max);margin:0 6px}
 .msg.left{flex-direction:row;align-self:flex-start}
 .msg.right{flex-direction:row-reverse;align-self:flex-end}
 .time{font-size:11px;color:rgba(255,255,255,.88);text-shadow:0 1px 2px rgba(0,0,0,.35);white-space:nowrap}
 .time.dark{color:#8b93a7;white-space:nowrap}
-/* 左邊：玻璃；右邊：品牌漸層 */
+
+/* 基本泡泡外型（背景交由左右／模式決定） */
 .bubble{
-  max-width:100%;padding:var(--bubble-py) var(--bubble-px);border-radius:var(--bubble-r);
+  max-width:100%;
+  padding:var(--bubble-py) var(--bubble-px);
+  border-radius:var(--bubble-r);
+  border:1px solid transparent;
+  position:relative;
+}
+
+/* 左側：預設＝純白（非媒體、非語音） */
+.msg.left .bubble:not(.mediaWrap):not(.voice){
+  background:#fff;
+  border-color:#e5e7f2;
+  color:#111;
+  backdrop-filter:none;
+  -webkit-backdrop-filter:none;
+}
+
+/* 左側：翻譯模式＝玻璃（泡泡中出現 .transDivider 即視為翻譯版） */
+.msg.left .bubble:has(.transDivider){
   background:linear-gradient(180deg,rgba(255,255,255,.26),rgba(255,255,255,.12));
-  border:1px solid var(--glass-stroke);color:#111;
+  border:1px solid var(--glass-stroke);
+  color:#111;
   backdrop-filter:saturate(160%) blur(calc(var(--glass-blur)*.8));
   -webkit-backdrop-filter:saturate(160%) blur(calc(var(--glass-blur)*.8));
 }
+
+/* 右側：品牌漸層 */
 .msg.right .bubble{
-  background:linear-gradient(180deg,var(--accent),var(--accent2));color:#fff;border-color:transparent;
+  background:linear-gradient(180deg,var(--accent),var(--accent2));
+  color:#fff;border-color:transparent;
   box-shadow:0 6px 18px rgba(106,90,205,.28);
 }
-.fromLabel{font-size:11px;font-weight:900;color:#6b78a8;margin-bottom:4px}
+
+/* FROM FAN（泡泡內）改黑色；不影響 replyCard 的 FROM FAN */
+.msg .bubble .fromLabel{font-size:11px;font-weight:900;color:#111;margin-bottom:4px}
 .fanText{color:#111}
 
 /* DM 右上角選單（浮層）→ 玻璃 */
@@ -271,6 +295,11 @@ nav#nav button.active{
   backdrop-filter:saturate(160%) blur(calc(var(--glass-blur)*.6));
   -webkit-backdrop-filter:saturate(160%) blur(calc(var(--glass-blur)*.6));
 }
+/* 釘在輸入列上方：當 noticeBar 放在 .dmFooter 內時，固定在其上緣 */
+.dmFooter .noticeBar{
+  position:absolute;left:50%;transform:translateX(-50%);
+  top:-40px;margin:0;pointer-events:none;
+}
 
 /* ========== 媒體（圖片/影片）尺寸一致、脫離泡泡 ========== */
 .msg .bubble.mediaWrap{background:transparent!important;border:none!important;padding:0;border-radius:0;color:inherit}
@@ -293,7 +322,7 @@ nav#nav button.active{
 .voiceDur{margin-left:6px;font-variant-numeric:tabular-nums;min-width:46px;text-align:right;font-weight:800;opacity:.9}
 .msg.right .voiceDur{color:#fff}
 
-/* Reply Chip（沿用原樣式） */
+/* Reply Chip */
 .replyChip{position:relative;display:flex;align-items:center;gap:8px;margin:0 14px 8px;padding:8px 36px 8px 12px;border-radius:13px;border:1px solid rgba(255,255,255,.28);background:rgba(255,255,255,.12);backdrop-filter:saturate(140%) blur(1.5px)}
 .replyChipLabel{font-size:12px;font-weight:900;letter-spacing:.35px;color:#7a86b7;margin-right:2px;user-select:none}
 .replyChipText{flex:1;min-width:0;font-size:15px;line-height:1.25;font-weight:600;color:#2f3564;opacity:.95;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -454,7 +483,6 @@ nav#nav button.active{
 #live .liveInput{ display:flex; gap:8px; align-items:center; margin-top:12px; position:sticky; bottom:0; padding-top:8px; background:linear-gradient(180deg,rgba(255,255,255,.3),rgba(255,255,255,.95)); backdrop-filter:blur(10px); border-top:1px solid var(--line); }
 #live .liveInput input{ flex:1; height:44px; padding:0 12px; background:#fff; border:1px solid var(--line); border-radius:14px; }
 #live .liveInput .chip{ min-height:44px }
-/* 注意：#live #liveHeartBtn 只保留前面的那份，不再重覆定義 */
 
 /* ========== FAB ========== */
 .fabNew{
