@@ -329,6 +329,18 @@ nav#nav button.active{
   backdrop-filter:blur(var(--glass-blur));
   -webkit-backdrop-filter:blur(var(--glass-blur));
 }
+/* 取消 footer 內那條 notice 的定位規則 */
+.dmFooter .noticeBar{ position: static; }  /* 或直接刪掉原本的 top:-40px 那段 */
+
+/* 新：獨立浮層，不受 footer 的 backdrop-filter 影響 */
+.noticeBar.is-floating{
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: calc(var(--footer-h) + var(--kb-offset) + env(safe-area-inset-bottom,0px) + 8px);
+  z-index: 60;
+  pointer-events: none; /* 不擋操作 */
+}
 .dmInputBar{display:flex;align-items:center;gap:8px;padding:0 10px}
 .iconBtn{width:30px;height:30px;border:none;background:transparent;display:grid;place-items:center;flex:0 0 auto;font-size:20px;line-height:1}
 .dmInputBar .box{
@@ -1379,7 +1391,7 @@ img.alt='聊天圖片';
   
 // 以前把 noticeBar 塞到 thread 裡 → 改成塞到 .dmFooter 裡
 function ensureNoticeRow(){
-  const footer = document.getElementById('dmFooter');
+  const host = document.getElementById('dmDetail');
   if(!footer) return null;
   let n = document.getElementById('noticeRow');
   if(!n){
@@ -1389,7 +1401,7 @@ function ensureNoticeRow(){
     n.setAttribute('role','status');
     n.setAttribute('aria-live','polite');
     n.textContent = '粉絲在等你的訊息喔 🤩';
-    footer.appendChild(n);              // ← 關鍵：掛在輸入列容器
+    host.appendChild(n);              // ← 關鍵：掛在輸入列容器
   }
   tuneNoticePad();
   return n;
