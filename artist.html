@@ -18,6 +18,7 @@
   --hud-h:68px;
   --reply-size:30px;
   --reply-gap:18px;
+   --notice-h: 0px;
 
   /* Liquid Glass 基底 */
   --glass-blur:14px;
@@ -214,10 +215,20 @@ nav#nav button.active{
 .artistName{font-weight:900;letter-spacing:.6px;font-size:18px}
 
 /* ========== Thread 佈局 ========== */
-.thread{position:absolute;left:0;right:0;top:var(--hud-h);bottom:0;overflow-y:auto;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column;padding:8px 2px;scrollbar-gutter:stable both-edges}
+.thread{
+  position:absolute;left:0;right:0;top:var(--hud-h);bottom:0;
+  overflow-y:auto;-webkit-overflow-scrolling:touch;
+  display:flex;flex-direction:column;padding:8px 2px;scrollbar-gutter:stable both-edges;
+}
 .thread .msg + .msg{margin-top:12px}
-#threadPad{height:calc(var(--footer-h) + var(--kb-offset) + env(safe-area-inset-bottom,0px) + 2px);flex:0 0 auto;pointer-events:none}
-#endAnchor{height:1px;flex:0 0 auto}
+
+#threadPad{
+  height: calc(
+    var(--footer-h) + var(--kb-offset) + env(safe-area-inset-bottom, 0px)
+    + var(--notice-h) + 2px
+  );
+}
+#endAnchor{height:1px;flex:0 0 auto;}
 
 /* ========== 氣泡 & 位置（左白、翻譯玻璃、右品牌） ========== */
 :root{ --bubble-px:10px; --bubble-py:7px; --bubble-r:13px; --msg-max:78%; }
@@ -821,6 +832,14 @@ const s2clock = s => { s = Math.max(0, s||0); const m = Math.floor(s/60), r = Ma
 const mmss = sec => { sec = Math.max(0, Math.floor(sec || 0)); const m = Math.floor(sec/60), s = sec % 60; return `${m}:${s.toString().padStart(2,'0')}`; };
 const escapeHtml = s => (s||'').toString().replace(/[&<>"']/g, m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;" }[m]));
 
+/* 讓 thread 知道要多留多少底部空間給 noticeBar */
+function tuneNoticePad(){
+  const n = document.getElementById('noticeRow');
+  // 顯示時取實際高度 + 一點間距，不顯示則 0
+  const h = (n && n.style.display !== 'none') ? ((n.offsetHeight||0) + 10) : 0;
+  document.documentElement.style.setProperty('--notice-h', h + 'px');
+}
+
 /* ===== IndexedDB：媒體存這裡 ===== */
 const MEDIA_DB = (()=> {
   const DB_NAME='nxu-media-db', STORE='media';
@@ -1373,6 +1392,8 @@ function ensureNoticeRow(){
     footer.appendChild(n);              // ← 關鍵：掛在輸入列容器
   }
   return n;
+
+  tuneNoticePad();
 }
 
 function clearNoticeNow(){ /* 常駐：不用清除 */ }
@@ -1384,6 +1405,8 @@ function getLastTs(role){
  function updateNoticeBanner() {
   const n = ensureNoticeRow(); if (!n) return;
   n.style.display = 'block';     // ← 永遠顯示
+
+tuneNoticePad();
 }
   
 /* ===================== 送訊息 / 回覆 ===================== */
