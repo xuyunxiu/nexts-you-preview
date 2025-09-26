@@ -59,6 +59,45 @@ button{font:inherit;cursor:pointer}
   backdrop-filter:saturate(160%) blur(calc(var(--glass-blur)*.7));
   -webkit-backdrop-filter:saturate(160%) blur(calc(var(--glass-blur)*.7));
 }
+  /* ==== 高透・紫羅蘭液態玻璃按鈕 ==== */
+.btnGlassViolet{
+  position:relative;
+  display:inline-flex; align-items:center; justify-content:center;
+  min-width:72px; height:44px; padding:0 16px; border-radius:12px;
+  font-weight:900; letter-spacing:.3px; color:#fff; border:1px solid rgba(255,255,255,.55);
+
+  /* 玻璃 + 淺紫漸層 */
+  background:linear-gradient(180deg, rgba(182,160,255,.42), rgba(208,190,255,.16));
+  backdrop-filter:saturate(180%) blur(14px);
+  -webkit-backdrop-filter:saturate(180%) blur(14px);
+
+  /* 立體層次 */
+  box-shadow:
+    0 1px 0 rgba(255,255,255,.70) inset,
+    0 -8px 20px rgba(0,0,0,.10) inset,
+    0 10px 28px rgba(17,23,41,.18);
+}
+.btnGlassViolet::before{
+  /* 玻璃高光 */
+  content:""; position:absolute; inset:1px; border-radius:inherit;
+  background:radial-gradient(130% 80% at 28% 22%, rgba(255,255,255,.75), rgba(255,255,255,0) 62%);
+  pointer-events:none; mix-blend-mode:soft-light;
+}
+.btnGlassViolet:active{
+  transform:translateY(1px) scale(.98);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,.70) inset,
+    0 -6px 16px rgba(0,0,0,.10) inset,
+    0 6px 18px rgba(17,23,41,.20);
+}
+.btnGlassViolet:disabled{ opacity:.55; filter:saturate(.6); cursor:not-allowed; }
+
+/* 無 backdrop-filter 時的降級 */
+@supports not ((backdrop-filter: blur(10px)) or (-webkit-backdrop-filter: blur(10px))){
+  .btnGlassViolet{
+    background:linear-gradient(180deg,#ece7ff,#e2dbff);
+  }
+}
 
 /* ========== Pages ========== */
 section.page{display:none;padding:12px 12px calc(76px + var(--safe));min-height:100svh}
@@ -583,7 +622,7 @@ nav#nav button.active{
       <img src="" id="pdMeAvatar" alt="" onerror="imgFallback(this)"
            style="width:32px;height:32px;border-radius:50%;object-fit:cover;border:1px solid var(--line)">
       <input id="cmtInput" placeholder="新增一則留言…" style="flex:1;border:none;outline:none;background:transparent;font-size:16px">
-      <button id="cmtSend" class="chip btnPrimary">送出</button>
+      <button id="postCmtSend" class="chip btnGlassViolet">送出</button>
     </div>
   </div>
 </section>
