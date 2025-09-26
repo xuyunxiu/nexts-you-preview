@@ -332,9 +332,6 @@ nav#nav button.active{
   backdrop-filter:blur(var(--glass-blur));
   -webkit-backdrop-filter:blur(var(--glass-blur));
 }
-/* 取消 footer 內那條 notice 的定位規則 */
-.dmFooter .noticeBar{ position: static; }  /* 或直接刪掉原本的 top:-40px 那段 */
-
 /* 新：獨立浮層，不受 footer 的 backdrop-filter 影響 */
 .noticeBar.is-floating{
   position: fixed;
@@ -365,11 +362,6 @@ nav#nav button.active{
   border:1px solid var(--glass-stroke);
   backdrop-filter:saturate(160%) blur(calc(var(--glass-blur)*.6));
   -webkit-backdrop-filter:saturate(160%) blur(calc(var(--glass-blur)*.6));
-}
-/* 釘在輸入列上方：當 noticeBar 放在 .dmFooter 內時，固定在其上緣 */
-.dmFooter .noticeBar{
-  position:absolute;left:50%;transform:translateX(-50%);
-  top:-40px;margin:0;pointer-events:none;
 }
 
 /* ========== 媒體（圖片/影片）尺寸一致、脫離泡泡 ========== */
