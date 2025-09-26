@@ -536,6 +536,13 @@ nav#nav button.active{
   position:absolute; right:0; top:0;
   padding:4px 10px; font-size:12px; line-height:1;
 }
+ /* Post 詳情：留言列貼底不透明一點 */
+#postDetail #pdComposer{
+  background:linear-gradient(180deg,rgba(255,255,255,.30),rgba(255,255,255,.14));
+  border:1px solid var(--glass-stroke);
+  backdrop-filter:saturate(160%) blur(10px);
+  -webkit-backdrop-filter:saturate(160%) blur(10px);
+} 
 </style>
 </head>
   <body>
@@ -561,6 +568,24 @@ nav#nav button.active{
     <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>
   </svg>
 </button>
+ </section>
+
+<!-- ====================== POST DETAIL (Artist) ====================== -->
+<section id="postDetail" class="page">
+  <div class="pageTitle">貼文</div>
+  <div id="postDetailWrap" style="padding:0 6px 12px"></div>
+
+  <!-- 留言輸入列（固定在底部） -->
+  <div id="pdComposer" class="card soft" style="
+      position:sticky; bottom:calc(10px + env(safe-area-inset-bottom,0px));
+      margin:6px; border-radius:14px;">
+    <div style="display:flex;align-items:center;gap:8px">
+      <img src="" id="pdMeAvatar" alt="" onerror="imgFallback(this)"
+           style="width:32px;height:32px;border-radius:50%;object-fit:cover;border:1px solid var(--line)">
+      <input id="cmtInput" placeholder="新增一則留言…" style="flex:1;border:none;outline:none;background:transparent;font-size:16px">
+      <button id="cmtSend" class="chip btnPrimary">送出</button>
+    </div>
+  </div>
 </section>
     
 <!-- ====================== DM LIST ====================== -->
@@ -895,6 +920,9 @@ function showPage(id){
   if (id === 'composerArtist') {
     const who = document.getElementById('composerWho');
     if (who) who.textContent = NICKNAME;
+  }
+  if (id === 'postDetail') {
+  renderPostDetail(CURRENT_POST_ID);
   }
 }
 
@@ -1797,10 +1825,11 @@ if (document.getElementById('composerArtist')) showPage('composerArtist');
 else alert('發文編輯器尚未掛上頁面。'); // 或者改成 showPage('home')
 });
 
-// ⭐ Action bar 事件（單選反應 / 發表評論）
+// ⭐ 首頁卡片點擊委派（反應列/翻譯不跳頁；按「發表評論」→ 進詳情並聚焦輸入框）
 document.addEventListener('click', (e)=>{
   const postEl = e.target.closest('.post');
   if(!postEl) return;
+
   const postId = postEl.getAttribute('data-post');
   const post = POSTS.find(x=>x.id===postId);
   if(!post) return;
@@ -1810,19 +1839,162 @@ document.addEventListener('click', (e)=>{
   if (rBtn) {
     const key = rBtn.getAttribute('data-react');
     toggleReaction(postId, key);
+    return; // 不跳詳情
+  }
+
+  // 翻譯按鈕：不跳詳情
+  if (e.target.closest('.translate-btn')) return;
+
+  // 發表評論 → 跳詳情並聚焦輸入框
+  if (e.target.classList.contains('addCmt')) {
+    openPostDetail(postId, { focusInput:true });
     return;
   }
 
-  // 發表評論（維持你的 prompt 流程）
-  if (e.target.classList.contains('addCmt')) {
-    const t = (prompt('輸入留言')||'').trim();
-    if(!t) return;
-    post.cmts = post.cmts || [];
-    post.cmts.push({id:'c'+Date.now(), text:t});
-    LS.set('artistPosts', POSTS);
-    postEl.querySelector('.cmtCount').textContent = post.cmts.length;
-  }
+  // 其餘點擊卡片空白處 → 跳詳情
+  openPostDetail(postId);
 });
+
+ /* ===================== Post 詳情（藝人端） ===================== */
+let CURRENT_POST_ID = null;
+let PD_FILTER_OTHERS = false; // 「僅其他藝人的回覆」切換
+
+function openPostDetail(postId, opts={}){
+  CURRENT_POST_ID = postId;
+  renderPostDetail(postId);
+  showPage('postDetail');
+  // 進頁面後才聚焦
+  if (opts.focusInput) setTimeout(()=> document.getElementById('cmtInput')?.focus(), 0);
+}
+
+function renderPostDetail(postId){
+  const p = POSTS.find(x=>x.id===postId); if(!p) return;
+  const wrap = document.getElementById('postDetailWrap');
+  if(!wrap) return;
+
+  // 我的頭像（輸入列左）
+  const av = document.getElementById('pdMeAvatar');
+  if (av) av.src = ME.avatar;
+
+  const stage = (p.artistStage || STAGE_NAME || '').toString().toUpperCase();
+  const displayName = (p.artistId==='me') ? NICKNAME.toUpperCase() : stage;
+
+  // 是否有「其他藝人」的留言（有才顯示過濾鈕）
+  const cmts = p.cmts || [];
+  const hasOtherArtist = cmts.some(c => c.from==='artist' && (c.artistId||'') !== 'me');
+
+  wrap.innerHTML = `
+    <div class="post card soft" data-post="${p.id}">
+      <div class="hdr">
+        <img class="avatar" src="${p.avatar}" alt="${escapeHtml(displayName)} 的頭像" onerror="imgFallback(this)">
+        <div class="meta">
+          <b class="stage">${escapeHtml(displayName)} ${VB(18)}</b>
+          <small class="ghost">${new Date(p.ts).toLocaleString()}</small>
+        </div>
+        <button class="chip translate-btn" onclick="event.stopPropagation(); togglePostTranslate('${p.id}')">翻譯</button>
+      </div>
+
+      <div class="body">
+        <p id="postText-${p.id}">${escapeHtml(p.text)}</p>
+        ${p.img ? `<img class="hero" src="${p.img}" alt="貼文圖片" onerror="imgFallback(this)">` : ``}
+      </div>
+
+      <div class="actions">
+        ${renderReactionsBar(p.id)}
+        <div class="commentBar">
+          <div class="left">💬 <span class="cmtCount">${cmts.length}</span> 則評論</div>
+          <div class="right">
+            ${hasOtherArtist ? `<button id="pdFilterBtn" class="chip" aria-pressed="${PD_FILTER_OTHERS?'true':'false'}">
+              ${PD_FILTER_OTHERS ? '顯示全部回覆' : '僅其他藝人的回覆'}
+            </button>` : ``}
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="cmtList" style="padding:6px 0"></div>
+  `;
+
+  // 綁定過濾鈕
+  document.getElementById('pdFilterBtn')?.addEventListener('click', ()=>{
+    PD_FILTER_OTHERS = !PD_FILTER_OTHERS;
+    renderPostDetail(postId); // 重新渲染
+  });
+
+  renderPostComments(p);
+}
+
+function renderPostComments(p){
+  const listEl = document.getElementById('cmtList'); if(!listEl) return;
+  let cmts = (p.cmts || []).slice();
+
+  if (PD_FILTER_OTHERS) {
+    cmts = cmts.filter(c => c.from==='artist' && (c.artistId||'') !== 'me');
+  }
+
+  if (!cmts.length){
+    listEl.innerHTML = `<div class="ghost" style="text-align:center;margin:14px 0">尚無評論</div>`;
+    return;
+  }
+
+  listEl.innerHTML = cmts.map(c=>{
+    const isArtist = c.from === 'artist';
+    const whoId    = c.artistId || ''; // 'me' / 其他藝人 id
+    const name     = isArtist
+      ? (whoId==='me' ? NICKNAME : (c.artistStage || c.name || 'ARTIST'))
+      : (c.name || '粉絲');
+    const avatar   = isArtist
+      ? (whoId==='me' ? ME.avatar : (c.avatar || 'https://picsum.photos/40?u=artist'))
+      : (c.avatar || 'https://picsum.photos/40?u=fan');
+
+    return `
+      <div class="card soft" style="display:flex;gap:10px;align-items:flex-start;margin:10px 6px">
+        <img src="${avatar}" alt="" onerror="imgFallback(this)"
+             style="width:36px;height:36px;border-radius:50%;object-fit:cover;border:1px solid var(--line)">
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+            <b style="font-size:13px">${escapeHtml(name.toString().toUpperCase())}${isArtist ? ' '+VB(14) : ''}</b>
+            <small class="ghost">${new Date(c.ts || p.ts).toLocaleString()}</small>
+          </div>
+          <div style="margin-top:4px">${escapeHtml(c.text || '')}</div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+// 送出留言（藝人身分）
+function sendPostComment(){
+  const input = document.getElementById('cmtInput');
+  if(!input) return;
+  const t = (input.value||'').trim(); if(!t) return;
+  const p = POSTS.find(x=>x.id===CURRENT_POST_ID); if(!p) return;
+
+  p.cmts = p.cmts || [];
+  p.cmts.push({
+    id:'c'+Date.now(),
+    from:'artist', artistId:'me',
+    artistStage: STAGE_NAME, avatar: ME.avatar,
+    text: t, ts: Date.now()
+  });
+  LS.set('artistPosts', POSTS);
+
+  input.value = '';
+
+  // 更新詳情頁與任何可見的 cmtCount
+  renderPostDetail(CURRENT_POST_ID);
+  document.querySelectorAll(`.post[data-post="${p.id}"] .cmtCount`)
+    .forEach(el=> el.textContent = p.cmts.length);
+}
+
+// 綁定詳情輸入列
+document.addEventListener('click', (e)=>{
+  if (e.target && e.target.id === 'cmtSend') sendPostComment();
+});
+document.addEventListener('keydown', (e)=>{
+  if (e.target && e.target.id === 'cmtInput' && e.key === 'Enter' && !e.shiftKey){
+    e.preventDefault();
+    sendPostComment();
+  }
+}); 
 
 /* ===== 文字直播：邏輯 ===== */
 let LIVE_ON = false;
