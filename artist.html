@@ -1404,8 +1404,9 @@ function getLastTs(role){
 }
  function updateNoticeBanner() {
   const n = ensureNoticeRow(); if (!n) return;
-  n.style.display = 'block';     // ← 永遠顯示
-  tuneNoticePad();
+  n.style.display = 'block';
+  tuneNoticePad();           // 先重算 notice 的實際高度
+  setTimeout(hardStickBottom, 0); // ✅ 新增：把視圖貼到底，避免看起來同行
 }
   
 /* ===================== 送訊息 / 回覆 ===================== */
@@ -1805,6 +1806,9 @@ function measureFooter(){
   const f=document.getElementById('dmFooter'); if(!f) return;
   const h=Math.ceil(f.getBoundingClientRect().height);
   document.documentElement.style.setProperty('--footer-h', h + 'px');
+
+  // ✅ 新增：footer 高度變了，多半 notice 位置/換行也會變，重算間距
+  tuneNoticePad();
 }
 function measureHUD(){
   const hEl=document.getElementById('dmHUD'); if(!hEl) return;
