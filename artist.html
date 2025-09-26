@@ -216,18 +216,18 @@ nav#nav button.active{
 
 /* ========== Thread 佈局 ========== */
 .thread{
-  position:absolute;left:0;right:0;top:var(--hud-h);bottom:0;
-  overflow-y:auto;-webkit-overflow-scrolling:touch;
-  display:flex;flex-direction:column;padding:8px 2px;scrollbar-gutter:stable both-edges;
+  position:absolute; left:0; right:0; top:var(--hud-h);
+  /* 直接把輸入列＋鍵盤＋安全區與 notice 的高度算進容器底邊 */
+  bottom: calc(
+    var(--footer-h) + var(--kb-offset) + env(safe-area-inset-bottom, 0px) + var(--notice-h)
+  );
+  overflow-y:auto; -webkit-overflow-scrolling:touch;
+  display:flex; flex-direction:column; padding:8px 2px;
+  scrollbar-gutter:stable both-edges;
 }
 .thread .msg + .msg{margin-top:12px}
 
-#threadPad{
-  height: calc(
-    var(--footer-h) + var(--kb-offset) + env(safe-area-inset-bottom, 0px)
-    + var(--notice-h) + 2px
-  );
-}
+#threadPad{ height:0 !important; }
 #endAnchor{height:1px;flex:0 0 auto;}
 
 /* ========== 氣泡 & 位置（左白、翻譯玻璃、右品牌） ========== */
