@@ -1391,9 +1391,9 @@ function ensureNoticeRow(){
     n.textContent = '粉絲在等你的訊息喔 🤩';
     footer.appendChild(n);              // ← 關鍵：掛在輸入列容器
   }
-  return n;
-
   tuneNoticePad();
+  return n;
+  
 }
 
 function clearNoticeNow(){ /* 常駐：不用清除 */ }
@@ -1405,8 +1405,7 @@ function getLastTs(role){
  function updateNoticeBanner() {
   const n = ensureNoticeRow(); if (!n) return;
   n.style.display = 'block';     // ← 永遠顯示
-
-tuneNoticePad();
+  tuneNoticePad();
 }
   
 /* ===================== 送訊息 / 回覆 ===================== */
