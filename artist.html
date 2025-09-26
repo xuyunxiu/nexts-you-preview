@@ -328,6 +328,8 @@ nav#nav button.active{
   border-top:1px solid var(--glass-stroke);
   backdrop-filter:blur(var(--glass-blur));
   -webkit-backdrop-filter:blur(var(--glass-blur));
+  max-width: calc(100% - 24px);
+  white-space: normal; /* 需要就換行，確保一整列顯示 */
 }
 .dmInputBar{display:flex;align-items:center;gap:8px;padding:0 10px}
 .iconBtn{width:30px;height:30px;border:none;background:transparent;display:grid;place-items:center;flex:0 0 auto;font-size:20px;line-height:1}
