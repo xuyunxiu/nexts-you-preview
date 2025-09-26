@@ -59,46 +59,52 @@ button{font:inherit;cursor:pointer}
   backdrop-filter:saturate(160%) blur(calc(var(--glass-blur)*.7));
   -webkit-backdrop-filter:saturate(160%) blur(calc(var(--glass-blur)*.7));
 }
-  /* ==== 高透・紫羅蘭液態玻璃按鈕 ==== */
+/* ==== 精緻版・高透淡紫玻璃送出鍵 ==== */
 .btnGlassViolet{
   position:relative;
   display:inline-flex; align-items:center; justify-content:center;
-  min-width:72px; height:44px; padding:0 16px; border-radius:12px;
-  font-weight:900; letter-spacing:.3px; color:#fff; border:1px solid rgba(255,255,255,.55);
 
-  /* 玻璃 + 淺紫漸層 */
-  background:linear-gradient(180deg, rgba(182,160,255,.42), rgba(208,190,255,.16));
+  /* 更小更緊實 */
+  min-width:56px; height:38px; padding:0 12px;
+  border-radius:12px; font-size:14px; font-weight:900; letter-spacing:.25px;
+
+  /* 字改深紫，不要白色 */
+  color:#2f246f;  /* 深紫墨色 */
+  border:1px solid rgba(255,255,255,.55);
+
+  /* 高透+淡紫漸層玻璃 */
+  background:linear-gradient(180deg, rgba(198,186,255,.42), rgba(210,200,255,.16));
   backdrop-filter:saturate(180%) blur(14px);
   -webkit-backdrop-filter:saturate(180%) blur(14px);
 
-  /* 立體層次 */
+  /* 層次與高級感 */
   box-shadow:
     0 1px 0 rgba(255,255,255,.70) inset,
     0 -8px 20px rgba(0,0,0,.10) inset,
     0 10px 28px rgba(17,23,41,.18);
 }
 .btnGlassViolet::before{
-  /* 玻璃高光 */
   content:""; position:absolute; inset:1px; border-radius:inherit;
   background:radial-gradient(130% 80% at 28% 22%, rgba(255,255,255,.75), rgba(255,255,255,0) 62%);
   pointer-events:none; mix-blend-mode:soft-light;
 }
+.btnGlassViolet:hover{ filter:saturate(1.05); }
 .btnGlassViolet:active{
-  transform:translateY(1px) scale(.98);
+  transform:translateY(1px) scale(.985);
   box-shadow:
     0 1px 0 rgba(255,255,255,.70) inset,
     0 -6px 16px rgba(0,0,0,.10) inset,
     0 6px 18px rgba(17,23,41,.20);
 }
-.btnGlassViolet:disabled{ opacity:.55; filter:saturate(.6); cursor:not-allowed; }
-
-/* 無 backdrop-filter 時的降級 */
-@supports not ((backdrop-filter: blur(10px)) or (-webkit-backdrop-filter: blur(10px))){
-  .btnGlassViolet{
-    background:linear-gradient(180deg,#ece7ff,#e2dbff);
-  }
+.btnGlassViolet:disabled{
+  opacity:.65; color:#847ac7; cursor:not-allowed; filter:saturate(.7);
 }
 
+/* 無 backdrop-filter 降級 */
+@supports not ((backdrop-filter: blur(10px)) or (-webkit-backdrop-filter: blur(10px))){
+  .btnGlassViolet{ background:linear-gradient(180deg,#efeaff,#e6e0ff); }
+}
+  
 /* ========== Pages ========== */
 section.page{display:none;padding:12px 12px calc(76px + var(--safe));min-height:100svh}
 section.page.active{display:block;animation:fade .22s ease}
