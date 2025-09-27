@@ -10,7 +10,8 @@
   /* 既有設計系統 */
   --bg:#f5f7ff; --card:#fff; --text:#1a1a1a; --sub:#667085; --line:#e7eaf3; --ghost:#9aa0b4;
   --hover:#fff;
-  --accent:#6a5acd; --accent2:#836fff; --ok:#10b981; --danger:#ff4d4f;
+  --accent:#6a5acd; --accent2:#836fff;
+  --artist: linear-gradient(180deg, var(--accent), var(--accent2));
   --radius:16px; --shadow:0 12px 34px rgba(18,24,40,.08);
   --safe:env(safe-area-inset-bottom,0px);
   --kb-offset:0px;
@@ -18,7 +19,7 @@
   --hud-h:68px;
   --reply-size:30px;
   --reply-gap:18px;
-   --notice-h: 0px;
+  --notice-h: 0px;
 
   /* Liquid Glass 基底 */
   --glass-blur:14px;
@@ -339,7 +340,7 @@ nav#nav button.active{
   transform: translateX(-50%);
   bottom: calc(var(--footer-h) + var(--kb-offset) + env(safe-area-inset-bottom,0px) + 8px);
   z-index: 60;
-  pointer-events: none; /* 不擋操作 */
+  pointer-events: none;
 }
 .dmInputBar{display:flex;align-items:center;gap:8px;padding:0 10px}
 .iconBtn{width:30px;height:30px;border:none;background:transparent;display:grid;place-items:center;flex:0 0 auto;font-size:20px;line-height:1}
@@ -531,22 +532,51 @@ nav#nav button.active{
 #live .card{ border-color: rgba(231,234,243,.6); }
 
 /* --- 兼容你現有的 LIVE 純文字結構 (.liveStage + .chatList + .liveMsg) --- */
-#live .chatList{ position:absolute; inset:0; padding:14px 12px; display:flex; flex-direction:column; gap:10px; overflow-y:auto; -webkit-overflow-scrolling:touch; overscroll-behavior:contain; scrollbar-width:none; }
+#live .chatList{
+  position:absolute; inset:0; padding:14px 12px;
+  display:flex; flex-direction:column; gap:10px;
+  overflow-y:auto; -webkit-overflow-scrolling:touch;
+  overscroll-behavior:contain; scrollbar-width:none;
+}
 #live .chatList::-webkit-scrollbar{ display:none }
+
 #live .liveMsg{ max-width:78%; display:flex; flex-direction:column; gap:4px }
 #live .liveMsg.artist{ align-self:flex-end }
 #live .liveMsg.fan{ align-self:flex-start }
-#live .liveMsg .name{ font-size:11px; color:#c8d1ff; font-weight:900; letter-spacing:.35px; }
-#live .liveMsg .bubble{ padding:10px 12px; border-radius:14px; background:#fff; color:#111; border:1px solid #e5e7f2; box-shadow:0 4px 10px rgba(0,0,0,.08); }
-#live .liveMsg.artist .bubble{ background:linear-gradient(180deg,var(--accent),var(--accent2)); color:#fff; border-color:transparent; box-shadow:0 8px 18px rgba(106,90,205,.25); }
+
+#live .liveMsg .name{
+  font-size:11px; color:#c8d1ff; font-weight:900; letter-spacing:.35px;
+}
+
+/* 粉絲（白底） */
+#live .liveMsg .bubble{
+  padding:10px 12px; border-radius:14px;
+  background:#fff; color:#111;
+  border:1px solid var(--live-hair);
+  box-shadow:0 4px 10px rgba(0,0,0,.08);
+}
+
+/* 主持人（藝人）泡泡：改成吃 :root 的 --artist / --artist-fg */
+#live .liveMsg.artist .bubble{
+  background: var(--artist);
+  color: var(--artist-fg, #111);
+  border:1px solid var(--live-hair);
+  box-shadow:0 8px 18px rgba(106,90,205,.25);
+}
+
+/* 時間戳 */
 #live .liveMsg .time{ font-size:11px; color:#aebbe9; align-self:flex-end }
 #live .liveMsg.fan .time{ color:#b8c2db }
 
-/* 你的 .liveInput 也補齊（沿用新風格） */
-#live .liveInput{ display:flex; gap:8px; align-items:center; margin-top:12px; position:sticky; bottom:0; padding-top:8px; background:linear-gradient(180deg,rgba(255,255,255,.3),rgba(255,255,255,.95)); backdrop-filter:blur(10px); border-top:1px solid var(--line); }
+/* 你的 .liveInput 也沿用新風格（這段可原樣保留） */
+#live .liveInput{
+  display:flex; gap:8px; align-items:center; margin-top:12px;
+  position:sticky; bottom:0; padding-top:8px;
+  background:linear-gradient(180deg,rgba(255,255,255,.3),rgba(255,255,255,.95));
+  backdrop-filter:blur(10px); border-top:1px solid var(--line);
+}
 #live .liveInput input{ flex:1; height:44px; padding:0 12px; background:#fff; border:1px solid var(--line); border-radius:14px; }
 #live .liveInput .chip{ min-height:44px }
-
 /* ===== FAB：圓形・高透液態玻璃 ===== */
 .fabNew{
   position: fixed;
@@ -838,14 +868,6 @@ const fmtTime = ts => new Date(ts).toLocaleTimeString([], {hour:'2-digit',minute
 const s2clock = s => { s = Math.max(0, s||0); const m = Math.floor(s/60), r = Math.floor(s%60); return `${m}:${r.toString().padStart(2,'0')}`; };
 const mmss = sec => { sec = Math.max(0, Math.floor(sec || 0)); const m = Math.floor(sec/60), s = sec % 60; return `${m}:${s.toString().padStart(2,'0')}`; };
 const escapeHtml = s => (s||'').toString().replace(/[&<>"']/g, m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;" }[m]));
-
-/* 讓 thread 知道要多留多少底部空間給 noticeBar */
-function tuneNoticePad(){
-  const n = document.getElementById('noticeRow');
-  // 顯示時取實際高度 + 一點間距，不顯示則 0
-  const h = (n && n.style.display !== 'none') ? ((n.offsetHeight||0) + 10) : 0;
-  document.documentElement.style.setProperty('--notice-h', h + 'px');
-}
 
 /* ===== IndexedDB：媒體存這裡 ===== */
 const MEDIA_DB = (()=> {
@@ -1386,21 +1408,20 @@ img.alt='聊天圖片';
   
 // 以前把 noticeBar 塞到 thread 裡 → 改成塞到 .dmFooter 裡
 function ensureNoticeRow(){
-  const host = document.getElementById('dmDetail');
-  if(!footer) return null;
+  const host = document.getElementById('dmFooter'); // ← 關鍵：掛在輸入列容器
+  if(!host) return null;
   let n = document.getElementById('noticeRow');
   if(!n){
     n = document.createElement('div');
     n.id = 'noticeRow';
-    n.className = 'noticeBar';
+    n.className = 'noticeBar is-floating';
     n.setAttribute('role','status');
     n.setAttribute('aria-live','polite');
     n.textContent = '粉絲在等你的訊息喔 🤩';
-    host.appendChild(n);              // ← 關鍵：掛在輸入列容器
+    host.appendChild(n);
   }
   tuneNoticePad();
   return n;
-  
 }
 
 function clearNoticeNow(){ /* 常駐：不用清除 */ }
@@ -1409,13 +1430,17 @@ function clearNoticeNow(){ /* 常駐：不用清除 */ }
 function getLastTs(role){
   let t=0; for(const m of GROUP_MSGS){ if(!role || m.from===role){ if(m.ts>t) t=m.ts; } } return t;
 }
- function updateNoticeBanner() {
-  const n = ensureNoticeRow(); if (!n) return;
+ function updateNoticeBanner(){
+  const n = ensureNoticeRow(); if(!n) return;
   n.style.display = 'block';
-  tuneNoticePad();           // 先重算 notice 的實際高度
-  setTimeout(hardStickBottom, 0); // ✅ 新增：把視圖貼到底，避免看起來同行
+  tuneNoticePad();
+  setTimeout(hardStickBottom, 0);
+ }
+  function tuneNoticePad(){
+  const n = document.getElementById('noticeRow');
+  const h = (n && n.style.display !== 'none') ? ((n.offsetHeight||0) + 10) : 0;
+  document.documentElement.style.setProperty('--notice-h', h + 'px');
 }
-  
 /* ===================== 送訊息 / 回覆 ===================== */
 function clearReply(){ replyDraft=null; document.getElementById('replyChip').style.display='none'; scrollToEndDuring(400); }
 function sendArtistMsg(){
@@ -1939,7 +1964,6 @@ let PD_FILTER_OTHERS = false; // 「僅其他藝人的回覆」切換
 
 function openPostDetail(postId, opts={}){
   CURRENT_POST_ID = postId;
-  renderPostDetail(postId);
   showPage('postDetail');
   // 進頁面後才聚焦
   if (opts.focusInput) setTimeout(()=> document.getElementById('cmtInput')?.focus(), 0);
@@ -1993,9 +2017,10 @@ function renderPostDetail(postId){
   `;
 
   // 綁定過濾鈕
-  document.getElementById('pdFilterBtn')?.addEventListener('click', ()=>{
+  document.getElementById('pdFilterBtn')?.addEventListener('click', (e)=>{
+    e.stopPropagation();                 // ← 關鍵
     PD_FILTER_OTHERS = !PD_FILTER_OTHERS;
-    renderPostDetail(postId); // 重新渲染
+    renderPostDetail(postId);
   });
 
   renderPostComments(p);
@@ -2065,7 +2090,7 @@ function sendPostComment(){
 
 // 綁定詳情輸入列
 document.addEventListener('click', (e)=>{
-  if (e.target && e.target.id === 'cmtSend') sendPostComment();
+  if (e.target && e.target.id === 'postCmtSend') { sendPostComment(); }
 });
 document.addEventListener('keydown', (e)=>{
   if (e.target && e.target.id === 'cmtInput' && e.key === 'Enter' && !e.shiftKey){
