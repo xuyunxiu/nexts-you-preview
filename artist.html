@@ -304,15 +304,26 @@ nav#nav button.active{
   display:block; width:min(66vw,300px); height:auto; border-radius:12px; border:1px solid rgba(0,0,0,.08); overflow:hidden;
 }
 
-/* 語音泡泡：左=玻璃、右=品牌色（保留你原本規格） */
+/* ===== 語音泡泡：跟右側純文字一樣改成灰色＆縮小 ===== */
 #dmDetail .bubble.voice{
   border-radius:18px; border:1px solid var(--glass-stroke);
   background:linear-gradient(180deg,rgba(255,255,255,.26),rgba(255,255,255,.12));
 }
 #dmDetail .msg.right .bubble.voice{
-  background:linear-gradient(180deg,var(--accent),var(--accent2));
-  border-color:transparent; color:#fff;
+  background:#565b6c;               /* 改灰色 */
+  color:#fff;
+  border:1px solid rgba(255,255,255,.18);
+  box-shadow:0 6px 16px rgba(0,0,0,.22);
 }
+
+/* 語音內部 UI 更緊實 + 右側對比 */
+#dmDetail .voiceUI{ display:flex; align-items:center; gap:8px; min-width:120px; } /* 原本 140 → 120 */
+#dmDetail .voicePlay{ width:30px; height:30px; border-radius:50%; display:grid; place-items:center;
+  background:rgba(0,0,0,.06); border:1px solid rgba(0,0,0,.08); color:#2b356f; }
+#dmDetail .msg.right .voicePlay{ background:rgba(255,255,255,.18); border-color:rgba(255,255,255,.28); color:#fff; }
+#dmDetail .voicePlay svg{ width:16px; height:16px; fill:currentColor; }
+#dmDetail .voiceDur{ margin-left:6px; font-variant-numeric:tabular-nums; min-width:46px; text-align:right; font-weight:800; opacity:.9; }
+#dmDetail .msg.right .voiceDur{ color:#fff; }
 /* 翻譯 UI */
 .bubble .translate-in{
   display:inline-flex;align-items:center;gap:6px;margin-top:8px;font-size:12px;padding:4px 10px;
@@ -1261,7 +1272,7 @@ function renderDmList(){
 /* ===================== 語音泡泡（有影像軌用 <video>） ===================== */
 function voiceWidthByDur(sec){
   const d = Math.max(0, sec||0);
-  const minW=140, maxW=280, cap=60; // 0s→140px，60s+→280px
+  const minW=120, maxW=220, cap=60; // 0s→140px，60s+→280px
   const w = minW + (Math.min(d,cap)/cap)*(maxW-minW);
   return Math.round(w);
 }
