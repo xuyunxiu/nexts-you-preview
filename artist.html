@@ -207,32 +207,35 @@ nav#nav button.active{
 #dmDetail{position:relative;background-color:var(--bg);background-position:center;background-repeat:no-repeat;background-size:cover;background-attachment:scroll;}
 #dmDetail::after{content:"";position:fixed;inset:0;pointer-events:none;background:rgba(0,0,0,var(--bgDim,.0));backdrop-filter:blur(var(--bgBlur,0px));z-index:-1}
 
-/* ========== DM HUD ========== */
-.chatHUD{display:flex;align-items:center;justify-content:space-between;padding:4px 0 8px}
-.back,.hudBtn{width:44px;height:44px;border:none;background:transparent;display:grid;place-items:center}
-.back svg{width:22px;height:22px;stroke:#5b6ab0;stroke-width:2.6;fill:none}
-.hudBtn{color:#fff;mix-blend-mode:difference;text-shadow:0 0 1px rgba(0,0,0,.65),0 0 8px rgba(0,0,0,.25)}
-.chatHUD .center{flex:1;min-width:0;display:flex;justify-content:center}
-.artistName{font-weight:900;letter-spacing:.6px;font-size:18px}
+/* ========== DM Detail（HUD + Thread 收頂部留白版） ========== */
+/* DM 詳情頁把上方 padding 收到安全區邊緣，解決頂部大片留白 */
+#dmDetail.page{
+  padding: max(env(safe-area-inset-top,0px), 2px) 12px
+           calc(var(--footer-h) + var(--safe));
+}
 
-/* ========== Thread 佈局 ========== */
-/* Thread 容器只避開 footer/鍵盤/安全區 */
-.thread{
-  position:absolute; left:0; right:0; top:var(--hud-h);
+/* HUD：上、下 padding 都縮小一些 */
+#dmDetail .chatHUD{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:2px 0 6px;
+}
+#dmDetail .back, #dmDetail .hudBtn{
+  width:44px; height:44px; border:none; background:transparent; display:grid; place-items:center;
+}
+#dmDetail .back svg{ width:22px; height:22px; stroke:#5b6ab0; stroke-width:2.6; fill:none; }
+#dmDetail .hudBtn{ color:#fff; mix-blend-mode:difference; text-shadow:0 0 1px rgba(0,0,0,.65),0 0 8px rgba(0,0,0,.25); }
+#dmDetail .chatHUD .center{ flex:1; min-width:0; display:flex; justify-content:center; }
+#dmDetail .artistName{ font-weight:900; letter-spacing:.6px; font-size:18px; }
+
+/* Thread：頂端改成 var(--hud-h) + 2px，讓訊息更貼齊 HUD 下緣 */
+#dmDetail .thread{
+  position:absolute; left:0; right:0;
+  top: calc(var(--hud-h) + 2px);
   bottom: calc(var(--footer-h) + var(--kb-offset) + env(safe-area-inset-bottom,0px));
   overflow-y:auto; -webkit-overflow-scrolling:touch;
   display:flex; flex-direction:column; padding:8px 2px;
   scrollbar-gutter:stable both-edges;
 }
-
-/* 由 JS 動態把 notice 的高度寫進 --notice-h */
-#threadPad{
-  height: calc(var(--notice-h) + 2px);
-  flex: 0 0 auto;
-}
-.thread .msg + .msg{margin-top:12px}
-  
-#endAnchor{height:1px;flex:0 0 auto;}
 
 /* ========== DM 氣泡（全變小；右側藝人=灰色；語音也灰） ========== */
 :root{
@@ -387,14 +390,14 @@ nav#nav button.active{
 .dmSend{width:30px;height:30px;border:none;background:transparent;color:#b2b7c8;display:grid;place-items:center}
 .hasText .dmSend{color:#111}
 
-/* ========== 系統通知 → 玻璃膠囊（單一版本） ========== */
-.noticeBar{
-  align-self:center;margin:8px 0;padding:6px 12px;border-radius:999px;
-  font-size:12px;font-weight:900;letter-spacing:.3px;color:#2e2a6f;
-  background:linear-gradient(180deg,rgba(255,255,255,.28),rgba(255,255,255,.12));
-  border:1px solid var(--glass-stroke);
-  backdrop-filter:saturate(160%) blur(calc(var(--glass-blur)*.6));
-  -webkit-backdrop-filter:saturate(160%) blur(calc(var(--glass-blur)*.6));
+/* ===== 系統通知膠囊（浮動版）：往下 12px，更貼近輸入列 ===== */
+.noticeBar.is-floating{
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: calc(var(--footer-h) + var(--kb-offset) + env(safe-area-inset-bottom,0px) - 12px);
+  z-index: 60;
+  pointer-events: none;
 }
 
 /* ========== 媒體（圖片/影片）尺寸一致、脫離泡泡 ========== */
