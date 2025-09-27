@@ -207,22 +207,47 @@ nav#nav button.active{
 #dmDetail{position:relative;background-color:var(--bg);background-position:center;background-repeat:no-repeat;background-size:cover;background-attachment:scroll;}
 #dmDetail::after{content:"";position:fixed;inset:0;pointer-events:none;background:rgba(0,0,0,var(--bgDim,.0));backdrop-filter:blur(var(--bgBlur,0px));z-index:-1}
 
-/* ========== DM HUD ========== */
-.chatHUD{display:flex;align-items:center;justify-content:space-between;padding:4px 0 8px}
-.back,.hudBtn{width:44px;height:44px;border:none;background:transparent;display:grid;place-items:center}
-.back svg{width:22px;height:22px;stroke:#5b6ab0;stroke-width:2.6;fill:none}
-.hudBtn{color:#fff;mix-blend-mode:difference;text-shadow:0 0 1px rgba(0,0,0,.65),0 0 8px rgba(0,0,0,.25)}
-.chatHUD .center{flex:1;min-width:0;display:flex;justify-content:center}
-.artistName{font-weight:900;letter-spacing:.6px;font-size:18px}
+/* ========== DM HUD（置頂・輕玻璃） ========== */
+#dmDetail .chatHUD{
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display:flex;align-items:center;justify-content:space-between;
+  padding: 6px 0;                  /* 緊一點，避免頂部看起來留白 */
+  background: linear-gradient(180deg, rgba(245,247,255,.86), rgba(245,247,255,0));
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+#dmDetail .back, #dmDetail .hudBtn{ width:44px;height:44px;border:none;background:transparent;display:grid;place-items:center }
+#dmDetail .back svg{ width:22px;height:22px;stroke:#5b6ab0;stroke-width:2.6;fill:none }
+#dmDetail .hudBtn{ color:#fff;mix-blend-mode:difference;text-shadow:0 0 1px rgba(0,0,0,.65),0 0 8px rgba(0,0,0,.25) }
+#dmDetail .chatHUD .center{ flex:1;min-width:0;display:flex;justify-content:center }
+#dmDetail .artistName{ font-weight:900;letter-spacing:.6px;font-size:18px }
 
-/* ========== Thread 佈局 ========== */
-/* Thread 容器只避開 footer/鍵盤/安全區 */
-.thread{
-  position:absolute; left:0; right:0; top:var(--hud-h);
+/* ========== Thread 佈局（以 padding 撐 HUD 高度；不留頂白） ========== */
+:root{ --hud-h:56px; }  /* 先給安全值，JS 會覆寫為實際高度 */
+#dmDetail .thread{
+  position:absolute; left:0; right:0; top:0;
   bottom: calc(var(--footer-h) + var(--kb-offset) + env(safe-area-inset-bottom,0px));
   overflow-y:auto; -webkit-overflow-scrolling:touch;
-  display:flex; flex-direction:column; padding:8px 2px;
+  display:flex; flex-direction:column;
+  padding: calc(var(--hud-h) + 4px) 2px 0;   /* 用 padding 頂出 HUD 高度 */
   scrollbar-gutter:stable both-edges;
+}
+#threadPad{ height: calc(var(--notice-h) + 2px); flex: 0 0 auto; }
+#dmDetail .thread .msg + .msg{ margin-top:12px }
+#endAnchor{ height:1px; flex:0 0 auto; }
+
+/* ========== 浮動 noticeBar（粉絲在等你的訊息喔） ========== */
+/* 刪掉你檔案裡舊的 .noticeBar.is-floating，改用這個： */
+.noticeBar.is-floating{
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  /* 往下再多 16px，和最後一條不會同排 */
+  bottom: calc(var(--footer-h) + var(--kb-offset) + env(safe-area-inset-bottom,0px) + 16px);
+  z-index: 60;
+  pointer-events: none; /* 不遮住輸入列點擊 */
 }
 
 /* 由 JS 動態把 notice 的高度寫進 --notice-h */
@@ -364,15 +389,6 @@ nav#nav button.active{
   border-top:1px solid var(--glass-stroke);
   backdrop-filter:blur(var(--glass-blur));
   -webkit-backdrop-filter:blur(var(--glass-blur));
-}
-/* 新：獨立浮層，不受 footer 的 backdrop-filter 影響 */
-.noticeBar.is-floating{
-  position: fixed;
-  left: 50%;
-  transform: translateX(-50%);
-  bottom: calc(var(--footer-h) + var(--kb-offset) + env(safe-area-inset-bottom,0px) + 8px);
-  z-index: 60;
-  pointer-events: none;
 }
 .dmInputBar{display:flex;align-items:center;gap:8px;padding:0 10px}
 .iconBtn{width:30px;height:30px;border:none;background:transparent;display:grid;place-items:center;flex:0 0 auto;font-size:20px;line-height:1}
@@ -1438,9 +1454,9 @@ img.alt='聊天圖片';
   ensureNoticeRow(); 
 }
   
-// 以前把 noticeBar 塞到 thread 裡 → 改成塞到 .dmFooter 裡
+/* 把 notice 掛在輸入列容器（固定位置渲染） */
 function ensureNoticeRow(){
-  const host = document.getElementById('dmFooter'); // ← 關鍵：掛在輸入列容器
+  const host = document.getElementById('dmFooter');
   if(!host) return null;
   let n = document.getElementById('noticeRow');
   if(!n){
@@ -1462,15 +1478,21 @@ function clearNoticeNow(){ /* 常駐：不用清除 */ }
 function getLastTs(role){
   let t=0; for(const m of GROUP_MSGS){ if(!role || m.from===role){ if(m.ts>t) t=m.ts; } } return t;
 }
- function updateNoticeBanner(){
+ /* 顯示 notice；推一下卷軸到底，避免和最後一條同排 */
+function updateNoticeBanner(){
   const n = ensureNoticeRow(); if(!n) return;
   n.style.display = 'block';
-  tuneNoticePad();
-  setTimeout(hardStickBottom, 0);
- }
-  function tuneNoticePad(){
+  requestAnimationFrame(()=>{
+    tuneNoticePad();
+    scrollToEndDuring(600);
+  });
+}
+  /* 讀取 notice 實際高度 → 回寫 --notice-h，讓 thread 底部自動讓位 */
+function tuneNoticePad(){
   const n = document.getElementById('noticeRow');
-  const h = (n && n.style.display !== 'none') ? ((n.offsetHeight||0) + 10) : 0;
+  const h = (n && n.style.display !== 'none')
+    ? Math.ceil((n.getBoundingClientRect().height || 0) + 14)  // 14px 緩衝
+    : 0;
   document.documentElement.style.setProperty('--notice-h', h + 'px');
 }
 /* ===================== 送訊息 / 回覆 ===================== */
@@ -1874,9 +1896,12 @@ function measureFooter(){
   // ✅ 新增：footer 高度變了，多半 notice 位置/換行也會變，重算間距
   tuneNoticePad();
 }
+/* 量 HUD 高度 → 寫進 --hud-h（避免頂部大空白） */
 function measureHUD(){
-  const hEl=document.getElementById('dmHUD'); if(!hEl) return;
-  const h=Math.ceil(hEl.getBoundingClientRect().height);
+  const el = document.getElementById('dmHUD');
+  if(!el) return;
+  const raw = Math.round(el.getBoundingClientRect().height || 56);
+  const h   = Math.min(Math.max(raw, 44), 72); // 夾在 44~72 比較穩
   document.documentElement.style.setProperty('--hud-h', h + 'px');
 }
 function stickBottomNow(){
