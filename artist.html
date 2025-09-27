@@ -234,63 +234,85 @@ nav#nav button.active{
   
 #endAnchor{height:1px;flex:0 0 auto;}
 
-/* ========== 氣泡 & 位置（左白、翻譯玻璃、右品牌） ========== */
-:root{ --bubble-px:10px; --bubble-py:7px; --bubble-r:13px; --msg-max:78%; }
-.msg{display:flex;align-items:flex-end;gap:6px;max-width:var(--msg-max);margin:0 6px}
-.msg.left{flex-direction:row;align-self:flex-start}
-.msg.right{flex-direction:row-reverse;align-self:flex-end}
-.time{font-size:11px;color:rgba(255,255,255,.88);text-shadow:0 1px 2px rgba(0,0,0,.35);white-space:nowrap}
-.time.dark{color:#8b93a7;white-space:nowrap}
+/* ========== DM 氣泡（新版：全都變小；右側=藝人改灰色） ========== */
+:root{
+  /* 統一縮小（左右都吃） */
+  --bubble-px: 10px;
+  --bubble-py: 8px;
+  --bubble-r: 12px;
+  --msg-max: 66%;
+}
 
-/* 基本泡泡外型（背景交由左右／模式決定） */
-.bubble{
+/* 位置與基本排版（僅作用在 DM 詳情頁） */
+#dmDetail .msg{
+  display:flex; align-items:flex-end; gap:6px;
+  max-width:var(--msg-max); margin:0 6px;
+}
+#dmDetail .msg.left{  flex-direction:row;        align-self:flex-start; }
+#dmDetail .msg.right{ flex-direction:row-reverse; align-self:flex-end;  }
+#dmDetail .msg + .msg{ margin-top:8px; }          /* 泡泡間距更緊實 */
+
+#dmDetail .time{
+  display:block; margin-top:2px; font-size:11px;
+  color:#8b93a7; white-space:nowrap;
+}
+#dmDetail .msg.right .time{ color:#cfd3e1; }      /* 右側時間偏亮 */
+
+/* 泡泡本體（所有類型共用，內容再分支） */
+#dmDetail .bubble{
   max-width:100%;
   padding:var(--bubble-py) var(--bubble-px);
   border-radius:var(--bubble-r);
   border:1px solid transparent;
   position:relative;
+  font-size:15px; line-height:1.35;
 }
 
-/* 左側：預設＝純白（非媒體、非語音） */
-.msg.left .bubble:not(.mediaWrap):not(.voice){
-  background:#fff;
-  border-color:#e5e7f2;
-  color:#111;
-  backdrop-filter:none;
-  -webkit-backdrop-filter:none;
+/* 左側（粉絲）純文字：白底 */
+#dmDetail .msg.left .bubble:not(.mediaWrap):not(.voice){
+  background:#fff; color:#111;
+  border:1px solid #e5e7f2;
+  box-shadow:0 3px 10px rgba(0,0,0,.06);
 }
 
-/* 左側：翻譯模式＝玻璃（泡泡中出現 .transDivider 即視為翻譯版） */
-.msg.left .bubble:has(.transDivider){
+/* 左側：翻譯模式（泡泡內含 .transDivider 時） */
+#dmDetail .msg.left .bubble:has(.transDivider){
   background:linear-gradient(180deg,rgba(255,255,255,.26),rgba(255,255,255,.12));
-  border:1px solid var(--glass-stroke);
-  color:#111;
+  border:1px solid var(--glass-stroke); color:#111;
   backdrop-filter:saturate(160%) blur(calc(var(--glass-blur)*.8));
   -webkit-backdrop-filter:saturate(160%) blur(calc(var(--glass-blur)*.8));
 }
 
-/* 右側：品牌漸層 */
-.msg.right .bubble{
-  background:linear-gradient(180deg,var(--accent),var(--accent2));
-  color:#fff;border-color:transparent;
-  box-shadow:0 6px 18px rgba(106,90,205,.28);
+/* 右側（藝人）純文字：改成灰色系（像圖2） */
+#dmDetail .msg.right .bubble:not(.mediaWrap):not(.voice){
+  background:#565b6c;            /* 想更淺可用 #6b7280；更深 #4b5563 */
+  color:#fff;
+  border:1px solid rgba(255,255,255,.18);
+  box-shadow:0 6px 16px rgba(0,0,0,.22);
 }
 
-/* FROM FAN（泡泡內）改黑色；不影響 replyCard 的 FROM FAN */
-.msg .bubble .fromLabel{font-size:11px;font-weight:900;color:#111;margin-bottom:4px}
-.fanText{color:#111}
+/* 泡泡內次標（FROM FAN 這種，不含回覆卡）維持黑字 */
+#dmDetail .bubble .fromLabel{ font-size:11px; font-weight:900; color:#111; margin-bottom:4px; }
+#dmDetail .fanText{ color:#111; }
 
-/* DM 右上角選單（浮層）→ 玻璃 */
-#dmMenu{
-  position:absolute;top:52px;right:8px;z-index:60;padding:8px;border-radius:12px;
+/* 媒體泡泡：脫離樣式，保持原尺寸規則 */
+#dmDetail .msg .bubble.mediaWrap{
+  background:transparent!important; border:none!important; padding:0; border-radius:0; color:inherit;
+}
+#dmDetail .msg.right .bubble.mediaWrap{ background:transparent!important; border:none!important; }
+#dmDetail .msgImg, #dmDetail .msgVideo{
+  display:block; width:min(66vw,300px); height:auto; border-radius:12px; border:1px solid rgba(0,0,0,.08); overflow:hidden;
+}
+
+/* 語音泡泡：左=玻璃、右=品牌色（保留你原本規格） */
+#dmDetail .bubble.voice{
+  border-radius:18px; border:1px solid var(--glass-stroke);
   background:linear-gradient(180deg,rgba(255,255,255,.26),rgba(255,255,255,.12));
-  border:1px solid var(--glass-stroke);
-  box-shadow:var(--shadow);
-  backdrop-filter:saturate(160%) blur(var(--glass-blur));
-  -webkit-backdrop-filter:saturate(160%) blur(var(--glass-blur));
 }
-#dmMenu .chip{width:100%;justify-content:flex-start}
-
+#dmDetail .msg.right .bubble.voice{
+  background:linear-gradient(180deg,var(--accent),var(--accent2));
+  border-color:transparent; color:#fff;
+}
 /* 翻譯 UI */
 .bubble .translate-in{
   display:inline-flex;align-items:center;gap:6px;margin-top:8px;font-size:12px;padding:4px 10px;
@@ -309,7 +331,15 @@ nav#nav button.active{
   backdrop-filter:saturate(160%) blur(calc(var(--glass-blur)*.7));
   -webkit-backdrop-filter:saturate(160%) blur(calc(var(--glass-blur)*.7));
 }
-.replyCard .fromLabel{font-size:11px;font-weight:900;letter-spacing:.3px;color:#6d78aa;margin-bottom:4px}
+/* 回覆卡標籤：黑字 + 陰影（任何背景都看得清楚） */
+.replyCard .fromLabel{
+  font-size:11px; font-weight:900; letter-spacing:.3px;
+  color:#000;
+  text-shadow:
+    0 1px 0 rgba(255,255,255,.55),   /* 上緣高光 */
+    0 2px 8px rgba(0,0,0,.35);       /* 柔和外陰影 */
+  margin-bottom:4px;
+}
 .thread .msg + .replyCard,.thread .replyCard + .msg{margin-top:12px}
 
 /* 回覆箭頭（使用 transform 推出去，不佔版寬） */
