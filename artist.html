@@ -234,31 +234,30 @@ nav#nav button.active{
   
 #endAnchor{height:1px;flex:0 0 auto;}
 
-/* ========== DM 氣泡（新版：全都變小；右側=藝人改灰色） ========== */
+/* ========== DM 氣泡（全變小；右側藝人=灰色；語音也灰） ========== */
 :root{
-  /* 統一縮小（左右都吃） */
-  --bubble-px: 10px;
-  --bubble-py: 8px;
-  --bubble-r: 12px;
-  --msg-max: 66%;
+  --bubble-px:10px;
+  --bubble-py:8px;
+  --bubble-r:12px;
+  --msg-max:66%;
 }
 
-/* 位置與基本排版（僅作用在 DM 詳情頁） */
+/* 位置與基本排版（只作用在 DM 詳情頁） */
 #dmDetail .msg{
   display:flex; align-items:flex-end; gap:6px;
   max-width:var(--msg-max); margin:0 6px;
 }
 #dmDetail .msg.left{  flex-direction:row;        align-self:flex-start; }
 #dmDetail .msg.right{ flex-direction:row-reverse; align-self:flex-end;  }
-#dmDetail .msg + .msg{ margin-top:8px; }          /* 泡泡間距更緊實 */
+#dmDetail .msg + .msg{ margin-top:8px; } /* 泡泡間距更緊實 */
 
 #dmDetail .time{
   display:block; margin-top:2px; font-size:11px;
   color:#8b93a7; white-space:nowrap;
 }
-#dmDetail .msg.right .time{ color:#cfd3e1; }      /* 右側時間偏亮 */
+#dmDetail .msg.right .time{ color:#cfd3e1; } /* 右側時間偏亮 */
 
-/* 泡泡本體（所有類型共用，內容再分支） */
+/* 泡泡本體 */
 #dmDetail .bubble{
   max-width:100%;
   padding:var(--bubble-py) var(--bubble-px);
@@ -283,86 +282,78 @@ nav#nav button.active{
   -webkit-backdrop-filter:saturate(160%) blur(calc(var(--glass-blur)*.8));
 }
 
-/* 右側（藝人）純文字：改成灰色系（像圖2） */
+/* 右側（藝人）純文字：灰色系（像圖2） */
 #dmDetail .msg.right .bubble:not(.mediaWrap):not(.voice){
-  background:#565b6c;            /* 想更淺可用 #6b7280；更深 #4b5563 */
+  background:#565b6c; /* 想更淺用 #6b7280；更深 #4b5563 */
   color:#fff;
   border:1px solid rgba(255,255,255,.18);
   box-shadow:0 6px 16px rgba(0,0,0,.22);
 }
 
-/* 泡泡內次標（FROM FAN 這種，不含回覆卡）維持黑字 */
+/* 回覆卡與訊息的間距（避免「黏在一起」） */
+#dmDetail .msg + .replyCard,
+#dmDetail .replyCard + .msg{ margin-top:12px; }
+
+/* 泡泡內的 FROM FAN 標籤（非回覆卡） */
 #dmDetail .bubble .fromLabel{ font-size:11px; font-weight:900; color:#111; margin-bottom:4px; }
 #dmDetail .fanText{ color:#111; }
 
-/* 媒體泡泡：脫離樣式，保持原尺寸規則 */
+/* 媒體泡泡：脫離泡泡樣式 */
 #dmDetail .msg .bubble.mediaWrap{
   background:transparent!important; border:none!important; padding:0; border-radius:0; color:inherit;
 }
 #dmDetail .msg.right .bubble.mediaWrap{ background:transparent!important; border:none!important; }
 #dmDetail .msgImg, #dmDetail .msgVideo{
-  display:block; width:min(66vw,300px); height:auto; border-radius:12px; border:1px solid rgba(0,0,0,.08); overflow:hidden;
+  display:block; width:min(66vw,300px); height:auto;
+  border-radius:12px; border:1px solid rgba(0,0,0,.08); overflow:hidden;
 }
 
-/* ===== 語音泡泡：跟右側純文字一樣改成灰色＆縮小 ===== */
+/* ===== 語音泡泡：右側同樣改成灰色＆縮小 ===== */
 #dmDetail .bubble.voice{
   border-radius:18px; border:1px solid var(--glass-stroke);
   background:linear-gradient(180deg,rgba(255,255,255,.26),rgba(255,255,255,.12));
 }
 #dmDetail .msg.right .bubble.voice{
-  background:#565b6c;               /* 改灰色 */
-  color:#fff;
+  background:#565b6c; color:#fff;
   border:1px solid rgba(255,255,255,.18);
   box-shadow:0 6px 16px rgba(0,0,0,.22);
 }
 
-/* 語音內部 UI 更緊實 + 右側對比 */
-#dmDetail .voiceUI{ display:flex; align-items:center; gap:8px; min-width:120px; } /* 原本 140 → 120 */
-#dmDetail .voicePlay{ width:30px; height:30px; border-radius:50%; display:grid; place-items:center;
-  background:rgba(0,0,0,.06); border:1px solid rgba(0,0,0,.08); color:#2b356f; }
+/* 語音內部 UI 更緊實 */
+#dmDetail .voiceUI{ display:flex; align-items:center; gap:8px; min-width:120px; } /* 原 140 → 120 */
+#dmDetail .voicePlay{
+  width:30px; height:30px; border-radius:50%; display:grid; place-items:center;
+  background:rgba(0,0,0,.06); border:1px solid rgba(0,0,0,.08); color:#2b356f;
+}
 #dmDetail .msg.right .voicePlay{ background:rgba(255,255,255,.18); border-color:rgba(255,255,255,.28); color:#fff; }
 #dmDetail .voicePlay svg{ width:16px; height:16px; fill:currentColor; }
 #dmDetail .voiceDur{ margin-left:6px; font-variant-numeric:tabular-nums; min-width:46px; text-align:right; font-weight:800; opacity:.9; }
 #dmDetail .msg.right .voiceDur{ color:#fff; }
-/* 翻譯 UI */
-.bubble .translate-in{
-  display:inline-flex;align-items:center;gap:6px;margin-top:8px;font-size:12px;padding:4px 10px;
-  border-radius:999px;border:1px solid #e3e6ef;background:#f1f3f6;color:#6f7a94;cursor:pointer;user-select:none;
-}
-.bubble .translate-in svg{width:14px;height:14px;opacity:.7}
-.bubble .transDivider{height:1px;background:#e3e6ef;margin:8px 0}
-.bubble .by{margin-top:2px;font-size:10px;color:var(--ghost)}
 
-/* 回覆卡 → 玻璃 */
+/* 回覆卡 → 保持玻璃；標籤：黑字 + 陰影（任何背景都看得到） */
 .replyCard{
-  align-self:flex-end;max-width:74%;margin:14px 6px 0;padding:10px 12px;border-radius:14px;
+  align-self:flex-end; max-width:74%; margin:14px 6px 0; padding:10px 12px; border-radius:14px;
   background:linear-gradient(180deg,rgba(255,255,255,.30),rgba(255,255,255,.12));
   border:1px solid var(--glass-stroke);
   box-shadow:0 8px 18px rgba(0,0,0,.10);
   backdrop-filter:saturate(160%) blur(calc(var(--glass-blur)*.7));
   -webkit-backdrop-filter:saturate(160%) blur(calc(var(--glass-blur)*.7));
 }
-/* 回覆卡標籤：黑字 + 陰影（任何背景都看得清楚） */
 .replyCard .fromLabel{
-  font-size:11px; font-weight:900; letter-spacing:.3px;
-  color:#000;
-  text-shadow:
-    0 1px 0 rgba(255,255,255,.55),   /* 上緣高光 */
-    0 2px 8px rgba(0,0,0,.35);       /* 柔和外陰影 */
+  font-size:11px; font-weight:900; letter-spacing:.3px; color:#000;
+  text-shadow:0 1px 0 rgba(255,255,255,.55), 0 2px 8px rgba(0,0,0,.35);
   margin-bottom:4px;
 }
-.thread .msg + .replyCard,.thread .replyCard + .msg{margin-top:12px}
 
-/* 回覆箭頭（使用 transform 推出去，不佔版寬） */
+/* 回覆箭頭（維持舊行為） */
 .replyBtn{
-  position:absolute;top:50%;right:0;
+  position:absolute; top:50%; right:0;
   transform:translateY(-50%) translateX(calc(100% + var(--reply-gap)));
-  width:var(--reply-size);height:var(--reply-size);border-radius:999px;
-  border:1px solid rgba(0,0,0,.08);background:rgba(255,255,255,.92);
-  box-shadow:0 6px 14px rgba(0,0,0,.12);display:flex;align-items:center;justify-content:center;z-index:2
+  width:var(--reply-size); height:var(--reply-size); border-radius:999px;
+  border:1px solid rgba(0,0,0,.08); background:rgba(255,255,255,.92);
+  box-shadow:0 6px 14px rgba(0,0,0,.12); display:flex; align-items:center; justify-content:center; z-index:2;
 }
-.replyBtn svg{width:calc(var(--reply-size)*0.53);height:calc(var(--reply-size)*0.53);opacity:.85}
-
+.replyBtn svg{ width:calc(var(--reply-size)*0.53); height:calc(var(--reply-size)*0.53); opacity:.85; }
 /* ========== DM Footer（輸入區）→ 玻璃 ========== */
 .dmFooter{
   position:fixed;left:0;right:0;
