@@ -209,14 +209,12 @@ nav#nav button.active{
 
 /* ========== DM HUD（置頂・輕玻璃） ========== */
 #dmDetail .chatHUD{
-  position: sticky;
-  top: 0;
-  z-index: 5;
-  display:flex;align-items:center;justify-content:space-between;
-  padding: 6px 0;                  /* 緊一點，避免頂部看起來留白 */
-  background: linear-gradient(180deg, rgba(245,247,255,.86), rgba(245,247,255,0));
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  position: sticky; top: 0; z-index: 5;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 0;
+  background: #f5f7ff;               /* 純色，不要玻璃 */
+  border-bottom: 1px solid #e7eaf3;  /* 細線 */
+  backdrop-filter: none; -webkit-backdrop-filter: none;
 }
 #dmDetail .back, #dmDetail .hudBtn{ width:44px;height:44px;border:none;background:transparent;display:grid;place-items:center }
 #dmDetail .back svg{ width:22px;height:22px;stroke:#5b6ab0;stroke-width:2.6;fill:none }
@@ -244,21 +242,10 @@ nav#nav button.active{
   position: fixed;
   left: 50%;
   transform: translateX(-50%);
-  /* 往下再多 16px，和最後一條不會同排 */
   bottom: calc(var(--footer-h) + var(--kb-offset) + env(safe-area-inset-bottom,0px) + 16px);
   z-index: 60;
-  pointer-events: none; /* 不遮住輸入列點擊 */
+  pointer-events: none;
 }
-
-/* 由 JS 動態把 notice 的高度寫進 --notice-h */
-#threadPad{
-  height: calc(var(--notice-h) + 2px);
-  flex: 0 0 auto;
-}
-.thread .msg + .msg{margin-top:12px}
-  
-#endAnchor{height:1px;flex:0 0 auto;}
-
 /* ========== DM 氣泡（全變小；右側藝人=灰色；語音也灰） ========== */
 :root{
   --bubble-px:10px;
@@ -309,7 +296,7 @@ nav#nav button.active{
 
 /* 右側（藝人）純文字：灰色系（像圖2） */
 #dmDetail .msg.right .bubble:not(.mediaWrap):not(.voice){
-  background:#565b6c; /* 想更淺用 #6b7280；更深 #4b5563 */
+  background:#6b7280; /* 想更淺用 #6b7280；更深 #4b5563 */
   color:#fff;
   border:1px solid rgba(255,255,255,.18);
   box-shadow:0 6px 16px rgba(0,0,0,.22);
@@ -411,19 +398,6 @@ nav#nav button.active{
   border:1px solid var(--glass-stroke);
   backdrop-filter:saturate(160%) blur(calc(var(--glass-blur)*.6));
   -webkit-backdrop-filter:saturate(160%) blur(calc(var(--glass-blur)*.6));
-}
-
-/* ========== 媒體（圖片/影片）尺寸一致、脫離泡泡 ========== */
-.msg .bubble.mediaWrap{background:transparent!important;border:none!important;padding:0;border-radius:0;color:inherit}
-.msg.right .bubble.mediaWrap{background:transparent!important;border:none!important}
-.msgImg,.msgVideo{
-  display:block;width:min(66vw,300px);height:auto;border-radius:12px;border:1px solid rgba(0,0,0,.08);overflow:hidden;
-}
-
-/* ========== 語音泡泡（左玻璃／右品牌） ========== */
-.bubble.voice{
-  border-radius:18px;border:1px solid var(--glass-stroke);
-  background:linear-gradient(180deg,rgba(255,255,255,.26),rgba(255,255,255,.12));
 }
 .msg.right .bubble.voice{background:linear-gradient(180deg,var(--accent),var(--accent2));border-color:transparent;color:#fff}
 .voiceUI{display:flex;align-items:center;gap:10px;min-width:140px}
