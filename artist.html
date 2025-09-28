@@ -209,6 +209,14 @@ nav#nav button.active{
 
 /* === DM 頂部 HUD 完全透明，去掉任何底色/邊/毛玻璃 === */
 #dmDetail .chatHUD{
+  position: sticky;       /* 黏在頂端，標題不會被訊息蓋住 */
+  top: 0;
+  z-index: 70;            /* 蓋過 thread/notice */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  /* 你原本要的「沒有邊界/沒有底色」照保留 */
   background: transparent !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
@@ -216,7 +224,14 @@ nav#nav button.active{
 }
 #dmDetail .back, #dmDetail .hudBtn{ width:44px;height:44px;border:none;background:transparent;display:grid;place-items:center }
 #dmDetail .back svg{ width:22px;height:22px;stroke:#5b6ab0;stroke-width:2.6;fill:none }
-#dmDetail .hudBtn{ color:#fff;mix-blend-mode:difference;text-shadow:0 0 1px rgba(0,0,0,.65),0 0 8px rgba(0,0,0,.25) }
+/* 只改這一條：讓「⋯」在任何背景都清楚 */
+#dmDetail .hudBtn{
+  color:#111 !important;                 /* 跟返回鍵一致，用深色本體 */
+  font-weight:900;                        /* 點更粗，辨識更好 */
+  -webkit-text-stroke:.6px rgba(255,255,255,.75);  /* 白色細描邊：深色背景也看得見 */
+  text-shadow:0 1px 2px rgba(255,255,255,.6),      /* 亮邊高光：淺色背景也不會消失 */
+              0 0 .5px rgba(0,0,0,.85);            /* 輕微外緣收邊 */
+  mix-blend-mode:normal !important;       /* 取消差值混色，避免被背景顏色吞掉 */}
 #dmDetail .chatHUD .center{ flex:1;min-width:0;display:flex;justify-content:center }
 #dmDetail .artistName{ color:#111 !important; text-shadow:0 1px 2px rgba(255,255,255,.6); }
 #dmDetail .back svg{ stroke:#111 !important; }
@@ -230,6 +245,7 @@ nav#nav button.active{
   display:flex; flex-direction:column;
   padding: calc(var(--hud-h) + 4px) 2px calc(var(--notice-h) + 12px) !important;
   scrollbar-gutter:stable both-edges;
+  z-index: 1;
 }
 #threadPad{ height:0 !important; }
 #dmDetail .thread .msg + .msg{ margin-top:12px }
@@ -740,7 +756,10 @@ nav#nav button.active{
   </div>
 
   <!-- 右上 … 選單 -->
-  <div id="dmMenu" class="card soft" style="display:none">
+  <div id="dmMenu" class="card soft"
+     style="display:none; position:fixed; right:10px;
+            top:calc(var(--hud-h) + env(safe-area-inset-top,0px) + 6px);
+            z-index:80">
     <div class="row" style="flex-direction:column;gap:6px">
       <button class="chip" onclick="renameChat(); hideDmMenu()">更改聊天室名稱</button>
       <button class="chip" onclick="startPickBg(); hideDmMenu()">更改背景</button>
