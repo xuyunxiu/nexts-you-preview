@@ -207,21 +207,20 @@ nav#nav button.active{
 #dmDetail{position:relative;background-color:var(--bg);background-position:center;background-repeat:no-repeat;background-size:cover;background-attachment:scroll;}
 #dmDetail::after{content:"";position:fixed;inset:0;pointer-events:none;background:rgba(0,0,0,var(--bgDim,.0));backdrop-filter:blur(var(--bgBlur,0px));z-index:-1}
 
-/* ========== DM HUD（置頂・輕玻璃） ========== */
+/* === DM 頂部 HUD 完全透明，去掉任何底色/邊/毛玻璃 === */
 #dmDetail .chatHUD{
-  position: sticky; top: 0; z-index: 5;
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 8px 0;
-  background: #f5f7ff;               /* 純色，不要玻璃 */
-  border-bottom: 1px solid #e7eaf3;  /* 細線 */
-  backdrop-filter: none; -webkit-backdrop-filter: none;
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: none !important;
 }
 #dmDetail .back, #dmDetail .hudBtn{ width:44px;height:44px;border:none;background:transparent;display:grid;place-items:center }
 #dmDetail .back svg{ width:22px;height:22px;stroke:#5b6ab0;stroke-width:2.6;fill:none }
 #dmDetail .hudBtn{ color:#fff;mix-blend-mode:difference;text-shadow:0 0 1px rgba(0,0,0,.65),0 0 8px rgba(0,0,0,.25) }
 #dmDetail .chatHUD .center{ flex:1;min-width:0;display:flex;justify-content:center }
-#dmDetail .artistName{ font-weight:900;letter-spacing:.6px;font-size:18px }
-
+#dmDetail .artistName{ color:#111 !important; text-shadow:0 1px 2px rgba(255,255,255,.6); }
+#dmDetail .back svg{ stroke:#111 !important; }
+  
 /* ========== Thread 佈局（以 padding 撐 HUD 高度；不留頂白） ========== */
 :root{ --hud-h:56px; }  /* 先給安全值，JS 會覆寫為實際高度 */
 #dmDetail .thread{
@@ -229,10 +228,10 @@ nav#nav button.active{
   bottom: calc(var(--footer-h) + var(--kb-offset) + env(safe-area-inset-bottom,0px));
   overflow-y:auto; -webkit-overflow-scrolling:touch;
   display:flex; flex-direction:column;
-  padding: calc(var(--hud-h) + 4px) 2px 0;   /* 用 padding 頂出 HUD 高度 */
+  padding: calc(var(--hud-h) + 4px) 2px calc(var(--notice-h) + 12px) !important;
   scrollbar-gutter:stable both-edges;
 }
-#threadPad{ height: calc(var(--notice-h) + 2px); flex: 0 0 auto; }
+#threadPad{ height:0 !important; }
 #dmDetail .thread .msg + .msg{ margin-top:12px }
 #endAnchor{ height:1px; flex:0 0 auto; }
 
@@ -242,7 +241,7 @@ nav#nav button.active{
   position: fixed;
   left: 50%;
   transform: translateX(-50%);
-  bottom: calc(var(--footer-h) + var(--kb-offset) + env(safe-area-inset-bottom,0px) + 16px);
+  bottom: calc(var(--footer-h) + var(--kb-offset) + env(safe-area-inset-bottom,0px) + 4px) !important;
   z-index: 60;
   pointer-events: none;
 }
