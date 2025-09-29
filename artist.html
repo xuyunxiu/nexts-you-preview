@@ -181,11 +181,12 @@ nav#nav button.active{
 
 /* ========== Post 卡結構 ========== */
 /* ====== 貼文詳情：頂部 HUD（返回／頭像＋名稱＋時間／右上 가/A） ====== */
+#postDetail .pageTitle{ display:none }
 #postDetail .postHUD{
-  position:sticky; top:0; z-index:5;
-  display:flex; align-items:center; gap:8px;
-  padding:8px 8px 6px;
-  background:linear-gradient(180deg, rgba(245,247,255,.75), rgba(245,247,255,0));
+position:sticky; top:0; z-index:5;
+display:flex; align-items:center; gap:8px;
+padding:8px 8px 6px;
+background:linear-gradient(180deg, rgba(245,247,255,.75), rgba(245,247,255,0));
 }
 #postDetail .postHUD .back{ width:44px;height:44px;border:none;background:transparent;display:grid;place-items:center }
 #postDetail .postHUD .back svg{ width:22px;height:22px;stroke:#5b6ab0;stroke-width:2.6;fill:none }
