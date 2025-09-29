@@ -776,7 +776,7 @@ background:linear-gradient(180deg, rgba(245,247,255,.75), rgba(245,247,255,0));
   <div id="postDetailWrap" style="padding:0 6px 12px"></div>
 
   <!-- 留言輸入列（固定在底部） -->
-  <div id="pdComposer" class="card soft" style="
+  <div id="pdComposer" class="card soft" style=">
       position:sticky; bottom:calc(10px + env(safe-area-inset-bottom,0px));
       margin:6px; border-radius:14px;">
     <div style="display:flex;align-items:center;gap:8px">
@@ -785,6 +785,8 @@ background:linear-gradient(180deg, rgba(245,247,255,.75), rgba(245,247,255,0));
       <input id="cmtInput" placeholder="新增一則留言…" style="flex:1;border:none;outline:none;background:transparent;font-size:16px">
       <button id="postCmtSend" class="chip btnGlassViolet">送出</button>
     </div>
+  </div>
+  <section>
     
   <section id="commentDetail" class="page">
   <div class="pageTitle" style="display:flex;align-items:center;gap:6px">
@@ -814,7 +816,7 @@ background:linear-gradient(180deg, rgba(245,247,255,.75), rgba(245,247,255,0));
         <svg viewBox="0 0 24 24"><path d="M3.4 12.6l16.7-7.2c.6-.3 1.2.3.9.9l-7.2 16.7c-.3.7-1.3.6-1.5-.1l-2.1-6.1-6.1-2.1c-.7-.2-.8-1.2-.1-1.5z" fill="currentColor"/></svg>
       </button>
     </div>
-  </div>
+    </div>
 </section>
     
 <!-- ====================== DM LIST ====================== -->
@@ -2232,24 +2234,28 @@ function openPostDetail(postId, opts={}){
 }
 
 function renderPostDetail(postId){
-  let cmts = (p.cmts || []).filter(c => !c.replyTo);  // 只顯示主樓
-  if (PD_FILTER_OTHERS) { cmts = cmts.filter(c => c.from==='artist' && (c.artistId||'') !== 'me'); }
   const p = POSTS.find(x=>x.id===postId); if(!p) return;
   const wrap = document.getElementById('postDetailWrap'); if(!wrap) return;
 
-  // HUD：頭像 / 名稱 / 時間 / 右上 가/A
+  // HUD
   const stage = (p.artistStage || STAGE_NAME || '').toString().toUpperCase();
   const displayName = (p.artistId==='me') ? NICKNAME.toUpperCase() : stage;
   const av = document.getElementById('pdAvatar'); if(av) av.src = p.avatar || ME.avatar;
   const nm = document.getElementById('pdName');  if(nm) nm.innerHTML = escapeHtml(displayName) + ' ' + VB(16);
-  const tm = document.getElementById('pdTime');  if(tm) tm.textContent = new Date(p.ts).toLocaleString();
-  const hudBtn = document.getElementById('pdTransHUD'); if(hudBtn) hudBtn.onclick = ()=> togglePostTranslate(p.id);
+  const tm = document.getElementById('pdTime');  if(tm) tm.textContent = timeAgo(p.ts); // ← 用你的規則（現在/幾分鐘前/…）
 
-  // 主卡：拿掉「翻譯」按鈕
-  const cmts = p.cmts || [];
+  const hudBtn = document.getElementById('pdTransHUD');
+  if(hudBtn) hudBtn.onclick = ()=> togglePostTranslate(p.id);
+
+  // 只統計「主樓」留言數（排除回覆）
+  let topCmts = (p.cmts || []).filter(c => !c.replyTo);
+  if (PD_FILTER_OTHERS) {
+    topCmts = topCmts.filter(c => c.from==='artist' && (c.artistId||'') !== 'me');
+  }
+
+  // 主卡（不要塞 commentItem/data-cmt，這不是留言）
   wrap.innerHTML = `
-    <div class="card soft commentItem" data-post="${p.id}" data-cmt="${c.id}" data-from="${c.from}"
-     style="display:flex;gap:10px;align-items:flex-start;margin:10px 6px">
+    <div class="card soft" style="margin:10px 6px">
       <div class="hdr">
         <img class="avatar" src="${p.avatar}" alt="${escapeHtml(displayName)} 的頭像" onerror="imgFallback(this)">
         <div class="meta">
@@ -2262,14 +2268,14 @@ function renderPostDetail(postId){
         <p id="postText-${p.id}">${escapeHtml(p.text)}</p>
         ${p.img ? `<img class="hero" src="${p.img}" alt="貼文圖片" onerror="imgFallback(this)">` : ``}
         ${Array.isArray(p.imgs) && p.imgs.length > 1
-            ? `<div class="pageDots">${p.imgs.map(()=>'<span class="dot"></span>').join('')}</div>` 
-            : ``}
+          ? `<div class="pageDots">${p.imgs.map(()=>'<span class="dot"></span>').join('')}</div>`
+          : ``}
       </div>
 
       <div class="actions">
         ${renderReactionsBar(p.id)}
         <div class="commentBar">
-          <div class="left">💬 <span class="cmtCount">${cmts.length}</span> 則評論</div>
+          <div class="left">💬 <span class="cmtCount">${topCmts.length}</span> 則評論</div>
           <div class="right"></div>
         </div>
       </div>
@@ -2295,7 +2301,7 @@ function renderPostComments(p){
 
   listEl.innerHTML = cmts.map(c=>{
   const isArtist = c.from === 'artist';
-  const whoId    = c.artistId || ''; // 'me' / 其他藝人 id
+  const whoId    = c.artistId || '';
   const name     = isArtist
     ? (whoId==='me' ? NICKNAME : (c.artistStage || c.name || 'ARTIST'))
     : (c.name || '粉絲');
@@ -2309,7 +2315,9 @@ function renderPostComments(p){
     : ``;
 
   return `
-    <div class="card soft" style="display:flex;gap:10px;align-items:flex-start;margin:10px 6px">
+    <div class="card soft commentItem"
+         data-post="${p.id}" data-cmt="${c.id}" data-from="${c.from}"
+         style="display:flex;gap:10px;align-items:flex-start;margin:10px 6px">
       <img src="${avatar}" alt="" onerror="imgFallback(this)"
            style="width:36px;height:36px;border-radius:50%;object-fit:cover;border:1px solid var(--line)">
       <div style="flex:1;min-width:0">
@@ -2347,17 +2355,23 @@ function sendPostComment(){
     .forEach(el=> el.textContent = p.cmts.length);
 }
 
-// 綁定詳情輸入列
-document.addEventListener('click', (e)=>{
-  if (e.target && e.target.id === 'postCmtSend') { sendPostComment(); }
-});
-document.addEventListener('keydown', (e)=>{
-  if (e.target && e.target.id === 'cmtInput' && e.key === 'Enter' && !e.shiftKey){
-    e.preventDefault();
-    sendPostComment();
-  }
-}); 
+let _pdBound = false;
+function bindPdComposerOnce(){
+  if(_pdBound) return;
+  document.addEventListener('click', e=>{
+    if (e.target && e.target.id === 'postCmtSend') sendPostComment();
+  });
+  document.addEventListener('keydown', e=>{
+    if (e.target && e.target.id === 'cmtInput' && e.key === 'Enter' && !e.shiftKey){
+      e.preventDefault(); sendPostComment();
+    }
+  });
+  _pdBound = true;
+}
+bindPdComposerOnce(); // 啟動時綁一次就好
 
+}
+  
 /* ===== 文字直播：邏輯 ===== */
 let LIVE_ON = false;
 let LIVE_PAUSED = false;
