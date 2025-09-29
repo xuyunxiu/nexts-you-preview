@@ -722,6 +722,13 @@ background:linear-gradient(180deg, rgba(245,247,255,.75), rgba(245,247,255,0));
   backdrop-filter:saturate(160%) blur(10px);
   -webkit-backdrop-filter:saturate(160%) blur(10px);
 } 
+  /* Switch：僅ADP的回覆 */
+.switch{position:relative;display:inline-block;width:46px;height:26px;vertical-align:middle}
+.switch input{display:none}
+.switch .slider{position:absolute;inset:0;background:#d8dcec;border:1px solid var(--line);border-radius:999px;transition:.18s}
+.switch .slider:before{content:"";position:absolute;width:22px;height:22px;left:2px;top:50%;transform:translateY(-50%);background:#fff;border-radius:50%;box-shadow:0 1px 3px rgba(0,0,0,.18);transition:.18s}
+.switch input:checked + .slider{background:linear-gradient(180deg,var(--accent),var(--accent2));border-color:transparent}
+.switch input:checked + .slider:before{transform:translate(20px,-50%)}
 </style>
 </head>
   <body>
@@ -777,6 +784,35 @@ background:linear-gradient(180deg, rgba(245,247,255,.75), rgba(245,247,255,0));
            style="width:32px;height:32px;border-radius:50%;object-fit:cover;border:1px solid var(--line)">
       <input id="cmtInput" placeholder="新增一則留言…" style="flex:1;border:none;outline:none;background:transparent;font-size:16px">
       <button id="postCmtSend" class="chip btnGlassViolet">送出</button>
+    </div>
+    
+  <section id="commentDetail" class="page">
+  <div class="pageTitle" style="display:flex;align-items:center;gap:6px">
+    <button class="back" onclick="goBack()" aria-label="Back" style="width:44px;height:44px;border:none;background:transparent;display:grid;place-items:center">
+      <svg viewBox="0 0 24 24" width="22" height="22"><path d="M15 19 8 12l7-7" stroke="#5b6ab0" stroke-width="2.6" fill="none"/></svg>
+    </button>
+    <div>評論</div>
+  </div>
+
+  <!-- 粉絲原留言（主樓） -->
+  <div id="cdRoot" style="padding:0 6px 8px"></div>
+
+  <!-- 僅 ADP 的回覆 開關 -->
+  <div style="display:flex;align-items:center;justify-content:flex-end;padding:4px 12px 8px;gap:8px">
+    <span class="ghost" style="font-weight:900">僅其他藝人的回覆</span>
+    <label class="switch"><input id="cdOnlyAdp" type="checkbox"><span class="slider"></span></label>
+  </div>
+
+  <!-- 回覆清單 -->
+  <div id="cdList" style="padding:0 6px 120px"></div>
+
+  <!-- 回覆輸入列（沿用你的 DM 玻璃樣式） -->
+  <div class="dmFooter" id="cdComposer">
+    <div class="dmInputBar">
+      <div class="box"><input id="cdInput" placeholder="請輸入回覆。" /></div>
+      <button class="dmSend" id="cdSend" aria-label="Send" disabled>
+        <svg viewBox="0 0 24 24"><path d="M3.4 12.6l16.7-7.2c.6-.3 1.2.3.9.9l-7.2 16.7c-.3.7-1.3.6-1.5-.1l-2.1-6.1-6.1-2.1c-.7-.2-.8-1.2-.1-1.5z" fill="currentColor"/></svg>
+      </button>
     </div>
   </div>
 </section>
@@ -971,7 +1007,22 @@ const fmtTime = ts => new Date(ts).toLocaleTimeString([], {hour:'2-digit',minute
 const s2clock = s => { s = Math.max(0, s||0); const m = Math.floor(s/60), r = Math.floor(s%60); return `${m}:${r.toString().padStart(2,'0')}`; };
 const mmss = sec => { sec = Math.max(0, Math.floor(sec || 0)); const m = Math.floor(sec/60), s = sec % 60; return `${m}:${s.toString().padStart(2,'0')}`; };
 const escapeHtml = s => (s||'').toString().replace(/[&<>"']/g, m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;" }[m]));
+function timeAgo(ts){
+  const now = Date.now();
+  const diff = Math.max(0, now - (ts || 0));
+  const sec = Math.floor(diff/1000);
 
+  if (sec < 60) return '現在';
+  const min = Math.floor(sec/60);
+  if (min < 60) return `${min} 分鐘前`;
+  const hr = Math.floor(min/60);
+  if (hr < 24) return `${hr} 小時前`;
+
+  const d = new Date(ts);
+  const thisYear = new Date().getFullYear();
+  const m = d.getMonth()+1, day = d.getDate();
+  return (d.getFullYear() === thisYear) ? `${m}月${day}日` : `${d.getFullYear()}/${m}月${day}日`;
+}
 /* ===== IndexedDB：媒體存這裡 ===== */
 const MEDIA_DB = (()=> {
   const DB_NAME='nxu-media-db', STORE='media';
@@ -1065,7 +1116,7 @@ function dataURLtoBlob(dataURL){
 }
   
 /* ===================== 導航 ===================== */
-const HIDE_NAV_IN = ['dmDetail','composerArtist','postDetail'];
+const HIDE_NAV_IN = ['dmDetail','composerArtist','postDetail','commentDetail'];
 let PAGE_STACK = ['home'];
 
 function syncNavVisibility(){
@@ -1309,6 +1360,102 @@ function togglePostTranslate(postId){
     el.textContent = el.dataset.origin || el.textContent;
   }
   LS.setStr(`postTranslated:${postId}`, _translateState[postId] ? '1' : '0');
+} 
+
+ let CURRENT_THREAD = { postId:null, rootId:null };
+
+function openCommentDetail(postId, rootId){
+  CURRENT_THREAD = { postId, rootId };
+  showPage('commentDetail');
+  renderCommentDetail();
+}
+
+function commentById(p, id){
+  return (p.cmts||[]).find(c=>c.id===id) || null;
+}
+
+function renderCommentDetail(){
+  const wrapRoot = document.getElementById('cdRoot');
+  const listEl   = document.getElementById('cdList');
+  const p = POSTS.find(x=>x.id===CURRENT_THREAD.postId); if(!p) return;
+  const root = commentById(p, CURRENT_THREAD.rootId);    if(!root) return;
+
+  // 主樓（粉絲留言）
+  wrapRoot.innerHTML = `
+    <div class="card soft" style="display:flex;gap:10px;align-items:flex-start;margin:10px 6px">
+      <img src="${root.avatar || 'https://picsum.photos/40?u=fan'}" onerror="imgFallback(this)"
+           style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:1px solid var(--line)">
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+          <b style="font-size:13px">${escapeHtml((root.name||'粉絲').toString().toUpperCase())}</b>
+          <small class="ghost">${timeAgo(root.ts || p.ts)}</small>
+        </div>
+        <div style="margin-top:4px">${escapeHtml(root.text||'')}</div>
+        <div class="ghost" style="margin-top:6px;display:flex;align-items:center;gap:16px">
+          <span>♡ ${formatCount(root.likes||0)}</span>
+          <span>🗨️ ${(p.cmts||[]).filter(c=>c.replyTo===root.id).length}</span>
+        </div>
+      </div>
+    </div>`;
+
+  const onlyAdp = document.getElementById('cdOnlyAdp').checked;
+  let replies = (p.cmts||[]).filter(c => c.replyTo === root.id);
+  if (onlyAdp) replies = replies.filter(c => c.from === 'artist');
+
+  listEl.innerHTML = replies.length ? replies.map(c=>{
+    const isArtist = c.from === 'artist';
+    const name = isArtist
+      ? (c.artistId==='me' ? NICKNAME : (c.artistStage || c.name || 'ARTIST'))
+      : (c.name || '粉絲');
+    const avatar = isArtist
+      ? (c.artistId==='me' ? ME.avatar : (c.avatar || 'https://picsum.photos/40?u=artist'))
+      : (c.avatar || 'https://picsum.photos/40?u=fan');
+    return `
+      <div class="card soft" style="display:flex;gap:10px;align-items:flex-start;margin:10px 6px">
+        <img src="${avatar}" onerror="imgFallback(this)"
+             style="width:36px;height:36px;border-radius:50%;object-fit:cover;border:1px solid var(--line)">
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+            <b style="font-size:13px">${escapeHtml(String(name).toUpperCase())}${isArtist ? ' '+VB(14) : ''}</b>
+            <small class="ghost">${timeAgo(c.ts || p.ts)}</small>
+          </div>
+          <div style="margin-top:4px">${escapeHtml(c.text || '')}</div>
+        </div>
+      </div>`;
+  }).join('') : `<div class="ghost" style="text-align:center;margin:14px 0">尚無回覆</div>`;
+
+  measureFooter(); // 讓底部輸入列高度正確讓位
+}
+
+// 開關
+document.getElementById('cdOnlyAdp')?.addEventListener('change', renderCommentDetail);
+
+// 送出回覆（藝人）
+const cdInput = document.getElementById('cdInput');
+const cdSend  = document.getElementById('cdSend');
+function updateCdComposer(){
+  const has = (cdInput.value||'').trim().length>0;
+  cdSend.disabled = !has;
+  document.getElementById('cdComposer').classList.toggle('hasText', has);
+}
+cdInput?.addEventListener('input', updateCdComposer);
+cdInput?.addEventListener('keydown', e=>{ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); sendThreadReply(); }});
+cdSend?.addEventListener('click', sendThreadReply);
+
+function sendThreadReply(){
+  const t=(cdInput.value||'').trim(); if(!t) return;
+  const p=POSTS.find(x=>x.id===CURRENT_THREAD.postId); if(!p) return;
+  p.cmts = p.cmts || [];
+  p.cmts.push({
+    id:'c'+Date.now(),
+    from:'artist', artistId:'me', artistStage:STAGE_NAME, avatar:ME.avatar,
+    text:t, replyTo:CURRENT_THREAD.rootId, ts:Date.now()
+  });
+  LS.set('artistPosts', POSTS);
+  cdInput.value=''; updateCdComposer();
+  renderCommentDetail();
+  // 若你停留在貼文詳情時，更新那邊的數字
+  if (CURRENT_POST_ID) renderPostDetail(CURRENT_POST_ID);
 } 
 
 /* ===================== DM 列表 ===================== */
@@ -2085,6 +2232,8 @@ function openPostDetail(postId, opts={}){
 }
 
 function renderPostDetail(postId){
+  let cmts = (p.cmts || []).filter(c => !c.replyTo);  // 只顯示主樓
+  if (PD_FILTER_OTHERS) { cmts = cmts.filter(c => c.from==='artist' && (c.artistId||'') !== 'me'); }
   const p = POSTS.find(x=>x.id===postId); if(!p) return;
   const wrap = document.getElementById('postDetailWrap'); if(!wrap) return;
 
@@ -2099,12 +2248,13 @@ function renderPostDetail(postId){
   // 主卡：拿掉「翻譯」按鈕
   const cmts = p.cmts || [];
   wrap.innerHTML = `
-    <div class="post card soft" data-post="${p.id}">
+    <div class="card soft commentItem" data-post="${p.id}" data-cmt="${c.id}" data-from="${c.from}"
+     style="display:flex;gap:10px;align-items:flex-start;margin:10px 6px">
       <div class="hdr">
         <img class="avatar" src="${p.avatar}" alt="${escapeHtml(displayName)} 的頭像" onerror="imgFallback(this)">
         <div class="meta">
           <b class="stage">${escapeHtml(displayName)} ${VB(18)}</b>
-          <small class="ghost">${new Date(p.ts).toLocaleString()}</small>
+          <small class="ghost">${timeAgo(p.ts)}</small>
         </div>
       </div>
 
@@ -2144,29 +2294,34 @@ function renderPostComments(p){
   }
 
   listEl.innerHTML = cmts.map(c=>{
-    const isArtist = c.from === 'artist';
-    const whoId    = c.artistId || ''; // 'me' / 其他藝人 id
-    const name     = isArtist
-      ? (whoId==='me' ? NICKNAME : (c.artistStage || c.name || 'ARTIST'))
-      : (c.name || '粉絲');
-    const avatar   = isArtist
-      ? (whoId==='me' ? ME.avatar : (c.avatar || 'https://picsum.photos/40?u=artist'))
-      : (c.avatar || 'https://picsum.photos/40?u=fan');
+  const isArtist = c.from === 'artist';
+  const whoId    = c.artistId || ''; // 'me' / 其他藝人 id
+  const name     = isArtist
+    ? (whoId==='me' ? NICKNAME : (c.artistStage || c.name || 'ARTIST'))
+    : (c.name || '粉絲');
+  const avatar   = isArtist
+    ? (whoId==='me' ? ME.avatar : (c.avatar || 'https://picsum.photos/40?u=artist'))
+    : (c.avatar || 'https://picsum.photos/40?u=fan');
+  const whenTs   = c.ts || p.ts;
 
-    return `
-      <div class="card soft" style="display:flex;gap:10px;align-items:flex-start;margin:10px 6px">
-        <img src="${avatar}" alt="" onerror="imgFallback(this)"
-             style="width:36px;height:36px;border-radius:50%;object-fit:cover;border:1px solid var(--line)">
-        <div style="flex:1;min-width:0">
-          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
-            <b style="font-size:13px">${escapeHtml(name.toString().toUpperCase())}${isArtist ? ' '+VB(14) : ''}</b>
-            <small class="ghost">${new Date(c.ts || p.ts).toLocaleString()}</small>
-          </div>
-          <div style="margin-top:4px">${escapeHtml(c.text || '')}</div>
+  const likeRow = (c.likes && c.likes > 0)
+    ? `<div class="ghost" style="margin-top:6px;display:flex;align-items:center;gap:6px">♡ ${formatCount(c.likes)}</div>`
+    : ``;
+
+  return `
+    <div class="card soft" style="display:flex;gap:10px;align-items:flex-start;margin:10px 6px">
+      <img src="${avatar}" alt="" onerror="imgFallback(this)"
+           style="width:36px;height:36px;border-radius:50%;object-fit:cover;border:1px solid var(--line)">
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+          <b style="font-size:13px">${escapeHtml(String(name).toUpperCase())}${isArtist ? ' '+VB(14) : ''}</b>
+          <small class="ghost">${timeAgo(whenTs)}</small>
         </div>
-      </div>`;
-  }).join('');
-}
+        <div style="margin-top:4px">${escapeHtml(c.text || '')}</div>
+        ${likeRow}
+      </div>
+    </div>`;
+}).join('');
 
 // 送出留言（藝人身分）
 function sendPostComment(){
@@ -2379,7 +2534,14 @@ if (el1) el1.textContent = NICKNAME;
 if (el2) el2.textContent = NICKNAME;
   document.getElementById('meId') && (document.getElementById('meId').textContent='ARTIST-00001');
   document.getElementById('meAvatar') && (document.getElementById('meAvatar').src=AVATAR);
-
+document.addEventListener('click', (e)=>{
+  const item = e.target.closest('.commentItem');
+  if(!item) return;
+  // 只允許點「粉絲」留言進詳情
+  if(item.getAttribute('data-from') === 'fan'){
+    openCommentDetail(item.getAttribute('data-post'), item.getAttribute('data-cmt'));
+  }
+});
   renderStoryBar(); 
   renderFeed(currentFilter);
   
