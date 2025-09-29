@@ -180,6 +180,54 @@ nav#nav button.active{
 .homeTitle{font-weight:900;letter-spacing:.6px;font-size:22px;line-height:1}
 
 /* ========== Post 卡結構 ========== */
+/* ====== 貼文詳情：頂部 HUD（返回／頭像＋名稱＋時間／右上 가/A） ====== */
+#postDetail .postHUD{
+  position:sticky; top:0; z-index:5;
+  display:flex; align-items:center; gap:8px;
+  padding:8px 8px 6px;
+  background:linear-gradient(180deg, rgba(245,247,255,.75), rgba(245,247,255,0));
+}
+#postDetail .postHUD .back{ width:44px;height:44px;border:none;background:transparent;display:grid;place-items:center }
+#postDetail .postHUD .back svg{ width:22px;height:22px;stroke:#5b6ab0;stroke-width:2.6;fill:none }
+#postDetail .postHUD .center{ display:flex; align-items:center; gap:10px; min-width:0; flex:1 }
+#postDetail .postHUD .center img{ width:36px;height:36px;border-radius:50%;object-fit:cover;border:1px solid var(--line) }
+#postDetail .postHUD .meta b{ display:flex; align-items:center; gap:6px; font-weight:900; letter-spacing:.3px }
+#postDetail .postHUD .meta small{ display:block; color:var(--ghost) }
+#postDetail .postHUD .hudBtn{ width:44px;height:44px;border:none;background:transparent;color:#5b6ab0;font-weight:900 }
+
+/* 留言清單：藝人回覆樣式（掛在粉絲留言下） */
+.cmtItem{ display:flex; gap:10px; align-items:flex-start; margin:10px 6px }
+.cmtItem .avatar{ width:36px;height:36px;border-radius:50%;object-fit:cover;border:1px solid var(--line) }
+.cmtBody{ flex:1; min-width:0 }
+.cmtHead{ display:flex; align-items:center; justify-content:space-between; gap:10px }
+.cmtName{ font-size:13px; font-weight:900 }
+.cmtTime{ color:var(--ghost); font-size:12px }
+.cmtText{ margin-top:4px }
+
+/* 藝人回覆（縮排、圓角膠囊、維持你的玻璃調性） */
+.artistReply{
+  margin:8px 0 0 0;
+  padding:8px 10px;
+  border-radius:12px;
+  background:linear-gradient(180deg,rgba(255,255,255,.30),rgba(255,255,255,.12));
+  border:1px solid var(--glass-stroke);
+  backdrop-filter:saturate(160%) blur(calc(var(--glass-blur)*.6));
+  -webkit-backdrop-filter:saturate(160%) blur(calc(var(--glass-blur)*.6));
+  box-shadow:0 6px 14px rgba(0,0,0,.08);
+  color:inherit;
+  display:flex; gap:8px; align-items:flex-start;
+}
+.artistReply .arName{ font-size:12px; font-weight:900; display:flex; align-items:center; gap:6px }
+.artistReply .arText{ margin-top:2px }
+
+/* 首頁：多圖才顯示的頁面指示點 */
+.pageDots{
+  display:flex; gap:6px; justify-content:center; margin-top:6px;
+}
+.pageDots .dot{
+  width:6px; height:6px; border-radius:50%;
+  background:#cfd3e1; opacity:.85;
+} 
 .post{margin:12px 6px}
 .post .hdr{display:flex;align-items:center;gap:10px}
 .post .avatar{width:44px;height:44px;border-radius:50%;object-fit:cover;border:1px solid var(--line)}
@@ -703,6 +751,20 @@ nav#nav button.active{
 <!-- ====================== POST DETAIL (Artist) ====================== -->
 <section id="postDetail" class="page">
   <div class="pageTitle">貼文</div>
+  <!-- 貼文詳情 HUD（照圖2/圖3） -->
+<div class="postHUD">
+  <button class="back" onclick="goBack()" aria-label="Back">
+    <svg viewBox="0 0 24 24"><path d="M15 19 8 12l7-7"/></svg>
+  </button>
+  <div class="center">
+    <img id="pdAvatar" src="" alt="" onerror="imgFallback(this)">
+    <div class="meta">
+      <b id="pdName">ANNIE</b>
+      <small id="pdTime" class="ghost"></small>
+    </div>
+  </div>
+  <button class="hudBtn" id="pdTransHUD" title="翻譯">가/A</button>
+</div>
   <div id="postDetailWrap" style="padding:0 6px 12px"></div>
 
   <!-- 留言輸入列（固定在底部） -->
@@ -1002,7 +1064,7 @@ function dataURLtoBlob(dataURL){
 }
   
 /* ===================== 導航 ===================== */
-const HIDE_NAV_IN = ['dmDetail','composerArtist'];
+const HIDE_NAV_IN = ['dmDetail','composerArtist','postDetail'];
 let PAGE_STACK = ['home'];
 
 function syncNavVisibility(){
@@ -1155,9 +1217,12 @@ function renderFeed(filter='me'){
       </div>
 
       <div class="body">
-        <p id="postText-${p.id}">${escapeHtml(p.text)}</p>
-        ${p.img ? `<img class="hero" src="${p.img}" alt="貼文圖片" onerror="imgFallback(this)">` : ``}
-      </div>
+  <p id="postText-${p.id}">${escapeHtml(p.text)}</p>
+  ${p.img ? `<img class="hero" src="${p.img}" alt="貼文圖片" onerror="imgFallback(this)">` : ``}
+  ${Array.isArray(p.imgs) && p.imgs.length > 1
+      ? `<div class="pageDots">${p.imgs.map(()=>'<span class="dot"></span>').join('')}</div>` 
+      : ``}
+</div>
 
       <div class="actions">
         ${renderReactionsBar(p.id)}
@@ -2020,20 +2085,18 @@ function openPostDetail(postId, opts={}){
 
 function renderPostDetail(postId){
   const p = POSTS.find(x=>x.id===postId); if(!p) return;
-  const wrap = document.getElementById('postDetailWrap');
-  if(!wrap) return;
+  const wrap = document.getElementById('postDetailWrap'); if(!wrap) return;
 
-  // 我的頭像（輸入列左）
-  const av = document.getElementById('pdMeAvatar');
-  if (av) av.src = ME.avatar;
-
+  // HUD：頭像 / 名稱 / 時間 / 右上 가/A
   const stage = (p.artistStage || STAGE_NAME || '').toString().toUpperCase();
   const displayName = (p.artistId==='me') ? NICKNAME.toUpperCase() : stage;
+  const av = document.getElementById('pdAvatar'); if(av) av.src = p.avatar || ME.avatar;
+  const nm = document.getElementById('pdName');  if(nm) nm.innerHTML = escapeHtml(displayName) + ' ' + VB(16);
+  const tm = document.getElementById('pdTime');  if(tm) tm.textContent = new Date(p.ts).toLocaleString();
+  const hudBtn = document.getElementById('pdTransHUD'); if(hudBtn) hudBtn.onclick = ()=> togglePostTranslate(p.id);
 
-  // 是否有「其他藝人」的留言（有才顯示過濾鈕）
+  // 主卡：拿掉「翻譯」按鈕
   const cmts = p.cmts || [];
-  const hasOtherArtist = cmts.some(c => c.from==='artist' && (c.artistId||'') !== 'me');
-
   wrap.innerHTML = `
     <div class="post card soft" data-post="${p.id}">
       <div class="hdr">
@@ -2042,35 +2105,26 @@ function renderPostDetail(postId){
           <b class="stage">${escapeHtml(displayName)} ${VB(18)}</b>
           <small class="ghost">${new Date(p.ts).toLocaleString()}</small>
         </div>
-        <button class="chip translate-btn" onclick="event.stopPropagation(); togglePostTranslate('${p.id}')">翻譯</button>
       </div>
 
       <div class="body">
         <p id="postText-${p.id}">${escapeHtml(p.text)}</p>
         ${p.img ? `<img class="hero" src="${p.img}" alt="貼文圖片" onerror="imgFallback(this)">` : ``}
+        ${Array.isArray(p.imgs) && p.imgs.length > 1
+            ? `<div class="pageDots">${p.imgs.map(()=>'<span class="dot"></span>').join('')}</div>` 
+            : ``}
       </div>
 
       <div class="actions">
         ${renderReactionsBar(p.id)}
         <div class="commentBar">
           <div class="left">💬 <span class="cmtCount">${cmts.length}</span> 則評論</div>
-          <div class="right">
-            ${hasOtherArtist ? `<button id="pdFilterBtn" class="chip" aria-pressed="${PD_FILTER_OTHERS?'true':'false'}">
-              ${PD_FILTER_OTHERS ? '顯示全部回覆' : '僅其他藝人的回覆'}
-            </button>` : ``}
-          </div>
+          <div class="right"></div>
         </div>
       </div>
     </div>
     <div id="cmtList" style="padding:6px 0"></div>
   `;
-
-  // 綁定過濾鈕
-  document.getElementById('pdFilterBtn')?.addEventListener('click', (e)=>{
-    e.stopPropagation();                 // ← 關鍵
-    PD_FILTER_OTHERS = !PD_FILTER_OTHERS;
-    renderPostDetail(postId);
-  });
 
   renderPostComments(p);
 }
