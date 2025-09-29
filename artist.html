@@ -20,6 +20,7 @@
   --reply-size:30px;
   --reply-gap:18px;
   --notice-h: 0px;
+  --danger:#ff3b30;
 
   /* Liquid Glass 基底 */
   --glass-blur:14px;
@@ -161,7 +162,8 @@ nav#nav button.active{
 .story-item.active .name{color:var(--accent);font-weight:700}
 .story-item .dot{position:absolute;right:6px;top:2px;width:8px;height:8px;background:var(--danger);border-radius:50%;box-shadow:0 0 0 2px #fff}
 .story-item.pinned img{border-color:#111}
-
+/* （已修正）移除一行落單的 background: 屬性，避免 CSS 解析錯誤 */
+  
 /* ========== 貼文動作列 + 評論列 ========== */
 .post .actions{margin-top:10px;padding-top:10px;border-top:1px dashed #e1e4f0}
 .reacts{display:flex;gap:8px;flex-wrap:wrap}
@@ -668,7 +670,7 @@ background:linear-gradient(180deg, rgba(245,247,255,.75), rgba(245,247,255,0));
   backdrop-filter:blur(10px); border-top:1px solid var(--line);
 }
 #live .liveInput input{ flex:1; height:44px; padding:0 12px; background:#fff; border:1px solid var(--line); border-radius:14px; }
-#live .liveInput .chip{ min-height:44px }
+
 /* ===== FAB：圓形・高透液態玻璃 ===== */
 .fabNew{
   position: fixed;
