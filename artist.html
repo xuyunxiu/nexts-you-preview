@@ -352,20 +352,56 @@ background:linear-gradient(180deg, rgba(245,247,255,.75), rgba(245,247,255,0));
   font-size:15px; line-height:1.35;
 }
 
-/* 左側（粉絲）純文字：白底 */
+/* ===== 左側粉絲純文字泡泡：圖三樣式 ===== */
 #dmDetail .msg.left .bubble:not(.mediaWrap):not(.voice){
-  background:#fff; color:#111;
-  border:1px solid #e5e7f2;
-  box-shadow:0 3px 10px rgba(0,0,0,.06);
+  background:#fff;
+  color:#111;
+  border:1px solid #e6e9f5;
+  border-radius:18px;
+  padding:12px 14px;
+  line-height:1.35;
+  box-shadow:0 4px 14px rgba(17,23,41,.08);
 }
 
-/* 左側：翻譯模式（泡泡內含 .transDivider 時） */
+/* 即使有翻譯（存在 .transDivider）也維持白底樣式 */
 #dmDetail .msg.left .bubble:has(.transDivider){
-  background:linear-gradient(180deg,rgba(255,255,255,.26),rgba(255,255,255,.12));
-  border:1px solid var(--glass-stroke); color:#111;
-  backdrop-filter:saturate(160%) blur(calc(var(--glass-blur)*.8));
-  -webkit-backdrop-filter:saturate(160%) blur(calc(var(--glass-blur)*.8));
+  background:#fff !important;
+  color:#111 !important;
+  border:1px solid #e6e9f5 !important;
+  box-shadow:0 4px 14px rgba(17,23,41,.08) !important;
+  backdrop-filter:none !important;
+  -webkit-backdrop-filter:none !important;
 }
+
+ /* 翻譯分隔線（虛線） */
+#dmDetail .bubble .transDivider{
+  height:1px; margin:10px 0 8px;
+  background-image:linear-gradient(to right, rgba(0,0,0,.28) 33%, rgba(255,255,255,0) 0);
+  background-size:6px 1px; background-repeat:repeat-x;
+  opacity:.35; 
+}
+  /* 藍綠色翻譯文字（圖三感） */
+#dmDetail .bubble .transText{
+  color:#8EA3FF;
+  font-weight:800;
+}
+
+/* Translated by Papago */
+#dmDetail .bubble .transBy{
+  margin-top:2px;
+  font-size:12px;
+  color:#8b93a7;
+}
+
+/* Translate 觸發器：像連結、不顯眼 */
+#dmDetail .bubble .translate-in{
+  margin-top:6px;
+  display:inline-flex; align-items:center; gap:6px;
+  font-weight:900; font-size:12px;
+  color:#5b6ab0; cursor:pointer; user-select:none; opacity:.9;
+}
+#dmDetail .bubble .translate-in svg{ width:16px; height:16px; fill:currentColor }
+#dmDetail .bubble .translate-in:hover{ opacity:1 }
 
 /* 右側（藝人）純文字：灰色系（像圖2） */
 #dmDetail .msg.right .bubble:not(.mediaWrap):not(.voice){
@@ -379,10 +415,8 @@ background:linear-gradient(180deg, rgba(245,247,255,.75), rgba(245,247,255,0));
 #dmDetail .msg + .replyCard,
 #dmDetail .replyCard + .msg{ margin-top:12px; }
 
-/* 泡泡內的 FROM FAN 標籤（非回覆卡） */
-#dmDetail .bubble .fromLabel{ font-size:11px; font-weight:900; color:#111; margin-bottom:4px; }
-#dmDetail .fanText{ color:#111; }
-
+/* 取消 FROM FAN（只針對泡泡內部；回覆卡仍保留它自己的標籤） */
+#dmDetail .msg.left .bubble .fromLabel{ display:none !important; }
 /* 媒體泡泡：脫離泡泡樣式 */
 #dmDetail .msg .bubble.mediaWrap{
   background:transparent!important; border:none!important; padding:0; border-radius:0; color:inherit;
@@ -1615,30 +1649,56 @@ function renderThread(){
         bubble.appendChild(ui);
       });
     }else{
-      if(m.from==='fan'){
-        const showTrans = LS.getStr(`dmTranslated:${m.id}`,'0') === '1';
-        const lab = document.createElement('div'); lab.className='fromLabel'; lab.textContent='FROM FAN';
+  if(m.from === 'fan'){
+    // 一次性：點了就寫入 '1'，之後永遠顯示翻譯，不再提供切回
+    const done = LS.getStr(`dmTranslated:${m.id}`, '0') === '1';
 
-        if(showTrans){
-          const orig = document.createElement('div'); orig.className='fanText'; orig.innerHTML=escapeHtml(m.text);
-          const div  = document.createElement('div'); div.className='transDivider';
-          const tran = document.createElement('div'); tran.style.fontWeight='800';
-          tran.textContent = m.text; // TODO：串翻譯 API 後改成譯文
-          const by   = document.createElement('div'); by.className='by'; by.textContent='Translated by Papago';
-          bubble.append(lab, orig, div, tran, by);
-        }else{
-          const txt = document.createElement('div'); txt.className='fanText'; txt.innerHTML=escapeHtml(m.text);
-          const btn = document.createElement('div');
-          btn.className='translate-in';
-          btn.innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M3 4h18v2H3V4zm8 4h2v2h-2V8zm-6 0h4v2H5V8zm0 4h14v2H5v-2zm0 4h10v2H5v-2z" fill="currentColor"/></svg> Translate`;
-          btn.onclick = ()=>{ LS.setStr(`dmTranslated:${m.id}`, '1'); renderThread(); };
-          bubble.append(lab, txt, btn);
-        }
-      }else{
-        bubble.innerHTML=escapeHtml(m.text);
-      }
+    if (done){
+      // 原文
+      const orig = document.createElement('div');
+      orig.className = 'fanText';
+      orig.innerHTML = escapeHtml(m.text);
+
+      // 分隔線（虛線）
+      const hr = document.createElement('div');
+      hr.className = 'transDivider';
+
+      // 翻譯（目前先用原文占位；串接翻譯 API 後替換）
+      const tran = document.createElement('div');
+      tran.className = 'transText';
+      tran.textContent = m.text;
+
+      // byline
+      const by = document.createElement('div');
+      by.className = 'transBy';
+      by.textContent = 'Translated by Papago';
+
+      bubble.append(orig, hr, tran, by);
+    } else {
+      // 尚未翻譯：原文 + 輕量觸發器
+      const txt = document.createElement('div');
+      txt.className = 'fanText';
+      txt.innerHTML = escapeHtml(m.text);
+
+      const link = document.createElement('div');
+      link.className = 'translate-in';
+      link.innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M3 4h18v2H3V4zm8 4h2v2h-2V8zm-6 0h4v2H5V8zm0 4h14v2H5v-2zm0 4h10v2H5v-2z"/>
+      </svg> Translate`;
+
+      // 點一下 → 設為已翻譯、重新渲染（按鈕消失，不可回退）
+      link.addEventListener('click', ()=>{
+        LS.setStr(`dmTranslated:${m.id}`, '1');
+        renderThread();
+      }, { once:true });
+
+      bubble.append(txt, link);
     }
+  }else{
+    // 右側藝人純文字泡泡維持原樣
+    bubble.innerHTML = escapeHtml(m.text);
+  }
+}
     wrap.append(bubble,timeEl); box.appendChild(wrap);
 
     if(m.from==='artist'&&m.replyTo&&m.replyTo.text){
