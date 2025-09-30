@@ -891,6 +891,19 @@ nav#nav button.active{
     </div>
   </div>
 
+ <div class="msg left">
+  <div class="bubble">
+    <div class="fanText">（DEMO）這是粉絲的新留言，尚未按 A 翻譯！🎉</div>
+
+    <!-- 這顆就是你要的 Bubble 同款「A」鍵（位置在泡泡右側，靠上，不會遮時間） -->
+    <button class="translateBtnA" aria-label="翻譯">A</button>
+
+    <!-- 這顆是回覆箭頭（我已上移，不會擋到時間） -->
+    <button class="replyBtn">…</button>
+  </div>
+  <div class="time">下午 3:21</div>
+</div> 
+
   <!-- 右上 … 選單 -->
   <div id="dmMenu" class="card soft"
        style="display:none; position:fixed; right:10px;
@@ -1768,6 +1781,28 @@ function ensureNoticeRow(){
 }
 
 function clearNoticeNow(){ /* 常駐：不用清除 */ }
+
+// === Demo：插入一則「未翻譯」的粉絲訊息，預覽未按 A 的樣子 ===
+window.demoFanMsgPreview = function(){
+  const id = 'fanDemo_' + Date.now().toString(36);
+  GROUP_MSGS.push({
+    id,
+    from:'fan',
+    text:'（DEMO）這是粉絲的新留言，尚未按 A 翻譯！🎉',
+    ts: Date.now()
+  });
+
+  // 明確標記為「尚未翻譯」
+  try { LS.setStr(`dmTranslated:${id}`, '0'); } catch(_) {}
+
+  // 存回 & 直接切到 DM 詳情看效果
+  LS.set('groupMsgs', GROUP_MSGS);
+  if ((PAGE_STACK[PAGE_STACK.length-1]||'') !== 'dmDetail') showPage('dmDetail');
+  renderThread(); renderDmList(); hardStickBottom(); updateNoticeBanner();
+};
+
+// 想立即看就解除註解這行：
+// demoFanMsgPreview();
   
 /* ===================== 系統通知 ===================== */
 function getLastTs(role){
