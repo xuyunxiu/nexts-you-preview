@@ -1084,6 +1084,60 @@ function timeAgo(ts){
   const m = d.getMonth()+1, day = d.getDate();
   return (d.getFullYear() === thisYear) ? `${m}月${day}日` : `${d.getFullYear()}/${m}月${day}日`;
 }
+
+function makeTranslateBtn(msg){
+  const b = document.createElement('button');
+  b.className = 'transBtnA';
+  b.setAttribute('aria-label','翻譯');
+  b.innerHTML = '<span>A</span>';
+  b.addEventListener('click', (e)=>{
+    e.stopPropagation();
+    // 一去不回：記錄已翻譯並重繪
+    LS.setStr(`dmTranslated:${msg.id}`, '1');
+    renderThread();
+  }, { once:true });
+  return b;
+}
+
+/* 2) 工具：綁定「右滑回覆」（像 LINE） */
+function bindSwipeReply(hostEl, msg){
+  let startX=0, startY=0, dx=0, dy=0, dragging=false, triggered=false;
+  const THRESH = 48;            // 觸發距離
+  const ANGLE  = 28;            // 垂直容差
+
+  function onStart(e){
+    const p = ('touches' in e) ? e.touches[0] : e;
+    startX=p.clientX; startY=p.clientY; dx=0; dy=0; dragging=true; triggered=false;
+  }
+  function onMove(e){
+    if(!dragging) return;
+    const p = ('touches' in e) ? e.touches[0] : e;
+    dx = p.clientX - startX; dy = p.clientY - startY;
+    // 僅偵測右滑；上下太多就視為滾動
+    if(dx>THRESH && Math.abs(dy)<ANGLE && !triggered){
+      triggered = true; dragging = false;
+      replyDraft = { text: msg.text };
+      const chip = document.getElementById('replyChip');
+      const tip  = document.getElementById('replyChipText');
+      if(chip && tip){
+        chip.style.display='flex';
+        tip.textContent = (msg.text||'').slice(0,42);
+      }
+      document.getElementById('dmMessageInput')?.focus();
+      scrollToEndDuring(600);
+    }
+  }
+  function onEnd(){ dragging=false; }
+
+  hostEl.addEventListener('touchstart', onStart, {passive:true});
+  hostEl.addEventListener('touchmove',  onMove,  {passive:true});
+  hostEl.addEventListener('touchend',   onEnd,   {passive:true});
+  hostEl.addEventListener('pointerdown', onStart, {passive:true});
+  hostEl.addEventListener('pointermove', onMove,  {passive:true});
+  hostEl.addEventListener('pointerup',   onEnd,   {passive:true});
+}
+
+
 /* ===== IndexedDB：媒體存這裡 ===== */
 const MEDIA_DB = (()=> {
   const DB_NAME='nxu-media-db', STORE='media';
@@ -1666,76 +1720,39 @@ function renderThread(){
         const ui = buildVoiceUI({src:url, segStart:m.start, segEnd:m.end, isVideo:m.isVideo});
         bubble.appendChild(ui);
       });
-    }else{
+    } else {
   if(m.from === 'fan'){
-        // ✅ 一去不回：點一次就翻，寫入 LS，之後永遠顯示翻譯、不提供切回
-        const done = LS.getStr(`dmTranslated:${m.id}`, '0') === '1';
+    const already = LS.getStr(`dmTranslated:${m.id}`, '0') === '1';
 
-        // 先放上原文
-        const orig = document.createElement('div');
-        orig.className = 'fanText';
-        orig.innerHTML = escapeHtml(m.text);
+    if (already){
+      // 已翻譯：原文 + 置中虛線 + 淺藍紫粗體翻譯
+      const orig = document.createElement('div');
+      orig.className = 'fanText';
+      orig.textContent = m.text || '';
 
-        bubble.appendChild(orig);
+      const hr = document.createElement('div');
+      hr.className = 'transDivider';
 
-        if (done){
-          // ✅ 虛線置中（寬度 92%）
-          const hr = document.createElement('div');
-          hr.className = 'transDivider';
-          hr.style.width  = '92%';
-          hr.style.margin = '10px auto 8px';
-          bubble.appendChild(hr);
+      const tran = document.createElement('div');
+      tran.className = 'transText';
+      tran.textContent = m.text || ''; // ← 之後串接翻譯 API 再替換字串
 
-          // ✅ 翻譯文字：#8EA3FF、粗體（CSS 已有，這裡再保險一次）
-          const tran = document.createElement('div');
-          tran.className = 'transText';
-          tran.textContent = m.text; // ← 這裡先用原文占位，串 API 再替換
-          tran.style.color = '#8EA3FF';
-          tran.style.fontWeight = '800';
-          bubble.appendChild(tran);
+      bubble.append(orig, hr, tran);
+    } else {
+      // 未翻譯：只顯示原文；泡泡右側掛 A 鈕（位置=舊回覆鍵）
+      const txt = document.createElement('div');
+      txt.className = 'fanText';
+      txt.textContent = m.text || '';
+      bubble.appendChild(txt);
 
-          // 🚫 不要顯示「Translated by Papago」→ 不建立那個節點
-        } else {
-          // ✅ 在粉絲訊息（左側）旁邊加上 Bubble 同款「A」翻譯鍵（在泡泡右側、上緣不遮時間）
-          // 先確保泡泡可做絕對定位參考
-          bubble.style.position = 'relative';
-
-          const btnA = document.createElement('button');
-          btnA.type = 'button';
-          btnA.className = 'translateBtnA';
-          btnA.setAttribute('aria-label','翻譯');
-          btnA.textContent = 'A';
-
-          // 玻璃膠囊（沿用 replyBtn 的質感），擺在泡泡右側、較上方：不會蓋到時間
-          Object.assign(btnA.style, {
-            position:'absolute',
-            top:'6%',                                       // 比回覆箭頭更上面
-            right:'0',
-            transform:'translateX(calc(100% + var(--reply-gap)))',
-            width:'var(--reply-size)',
-            height:'var(--reply-size)',
-            borderRadius:'999px',
-            border:'1px solid rgba(0,0,0,.08)',
-            background:'rgba(255,255,255,.92)',
-            boxShadow:'0 6px 14px rgba(0,0,0,.12)',
-            fontWeight:'900',
-            lineHeight:'1',
-            color:'#2b356f',
-            cursor:'pointer'
-          });
-
-          btnA.addEventListener('click', ()=>{
-            LS.setStr(`dmTranslated:${m.id}`, '1'); // 一次性
-            renderThread();                         // 重新渲染 → 只顯示分隔 + 藍紫翻譯
-          }, { once:true });
-
-          bubble.appendChild(btnA);
-        }
-      }else{
-        // 右側藝人純文字維持原樣
-        bubble.textContent = m.text || '';
-      }
+      // A 在泡泡右側
+      bubble.appendChild( makeTranslateBtn(m) );
     }
+  } else {
+    // 右側藝人純文字維持原樣
+    bubble.textContent = m.text || '';
+  }
+}
 
     // 放在 renderThread() 內，建立完 bubble 之後：
 if (m.from === 'fan' && !m.type) {
