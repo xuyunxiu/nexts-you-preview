@@ -368,15 +368,16 @@ nav#nav button.active{
   -webkit-backdrop-filter:none !important;
 }
 
-/* 翻譯分隔線（虛線）—「置中」 */
+/* 翻譯分隔線：置中 + 固定 92% 寬 */
 #dmDetail .bubble .transDivider{
-  height:1px; margin:10px 0 8px;
+  height:1px; margin:10px auto 8px; width:92%;
   background-image:linear-gradient(to right, rgba(0,0,0,.28) 33%, rgba(255,255,255,0) 0);
-  background-size:6px 1px;
-  background-repeat:repeat-x;
-  background-position:center; /* ✅ 虛線置中 */
+  background-size:6px 1px; background-repeat:repeat-x; background-position:center;
   opacity:.35;
 }
+
+/* 翻譯文字：#8EA3FF + 粗體（再保險一次） */
+#dmDetail .bubble .transText{ color:#8EA3FF; font-weight:800; }
 
 /* 藍綠色翻譯文字 */
 #dmDetail .bubble .transText{
@@ -391,15 +392,8 @@ nav#nav button.active{
   color:#8b93a7;
 }
 
-/* Translate 觸發器：像連結、不顯眼 */
-#dmDetail .bubble .translate-in{
-  margin-top:6px;
-  display:inline-flex; align-items:center; gap:6px;
-  font-weight:900; font-size:12px;
-  color:#5b6ab0; cursor:pointer; user-select:none; opacity:.9;
-}
-#dmDetail .bubble .translate-in svg{ width:16px; height:16px; fill:currentColor }
-#dmDetail .bubble .translate-in:hover{ opacity:1 }
+/* 永不顯示「Translated by Papago」保險絲 */
+#dmDetail .bubble .transBy{ display:none !important; }
 
 /* 右側（藝人）純文字：灰色 */
 #dmDetail .msg.right .bubble:not(.mediaWrap):not(.voice){
@@ -464,16 +458,29 @@ nav#nav button.active{
   margin-bottom:4px;
 }
 
-/* 回覆箭頭 */
-.replyBtn{
+/* 泡泡旁的小圓 A（取代回覆箭頭） */
+.replyBtn{ display:none !important; }            /* 舊回覆鈕徹底關閉 */
+#dmDetail .bubble{ position:relative; }          /* 確保能定位 A 鈕 */
+
+.translateBtnA{
   position:absolute; top:50%; right:0;
   transform:translateY(-50%) translateX(calc(100% + var(--reply-gap)));
-  width:var(--reply-size); height:var(--reply-size); border-radius:999px;
-  border:1px solid rgba(0,0,0,.08); background:rgba(255,255,255,.92);
-  box-shadow:0 6px 14px rgba(0,0,0,.12); display:flex; align-items:center; justify-content:center; z-index:2;
+  width:var(--reply-size); height:var(--reply-size);
+  border-radius:999px; display:grid; place-items:center;
+  border:1px solid rgba(0,0,0,.08);
+  background:rgba(255,255,255,.92);
+  box-shadow:0 6px 14px rgba(0,0,0,.12);
+  color:#2f3564; font-weight:900; line-height:1; z-index:2;
+  -webkit-tap-highlight-color:transparent;
 }
-.replyBtn svg{ width:calc(var(--reply-size)*0.53); height:calc(var(--reply-size)*0.53); opacity:.85; }
-
+.translateBtnA::after{                    /* 外圈細環，符合你圖二的質感 */
+  content:""; position:absolute; inset:4px; border-radius:50%;
+  border:1.5px solid rgba(0,0,0,.10);
+}
+.translateBtnA:active{
+  transform:translateY(-50%) translateX(calc(100% + var(--reply-gap))) scale(.97);
+}
+  
 /* ========== DM Footer（輸入區）→ 玻璃 ========== */
 .dmFooter{
   position:fixed;left:0;right:0;
@@ -1730,21 +1737,36 @@ function renderThread(){
       }
     }
 
-    // ✅ 回覆箭頭上移（避免遮到時間）
-    if(m.from==='fan' && !m.type){
-      const btn=document.createElement('button'); btn.className='replyBtn';
-      btn.innerHTML=`<svg viewBox="0 0 24 24"><path d="M12 4l-1.4 1.4L16.2 11H4v2h12.2l-5.6 5.6L12 20l8-8z" fill="currentColor"/></svg>`;
-      // 原本 CSS top:50% 會貼近時間，這裡往上提一些
-      btn.style.top = '42%';
-      btn.onclick=()=>{
-        replyDraft={text:m.text};
-        document.getElementById('replyChip').style.display='flex';
-        document.getElementById('replyChipText').textContent=m.text.slice(0,42);
-        document.getElementById('dmMessageInput').focus();
-        scrollToEndDuring(600);
-      };
-      bubble.appendChild(btn);
+    // 放在 renderThread() 內，建立完 bubble 之後：
+if (m.from === 'fan' && !m.type) {
+  let sx = 0, dx = 0, dragging = false;
+
+  bubble.addEventListener('pointerdown', (e)=>{
+    dragging = true; sx = e.clientX; dx = 0;
+    try{ bubble.setPointerCapture(e.pointerId); }catch(_){}
+  });
+  bubble.addEventListener('pointermove', (e)=>{
+    if (!dragging) return;
+    dx = e.clientX - sx;
+    // 微移動視覺回饋（不必要可拿掉）
+    bubble.style.transform = `translateX(${Math.max(0, Math.min(48, dx))}px)`;
+  });
+  const end = ()=>{
+    if (!dragging) return;
+    dragging = false;
+    bubble.style.transform = '';
+    // 右滑超過 36px 視為回覆
+    if (dx > 36) {
+      replyDraft = { text: m.text };
+      document.getElementById('replyChip').style.display='flex';
+      document.getElementById('replyChipText').textContent = (m.text||'').slice(0,42);
+      document.getElementById('dmMessageInput').focus();
+      scrollToEndDuring(600);
     }
+  };
+  bubble.addEventListener('pointerup', end);
+  bubble.addEventListener('pointercancel', end);
+}
 
     wrap.append(bubble,timeEl); box.appendChild(wrap);
 
