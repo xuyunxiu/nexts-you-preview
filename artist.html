@@ -769,10 +769,60 @@ nav#nav button.active{
 .switch .slider:before{content:"";position:absolute;width:22px;height:22px;left:2px;top:50%;transform:translateY(-50%);background:#fff;border-radius:50%;box-shadow:0 1px 3px rgba(0,0,0,.18);transition:.18s}
 .switch input:checked + .slider{background:linear-gradient(180deg,var(--accent),var(--accent2));border-color:transparent}
 .switch input:checked + .slider:before{transform:translate(20px,-50%)}
+
+  /* 夢幻藍紫噴墨底（iOS26 感） */
+body::before{
+  content:""; position:fixed; inset:0; z-index:-2;
+  background:
+    radial-gradient(120% 80% at 0% 0%, #b8c6ff66 0%, transparent 42%),
+    radial-gradient(100% 70% at 100% 12%, #c6b6ff66 0%, transparent 48%),
+    radial-gradient(120% 80% at 40% 110%, #a9d3ff66 0%, transparent 50%),
+    linear-gradient(180deg, #eef2ff, #f6f7ff);
+  filter:saturate(112%) blur(10px);
+}
+  
+/* === Apple Music 泡泡式整條（高透液態玻璃） === */
+nav#nav.bubbles{
+  position:fixed; left:50%; transform:translateX(-50%);
+  width:min(700px,94vw);
+  bottom:calc(10px + var(--safe));
+  display:flex; gap:10px; padding:10px; z-index:40;
+  border-radius:26px;
+  background:linear-gradient(180deg, rgba(255,255,255,.42), rgba(255,255,255,.12));
+  border:1px solid rgba(255,255,255,.55);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,.70) inset,
+    0 -10px 24px rgba(0,0,0,.12) inset,
+    0 12px 30px rgba(17,23,41,.22);
+  backdrop-filter:saturate(180%) blur(14px);
+  -webkit-backdrop-filter:saturate(180%) blur(14px);
+}
+
+/* 單顆 Weverse 風：小圖示 + 標籤 */
+nav#nav.bubbles .navItem{
+  flex:1; display:flex; flex-direction:column; align-items:center; gap:4px;
+  padding:10px 0; border-radius:18px; border:1px solid rgba(255,255,255,.42);
+  background:linear-gradient(180deg, rgba(255,255,255,.32), rgba(255,255,255,.10));
+  color:#2f246f; font-weight:900; letter-spacing:.2px;
+}
+nav#nav.bubbles .navItem .i{ width:22px; height:22px; display:grid; place-items:center }
+nav#nav.bubbles .navItem svg{ width:22px; height:22px; display:block }
+nav#nav.bubbles .navItem .t{ font-size:12px; line-height:1 }
+
+/* Active 狀態：淡紫高亮 */
+nav#nav.bubbles .navItem.active{
+  background:linear-gradient(180deg, rgba(198,186,255,.62), rgba(210,200,255,.20));
+  color:#20185a;
+  border-color:rgba(255,255,255,.65);
+  box-shadow:0 10px 26px rgba(106,90,205,.28);
+}
+
+/* 舊的 nav-hidden 行為保持 */
+body.nav-hidden nav#nav{ transform:translateX(-50%) translateY(120%) 
+
+} 
 </style>
 </head>
-  <body>
-
 <body>
 
 <!-- ====================== HOME ====================== -->
@@ -859,6 +909,11 @@ nav#nav button.active{
       </button>
     </div>
   </div>
+</section>
+
+<section id="postList" class="page">
+  <div class="pageTitle">貼文</div>
+  <div id="postListWrap" style="padding:0 6px 100px"></div>
 </section>
 
 <!-- ====================== DM LIST ====================== -->
@@ -1034,11 +1089,38 @@ nav#nav button.active{
 </section>
 
 <!-- ====================== Bottom Nav ====================== -->
-<nav id="nav">
-  <button id="tabHome" class="active" onclick="showPage('home')">首頁</button>
-  <button id="tabDM" onclick="showPage('dm')">DM</button>
-  <button id="tabLive" onclick="showPage('live')">直播</button>
-  <button id="tabStore" onclick="showPage('store')">我</button>
+<nav id="nav" class="bubbles">
+  <button id="tabHome" class="navItem active" onclick="showPage('home')">
+    <span class="i" aria-hidden="true">
+      <!-- home -->
+      <svg viewBox="0 0 24 24"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1z" fill="currentColor"/></svg>
+    </span>
+    <span class="t">首頁</span>
+  </button>
+
+  <button id="tabPosts" class="navItem" onclick="showPage('postList')">
+    <span class="i" aria-hidden="true">
+      <!-- posts/feed -->
+      <svg viewBox="0 0 24 24"><path d="M4 4h7v7H4zM13 4h7v5h-7zM13 11h7v9h-7zM4 13h7v7H4z" fill="currentColor"/></svg>
+    </span>
+    <span class="t">貼文</span>
+  </button>
+
+  <button id="tabDM" class="navItem" onclick="showPage('dm')">
+    <span class="i" aria-hidden="true">
+      <!-- DM -->
+      <svg viewBox="0 0 24 24"><path d="M3 5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H9l-5 4v-4H5a2 2 0 0 1-2-2z" fill="currentColor"/></svg>
+    </span>
+    <span class="t">DM</span>
+  </button>
+
+  <button id="tabStore" class="navItem" onclick="showPage('store')">
+    <span class="i" aria-hidden="true">
+      <!-- me/profile -->
+      <svg viewBox="0 0 24 24"><path d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5Zm8 8H4a1 1 0 0 1-1-1 7 7 0 0 1 14 0 1 1 0 0 1-1 1Z" fill="currentColor"/></svg>
+    </span>
+    <span class="t">我</span>
+  </button>
 </nav>
 
 <!-- 全螢幕媒體檢視器 -->
@@ -1137,6 +1219,48 @@ function bindSwipeReply(hostEl, msg){
   hostEl.addEventListener('pointerup',   onEnd,   {passive:true});
 }
 
+/* === 零維護資料源 === */
+const DATASRC = {
+  artists: '/data/artists.json',
+  posts:   '/data/posts.json',
+  thread:  '/data/group_msgs.json'
+};
+
+async function loadJSON(url, fallback){
+  try{
+    const r = await fetch(url, {cache:'no-store'}); if(!r.ok) throw new Error(r.status);
+    return await r.json();
+  }catch(e){
+    console.warn('fetch fallback', url, e);
+    return typeof fallback === 'function' ? fallback() : (fallback ?? []);
+  }
+}
+
+async function bootFromJSON(){
+  const [aa, pp, mm] = await Promise.all([
+    loadJSON(DATASRC.artists, ()=>ARTISTS),
+    loadJSON(DATASRC.posts,   ()=>POSTS),
+    loadJSON(DATASRC.thread,  ()=>GROUP_MSGS)
+  ]);
+
+  ARTISTS    = Array.isArray(aa)?aa:ARTISTS;
+  POSTS      = Array.isArray(pp)?pp:POSTS;
+  GROUP_MSGS = Array.isArray(mm)?mm:GROUP_MSGS;
+
+  LS.set('artistsCache', ARTISTS);
+  LS.set('artistPosts', POSTS);
+  LS.set('groupMsgs', GROUP_MSGS);
+
+  renderStoryBar();
+  renderFeed(currentFilter);
+  renderDmList();
+  if ((PAGE_STACK[PAGE_STACK.length-1]||'') === 'dmDetail') renderThread();
+}
+
+/* 啟動時抓；抓不到就用內建假資料 */
+document.addEventListener('DOMContentLoaded', bootFromJSON);
+
+  document.getElementById('nav')?.classList.add('bubbles');
 
 /* ===== IndexedDB：媒體存這裡 ===== */
 const MEDIA_DB = (()=> {
@@ -1194,13 +1318,13 @@ let   NICKNAME   = LS.getStr('artistNickname','Annie');      // 自己看到的�
 let   AVATAR     = LS.getStr('artistAvatar','https://picsum.photos/80?u=artist');
 const ME = { id:'me', name:STAGE_NAME, avatar:AVATAR };
 
-const ARTISTS = [
+let ARTISTS = [
   {id:'me',name:STAGE_NAME,avatar:AVATAR},
   {id:'all',name:'ALL',avatar:'https://picsum.photos/80?u=all'},
   {id:'dohee',name:'DOHEE',avatar:'https://picsum.photos/80?u=dh'},
   {id:'woo',name:'WOOCHAN',avatar:'https://picsum.photos/80?u=wc'}
 ];
-const POSTS = LS.get('artistPosts',[
+let POSTS = LS.get('artistPosts',[
   {id:'p3',artistId:'dohee',artistStage:'DOHEE',avatar:'https://picsum.photos/80?u=dh',text:'練舞練到爆汗 💃',img:'https://picsum.photos/1200?u=dh1',ts:Date.now()-1000*60*40},
   {id:'p2',artistId:'woo',artistStage:'WOOCHAN',avatar:'https://picsum.photos/80?u=wc',text:'今天吃拉麵 🍜',img:'https://picsum.photos/1200?u=wc1',ts:Date.now()-1000*60*50},
   {id:'p1',artistId:'me',artistStage:STAGE_NAME,avatar:ME.avatar,text:'大家好，我是 Annie ✨',img:'',ts:Date.now()-1000*60*60}
@@ -1253,9 +1377,8 @@ function showPage(id){
   if (PAGE_STACK[PAGE_STACK.length - 1] !== id) PAGE_STACK.push(id);
 
   document.querySelectorAll('#nav button').forEach(b => b.classList.remove('active'));
-  ({home:'tabHome', dm:'tabDM', live:'tabLive', store:'tabStore'}[id]) &&
-    document.getElementById({home:'tabHome', dm:'tabDM', live:'tabLive', store:'tabStore'}[id]).classList.add('active');
-
+({home:'tabHome', postList:'tabPosts', dm:'tabDM', store:'tabStore'}[id]) &&
+  document.getElementById({home:'tabHome', postList:'tabPosts', dm:'tabDM', store:'tabStore'}[id]).classList.add('active');
   syncNavVisibility();
 
 
@@ -1285,6 +1408,8 @@ function showPage(id){
   }
   if (id === 'postDetail') {
   renderPostDetail(CURRENT_POST_ID);
+  }
+  if (id === 'postList') renderPostList();
   }
 }
 
@@ -1462,6 +1587,33 @@ function toggleReaction(postId, type){
   document.querySelectorAll(`.reacts[data-react-for="${postId}"]`)
     .forEach(area => { area.outerHTML = renderReactionsBar(postId); });
 }
+  
+ function renderPostList(){
+  const wrap = document.getElementById('postListWrap'); if(!wrap) return;
+  const all = (POSTS||[]).slice().sort((a,b)=>b.ts-a.ts);
+  wrap.innerHTML = all.map(p=>`
+    <div class="post card soft" data-post="${p.id}">
+      <div class="hdr">
+        <img class="avatar" src="${p.avatar||ME.avatar}" onerror="imgFallback(this)">
+        <div class="meta">
+          <b class="stage">${(p.artistId==='me'?NICKNAME:(p.artistStage||STAGE_NAME)).toUpperCase()}</b>
+          <small class="ghost">${timeAgo(p.ts)}</small>
+        </div>
+      </div>
+      <div class="body">
+        <p id="postText-${p.id}">${escapeHtml(p.text||'')}</p>
+        ${p.img?`<img class="hero" src="${p.img}" onerror="imgFallback(this)">`:''}
+      </div>
+      <div class="actions">
+        ${renderReactionsBar(p.id)}
+        <div class="commentBar">
+          <div class="left">💬 <span class="cmtCount">${(p.cmts||[]).filter(c=>!c.replyTo).length}</span> 則評論</div>
+          <div class="right"><button class="addCmt">發表評論</button></div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+} 
 
 /* ====== Fan 規則：貼文翻譯 ====== */
 const _translateState = {};
