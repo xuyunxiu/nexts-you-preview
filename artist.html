@@ -162,8 +162,8 @@ nav#nav button.active{
 .story-item.active .name{color:var(--accent);font-weight:700}
 .story-item .dot{position:absolute;right:6px;top:2px;width:8px;height:8px;background:var(--danger);border-radius:50%;box-shadow:0 0 0 2px #fff}
 .story-item.pinned img{border-color:#111}
-/* （已修正）移除一行落單的 background: 屬性，避免 CSS 解析錯誤 */
-  
+/* （已修正）移除一行落單的 background: 屬性 */
+
 /* ========== 貼文動作列 + 評論列 ========== */
 .post .actions{margin-top:10px;padding-top:10px;border-top:1px dashed #e1e4f0}
 .reacts{display:flex;gap:8px;flex-wrap:wrap}
@@ -189,13 +189,12 @@ nav#nav button.active{
 .homeTitle{font-weight:900;letter-spacing:.6px;font-size:22px;line-height:1}
 
 /* ========== Post 卡結構 ========== */
-/* ====== 貼文詳情：頂部 HUD（返回／頭像＋名稱＋時間／右上 가/A） ====== */
 #postDetail .pageTitle{ display:none }
 #postDetail .postHUD{
-position:sticky; top:0; z-index:5;
-display:flex; align-items:center; gap:8px;
-padding:8px 8px 6px;
-background:linear-gradient(180deg, rgba(245,247,255,.75), rgba(245,247,255,0));
+  position:sticky; top:0; z-index:5;
+  display:flex; align-items:center; gap:8px;
+  padding:8px 8px 6px;
+  background:linear-gradient(180deg, rgba(245,247,255,.75), rgba(245,247,255,0));
 }
 #postDetail .postHUD .back{ width:44px;height:44px;border:none;background:transparent;display:grid;place-items:center }
 #postDetail .postHUD .back svg{ width:22px;height:22px;stroke:#5b6ab0;stroke-width:2.6;fill:none }
@@ -239,7 +238,7 @@ background:linear-gradient(180deg, rgba(245,247,255,.75), rgba(245,247,255,0));
   background:#cfd3e1; opacity:.85;
 } 
 .post{margin:12px 6px}
-.post .hdr{display:flex;align-items:center;gap:10px}
+.post .hdr{display:flex;align-items:center;gap:10px; position:relative; } /* 給翻譯鈕定位 */
 .post .avatar{width:44px;height:44px;border-radius:50%;object-fit:cover;border:1px solid var(--line)}
 .post .meta b{font-weight:900;display:flex;align-items:center;gap:6px}
 .post .meta small{display:block;color:var(--ghost)}
@@ -267,14 +266,12 @@ background:linear-gradient(180deg, rgba(245,247,255,.75), rgba(245,247,255,0));
 
 /* === DM 頂部 HUD 完全透明，去掉任何底色/邊/毛玻璃 === */
 #dmDetail .chatHUD{
-  position: sticky;       /* 黏在頂端，標題不會被訊息蓋住 */
+  position: sticky;
   top: 0;
-  z-index: 70;            /* 蓋過 thread/notice */
+  z-index: 70;
   display: flex;
   align-items: center;
   justify-content: space-between;
-
-  /* 你原本要的「沒有邊界/沒有底色」照保留 */
   background: transparent !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
@@ -282,20 +279,20 @@ background:linear-gradient(180deg, rgba(245,247,255,.75), rgba(245,247,255,0));
 }
 #dmDetail .back, #dmDetail .hudBtn{ width:44px;height:44px;border:none;background:transparent;display:grid;place-items:center }
 #dmDetail .back svg{ width:22px;height:22px;stroke:#5b6ab0;stroke-width:2.6;fill:none }
-/* 只改這一條：讓「⋯」在任何背景都清楚 */
+/* 讓「⋯」在任何背景都清楚 */
 #dmDetail .hudBtn{
-  color:#111 !important;                 /* 跟返回鍵一致，用深色本體 */
-  font-weight:900;                        /* 點更粗，辨識更好 */
-  -webkit-text-stroke:.6px rgba(255,255,255,.75);  /* 白色細描邊：深色背景也看得見 */
-  text-shadow:0 1px 2px rgba(255,255,255,.6),      /* 亮邊高光：淺色背景也不會消失 */
-              0 0 .5px rgba(0,0,0,.85);            /* 輕微外緣收邊 */
-  mix-blend-mode:normal !important;       /* 取消差值混色，避免被背景顏色吞掉 */}
+  color:#111 !important;
+  font-weight:900;
+  -webkit-text-stroke:.6px rgba(255,255,255,.75);
+  text-shadow:0 1px 2px rgba(255,255,255,.6), 0 0 .5px rgba(0,0,0,.85);
+  mix-blend-mode:normal !important;
+}
 #dmDetail .chatHUD .center{ flex:1;min-width:0;display:flex;justify-content:center }
 #dmDetail .artistName{ color:#111 !important; text-shadow:0 1px 2px rgba(255,255,255,.6); }
 #dmDetail .back svg{ stroke:#111 !important; }
   
 /* ========== Thread 佈局（以 padding 撐 HUD 高度；不留頂白） ========== */
-:root{ --hud-h:56px; }  /* 先給安全值，JS 會覆寫為實際高度 */
+:root{ --hud-h:56px; }
 #dmDetail .thread{
   position:absolute; left:0; right:0; top:0;
   bottom: calc(var(--footer-h) + var(--kb-offset) + env(safe-area-inset-bottom,0px));
@@ -310,7 +307,6 @@ background:linear-gradient(180deg, rgba(245,247,255,.75), rgba(245,247,255,0));
 #endAnchor{ height:1px; flex:0 0 auto; }
 
 /* ========== 浮動 noticeBar（粉絲在等你的訊息喔） ========== */
-/* 刪掉你檔案裡舊的 .noticeBar.is-floating，改用這個： */
 .noticeBar.is-floating{
   position: fixed;
   left: 50%;
@@ -319,6 +315,7 @@ background:linear-gradient(180deg, rgba(245,247,255,.75), rgba(245,247,255,0));
   z-index: 60;
   pointer-events: none;
 }
+
 /* ========== DM 氣泡（全變小；右側藝人=灰色；語音也灰） ========== */
 :root{
   --bubble-px:10px;
@@ -326,21 +323,19 @@ background:linear-gradient(180deg, rgba(245,247,255,.75), rgba(245,247,255,0));
   --bubble-r:12px;
   --msg-max:66%;
 }
-
-/* 位置與基本排版（只作用在 DM 詳情頁） */
 #dmDetail .msg{
   display:flex; align-items:flex-end; gap:6px;
   max-width:var(--msg-max); margin:0 6px;
 }
 #dmDetail .msg.left{  flex-direction:row;        align-self:flex-start; }
 #dmDetail .msg.right{ flex-direction:row-reverse; align-self:flex-end;  }
-#dmDetail .msg + .msg{ margin-top:8px; } /* 泡泡間距更緊實 */
+#dmDetail .msg + .msg{ margin-top:8px; }
 
 #dmDetail .time{
   display:block; margin-top:2px; font-size:11px;
   color:#8b93a7; white-space:nowrap;
 }
-#dmDetail .msg.right .time{ color:#cfd3e1; } /* 右側時間偏亮 */
+#dmDetail .msg.right .time{ color:#cfd3e1; }
 
 /* 泡泡本體 */
 #dmDetail .bubble{
@@ -352,7 +347,7 @@ background:linear-gradient(180deg, rgba(245,247,255,.75), rgba(245,247,255,0));
   font-size:15px; line-height:1.35;
 }
 
-/* ===== 左側粉絲純文字泡泡：圖三樣式 ===== */
+/* 左側粉絲純文字泡泡（圖三） */
 #dmDetail .msg.left .bubble:not(.mediaWrap):not(.voice){
   background:#fff;
   color:#111;
@@ -363,7 +358,7 @@ background:linear-gradient(180deg, rgba(245,247,255,.75), rgba(245,247,255,0));
   box-shadow:0 4px 14px rgba(17,23,41,.08);
 }
 
-/* 即使有翻譯（存在 .transDivider）也維持白底樣式 */
+/* 有翻譯也維持白底樣式 */
 #dmDetail .msg.left .bubble:has(.transDivider){
   background:#fff !important;
   color:#111 !important;
@@ -373,14 +368,17 @@ background:linear-gradient(180deg, rgba(245,247,255,.75), rgba(245,247,255,0));
   -webkit-backdrop-filter:none !important;
 }
 
- /* 翻譯分隔線（虛線） */
+/* 翻譯分隔線（虛線）—「置中」 */
 #dmDetail .bubble .transDivider{
   height:1px; margin:10px 0 8px;
   background-image:linear-gradient(to right, rgba(0,0,0,.28) 33%, rgba(255,255,255,0) 0);
-  background-size:6px 1px; background-repeat:repeat-x;
-  opacity:.35; 
+  background-size:6px 1px;
+  background-repeat:repeat-x;
+  background-position:center; /* ✅ 虛線置中 */
+  opacity:.35;
 }
-  /* 藍綠色翻譯文字（圖三感） */
+
+/* 藍綠色翻譯文字 */
 #dmDetail .bubble .transText{
   color:#8EA3FF;
   font-weight:800;
@@ -403,20 +401,21 @@ background:linear-gradient(180deg, rgba(245,247,255,.75), rgba(245,247,255,0));
 #dmDetail .bubble .translate-in svg{ width:16px; height:16px; fill:currentColor }
 #dmDetail .bubble .translate-in:hover{ opacity:1 }
 
-/* 右側（藝人）純文字：灰色系（像圖2） */
+/* 右側（藝人）純文字：灰色 */
 #dmDetail .msg.right .bubble:not(.mediaWrap):not(.voice){
-  background:#6b7280; /* 想更淺用 #6b7280；更深 #4b5563 */
+  background:#6b7280;
   color:#fff;
   border:1px solid rgba(255,255,255,.18);
   box-shadow:0 6px 16px rgba(0,0,0,.22);
 }
 
-/* 回覆卡與訊息的間距（避免「黏在一起」） */
+/* 回覆卡與訊息的間距 */
 #dmDetail .msg + .replyCard,
 #dmDetail .replyCard + .msg{ margin-top:12px; }
 
-/* 取消 FROM FAN（只針對泡泡內部；回覆卡仍保留它自己的標籤） */
+/* 取消 FROM FAN（泡泡內）；回覆卡自身保留 */
 #dmDetail .msg.left .bubble .fromLabel{ display:none !important; }
+
 /* 媒體泡泡：脫離泡泡樣式 */
 #dmDetail .msg .bubble.mediaWrap{
   background:transparent!important; border:none!important; padding:0; border-radius:0; color:inherit;
@@ -427,7 +426,7 @@ background:linear-gradient(180deg, rgba(245,247,255,.75), rgba(245,247,255,0));
   border-radius:12px; border:1px solid rgba(0,0,0,.08); overflow:hidden;
 }
 
-/* ===== 語音泡泡：右側同樣改成灰色＆縮小 ===== */
+/* 語音泡泡 */
 #dmDetail .bubble.voice{
   border-radius:18px; border:1px solid var(--glass-stroke);
   background:linear-gradient(180deg,rgba(255,255,255,.26),rgba(255,255,255,.12));
@@ -439,7 +438,7 @@ background:linear-gradient(180deg, rgba(245,247,255,.75), rgba(245,247,255,0));
 }
 
 /* 語音內部 UI 更緊實 */
-#dmDetail .voiceUI{ display:flex; align-items:center; gap:8px; min-width:120px; } /* 原 140 → 120 */
+#dmDetail .voiceUI{ display:flex; align-items:center; gap:8px; min-width:120px; }
 #dmDetail .voicePlay{
   width:30px; height:30px; border-radius:50%; display:grid; place-items:center;
   background:rgba(0,0,0,.06); border:1px solid rgba(0,0,0,.08); color:#2b356f;
@@ -448,8 +447,9 @@ background:linear-gradient(180deg, rgba(245,247,255,.75), rgba(245,247,255,0));
 #dmDetail .voicePlay svg{ width:16px; height:16px; fill:currentColor; }
 #dmDetail .voiceDur{ margin-left:6px; font-variant-numeric:tabular-nums; min-width:46px; text-align:right; font-weight:800; opacity:.9; }
 #dmDetail .msg.right .voiceDur{ color:#fff; }
+.voiceBars{display:none!important}
 
-/* 回覆卡 → 保持玻璃；標籤：黑字 + 陰影（任何背景都看得到） */
+/* 回覆卡 → 玻璃；標籤黑字+陰影（任何背景都看得到） */
 .replyCard{
   align-self:flex-end; max-width:74%; margin:14px 6px 0; padding:10px 12px; border-radius:14px;
   background:linear-gradient(180deg,rgba(255,255,255,.30),rgba(255,255,255,.12));
@@ -464,7 +464,7 @@ background:linear-gradient(180deg, rgba(245,247,255,.75), rgba(245,247,255,0));
   margin-bottom:4px;
 }
 
-/* 回覆箭頭（維持舊行為） */
+/* 回覆箭頭 */
 .replyBtn{
   position:absolute; top:50%; right:0;
   transform:translateY(-50%) translateX(calc(100% + var(--reply-gap)));
@@ -473,6 +473,7 @@ background:linear-gradient(180deg, rgba(245,247,255,.75), rgba(245,247,255,0));
   box-shadow:0 6px 14px rgba(0,0,0,.12); display:flex; align-items:center; justify-content:center; z-index:2;
 }
 .replyBtn svg{ width:calc(var(--reply-size)*0.53); height:calc(var(--reply-size)*0.53); opacity:.85; }
+
 /* ========== DM Footer（輸入區）→ 玻璃 ========== */
 .dmFooter{
   position:fixed;left:0;right:0;
@@ -506,13 +507,6 @@ background:linear-gradient(180deg, rgba(245,247,255,.75), rgba(245,247,255,0));
   backdrop-filter:saturate(160%) blur(calc(var(--glass-blur)*.6));
   -webkit-backdrop-filter:saturate(160%) blur(calc(var(--glass-blur)*.6));
 }
-.voiceUI{display:flex;align-items:center;gap:10px;min-width:140px}
-.voicePlay{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:rgba(0,0,0,.06);border:1px solid rgba(0,0,0,.08);color:#2b356f}
-.msg.right .voicePlay{background:rgba(255,255,255,.18);border-color:rgba(255,255,255,.28);color:#fff}
-.voicePlay svg{width:16px;height:16px;fill:currentColor}
-.voiceBars{display:none!important}
-.voiceDur{margin-left:6px;font-variant-numeric:tabular-nums;min-width:46px;text-align:right;font-weight:800;opacity:.9}
-.msg.right .voiceDur{color:#fff}
 
 /* Reply Chip */
 .replyChip{position:relative;display:flex;align-items:center;gap:8px;margin:0 14px 8px;padding:8px 36px 8px 12px;border-radius:13px;border:1px solid rgba(255,255,255,.28);background:rgba(255,255,255,.12);backdrop-filter:saturate(140%) blur(1.5px)}
@@ -565,7 +559,7 @@ background:linear-gradient(180deg, rgba(245,247,255,.75), rgba(245,247,255,0));
 #viewer .stage{position:absolute;inset:0;display:grid;place-items:center}
 #viewerImg,#viewerVideo{max-width:94vw;max-height:88vh;border-radius:12px}
 
-/* A. 保底：關掉橫向滾動 */
+/* 保底：關掉橫向滾動 */
 #dmDetail, .thread { overflow-x: hidden; touch-action: pan-y; }
 
 /* ========== LIVE（整合） ========== */
@@ -589,7 +583,7 @@ background:linear-gradient(180deg, rgba(245,247,255,.75), rgba(245,247,255,0));
 @keyframes blink{0%,55%{opacity:1}56%,100%{opacity:.35}}
 #live .liveHearts, #liveRoom .liveHearts{ font-weight:900; color:#333; }
 
-/* 2) 舞台（可選，保留你的需求） */
+/* 2) 舞台（可選） */
 #live .liveStage{
   position:relative; height:44vh; min-height:300px;
   border:1px solid var(--live-hair); border-radius:18px;
@@ -659,7 +653,7 @@ background:linear-gradient(180deg, rgba(245,247,255,.75), rgba(245,247,255,0));
 /* 9) LIVE 卡片邊框 */
 #live .card{ border-color: rgba(231,234,243,.6); }
 
-/* --- 兼容你現有的 LIVE 純文字結構 (.liveStage + .chatList + .liveMsg) --- */
+/* --- 兼容現有 LIVE 純文字結構 (.liveStage + .chatList + .liveMsg) --- */
 #live .chatList{
   position:absolute; inset:0; padding:14px 12px;
   display:flex; flex-direction:column; gap:10px;
@@ -684,7 +678,7 @@ background:linear-gradient(180deg, rgba(245,247,255,.75), rgba(245,247,255,0));
   box-shadow:0 4px 10px rgba(0,0,0,.08);
 }
 
-/* 主持人（藝人）泡泡：改成吃 :root 的 --artist / --artist-fg */
+/* 主持人（藝人）泡泡 */
 #live .liveMsg.artist .bubble{
   background: var(--artist);
   color: var(--artist-fg, #111);
@@ -696,7 +690,7 @@ background:linear-gradient(180deg, rgba(245,247,255,.75), rgba(245,247,255,0));
 #live .liveMsg .time{ font-size:11px; color:#aebbe9; align-self:flex-end }
 #live .liveMsg.fan .time{ color:#b8c2db }
 
-/* 你的 .liveInput 也沿用新風格（這段可原樣保留） */
+/* LIVE 輸入 */
 #live .liveInput{
   display:flex; gap:8px; align-items:center; margin-top:12px;
   position:sticky; bottom:0; padding-top:8px;
@@ -713,28 +707,24 @@ background:linear-gradient(180deg, rgba(245,247,255,.75), rgba(245,247,255,0));
   width: 64px; height: 64px;
   border-radius: 50%;
 
-  /* 高透 + 模糊（核心） */
   background: linear-gradient(180deg, rgba(255,255,255,.42), rgba(255,255,255,.12));
   border: 1px solid rgba(255,255,255,.55);
   backdrop-filter: saturate(180%) blur(14px);
   -webkit-backdrop-filter: saturate(180%) blur(14px);
 
-  /* 立體感（內外陰影 + 高光） */
   box-shadow:
-    0 1px 0 rgba(255,255,255,.70) inset,   /* 上緣高光 */
-    0 -8px 20px rgba(0,0,0,.10) inset,     /* 內陰影 */
-    0 10px 28px rgba(17,23,41,.18);        /* 外擴散陰影 */
+    0 1px 0 rgba(255,255,255,.70) inset,
+    0 -8px 20px rgba(0,0,0,.10) inset,
+    0 10px 28px rgba(17,23,41,.18);
 
   display: grid; place-items: center;
   font-size: 28px; font-weight: 900; line-height: 1;
 
-  /* 加號用品牌色，對比清楚 */
   color: var(--accent);
   cursor: pointer; z-index: 45;
   -webkit-tap-highlight-color: transparent;
 }
 .fabNew::before{
-  /* 玻璃上的亮斑（不影響點擊） */
   content:""; position:absolute; inset:1px; border-radius:50%;
   background: radial-gradient(130% 80% at 28% 22%, rgba(255,255,255,.75), rgba(255,255,255,0) 62%);
   pointer-events:none; mix-blend-mode:soft-light;
@@ -744,27 +734,28 @@ background:linear-gradient(180deg, rgba(245,247,255,.75), rgba(245,247,255,0));
   0 -6px 16px rgba(0,0,0,.10) inset,
   0 6px 18px rgba(17,23,41,.20);
 }
-
-/* 無 backdrop-filter 的降級：給一個比較實的白底 */
 @supports not ((backdrop-filter: blur(10px)) or (-webkit-backdrop-filter: blur(10px))){
   .fabNew{ background: rgba(255,255,255,.9); }
 }
+
 /* Page Title */
 .pageTitle{ padding:8px 12px 4px; font-weight:900; letter-spacing:.6px; font-size:22px; line-height:1; }
+
 /* 翻譯按鈕擺頭像列右上 */
-.post .hdr{ position:relative; }
 .translate-btn{
   position:absolute; right:0; top:0;
   padding:4px 10px; font-size:12px; line-height:1;
 }
- /* Post 詳情：留言列貼底不透明一點 */
+
+/* Post 詳情：留言列貼底不透明一點 */
 #postDetail #pdComposer{
   background:linear-gradient(180deg,rgba(255,255,255,.30),rgba(255,255,255,.14));
   border:1px solid var(--glass-stroke);
   backdrop-filter:saturate(160%) blur(10px);
   -webkit-backdrop-filter:saturate(160%) blur(10px);
-} 
-  /* Switch：僅ADP的回覆 */
+}
+
+/* Switch：僅ADP的回覆 */
 .switch{position:relative;display:inline-block;width:46px;height:26px;vertical-align:middle}
 .switch input{display:none}
 .switch .slider{position:absolute;inset:0;background:#d8dcec;border:1px solid var(--line);border-radius:999px;transition:.18s}
