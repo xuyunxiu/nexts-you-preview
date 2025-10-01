@@ -122,25 +122,56 @@ section.page.active{display:block;animation:fade .22s ease}
 /* 當底部 nav 被藏起來時，收斂底部 padding（避免空白） */
 body.nav-hidden section.page{padding-bottom:12px}
 
-/* ========== Bottom Nav → 液態玻璃 ========== */
-nav#nav{
-  position:fixed;left:0;right:0;bottom:0;z-index:40;
-  display:flex;justify-content:space-around;gap:6px;
-  padding:10px 8px calc(12px + var(--safe));
-  background:linear-gradient(180deg,rgba(255,255,255,.18),rgba(255,255,255,.08));
-  border-top:1px solid var(--glass-stroke);
-  backdrop-filter:saturate(160%) blur(var(--glass-blur));
-  -webkit-backdrop-filter:saturate(160%) blur(var(--glass-blur));
+/* ===== Bottom Nav（兩種樣式并存；你現在用 .bubbles）===== */
+/* === Weverse 風底部導覽：整條是玻璃；每個項目透明、無邊框 === */
+nav#nav.weverse{
+  position:fixed;
+  left:50%; transform:translateX(-50%);
+  bottom:calc(10px + var(--safe));
+  width:min(540px,92vw);               /* 不會太寬也不會爆版 */
+  z-index:40;
+
+  display:flex; justify-content:space-evenly; gap:0;
+  padding:10px 12px; border-radius:22px;
+
+  /* 高透液態玻璃（保留你要的 iOS26 質感） */
+  background:linear-gradient(180deg, rgba(255,255,255,.42), rgba(255,255,255,.12));
+  border:1px solid rgba(255,255,255,.45);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,.70) inset,
+    0 -10px 24px rgba(0,0,0,.12) inset,
+    0 12px 30px rgba(17,23,41,.22);
+  backdrop-filter:saturate(180%) blur(14px);
+  -webkit-backdrop-filter:saturate(180%) blur(14px);
   transition:transform .25s ease;
 }
-nav#nav.hidden{transform:translateY(120%)}
-nav#nav button{flex:1;border:none;background:transparent;padding:8px 0 6px;border-radius:12px;color:var(--sub);font-weight:900;font-size:13px}
-nav#nav button.active{
-  color:var(--accent);
-  background:linear-gradient(180deg,rgba(255,255,255,.28),rgba(255,255,255,.12));
-  border:1px solid var(--glass-stroke);
+nav#nav.weverse.hidden{ transform:translateX(-50%) translateY(120%) }
+
+/* 單個項目：透明、無底色、無邊框、間距大 */
+nav#nav.weverse .navItem{
+  position:relative;
+  flex:0 0 auto;                       /* 不要被撐滿，間距才「很開」 */
+  min-width:66px;                       /* 手指好點 */
+  display:flex; flex-direction:column; align-items:center; gap:4px;
+  padding:6px 0;
+  background:transparent; border:none; border-radius:0;
+  color:#2f246f; font-weight:900; letter-spacing:.2px;
 }
 
+/* 圖標大小 */
+nav#nav.weverse .i{ width:22px; height:22px; display:grid; place-items:center }
+nav#nav.weverse .i svg{ width:22px; height:22px; display:block }
+
+/* 文字：小、緊實 */
+nav#nav.weverse .t{ font-size:11.5px; line-height:1 }
+
+/* Active：只有變色；不要任何底色/邊框/泡泡 */
+nav#nav.weverse .navItem.active{ color:var(--accent) }
+nav#nav.weverse .navItem:active{ transform:translateY(1px) }
+
+/* 兼容你原本的全域按鈕樣式，確保這裡透明 */
+nav#nav.weverse button{ background:transparent; border:none }
+  
 /* ========== Verified 勳章 ========== */
 .verified-badge{display:inline-block;width:18px;height:18px;margin-left:4px;vertical-align:middle}
 .verified-badge svg{width:100%;height:100%;display:block}
@@ -781,23 +812,6 @@ body::before{
   filter:saturate(112%) blur(10px);
 }
   
-/* === Apple Music 泡泡式整條（高透液態玻璃） === */
-nav#nav.bubbles{
-  position:fixed; left:50%; transform:translateX(-50%);
-  width:min(700px,94vw);
-  bottom:calc(10px + var(--safe));
-  display:flex; gap:10px; padding:10px; z-index:40;
-  border-radius:26px;
-  background:linear-gradient(180deg, rgba(255,255,255,.42), rgba(255,255,255,.12));
-  border:1px solid rgba(255,255,255,.55);
-  box-shadow:
-    0 1px 0 rgba(255,255,255,.70) inset,
-    0 -10px 24px rgba(0,0,0,.12) inset,
-    0 12px 30px rgba(17,23,41,.22);
-  backdrop-filter:saturate(180%) blur(14px);
-  -webkit-backdrop-filter:saturate(180%) blur(14px);
-}
-
 /* 單顆 Weverse 風：小圖示 + 標籤 */
 nav#nav.bubbles .navItem{
   flex:1; display:flex; flex-direction:column; align-items:center; gap:4px;
@@ -1089,36 +1103,26 @@ body.nav-hidden nav#nav{ transform:translateX(-50%) translateY(120%)
 </section>
 
 <!-- ====================== Bottom Nav ====================== -->
-<nav id="nav" class="bubbles">
+<nav id="nav" class="weverse">
   <button id="tabHome" class="navItem active" onclick="showPage('home')">
     <span class="i" aria-hidden="true">
-      <!-- home -->
       <svg viewBox="0 0 24 24"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1z" fill="currentColor"/></svg>
     </span>
     <span class="t">首頁</span>
   </button>
 
   <button id="tabPosts" class="navItem" onclick="showPage('postList')">
-    <span class="i" aria-hidden="true">
-      <!-- posts/feed -->
-      <svg viewBox="0 0 24 24"><path d="M4 4h7v7H4zM13 4h7v5h-7zM13 11h7v9h-7zM4 13h7v7H4z" fill="currentColor"/></svg>
-    </span>
+    <span class="i"><svg viewBox="0 0 24 24"><path d="M4 4h7v7H4zM13 4h7v5h-7zM13 11h7v9h-7zM4 13h7v7H4z" fill="currentColor"/></svg></span>
     <span class="t">貼文</span>
   </button>
 
   <button id="tabDM" class="navItem" onclick="showPage('dm')">
-    <span class="i" aria-hidden="true">
-      <!-- DM -->
-      <svg viewBox="0 0 24 24"><path d="M3 5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H9l-5 4v-4H5a2 2 0 0 1-2-2z" fill="currentColor"/></svg>
-    </span>
+    <span class="i"><svg viewBox="0 0 24 24"><path d="M3 5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H9l-5 4v-4H5a2 2 0 0 1-2-2z" fill="currentColor"/></svg></span>
     <span class="t">DM</span>
   </button>
 
   <button id="tabStore" class="navItem" onclick="showPage('store')">
-    <span class="i" aria-hidden="true">
-      <!-- me/profile -->
-      <svg viewBox="0 0 24 24"><path d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5Zm8 8H4a1 1 0 0 1-1-1 7 7 0 0 1 14 0 1 1 0 0 1-1 1Z" fill="currentColor"/></svg>
-    </span>
+    <span class="i"><svg viewBox="0 0 24 24"><path d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5Zm8 8H4a1 1 0 0 1-1-1 7 7 0 0 1 14 0 1 1 0 0 1-1 1Z" fill="currentColor"/></svg></span>
     <span class="t">我</span>
   </button>
 </nav>
@@ -1169,13 +1173,12 @@ function timeAgo(ts){
 
 function makeTranslateBtn(msg){
   const b = document.createElement('button');
-  b.className = 'transBtnA';
+  b.className = 'translateBtnA';            // ← 修正類名
   b.setAttribute('aria-label','翻譯');
-  b.innerHTML = '<span>A</span>';
+  b.textContent = 'A';
   b.addEventListener('click', (e)=>{
     e.stopPropagation();
-    // 一去不回：記錄已翻譯並重繪
-    LS.setStr(`dmTranslated:${msg.id}`, '1');
+    LS.setStr(`dmTranslated:${msg.id}`, '1'); // 標記已翻譯
     renderThread();
   }, { once:true });
   return b;
@@ -1367,51 +1370,35 @@ function syncNavVisibility(){
 }  
 function showPage(id){
   const prev = PAGE_STACK[PAGE_STACK.length - 1] || 'home';
-  // 上一頁是 dmDetail、而且要切去別頁 → 停掉 DM 裡所有聲音/影片
   if (prev === 'dmDetail' && id !== 'dmDetail') { haltDmMedia(); }
 
   const target = document.getElementById(id);
   if(!target){ console.warn('Page not found:', id); return; }
+
   document.querySelectorAll('section.page').forEach(s => s.classList.remove('active'));
   target.classList.add('active');
+
   if (PAGE_STACK[PAGE_STACK.length - 1] !== id) PAGE_STACK.push(id);
 
-  document.querySelectorAll('#nav button').forEach(b => b.classList.remove('active'));
-({home:'tabHome', postList:'tabPosts', dm:'tabDM', store:'tabStore'}[id]) &&
-  document.getElementById({home:'tabHome', postList:'tabPosts', dm:'tabDM', store:'tabStore'}[id]).classList.add('active');
+  // 切換底部 tab 高亮
+  document.querySelectorAll('#nav .navItem').forEach(b => b.classList.remove('active'));
+  const tabMap = {home:'tabHome', postList:'tabPosts', dm:'tabDM', store:'tabStore', live:'tabLive'};
+  if (tabMap[id]) document.getElementById(tabMap[id]).classList.add('active');
+
+  // 顯/隱底部 Nav
   syncNavVisibility();
 
-
-  // 5) 各頁進場時要做的事
-  if (id === 'home') {
-    renderStoryBar();
-    renderFeed(currentFilter);
+  // 進頁觸發
+  if (id === 'home') { renderStoryBar(); renderFeed(currentFilter); }
+  else if (id === 'dm') { renderDmList(); }
+  else if (id === 'dmDetail') {
+    measureHUD(); measureFooter(); renderThread(); applyChatBg();
+    bindBottomObserver(); bindScrollGuard();
+    autoStick = true; scrollToEndDuring(800); setTimeout(hardStickBottom,0); updateNoticeBanner();
   }
-  if (id === 'dm') {
-    renderDmList();
-  }
-  if (id === 'dmDetail') {
-    measureHUD();
-    measureFooter();
-    renderThread();
-    applyChatBg();
-    bindBottomObserver();
-    bindScrollGuard();
-    autoStick = true;
-    scrollToEndDuring(800);
-    setTimeout(hardStickBottom, 0);
-    updateNoticeBanner();
-  }
-  if (id === 'composerArtist') {
-    const who = document.getElementById('composerWho');
-    if (who) who.textContent = NICKNAME;
-  }
-  if (id === 'postDetail') {
-  renderPostDetail(CURRENT_POST_ID);
-  }
-  if (id === 'postList') renderPostList();
-  }
-}
+  else if (id === 'composerArtist') { const who = document.getElementById('composerWho'); if (who) who.textContent = NICKNAME; }
+  else if (id === 'postDetail') { renderPostDetail(CURRENT_POST_ID); }
+  else if (id === 'postList') { renderPostList(); }
 
 function goBack(){
   const from = PAGE_STACK[PAGE_STACK.length - 1] || 'home';
