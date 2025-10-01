@@ -882,10 +882,6 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
   <div class="homeTop">
     <div class="homeTitle">社群</div>
   </div>
-  <div id="storyWrap">
-    <div id="storyBar"></div>
-  </div>
-  <div id="feedWrap" style="padding:0 6px 12px"></div>
 
   <!-- 貼文詳情 HUD（照圖2/圖3） -->
   <div class="postHUD" id="pdHUD"> 
@@ -949,6 +945,11 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
 <section id="postList" class="page">
   <div class="pageTitle">貼文</div>
   <div id="postListWrap" style="padding:0 6px 100px"></div>
+
+  <div id="storyWrap">
+    <div id="storyBar"></div>
+  </div>
+  <div id="feedWrap" style="padding:0 6px 12px"></div>
 </section>
 
 <!-- ====================== DM LIST ====================== -->
@@ -1448,8 +1449,9 @@ function showPage(id, opts = {}) {
       break;
 
     case 'postList':
-        renderPostList();
-        break;
+  renderStoryBar();
+  renderFeed(currentFilter);
+  break;
       
     case 'live':
       // 目前沒有進場行為就先留空；之後要開播可在這裡加
