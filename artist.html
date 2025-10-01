@@ -178,6 +178,44 @@ nav#nav.weverse button{ background:transparent; border:none }
 .verified-badge .gear{stroke:#fff;stroke-width:.9;filter:drop-shadow(0 1px 2px rgba(0,0,0,.25))}
 .verified-badge .tick{fill:#fff;filter:drop-shadow(0 1px 0 rgba(0,0,0,.18))}
 
+/* ===== Weverse 版首頁（UI only） ===== */
+#wvHome .rowHead{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 8px 8px;font-weight:900;font-size:18px;letter-spacing:.3px;
+}
+.onLiveCard,.merchCard{
+  background:#121214;border:1px solid #1f2026;border-radius:18px;
+  padding:6px 8px 10px;margin:8px 6px;color:#fff;
+  box-shadow:0 8px 20px rgba(0,0,0,.22) inset;
+}
+.liveRow{display:flex;gap:12px;overflow-x:auto;padding:8px 4px 10px;scrollbar-width:none}
+.liveRow::-webkit-scrollbar{display:none}
+.liveItem{
+  position:relative;flex:0 0 78%;height:160px;border-radius:14px;overflow:hidden;
+  background:#222;cursor:pointer;
+}
+.liveItem img{width:100%;height:100%;object-fit:cover;display:block}
+.liveItem .tag{
+  position:absolute;left:8px;top:8px;padding:4px 8px;border-radius:999px;
+  background:#ff3b30;color:#fff;font-size:12px;font-weight:900;letter-spacing:.2px;
+}
+.liveItem .meta{
+  position:absolute;left:10px;right:10px;bottom:10px;display:flex;align-items:center;gap:8px;
+  color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.6);font-weight:900
+}
+.merchTabs{display:flex;gap:8px;padding:0 6px 8px;overflow-x:auto;scrollbar-width:none}
+.merchTabs::-webkit-scrollbar{display:none}
+#wvHome .merchTabs .chip{background:#27282f;border-color:#30323a;color:#fff}
+#wvHome .merchTabs .chip.active{background:#fff;color:#111;border-color:transparent}
+.merchGrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 6px 8px}
+.prod{
+  background:#1a1b22;border:1px solid #292a33;border-radius:14px;overflow:hidden;color:#fff
+}
+.prod .ph{aspect-ratio:1/1;background:#222}
+.prod .ph img{width:100%;height:100%;object-fit:cover;display:block}
+.prod .name{padding:8px 10px 2px;font-weight:900}
+.prod .price{padding:0 10px 10px;color:#cfd3e1;font-size:12px}
+  
 /* ========== Story bar（首頁） ========== */
 #storyWrap{
   position:sticky;top:0;z-index:5;
@@ -841,30 +879,35 @@ body.nav-hidden nav#nav{ transform:translateX(-50%) translateY(120%)
 
 <!-- ====================== HOME ====================== -->
 <section id="home" class="page active">
-  <!-- 頁面抬頭（社群） -->
-  <div class="homeTop">
-    <div class="homeTitle">社群</div>
+  <div id="wvHome" style="padding-bottom:80px">
+    <!-- On LIVE -->
+    <div class="onLiveCard">
+      <div class="rowHead"><b>On LIVE</b><small class="ghost">01 | 03</small></div>
+      <div id="homeLiveRow" class="liveRow"></div>
+    </div>
+
+    <!-- Merch -->
+    <div class="merchCard">
+      <div class="rowHead"><b>Merch</b></div>
+      <div class="merchTabs">
+        <button class="chip active">全部</button>
+        <button class="chip">BLACKPINK</button>
+        <button class="chip">SEVENTEEN</button>
+      </div>
+      <div id="homeMerchGrid" class="merchGrid"></div>
+    </div>
   </div>
-
-  <!-- Story bar -->
-  <div id="storyWrap">
-    <div id="storyBar"></div>
-  </div>
-
-  <!-- 動態牆 -->
-  <div id="feedWrap" style="padding:0 6px 12px"></div>
-
-  <!-- 發文 FAB（對應你既有的 #fabNew 監聽） -->
-  <button id="fabNew" aria-label="新增貼文" class="fabNew" title="新增貼文">
-    <svg class="fabPlus" viewBox="0 0 24 24" width="28" height="28" aria-hidden="true">
-      <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>
-    </svg>
-  </button>
 </section>
 
 <!-- ====================== POST DETAIL (Artist) ====================== -->
-<section id="postDetail" class="page">
-  <div class="pageTitle">貼文</div>
+<section id="postList" class="page">
+  <div class="homeTop">
+    <div class="homeTitle">社群</div>
+  </div>
+  <div id="storyWrap">
+    <div id="storyBar"></div>
+  </div>
+  <div id="feedWrap" style="padding:0 6px 12px"></div>
 
   <!-- 貼文詳情 HUD（照圖2/圖3） -->
   <div class="postHUD" id="dmHUD">
@@ -965,20 +1008,7 @@ body.nav-hidden nav#nav{ transform:translateX(-50%) translateY(120%)
       <input id="pickMedia" type="file" accept="image/*,video/*" multiple style="display:none">
       <input id="pickVoice" type="file" accept="audio/*,video/*" style="display:none">
     </div>
-  </div>
-
- <div class="msg left">
-  <div class="bubble">
-    <div class="fanText">（DEMO）這是粉絲的新留言，尚未按 A 翻譯！🎉</div>
-
-    <!-- 這顆就是你要的 Bubble 同款「A」鍵（位置在泡泡右側，靠上，不會遮時間） -->
-    <button class="translateBtnA" aria-label="翻譯">A</button>
-
-    <!-- 這顆是回覆箭頭（我已上移，不會擋到時間） -->
-    <button class="replyBtn">…</button>
-  </div>
-  <div class="time">下午 3:21</div>
-</div> 
+  </div> 
 
   <!-- 右上 … 選單 -->
   <div id="dmMenu" class="card soft"
@@ -1120,6 +1150,11 @@ body.nav-hidden nav#nav{ transform:translateX(-50%) translateY(120%)
     <span class="i"><svg viewBox="0 0 24 24"><path d="M3 5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H9l-5 4v-4H5a2 2 0 0 1-2-2z" fill="currentColor"/></svg></span>
     <span class="t">DM</span>
   </button>
+
+<button id="tabLive" class="navItem" onclick="showPage('live')">
+  <span class="i"><svg viewBox="0 0 24 24"><path d="M4 5h16v10H4zM8 19h8" fill="currentColor"/></svg></span>
+  <span class="t">直播</span>
+</button>
 
   <button id="tabStore" class="navItem" onclick="showPage('store')">
     <span class="i"><svg viewBox="0 0 24 24"><path d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5Zm8 8H4a1 1 0 0 1-1-1 7 7 0 0 1 14 0 1 1 0 0 1-1 1Z" fill="currentColor"/></svg></span>
@@ -1263,7 +1298,6 @@ async function bootFromJSON(){
 /* 啟動時抓；抓不到就用內建假資料 */
 document.addEventListener('DOMContentLoaded', bootFromJSON);
 
-  document.getElementById('nav')?.classList.add('bubbles');
 
 /* ===== IndexedDB：媒體存這裡 ===== */
 const MEDIA_DB = (()=> {
@@ -1397,9 +1431,8 @@ function showPage(id, opts = {}) {
   // 進頁觸發（用 switch 比一長串 if 更不容易漏大括號）
   switch (id) {
     case 'home':
-      renderStoryBar();
-      renderFeed(currentFilter);
-      break;
+      renderHomeWeverse();
+  break;
 
     case 'dm':
       renderDmList();
@@ -1432,8 +1465,9 @@ function showPage(id, opts = {}) {
       break;
 
     case 'postList':
-      renderPostList();
-      break;
+  renderStoryBar();
+  renderFeed(currentFilter);
+  break;
 
     case 'live':
       // 目前沒有進場行為就先留空；之後要開播可在這裡加
@@ -1447,6 +1481,44 @@ function goBack() {
   PAGE_STACK.pop();
   const prev = PAGE_STACK[PAGE_STACK.length - 1] || 'home';
   showPage(prev);
+}
+
+/* Weverse 版首頁：只處理 UI，不動資料層 */
+function renderHomeWeverse(){
+  // On LIVE 列表（點了就進直播頁）
+  const liveRow = document.getElementById('homeLiveRow');
+  if (liveRow){
+    const lives = [
+      {thumb:'https://picsum.photos/800/400?u=live1', title:'Voice Only', name:'Hebi.'},
+      {thumb:'https://picsum.photos/800/400?u=live2', title:'라이브 드루와✌️', name:'TEMPEST'},
+      {thumb:'https://picsum.photos/800/400?u=live3', title:'LIVE', name:'FUM'}
+    ];
+    liveRow.innerHTML = lives.map(x=>`
+      <div class="liveItem" onclick="showPage('live')">
+        <img src="${x.thumb}" onerror="imgFallback(this)" alt="">
+        <span class="tag">LIVE</span>
+        <div class="meta">${x.name}</div>
+      </div>
+    `).join('');
+  }
+
+  // Merch 假資料（UI 用）
+  const merch = document.getElementById('homeMerchGrid');
+  if (merch){
+    const items = [
+      {img:'https://picsum.photos/800?u=hoodie',  name:'SWEATSHIRT (M.GREY)', price:'USD $62.17'},
+      {img:'https://picsum.photos/800?u=sticker', name:'Deco Sticker',        price:'USD $7.08'},
+      {img:'https://picsum.photos/800?u=bag',     name:'Tote Bag',            price:'USD $24.90'},
+      {img:'https://picsum.photos/800?u=cap',     name:'Logo Cap',            price:'USD $31.50'}
+    ];
+    merch.innerHTML = items.map(p=>`
+      <div class="prod">
+        <div class="ph"><img src="${p.img}" onerror="imgFallback(this)" alt=""></div>
+        <div class="name">${p.name}</div>
+        <div class="price">${p.price}</div>
+      </div>
+    `).join('');
+  }
 }
   
 /* ===================== HOME：Story Bar / Feed ===================== */
