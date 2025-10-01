@@ -6,53 +6,134 @@
 <title>NEXT’S YOU — artist（整合版）</title>
 
 <style>
+/* ================= iOS 26 • Liquid Glass 視覺系統（刪舊貼新） ================= */
 :root{
-  /* 既有設計系統 */
-  --bg:#f5f7ff; --card:#fff; --text:#1a1a1a; --sub:#667085; --line:#e7eaf3; --ghost:#9aa0b4;
-  --hover:#fff;
-  --accent:#6a5acd; --accent2:#836fff;
-  --artist: linear-gradient(180deg, var(--accent), var(--accent2));
-  --radius:16px; --shadow:0 12px 34px rgba(18,24,40,.08);
+  /* 色票與材質（OKLCH/混色友好；fallback 仍是 HEX/RGBA） */
+  color-scheme: light;
+
+  /* Base tones */
+  --bg: #eef2ff;
+  --bg-2: #f6f7ff;
+  --text:#11131a;
+  --sub:#667085;
+  --ghost:#9aa0b4;
+  --line:#e7eaf3;
+
+  /* Accent（淡紫藍調；具備亮度梯度） */
+  --accent:#6a5acd;
+  --accent2:#836fff;
+  --accent-ink:#20185a;
+
+  /* 狀態色 */
+  --danger:#ff3b30;
+  --success:#34c759;
+
+  /* 卡片圓角與投影 */
+  --radius:16px;
+  --radius-lg:22px;
+  --radius-xl:28px;
+  --shadow-1: 0 6px 18px rgba(17,23,41,.12);
+  --shadow-2: 0 12px 34px rgba(17,23,41,.14);
+  --shadow-3: 0 22px 60px rgba(17,23,41,.18);
+
+  /* 安全區與佈局量測 */
   --safe:env(safe-area-inset-bottom,0px);
   --kb-offset:0px;
   --footer-h:96px;
   --hud-h:68px;
   --reply-size:30px;
   --reply-gap:18px;
-  --notice-h: 0px;
-  --danger:#ff3b30;
+  --notice-h:0px;
 
-  /* Liquid Glass 基底 */
+  /* Liquid Glass 材質 */
   --glass-blur:14px;
-  --glass-bg:rgba(255,255,255,.16);
-  --glass-bg-2:rgba(255,255,255,.10);
-  --glass-stroke:rgba(255,255,255,.28);
+  --glass-sat:180%;
+  --glass-bg: rgba(255,255,255,.20);
+  --glass-bg-2: rgba(255,255,255,.10);
+  --glass-stroke: rgba(255,255,255,.42);
+  --glass-sheen: radial-gradient(130% 80% at 28% 22%, rgba(255,255,255,.75), rgba(255,255,255,0) 62%);
+  --ink:#11131a;
+
+  /* Artist 主題漸層（沿用） */
+  --artist: linear-gradient(180deg, var(--accent), var(--accent2));
+
+  /* 互動色塊 */
+  --hover:#fff;
+
+  /* DM 泡泡專用（保持白/灰，但升級質感） */
+  --dm-left-bg:#ffffff;
+  --dm-left-stroke:#e6e9f5;
+  --dm-left-shadow: 0 4px 14px rgba(17,23,41,.10), 0 1px 0 rgba(255,255,255,.80) inset;
+  --dm-right-bg:#6b7280;
+  --dm-right-stroke: rgba(255,255,255,.18);
+  --dm-right-shadow: 0 6px 16px rgba(0,0,0,.22), 0 1px 0 rgba(255,255,255,.20) inset;
+
+  /* LIVE */
+  --live-hair: var(--line);
 }
+
+/* 深色模式（可選） */
+@media (prefers-color-scheme: dark){
+  :root{
+    color-scheme: dark;
+    --bg:#0d0f17; --bg-2:#0f121c;
+    --text:#e9edf5; --sub:#a6aec2; --ghost:#8791a8; --line:#1f2534;
+    --hover: #101521;
+
+    --glass-bg: rgba(20,22,30,.45);
+    --glass-bg-2: rgba(16,18,26,.28);
+    --glass-stroke: rgba(255,255,255,.20);
+
+    --accent:#9da3ff; --accent2:#b7a5ff; --accent-ink:#cfd3ff;
+
+    --dm-left-bg:#12131a; --dm-left-stroke:#252a39;
+    --dm-left-shadow: 0 6px 18px rgba(0,0,0,.36), 0 1px 0 rgba(255,255,255,.06) inset;
+    --dm-right-bg:#5f6a86; --dm-right-stroke: rgba(255,255,255,.16);
+    --dm-right-shadow: 0 10px 20px rgba(0,0,0,.38), 0 1px 0 rgba(255,255,255,.08) inset;
+
+    --live-hair:#2a3144;
+  }
+}
+
+/* Reset */
 *{box-sizing:border-box}
 html,body{height:100%}
 body{
-  margin:0;background:var(--bg);color:var(--text);
-  font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial;
-  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+  margin:0; color:var(--text);
+  background: var(--bg);
+  font-family: ui-sans-serif, system-ui, -apple-system, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial;
+  -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
   overflow-x:hidden;
+  /* 背景霧化暈染（Liquid Glass 背板） */
 }
 img{display:block;max-width:100%}
 a{text-decoration:none;color:inherit}
-button{font:inherit;cursor:pointer}
+button{font:inherit;cursor:pointer;background:transparent;border:none}
 
 .ghost{color:var(--ghost)}
 .sub{color:var(--sub)}
 .soft{padding:16px}
 .row{display:flex;align-items:center;gap:10px}
 
-/* ========== 卡片/晶片 → 液態玻璃 ========== */
+/* =================== 背景墨暈（iOS26） =================== */
+body::before{
+  content:""; position:fixed; inset:0; z-index:-2;
+  background:
+    radial-gradient(120% 80% at 0% 0%, #b8c6ff66 0%, transparent 42%),
+    radial-gradient(100% 70% at 100% 12%, #c6b6ff66 0%, transparent 48%),
+    radial-gradient(120% 80% at 40% 110%, #a9d3ff66 0%, transparent 50%),
+    linear-gradient(180deg, var(--bg), var(--bg-2));
+  filter:saturate(112%) blur(10px);
+}
+
+/* =================== 卡片/晶片 • Liquid Glass =================== */
 .card{
-  background:linear-gradient(180deg,var(--glass-bg),var(--glass-bg-2));
+  background: linear-gradient(180deg,var(--glass-bg),var(--glass-bg-2));
   border:1px solid var(--glass-stroke);
-  border-radius:var(--radius);
-  box-shadow:var(--shadow);
-  backdrop-filter:saturate(160%) blur(var(--glass-blur));
-  -webkit-backdrop-filter:saturate(160%) blur(var(--glass-blur));
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-2);
+  backdrop-filter: saturate(var(--glass-sat)) blur(var(--glass-blur));
+  -webkit-backdrop-filter: saturate(var(--glass-sat)) blur(var(--glass-blur));
 }
 .chip{
   display:inline-flex;align-items:center;gap:6px;
@@ -62,43 +143,34 @@ button{font:inherit;cursor:pointer}
   backdrop-filter:saturate(160%) blur(calc(var(--glass-blur)*.7));
   -webkit-backdrop-filter:saturate(160%) blur(calc(var(--glass-blur)*.7));
 }
-
 .chip.danger{
   background:linear-gradient(180deg,#ff6b6b,#ff3b30);
   color:#fff; border-color:transparent;
   box-shadow:0 6px 14px rgba(255,59,48,.28);
 }
-  
-/* ==== 精緻版・高透淡紫玻璃送出鍵 ==== */
-.btnGlassViolet{
-  position:relative;
-  display:inline-flex; align-items:center; justify-content:center;
 
-  /* 更小更緊實 */
+/* ========== 高透淡紫玻璃按鈕（升級版） ========== */
+.btnGlassViolet{
+  position:relative; display:inline-flex; align-items:center; justify-content:center;
   min-width:56px; height:38px; padding:0 12px;
   border-radius:12px; font-size:14px; font-weight:900; letter-spacing:.25px;
-
-  /* 字改深紫，不要白色 */
-  color:#2f246f;  /* 深紫墨色 */
+  color:var(--accent-ink);
   border:1px solid rgba(255,255,255,.55);
-
-  /* 高透+淡紫漸層玻璃 */
   background:linear-gradient(180deg, rgba(198,186,255,.42), rgba(210,200,255,.16));
   backdrop-filter:saturate(180%) blur(14px);
   -webkit-backdrop-filter:saturate(180%) blur(14px);
-
-  /* 層次與高級感 */
   box-shadow:
     0 1px 0 rgba(255,255,255,.70) inset,
     0 -8px 20px rgba(0,0,0,.10) inset,
     0 10px 28px rgba(17,23,41,.18);
+  -webkit-tap-highlight-color:transparent;
 }
 .btnGlassViolet::before{
   content:""; position:absolute; inset:1px; border-radius:inherit;
-  background:radial-gradient(130% 80% at 28% 22%, rgba(255,255,255,.75), rgba(255,255,255,0) 62%);
+  background: var(--glass-sheen);
   pointer-events:none; mix-blend-mode:soft-light;
 }
-.btnGlassViolet:hover{ filter:saturate(1.05); }
+.btnGlassViolet:hover{ filter:saturate(1.05) }
 .btnGlassViolet:active{
   transform:translateY(1px) scale(.985);
   box-shadow:
@@ -112,29 +184,32 @@ button{font:inherit;cursor:pointer}
 
 /* 無 backdrop-filter 降級 */
 @supports not ((backdrop-filter: blur(10px)) or (-webkit-backdrop-filter: blur(10px))){
-  .btnGlassViolet{ background:linear-gradient(180deg,#efeaff,#e6e0ff); }
+  .card{ background:#fff }
+  .chip{ background:#f2f4ff }
+  .btnGlassViolet{ background:linear-gradient(180deg,#efeaff,#e6e0ff) }
 }
-  
-/* ========== Pages ========== */
-section.page{display:none;padding:12px 12px calc(76px + var(--safe));min-height:100svh}
+
+/* =================== Page 容器與轉場 =================== */
+section.page{
+  display:none;
+  padding:12px 12px calc(76px + var(--safe));
+  min-height:100svh;
+  container-type: inline-size;
+}
 section.page.active{display:block;animation:fade .22s ease}
 @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-/* 當底部 nav 被藏起來時，收斂底部 padding（避免空白） */
 body.nav-hidden section.page{padding-bottom:12px}
 
-/* ===== Bottom Nav（兩種樣式并存；你現在用 .bubbles）===== */
-/* === Weverse 風底部導覽：整條是玻璃；每個項目透明、無邊框 === */
+/* =================== Bottom Nav（Weverse 與 Bubbles） =================== */
 nav#nav.weverse{
-  position:fixed;
-  left:50%; transform:translateX(-50%);
+  position:fixed; left:50%; transform:translateX(-50%);
   bottom:calc(10px + var(--safe));
-  width:min(540px,92vw);               /* 不會太寬也不會爆版 */
+  width:min(540px,92vw);
   z-index:40;
 
   display:flex; justify-content:space-evenly; gap:0;
   padding:10px 12px; border-radius:22px;
 
-  /* 高透液態玻璃（保留你要的 iOS26 質感） */
   background:linear-gradient(180deg, rgba(255,255,255,.42), rgba(255,255,255,.12));
   border:1px solid rgba(255,255,255,.45);
   box-shadow:
@@ -146,39 +221,47 @@ nav#nav.weverse{
   transition:transform .25s ease;
 }
 nav#nav.weverse.hidden{ transform:translateX(-50%) translateY(120%) }
-
-/* 單個項目：透明、無底色、無邊框、間距大 */
 nav#nav.weverse .navItem{
-  position:relative;
-  flex:0 0 auto;                       /* 不要被撐滿，間距才「很開」 */
-  min-width:66px;                       /* 手指好點 */
+  position:relative; flex:0 0 auto; min-width:66px;
   display:flex; flex-direction:column; align-items:center; gap:4px;
-  padding:6px 0;
-  background:transparent; border:none; border-radius:0;
-  color:#2f246f; font-weight:900; letter-spacing:.2px;
+  padding:6px 0; color:#2f246f; font-weight:900; letter-spacing:.2px;
 }
-
-/* 圖標大小 */
-nav#nav.weverse .i{ width:22px; height:22px; display:grid; place-items:center }
-nav#nav.weverse .i svg{ width:22px; height:22px; display:block }
-
-/* 文字：小、緊實 */
+nav#nav.weverse .i{ width:22px;height:22px; display:grid; place-items:center }
+nav#nav.weverse .i svg{ width:22px;height:22px; display:block }
 nav#nav.weverse .t{ font-size:11.5px; line-height:1 }
-
-/* Active：只有變色；不要任何底色/邊框/泡泡 */
 nav#nav.weverse .navItem.active{ color:var(--accent) }
 nav#nav.weverse .navItem:active{ transform:translateY(1px) }
 
-/* 兼容你原本的全域按鈕樣式，確保這裡透明 */
-nav#nav.weverse button{ background:transparent; border:none }
-  
-/* ========== Verified 勳章 ========== */
+/* Bubbles 版本（單顆） */
+nav#nav.bubbles{
+  position:fixed; left:50%; transform:translateX(-50%);
+  bottom:calc(10px + var(--safe)); width:min(540px,92vw);
+  z-index:40; display:flex; gap:10px; padding:8px; border-radius:22px;
+  background:transparent;
+}
+nav#nav.bubbles .navItem{
+  flex:1; display:flex; flex-direction:column; align-items:center; gap:4px;
+  padding:10px 0; border-radius:18px; border:1px solid rgba(255,255,255,.42);
+  background:linear-gradient(180deg, rgba(255,255,255,.32), rgba(255,255,255,.10));
+  color:#2f246f; font-weight:900; letter-spacing:.2px;
+}
+nav#nav.bubbles .navItem .i{ width:22px; height:22px; display:grid; place-items:center }
+nav#nav.bubbles .navItem svg{ width:22px; height:22px; display:block }
+nav#nav.bubbles .navItem .t{ font-size:12px; line-height:1 }
+nav#nav.bubbles .navItem.active{
+  background:linear-gradient(180deg, rgba(198,186,255,.62), rgba(210,200,255,.20));
+  color:#20185a; border-color:rgba(255,255,255,.65);
+  box-shadow:0 10px 26px rgba(106,90,205,.28);
+}
+body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
+
+/* =================== 勳章（Verified） =================== */
 .verified-badge{display:inline-block;width:18px;height:18px;margin-left:4px;vertical-align:middle}
 .verified-badge svg{width:100%;height:100%;display:block}
 .verified-badge .gear{stroke:#fff;stroke-width:.9;filter:drop-shadow(0 1px 2px rgba(0,0,0,.25))}
 .verified-badge .tick{fill:#fff;filter:drop-shadow(0 1px 0 rgba(0,0,0,.18))}
 
-/* ===== Weverse 版首頁（UI only） ===== */
+/* =================== Weverse 版首頁（UI only） =================== */
 #wvHome .rowHead{
   display:flex;align-items:center;justify-content:space-between;
   padding:10px 8px 8px;font-weight:900;font-size:18px;letter-spacing:.3px;
@@ -215,8 +298,8 @@ nav#nav.weverse button{ background:transparent; border:none }
 .prod .ph img{width:100%;height:100%;object-fit:cover;display:block}
 .prod .name{padding:8px 10px 2px;font-weight:900}
 .prod .price{padding:0 10px 10px;color:#cfd3e1;font-size:12px}
-  
-/* ========== Story bar（首頁） ========== */
+
+/* =================== Story Bar（首頁） =================== */
 #storyWrap{
   position:sticky;top:0;z-index:5;
   background:linear-gradient(180deg,rgba(245,247,255,.96),rgba(245,247,255,.90));
@@ -231,9 +314,8 @@ nav#nav.weverse button{ background:transparent; border:none }
 .story-item.active .name{color:var(--accent);font-weight:700}
 .story-item .dot{position:absolute;right:6px;top:2px;width:8px;height:8px;background:var(--danger);border-radius:50%;box-shadow:0 0 0 2px #fff}
 .story-item.pinned img{border-color:#111}
-/* （已修正）移除一行落單的 background: 屬性 */
 
-/* ========== 貼文動作列 + 評論列 ========== */
+/* =================== 貼文動作列 + 評論列 =================== */
 .post .actions{margin-top:10px;padding-top:10px;border-top:1px dashed #e1e4f0}
 .reacts{display:flex;gap:8px;flex-wrap:wrap}
 .react{
@@ -251,13 +333,13 @@ nav#nav.weverse button{ background:transparent; border:none }
 }
 .commentBar{display:flex;align-items:center;justify-content:space-between;margin-top:8px}
 .commentBar .left{display:flex;align-items:center;gap:12px;color:#6b7287;font-weight:800}
-.commentBar .right button{border:none;background:transparent;color:#5b6ab0;font-weight:900}
+.commentBar .right button{color:#5b6ab0;font-weight:900}
 
-/* ========== Home 抬頭（社群） ========== */
+/* =================== Home 抬頭（社群） =================== */
 .homeTop{display:flex;align-items:center;justify-content:flex-start;padding:8px 12px 4px}
 .homeTitle{font-weight:900;letter-spacing:.6px;font-size:22px;line-height:1}
 
-/* ========== Post 卡結構 ========== */
+/* =================== Post 卡結構 =================== */
 #postDetail .pageTitle{ display:none }
 #postDetail .postHUD{
   position:sticky; top:0; z-index:5;
@@ -265,15 +347,15 @@ nav#nav.weverse button{ background:transparent; border:none }
   padding:8px 8px 6px;
   background:linear-gradient(180deg, rgba(245,247,255,.75), rgba(245,247,255,0));
 }
-#postDetail .postHUD .back{ width:44px;height:44px;border:none;background:transparent;display:grid;place-items:center }
+#postDetail .postHUD .back{ width:44px;height:44px;display:grid;place-items:center }
 #postDetail .postHUD .back svg{ width:22px;height:22px;stroke:#5b6ab0;stroke-width:2.6;fill:none }
 #postDetail .postHUD .center{ display:flex; align-items:center; gap:10px; min-width:0; flex:1 }
 #postDetail .postHUD .center img{ width:36px;height:36px;border-radius:50%;object-fit:cover;border:1px solid var(--line) }
 #postDetail .postHUD .meta b{ display:flex; align-items:center; gap:6px; font-weight:900; letter-spacing:.3px }
 #postDetail .postHUD .meta small{ display:block; color:var(--ghost) }
-#postDetail .postHUD .hudBtn{ width:44px;height:44px;border:none;background:transparent;color:#5b6ab0;font-weight:900 }
+#postDetail .postHUD .hudBtn{ width:44px;height:44px; color:#5b6ab0;font-weight:900 }
 
-/* 留言清單：藝人回覆樣式（掛在粉絲留言下） */
+/* 留言清單 */
 .cmtItem{ display:flex; gap:10px; align-items:flex-start; margin:10px 6px }
 .cmtItem .avatar{ width:36px;height:36px;border-radius:50%;object-fit:cover;border:1px solid var(--line) }
 .cmtBody{ flex:1; min-width:0 }
@@ -282,39 +364,33 @@ nav#nav.weverse button{ background:transparent; border:none }
 .cmtTime{ color:var(--ghost); font-size:12px }
 .cmtText{ margin-top:4px }
 
-/* 藝人回覆（縮排、圓角膠囊、維持你的玻璃調性） */
+/* 藝人回覆（玻璃） */
 .artistReply{
-  margin:8px 0 0 0;
-  padding:8px 10px;
-  border-radius:12px;
+  margin:8px 0 0 0; padding:8px 10px; border-radius:12px;
   background:linear-gradient(180deg,rgba(255,255,255,.30),rgba(255,255,255,.12));
   border:1px solid var(--glass-stroke);
   backdrop-filter:saturate(160%) blur(calc(var(--glass-blur)*.6));
   -webkit-backdrop-filter:saturate(160%) blur(calc(var(--glass-blur)*.6));
   box-shadow:0 6px 14px rgba(0,0,0,.08);
-  color:inherit;
-  display:flex; gap:8px; align-items:flex-start;
+  color:inherit; display:flex; gap:8px; align-items:flex-start;
 }
 .artistReply .arName{ font-size:12px; font-weight:900; display:flex; align-items:center; gap:6px }
 .artistReply .arText{ margin-top:2px }
 
 /* 首頁：多圖才顯示的頁面指示點 */
-.pageDots{
-  display:flex; gap:6px; justify-content:center; margin-top:6px;
-}
-.pageDots .dot{
-  width:6px; height:6px; border-radius:50%;
-  background:#cfd3e1; opacity:.85;
-} 
+.pageDots{ display:flex; gap:6px; justify-content:center; margin-top:6px; }
+.pageDots .dot{ width:6px; height:6px; border-radius:50%; background:#cfd3e1; opacity:.85; }
+
+/* Post 卡體 */
 .post{margin:12px 6px}
-.post .hdr{display:flex;align-items:center;gap:10px; position:relative; } /* 給翻譯鈕定位 */
+.post .hdr{display:flex;align-items:center;gap:10px; position:relative; }
 .post .avatar{width:44px;height:44px;border-radius:50%;object-fit:cover;border:1px solid var(--line)}
 .post .meta b{font-weight:900;display:flex;align-items:center;gap:6px}
 .post .meta small{display:block;color:var(--ghost)}
 .post .body{margin-top:8px}
 .post .hero{width:100%;height:360px;object-fit:cover;border-radius:12px;border:1px solid rgba(255,255,255,.35)}
 
-/* ========== DM 列表卡 → 液態玻璃 ========== */
+/* =================== DM 列表卡（玻璃） =================== */
 #dm .dmCard{
   display:flex;align-items:center;gap:12px;padding:12px;margin:10px 0;cursor:pointer;border-radius:14px;
   background:linear-gradient(180deg,rgba(255,255,255,.22),rgba(255,255,255,.10));
@@ -327,31 +403,34 @@ nav#nav.weverse button{ background:transparent; border:none }
 .nameRow{display:flex;align-items:center;gap:8px;min-width:0}
 .nameRow .stage{font-weight:900;letter-spacing:.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dmPreview{display:block;color:var(--ghost);max-width:62vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.artistTag{display:inline-flex;align-items:center;justify-content:center;padding:3px 8px;border-radius:6px;font-size:10px;font-weight:900;letter-spacing:.6px;text-transform:uppercase;color:#2e2a6f;background:linear-gradient(90deg,#bca7ff 0%,#8fb4ff 64%,#ffffff 100%);border:1px solid #ded6ff;box-shadow:0 1px 6px rgba(106,90,205,.18)}
-
-/* ========== DM Detail（背景 + 遮罩） ========== */
-#dmDetail{position:relative;background-color:var(--bg);background-position:center;background-repeat:no-repeat;background-size:cover;background-attachment:scroll;}
-#dmDetail::after{content:"";position:fixed;inset:0;pointer-events:none;background:rgba(0,0,0,var(--bgDim,.0));backdrop-filter:blur(var(--bgBlur,0px));z-index:-1}
-
-/* === DM 頂部 HUD 完全透明，去掉任何底色/邊/毛玻璃 === */
-#dmDetail .chatHUD{
-  position: sticky;
-  top: 0;
-  z-index: 70;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: transparent !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-  border: none !important;
+.artistTag{
+  display:inline-flex;align-items:center;justify-content:center;padding:3px 8px;border-radius:6px;font-size:10px;font-weight:900;letter-spacing:.6px;text-transform:uppercase;color:#2e2a6f;
+  background:linear-gradient(90deg,#bca7ff 0%,#8fb4ff 64%,#ffffff 100%);border:1px solid #ded6ff;box-shadow:0 1px 6px rgba(106,90,205,.18)
 }
-#dmDetail .back, #dmDetail .hudBtn{ width:44px;height:44px;border:none;background:transparent;display:grid;place-items:center }
+
+/* =================== DM Detail（背景 + 遮罩） =================== */
+#dmDetail{
+  position:relative;
+  background-color:var(--bg);
+  background-position:center;background-repeat:no-repeat;background-size:cover;background-attachment:scroll;
+}
+#dmDetail::after{
+  content:"";position:fixed;inset:0;pointer-events:none;
+  background:rgba(0,0,0,var(--bgDim,.0));
+  backdrop-filter:blur(var(--bgBlur,0px));
+  z-index:-1;
+}
+
+/* 頂部 HUD 完全透明 */
+#dmDetail .chatHUD{
+  position: sticky; top: 0; z-index: 70;
+  display: flex; align-items: center; justify-content: space-between;
+  background: transparent !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; border: none !important;
+}
+#dmDetail .back, #dmDetail .hudBtn{ width:44px;height:44px;display:grid;place-items:center }
 #dmDetail .back svg{ width:22px;height:22px;stroke:#5b6ab0;stroke-width:2.6;fill:none }
-/* 讓「⋯」在任何背景都清楚 */
 #dmDetail .hudBtn{
-  color:#111 !important;
-  font-weight:900;
+  color:#111 !important; font-weight:900;
   -webkit-text-stroke:.6px rgba(255,255,255,.75);
   text-shadow:0 1px 2px rgba(255,255,255,.6), 0 0 .5px rgba(0,0,0,.85);
   mix-blend-mode:normal !important;
@@ -359,8 +438,8 @@ nav#nav.weverse button{ background:transparent; border:none }
 #dmDetail .chatHUD .center{ flex:1;min-width:0;display:flex;justify-content:center }
 #dmDetail .artistName{ color:#111 !important; text-shadow:0 1px 2px rgba(255,255,255,.6); }
 #dmDetail .back svg{ stroke:#111 !important; }
-  
-/* ========== Thread 佈局（以 padding 撐 HUD 高度；不留頂白） ========== */
+
+/* Thread 佈局 */
 :root{ --hud-h:56px; }
 #dmDetail .thread{
   position:absolute; left:0; right:0; top:0;
@@ -368,139 +447,94 @@ nav#nav.weverse button{ background:transparent; border:none }
   overflow-y:auto; -webkit-overflow-scrolling:touch;
   display:flex; flex-direction:column;
   padding: calc(var(--hud-h) + 4px) 2px calc(var(--notice-h) + 12px) !important;
-  scrollbar-gutter:stable both-edges;
-  z-index: 1;
+  scrollbar-gutter:stable both-edges; z-index: 1;
 }
 #threadPad{ height:0 !important; }
 #dmDetail .thread .msg + .msg{ margin-top:12px }
 #endAnchor{ height:1px; flex:0 0 auto; }
 
-/* ========== 浮動 noticeBar（粉絲在等你的訊息喔） ========== */
+/* 浮動 noticeBar */
 .noticeBar.is-floating{
-  position: fixed;
-  left: 50%;
-  transform: translateX(-50%);
+  position: fixed; left: 50%; transform: translateX(-50%);
   bottom: calc(var(--footer-h) + var(--kb-offset) + env(safe-area-inset-bottom,0px) + 4px) !important;
-  z-index: 60;
-  pointer-events: none;
+  z-index: 60; pointer-events: none;
 }
 
-/* ========== DM 氣泡（全變小；右側藝人=灰色；語音也灰） ========== */
+/* ========== DM 氣泡（保持白/灰，但升級陰影與描邊） ========== */
 :root{
-  --bubble-px:10px;
-  --bubble-py:8px;
-  --bubble-r:12px;
-  --msg-max:66%;
+  --bubble-px:10px; --bubble-py:8px; --bubble-r:12px; --msg-max:66%;
 }
-#dmDetail .msg{
-  display:flex; align-items:flex-end; gap:6px;
-  max-width:var(--msg-max); margin:0 6px;
-}
+#dmDetail .msg{ display:flex; align-items:flex-end; gap:6px; max-width:var(--msg-max); margin:0 6px; }
 #dmDetail .msg.left{  flex-direction:row;        align-self:flex-start; }
 #dmDetail .msg.right{ flex-direction:row-reverse; align-self:flex-end;  }
 #dmDetail .msg + .msg{ margin-top:8px; }
 
-#dmDetail .time{
-  display:block; margin-top:2px; font-size:11px;
-  color:#8b93a7; white-space:nowrap;
-}
+#dmDetail .time{ display:block; margin-top:2px; font-size:11px; color:#8b93a7; white-space:nowrap; }
 #dmDetail .msg.right .time{ color:#cfd3e1; }
 
 /* 泡泡本體 */
 #dmDetail .bubble{
-  max-width:100%;
-  padding:var(--bubble-py) var(--bubble-px);
-  border-radius:var(--bubble-r);
-  border:1px solid transparent;
-  position:relative;
+  max-width:100%; padding:var(--bubble-py) var(--bubble-px);
+  border-radius:18px; border:1px solid transparent; position:relative;
   font-size:15px; line-height:1.35;
 }
 
-/* 左側粉絲純文字泡泡（圖三） */
+/* 左（粉絲）：白底 + 細描邊 + 柔和陰影 + 內高光（高級感） */
 #dmDetail .msg.left .bubble:not(.mediaWrap):not(.voice){
-  background:#fff;
+  background: var(--dm-left-bg);
   color:#111;
-  border:1px solid #e6e9f5;
-  border-radius:18px;
+  border:1px solid var(--dm-left-stroke);
+  box-shadow: var(--dm-left-shadow);
   padding:12px 14px;
-  line-height:1.35;
-  box-shadow:0 4px 14px rgba(17,23,41,.08);
+}
+#dmDetail .msg.left .bubble:not(.mediaWrap):not(.voice)::after{
+  content:""; position:absolute; inset:1px; border-radius:17px;
+  background: linear-gradient(180deg, rgba(255,255,255,.55), rgba(255,255,255,0));
+  opacity:.55; pointer-events:none; mix-blend-mode:soft-light;
+}
+
+/* 右（藝人）灰底 + 細描邊 + 層次陰影（但保留灰配色） */
+#dmDetail .msg.right .bubble:not(.mediaWrap):not(.voice){
+  background: var(--dm-right-bg);
+  color:#fff;
+  border:1px solid var(--dm-right-stroke);
+  box-shadow: var(--dm-right-shadow);
 }
 
 /* 有翻譯也維持白底樣式 */
 #dmDetail .msg.left .bubble:has(.transDivider){
-  background:#fff !important;
-  color:#111 !important;
-  border:1px solid #e6e9f5 !important;
-  box-shadow:0 4px 14px rgba(17,23,41,.08) !important;
-  backdrop-filter:none !important;
-  -webkit-backdrop-filter:none !important;
+  background:var(--dm-left-bg)!important; color:#111!important;
+  border:1px solid var(--dm-left-stroke)!important;
+  box-shadow:var(--dm-left-shadow)!important;
+  backdrop-filter:none!important; -webkit-backdrop-filter:none!important;
 }
 
-/* 翻譯分隔線：置中 + 固定 92% 寬 */
+/* 翻譯分隔線/文字 */
 #dmDetail .bubble .transDivider{
   height:1px; margin:10px auto 8px; width:92%;
   background-image:linear-gradient(to right, rgba(0,0,0,.28) 33%, rgba(255,255,255,0) 0);
-  background-size:6px 1px; background-repeat:repeat-x; background-position:center;
-  opacity:.35;
+  background-size:6px 1px; background-repeat:repeat-x; background-position:center; opacity:.35;
 }
-
-/* 翻譯文字：#8EA3FF + 粗體（再保險一次） */
 #dmDetail .bubble .transText{ color:#8EA3FF; font-weight:800; }
-
-/* 藍綠色翻譯文字 */
-#dmDetail .bubble .transText{
-  color:#8EA3FF;
-  font-weight:800;
-}
-
-/* Translated by Papago */
-#dmDetail .bubble .transBy{
-  margin-top:2px;
-  font-size:12px;
-  color:#8b93a7;
-}
-
-/* 永不顯示「Translated by Papago」保險絲 */
 #dmDetail .bubble .transBy{ display:none !important; }
 
-/* 右側（藝人）純文字：灰色 */
-#dmDetail .msg.right .bubble:not(.mediaWrap):not(.voice){
-  background:#6b7280;
-  color:#fff;
-  border:1px solid rgba(255,255,255,.18);
-  box-shadow:0 6px 16px rgba(0,0,0,.22);
-}
-
-/* 回覆卡與訊息的間距 */
-#dmDetail .msg + .replyCard,
-#dmDetail .replyCard + .msg{ margin-top:12px; }
-
-/* 取消 FROM FAN（泡泡內）；回覆卡自身保留 */
-#dmDetail .msg.left .bubble .fromLabel{ display:none !important; }
-
 /* 媒體泡泡：脫離泡泡樣式 */
-#dmDetail .msg .bubble.mediaWrap{
-  background:transparent!important; border:none!important; padding:0; border-radius:0; color:inherit;
-}
+#dmDetail .msg .bubble.mediaWrap{ background:transparent!important; border:none!important; padding:0; border-radius:0; color:inherit; }
 #dmDetail .msg.right .bubble.mediaWrap{ background:transparent!important; border:none!important; }
 #dmDetail .msgImg, #dmDetail .msgVideo{
   display:block; width:min(66vw,300px); height:auto;
   border-radius:12px; border:1px solid rgba(0,0,0,.08); overflow:hidden;
 }
 
-/* 語音泡泡 */
+/* 語音泡泡（維持灰/白語意，但質感升級） */
 #dmDetail .bubble.voice{
   border-radius:18px; border:1px solid var(--glass-stroke);
   background:linear-gradient(180deg,rgba(255,255,255,.26),rgba(255,255,255,.12));
 }
 #dmDetail .msg.right .bubble.voice{
-  background:#565b6c; color:#fff;
-  border:1px solid rgba(255,255,255,.18);
+  background:#565b6c; color:#fff; border:1px solid rgba(255,255,255,.18);
   box-shadow:0 6px 16px rgba(0,0,0,.22);
 }
-
-/* 語音內部 UI 更緊實 */
 #dmDetail .voiceUI{ display:flex; align-items:center; gap:8px; min-width:120px; }
 #dmDetail .voicePlay{
   width:30px; height:30px; border-radius:50%; display:grid; place-items:center;
@@ -512,7 +546,8 @@ nav#nav.weverse button{ background:transparent; border:none }
 #dmDetail .msg.right .voiceDur{ color:#fff; }
 .voiceBars{display:none!important}
 
-/* 回覆卡 → 玻璃；標籤黑字+陰影（任何背景都看得到） */
+/* 回覆卡（玻璃） */
+#dmDetail .msg + .replyCard, #dmDetail .replyCard + .msg{ margin-top:12px; }
 .replyCard{
   align-self:flex-end; max-width:74%; margin:14px 6px 0; padding:10px 12px; border-radius:14px;
   background:linear-gradient(180deg,rgba(255,255,255,.30),rgba(255,255,255,.12));
@@ -527,42 +562,34 @@ nav#nav.weverse button{ background:transparent; border:none }
   margin-bottom:4px;
 }
 
-/* 泡泡旁的小圓 A（取代回覆箭頭） */
-.replyBtn{ display:none !important; }            /* 舊回覆鈕徹底關閉 */
-#dmDetail .bubble{ position:relative; }          /* 確保能定位 A 鈕 */
-
+/* 氣泡旁的小圓 A（取代回覆箭頭） */
+.replyBtn{ display:none !important; }
+#dmDetail .bubble{ position:relative; }
 .translateBtnA{
   position:absolute; top:50%; right:0;
   transform:translateY(-50%) translateX(calc(100% + var(--reply-gap)));
   width:var(--reply-size); height:var(--reply-size);
   border-radius:999px; display:grid; place-items:center;
-  border:1px solid rgba(0,0,0,.08);
-  background:rgba(255,255,255,.92);
+  border:1px solid rgba(0,0,0,.08); background:rgba(255,255,255,.92);
   box-shadow:0 6px 14px rgba(0,0,0,.12);
   color:#2f3564; font-weight:900; line-height:1; z-index:2;
   -webkit-tap-highlight-color:transparent;
 }
-.translateBtnA::after{                    /* 外圈細環，符合你圖二的質感 */
-  content:""; position:absolute; inset:4px; border-radius:50%;
-  border:1.5px solid rgba(0,0,0,.10);
-}
-.translateBtnA:active{
-  transform:translateY(-50%) translateX(calc(100% + var(--reply-gap))) scale(.97);
-}
-  
-/* ========== DM Footer（輸入區）→ 玻璃 ========== */
+.translateBtnA::after{ content:""; position:absolute; inset:4px; border-radius:50%; border:1.5px solid rgba(0,0,0,.10); }
+.translateBtnA:active{ transform:translateY(-50%) translateX(calc(100% + var(--reply-gap))) scale(.97); }
+
+/* DM Footer（輸入區玻璃） */
 .dmFooter{
   position:fixed;left:0;right:0;
   bottom:max(env(safe-area-inset-bottom,0px),var(--kb-offset));
-  z-index:50;
-  padding:6px 0 calc(8px + env(safe-area-inset-bottom));
+  z-index:50; padding:6px 0 calc(8px + env(safe-area-inset-bottom));
   background:linear-gradient(180deg,rgba(255,255,255,.20),rgba(255,255,255,.90));
   border-top:1px solid var(--glass-stroke);
   backdrop-filter:blur(var(--glass-blur));
   -webkit-backdrop-filter:blur(var(--glass-blur));
 }
 .dmInputBar{display:flex;align-items:center;gap:8px;padding:0 10px}
-.iconBtn{width:30px;height:30px;border:none;background:transparent;display:grid;place-items:center;flex:0 0 auto;font-size:20px;line-height:1}
+.iconBtn{width:30px;height:30px;display:grid;place-items:center;flex:0 0 auto;font-size:20px;line-height:1}
 .dmInputBar .box{
   flex:1;min-width:0;display:flex;align-items:center;height:44px;padding:0 14px;border-radius:20px;
   background:linear-gradient(180deg,rgba(255,255,255,.35),rgba(255,255,255,.12));
@@ -571,10 +598,10 @@ nav#nav.weverse button{ background:transparent; border:none }
   -webkit-backdrop-filter:saturate(160%) blur(calc(var(--glass-blur)*.6));
 }
 .dmInputBar input{flex:1;border:none;outline:none;background:transparent;font-size:16px}
-.dmSend{width:30px;height:30px;border:none;background:transparent;color:#b2b7c8;display:grid;place-items:center}
+.dmSend{width:30px;height:30px;color:#b2b7c8;display:grid;place-items:center}
 .hasText .dmSend{color:#111}
 
-/* ========== 系統通知 → 玻璃膠囊（單一版本） ========== */
+/* 系統通知（玻璃膠囊） */
 .noticeBar{
   align-self:center;margin:8px 0;padding:6px 12px;border-radius:999px;
   font-size:12px;font-weight:900;letter-spacing:.3px;color:#2e2a6f;
@@ -592,18 +619,18 @@ nav#nav.weverse button{ background:transparent; border:none }
 .replyChipClose:hover{background:rgba(255,255,255,.10)}
 .replyChipClose svg{width:18px;height:18px;display:block}
 
-/* ========== Modal 面板 → 玻璃 ========== */
+/* =================== Modal / 裁切工具 =================== */
 .modal{position:fixed;inset:0;z-index:80;display:none;background:rgba(0,0,0,.45)}
 .modal .panel{
   position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
   width:min(760px,94vw);
   background:linear-gradient(180deg,rgba(255,255,255,.30),rgba(255,255,255,.14));
-  border:1px solid var(--glass-stroke);border-radius:18px;padding:14px;box-shadow:var(--shadow);
+  border:1px solid var(--glass-stroke);border-radius:18px;padding:14px;box-shadow:var(--shadow-2);
   backdrop-filter:saturate(160%) blur(var(--glass-blur));
   -webkit-backdrop-filter:saturate(160%) blur(var(--glass-blur));
 }
 
-/* ===== 裁切背景 ===== */
+/* 裁切背景 */
 #cropStage{position:relative;height:58vh;border:1px dashed var(--line);border-radius:12px;overflow:hidden;background:#f8f9ff;touch-action:none}
 #cropStage img{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);max-width:none;user-select:none;touch-action:none;transform-origin:center center;will-change:transform}
 .cropCtrls{display:flex;align-items:center;gap:10px;margin:12px 0;flex-wrap:wrap}
@@ -638,10 +665,10 @@ nav#nav.weverse button{ background:transparent; border:none }
 /* 保底：關掉橫向滾動 */
 #dmDetail, .thread { overflow-x: hidden; touch-action: pan-y; }
 
-/* ========== LIVE（整合） ========== */
+/* =================== LIVE（整合） =================== */
 #live, #liveRoom { --live-hair: var(--line); }
 
-/* 1) 頂部 HUD：LIVE 標＋愛心數 */
+/* 1) 頂部 HUD */
 #live .liveHUD, #liveRoom .liveHUD{
   position:sticky; top:0; z-index:5;
   display:flex; align-items:center; justify-content:space-between;
@@ -659,7 +686,7 @@ nav#nav.weverse button{ background:transparent; border:none }
 @keyframes blink{0%,55%{opacity:1}56%,100%{opacity:.35}}
 #live .liveHearts, #liveRoom .liveHearts{ font-weight:900; color:#333; }
 
-/* 2) 舞台（可選） */
+/* 2) 舞台 */
 #live .liveStage{
   position:relative; height:44vh; min-height:300px;
   border:1px solid var(--live-hair); border-radius:18px;
@@ -682,7 +709,7 @@ nav#nav.weverse button{ background:transparent; border:none }
   max-width:72%; align-self:flex-end;
   padding:10px 12px; border-radius:14px;
   background:linear-gradient(180deg,var(--accent),var(--accent2));
-  color:#fff; box-shadow:var(--shadow); border:1px solid transparent;
+  color:#fff; box-shadow:var(--shadow-1); border:1px solid transparent;
 }
 #live #liveChat > div.host, #liveRoom #liveChat > div.host{
   align-self:flex-start; background:var(--artist); color:inherit; border:1px solid var(--live-hair);
@@ -775,36 +802,24 @@ nav#nav.weverse button{ background:transparent; border:none }
 }
 #live .liveInput input{ flex:1; height:44px; padding:0 12px; background:#fff; border:1px solid var(--line); border-radius:14px; }
 
-/* ===== FAB：圓形・高透液態玻璃 ===== */
+/* ===== FAB：高透圓形 ===== */
 .fabNew{
-  position: fixed;
-  right: 16px;
-  bottom: calc(88px + var(--safe));
-  width: 64px; height: 64px;
-  border-radius: 50%;
-
+  position: fixed; right: 16px; bottom: calc(88px + var(--safe));
+  width: 64px; height: 64px; border-radius: 50%;
   background: linear-gradient(180deg, rgba(255,255,255,.42), rgba(255,255,255,.12));
   border: 1px solid rgba(255,255,255,.55);
   backdrop-filter: saturate(180%) blur(14px);
   -webkit-backdrop-filter: saturate(180%) blur(14px);
-
   box-shadow:
     0 1px 0 rgba(255,255,255,.70) inset,
     0 -8px 20px rgba(0,0,0,.10) inset,
     0 10px 28px rgba(17,23,41,.18);
-
   display: grid; place-items: center;
   font-size: 28px; font-weight: 900; line-height: 1;
-
-  color: var(--accent);
-  cursor: pointer; z-index: 45;
+  color: var(--accent); cursor: pointer; z-index: 45;
   -webkit-tap-highlight-color: transparent;
 }
-.fabNew::before{
-  content:""; position:absolute; inset:1px; border-radius:50%;
-  background: radial-gradient(130% 80% at 28% 22%, rgba(255,255,255,.75), rgba(255,255,255,0) 62%);
-  pointer-events:none; mix-blend-mode:soft-light;
-}
+.fabNew::before{ content:""; position:absolute; inset:1px; border-radius:50%; background: var(--glass-sheen); pointer-events:none; mix-blend-mode:soft-light; }
 .fabNew:active{ transform: scale(.98); box-shadow:
   0 1px 0 rgba(255,255,255,.70) inset,
   0 -6px 16px rgba(0,0,0,.10) inset,
@@ -814,16 +829,9 @@ nav#nav.weverse button{ background:transparent; border:none }
   .fabNew{ background: rgba(255,255,255,.9); }
 }
 
-/* Page Title */
+/* Page Title / 翻譯鈕 / Composer 玻璃 */
 .pageTitle{ padding:8px 12px 4px; font-weight:900; letter-spacing:.6px; font-size:22px; line-height:1; }
-
-/* 翻譯按鈕擺頭像列右上 */
-.translate-btn{
-  position:absolute; right:0; top:0;
-  padding:4px 10px; font-size:12px; line-height:1;
-}
-
-/* Post 詳情：留言列貼底不透明一點 */
+.translate-btn{ position:absolute; right:0; top:0; padding:4px 10px; font-size:12px; line-height:1; }
 #postDetail #pdComposer{
   background:linear-gradient(180deg,rgba(255,255,255,.30),rgba(255,255,255,.14));
   border:1px solid var(--glass-stroke);
@@ -831,7 +839,7 @@ nav#nav.weverse button{ background:transparent; border:none }
   -webkit-backdrop-filter:saturate(160%) blur(10px);
 }
 
-/* Switch：僅ADP的回覆 */
+/* Switch */
 .switch{position:relative;display:inline-block;width:46px;height:26px;vertical-align:middle}
 .switch input{display:none}
 .switch .slider{position:absolute;inset:0;background:#d8dcec;border:1px solid var(--line);border-radius:999px;transition:.18s}
@@ -839,40 +847,10 @@ nav#nav.weverse button{ background:transparent; border:none }
 .switch input:checked + .slider{background:linear-gradient(180deg,var(--accent),var(--accent2));border-color:transparent}
 .switch input:checked + .slider:before{transform:translate(20px,-50%)}
 
-  /* 夢幻藍紫噴墨底（iOS26 感） */
-body::before{
-  content:""; position:fixed; inset:0; z-index:-2;
-  background:
-    radial-gradient(120% 80% at 0% 0%, #b8c6ff66 0%, transparent 42%),
-    radial-gradient(100% 70% at 100% 12%, #c6b6ff66 0%, transparent 48%),
-    radial-gradient(120% 80% at 40% 110%, #a9d3ff66 0%, transparent 50%),
-    linear-gradient(180deg, #eef2ff, #f6f7ff);
-  filter:saturate(112%) blur(10px);
+/* 無障礙：減少動效 */
+@media (prefers-reduced-motion: reduce){
+  *{ animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important; scroll-behavior:auto !important }
 }
-  
-/* 單顆 Weverse 風：小圖示 + 標籤 */
-nav#nav.bubbles .navItem{
-  flex:1; display:flex; flex-direction:column; align-items:center; gap:4px;
-  padding:10px 0; border-radius:18px; border:1px solid rgba(255,255,255,.42);
-  background:linear-gradient(180deg, rgba(255,255,255,.32), rgba(255,255,255,.10));
-  color:#2f246f; font-weight:900; letter-spacing:.2px;
-}
-nav#nav.bubbles .navItem .i{ width:22px; height:22px; display:grid; place-items:center }
-nav#nav.bubbles .navItem svg{ width:22px; height:22px; display:block }
-nav#nav.bubbles .navItem .t{ font-size:12px; line-height:1 }
-
-/* Active 狀態：淡紫高亮 */
-nav#nav.bubbles .navItem.active{
-  background:linear-gradient(180deg, rgba(198,186,255,.62), rgba(210,200,255,.20));
-  color:#20185a;
-  border-color:rgba(255,255,255,.65);
-  box-shadow:0 10px 26px rgba(106,90,205,.28);
-}
-
-/* 舊的 nav-hidden 行為保持 */
-body.nav-hidden nav#nav{ 
-  transform: translateX(-50%) translateY(120%);
-} 
 </style>
 </head>
 <body>
