@@ -1368,48 +1368,87 @@ function syncNavVisibility(){
   nav.classList.toggle('hidden', mustHide);
   document.body.classList.toggle('nav-hidden', mustHide); // ← 新增：讓 CSS 能收掉底部 padding
 }  
-function showPage(id){
+function showPage(id, opts = {}) {
+  // 上一頁
   const prev = PAGE_STACK[PAGE_STACK.length - 1] || 'home';
-  if (prev === 'dmDetail' && id !== 'dmDetail') { haltDmMedia(); }
+  if (prev === 'dmDetail' && id !== 'dmDetail') haltDmMedia();
 
+  // 目標頁
   const target = document.getElementById(id);
-  if(!target){ console.warn('Page not found:', id); return; }
+  if (!target) { console.warn('Page not found:', id); return; }
 
-  document.querySelectorAll('section.page').forEach(s => s.classList.remove('active'));
+  // 切換可見頁
+  document.querySelectorAll('section.page.active').forEach(s => s.classList.remove('active'));
   target.classList.add('active');
 
-  if (PAGE_STACK[PAGE_STACK.length - 1] !== id) PAGE_STACK.push(id);
+  // Page stack：同頁不重複推
+  const top = PAGE_STACK[PAGE_STACK.length - 1];
+  if (top !== id) PAGE_STACK.push(id);
 
-  // 切換底部 tab 高亮
+  // Tab 高亮（容錯：元素不存在不報錯）
+  const tabMap = { home: 'tabHome', postList: 'tabPosts', dm: 'tabDM', store: 'tabStore', live: 'tabLive' };
   document.querySelectorAll('#nav .navItem').forEach(b => b.classList.remove('active'));
-  const tabMap = {home:'tabHome', postList:'tabPosts', dm:'tabDM', store:'tabStore', live:'tabLive'};
-  if (tabMap[id]) document.getElementById(tabMap[id]).classList.add('active');
+  const tabId = tabMap[id];
+  if (tabId) document.getElementById(tabId)?.classList.add('active');
 
   // 顯/隱底部 Nav
   syncNavVisibility();
 
-  // 進頁觸發
-  if (id === 'home') { renderStoryBar(); renderFeed(currentFilter); }
-  else if (id === 'dm') { renderDmList(); }
-  else if (id === 'dmDetail') {
-    measureHUD(); measureFooter(); renderThread(); applyChatBg();
-    bindBottomObserver(); bindScrollGuard();
-    autoStick = true; scrollToEndDuring(800); setTimeout(hardStickBottom,0); updateNoticeBanner();
+  // 進頁觸發（用 switch 比一長串 if 更不容易漏大括號）
+  switch (id) {
+    case 'home':
+      renderStoryBar();
+      renderFeed(currentFilter);
+      break;
+
+    case 'dm':
+      renderDmList();
+      break;
+
+    case 'dmDetail':
+      // 延一幀讓 layout 先完成，尺寸量測比較準
+      requestAnimationFrame(() => {
+        measureHUD();
+        measureFooter();
+        renderThread();
+        applyChatBg();
+        bindBottomObserver();
+        bindScrollGuard();
+        autoStick = true;
+        scrollToEndDuring(800);
+        setTimeout(hardStickBottom, 0);
+        updateNoticeBanner();
+      });
+      break;
+
+    case 'composerArtist': {
+      const who = document.getElementById('composerWho');
+      if (who) who.textContent = NICKNAME;
+      break;
+    }
+
+    case 'postDetail':
+      if (CURRENT_POST_ID) renderPostDetail(CURRENT_POST_ID);
+      break;
+
+    case 'postList':
+      renderPostList();
+      break;
+
+    case 'live':
+      // 目前沒有進場行為就先留空；之後要開播可在這裡加
+      break;
   }
-  else if (id === 'composerArtist') { const who = document.getElementById('composerWho'); if (who) who.textContent = NICKNAME; }
-  else if (id === 'postDetail') { renderPostDetail(CURRENT_POST_ID); }
-  else if (id === 'postList') { renderPostList(); }
-
-function goBack(){
+}
+  
+function goBack() {
   const from = PAGE_STACK[PAGE_STACK.length - 1] || 'home';
-  // 新增：從 DM 詳細頁返回時，先停媒體
   if (from === 'dmDetail') haltDmMedia();
-
   PAGE_STACK.pop();
   const prev = PAGE_STACK[PAGE_STACK.length - 1] || 'home';
   showPage(prev);
 }
-
+  
 /* ===================== HOME：Story Bar / Feed ===================== */
 let currentFilter='me';
 
