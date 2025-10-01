@@ -870,8 +870,8 @@ nav#nav.bubbles .navItem.active{
 }
 
 /* 舊的 nav-hidden 行為保持 */
-body.nav-hidden nav#nav{ transform:translateX(-50%) translateY(120%) 
-
+body.nav-hidden nav#nav{ 
+  transform: translateX(-50%) translateY(120%);
 } 
 </style>
 </head>
@@ -900,7 +900,7 @@ body.nav-hidden nav#nav{ transform:translateX(-50%) translateY(120%)
 </section>
 
 <!-- ====================== POST DETAIL (Artist) ====================== -->
-<section id="postList" class="page">
+<section id="postDetail" class="page">
   <div class="homeTop">
     <div class="homeTitle">社群</div>
   </div>
@@ -910,7 +910,7 @@ body.nav-hidden nav#nav{ transform:translateX(-50%) translateY(120%)
   <div id="feedWrap" style="padding:0 6px 12px"></div>
 
   <!-- 貼文詳情 HUD（照圖2/圖3） -->
-  <div class="postHUD" id="dmHUD">
+  <div class="postHUD" id="pdHUD"> 
     <button class="back" onclick="goBack()" aria-label="Back">
       <svg viewBox="0 0 24 24"><path d="M15 19 8 12l7-7"/></svg>
     </button>
@@ -1152,7 +1152,12 @@ body.nav-hidden nav#nav{ transform:translateX(-50%) translateY(120%)
   </button>
 
 <button id="tabLive" class="navItem" onclick="showPage('live')">
-  <span class="i"><svg viewBox="0 0 24 24"><path d="M4 5h16v10H4zM8 19h8" fill="currentColor"/></svg></span>
+  <span class="i" aria-hidden="true">
+    <svg viewBox="0 0 24 24">
+      <rect x="4" y="5" width="16" height="10" rx="2" fill="currentColor"/>
+      <rect x="8" y="19" width="8" height="2" rx="1" fill="currentColor"/>
+    </svg>
+  </span>
   <span class="t">直播</span>
 </button>
 
@@ -2813,7 +2818,7 @@ function renderPostComments(p){
 
     return `
       <div class="card soft commentItem"
-           data-post="${p.id}" data-cmt="${c.id}" data-from="${c.from}"
+           data-post="${p.id}" data-cmt="${c.id}" data-root="${c.replyTo || c.id}" data-from="${c.from}"
            style="display:flex;gap:10px;align-items:flex-start;margin:10px 6px">
         <img src="${avatar}" alt="" onerror="imgFallback(this)"
              style="width:36px;height:36px;border-radius:50%;object-fit:cover;border:1px solid var(--line)">
@@ -3047,13 +3052,20 @@ document.addEventListener('DOMContentLoaded', ()=>{
   if (pdMe) pdMe.src = ME.avatar;
   
   // 只有點「粉絲」留言才進評論詳情
+  (function bindOpenCmtOnce(){
+  if (window.__openCmtBound) return;
+  window.__openCmtBound = true;
+
   document.addEventListener('click', (e)=>{
-    const item = e.target.closest('.commentItem');
-    if(!item) return;
-    if(item.getAttribute('data-from') === 'fan'){
-      openCommentDetail(item.getAttribute('data-post'), item.getAttribute('data-cmt'));
-    }
-  });
+    const el = e.target.closest('.commentItem');
+    if(!el) return;
+
+    const postId = el.dataset.post;
+    const rootId = el.dataset.root || el.dataset.cmt; // 保底取 root
+
+    if (postId && rootId) openCommentDetail(postId, rootId);
+  }, { passive:true });
+})();
 
   renderStoryBar();
   renderFeed(currentFilter);
