@@ -447,7 +447,9 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
 
 /* 頂部 HUD 完全透明 */
 /* PATCH #8-C（刪舊貼新）— DM HUD 可讀性：不用陰影、加小底板 */
-#dmDetail .chatHUD{ background:transparent !important; }
+#dmDetail .chatHUD{
+  display:flex; align-items:center; justify-content:space-between;
+  gap:6px; padding:8px 8px 6px; }
 
 /* 小底板：背後墊透明白，避免被背景吃掉（非陰影） */
 #dmDetail .back, #dmDetail .hudBtn{
@@ -482,12 +484,26 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
   mix-blend-mode:normal !important;
   -webkit-text-stroke:0 !important;
 }
-#dmDetail .artistName{
-  color:#2f3564 !important;
-  text-shadow:none !important;
-  mix-blend-mode:normal !important;
+#dmTitle.artistName{
+  font-weight:1000; letter-spacing:.4px;
+  font-size:clamp(18px,5vw,22px);
+  text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
 }
 
+/* 固定左右按鈕的寬度，避免擠壓標題 */
+#dmDetail .chatHUD .back,
+#dmDetail .chatHUD .hudBtn{
+  width:44px; height:44px;
+  flex:0 0 44px;
+  display:grid; place-items:center;
+}
+
+/* 讓中間這段吃滿可用空間，並把標題置中 */
+#dmDetail .chatHUD .center{
+  flex:1; min-width:0;
+  display:flex; justify-content:center; align-items:center;
+}
+  
 /* Thread 佈局 */
 :root{ --hud-h:56px; }
 #dmDetail .thread{
@@ -509,15 +525,12 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
   z-index: 60; pointer-events: none;
 }
 
-/* ========== DM 氣泡（保持白/灰，但升級陰影與描邊） ========== */
-:root{
-  --bubble-px:10px; --bubble-py:8px; --bubble-r:12px; --msg-max:66%;
-}
+/* ========== DM 氣泡（黑底白字，翻譯藍紫） ========== */
+:root{ --bubble-px:10px; --bubble-py:8px; --bubble-r:12px; --msg-max:66%; }
 #dmDetail .msg{ display:flex; align-items:flex-end; gap:6px; max-width:var(--msg-max); margin:0 6px; }
 #dmDetail .msg.left{  flex-direction:row;        align-self:flex-start; }
 #dmDetail .msg.right{ flex-direction:row-reverse; align-self:flex-end;  }
 #dmDetail .msg + .msg{ margin-top:8px; }
-
 #dmDetail .time{ display:block; margin-top:2px; font-size:11px; color:#8b93a7; white-space:nowrap; }
 #dmDetail .msg.right .time{ color:#cfd3e1; }
 
@@ -528,21 +541,20 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
   font-size:15px; line-height:1.35;
 }
 
-/* 左（粉絲）：白底 + 細描邊 + 柔和陰影 + 內高光（高級感） */
+/* 左（粉絲）：黑底白字（就算有翻譯也不改色） */
 #dmDetail .msg.left .bubble:not(.mediaWrap):not(.voice){
-  background: var(--dm-left-bg);
-  color:#111;
-  border:1px solid var(--dm-left-stroke);
-  box-shadow: var(--dm-left-shadow);
+  background:#11131a;
+  color:#ffffff;
+  border:1px solid rgba(255,255,255,.16);
+  box-shadow:0 10px 22px rgba(0,0,0,.38), 0 1px 0 rgba(255,255,255,.08) inset;
   padding:12px 14px;
 }
-#dmDetail .msg.left .bubble:not(.mediaWrap):not(.voice)::after{
-  content:""; position:absolute; inset:1px; border-radius:17px;
-  background: linear-gradient(180deg, rgba(255,255,255,.55), rgba(255,255,255,0));
-  opacity:.55; pointer-events:none; mix-blend-mode:soft-light;
-}
+/* 釘原文字色白，不影響翻譯段落 */
+#dmDetail .msg.left .bubble .fanText{ color:#ffffff !important; }
+/* 粉絲側時間戳在黑底上用淺灰（補上缺失的大括號） */
+#dmDetail .msg.left .time{ color:#cfd3e1 !important; }
 
-/* 右（藝人）灰底 + 細描邊 + 層次陰影（但保留灰配色） */
+/* 右（藝人）：灰底白字 */
 #dmDetail .msg.right .bubble:not(.mediaWrap):not(.voice){
   background: var(--dm-right-bg);
   color:#fff;
@@ -550,24 +562,16 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
   box-shadow: var(--dm-right-shadow);
 }
 
-/* 有翻譯也維持白底樣式 */
-#dmDetail .msg.left .bubble:has(.transDivider){
-  background:var(--dm-left-bg)!important; color:#111!important;
-  border:1px solid var(--dm-left-stroke)!important;
-  box-shadow:var(--dm-left-shadow)!important;
-  backdrop-filter:none!important; -webkit-backdrop-filter:none!important;
-}
-
-/* 翻譯分隔線/文字 */
+/* 翻譯分隔線/文字（翻譯字保留藍紫） */
 #dmDetail .bubble .transDivider{
   height:1px; margin:10px auto 8px; width:92%;
-  background-image:linear-gradient(to right, rgba(0,0,0,.28) 33%, rgba(255,255,255,0) 0);
-  background-size:6px 1px; background-repeat:repeat-x; background-position:center; opacity:.35;
+  background-image:linear-gradient(to right, rgba(255,255,255,.35) 33%, rgba(255,255,255,0) 0);
+  background-size:6px 1px; background-repeat:repeat-x; background-position:center; opacity:.5;
 }
 #dmDetail .bubble .transText{ color:#8EA3FF; font-weight:800; }
 #dmDetail .bubble .transBy{ display:none !important; }
 
-/* 媒體泡泡：脫離泡泡樣式 */
+/* 媒體泡泡：脫離泡泡樣式（維持原有寫法） */
 #dmDetail .msg .bubble.mediaWrap{ background:transparent!important; border:none!important; padding:0; border-radius:0; color:inherit; }
 #dmDetail .msg.right .bubble.mediaWrap{ background:transparent!important; border:none!important; }
 #dmDetail .msgImg, #dmDetail .msgVideo{
@@ -897,7 +901,13 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
 }
 
 /* Page Title / 翻譯鈕 / Composer 玻璃 */
-.pageTitle { margin-bottom: 2px; }
+/* 頁面抬頭：貼文/DM/直播等 */
+.pageTitle{
+  margin: 0 0 6px;
+  font-weight: 1000;
+  letter-spacing: .4px;
+  font-size: clamp(20px, 4.8vw, 24px);
+  line-height: 1.1; }
 #storyWrap { margin-top: -2px; }
 .translate-btn{ position:absolute; right:0; top:0; padding:4px 10px; font-size:12px; line-height:1; }
 #postDetail #pdComposer{
@@ -941,6 +951,15 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
   border:1px solid rgba(0,0,0,.06);
   z-index:-1;
 }
+  /* PATCH #8-B（刪舊貼新）— 主要按鈕文字永遠可見、禁用任何混色/陰影 */
+.btnPrimary{
+  color:#fff !important;
+  -webkit-text-fill-color:#fff !important;
+  text-shadow:none !important;
+  mix-blend-mode:normal !important;
+  filter:none !important;
+}
+.btnPrimary:disabled{ opacity:.6 }
 </style>
 </head>
 <body>
@@ -1369,6 +1388,15 @@ async function bootFromJSON(){
   if ((PAGE_STACK[PAGE_STACK.length-1]||'') === 'dmDetail') renderThread();
 }
 
+/* ===== 評論數工具（統一口徑） ===== */
+function totalComments(p){ return Array.isArray(p?.cmts) ? p.cmts.length : 0; }
+function refreshCommentCountUI(postId){
+  const p = POSTS.find(x => x.id === postId);
+  const n = totalComments(p);
+  document.querySelectorAll(`.post[data-post="${postId}"] .cmtCount`)
+    .forEach(el => el.textContent = String(n));
+}
+  
 /* 啟動時抓；抓不到就用內建假資料 */
 document.addEventListener('DOMContentLoaded', bootFromJSON);
 
@@ -1691,7 +1719,7 @@ function renderFeed(filter='me'){
       <div class="actions">
         ${renderReactionsBar(p.id)}
         <div class="commentBar">
-          <div class="left">💬 <span class="cmtCount">${(p.cmts||[]).filter(c=>!c.replyTo).length}</span> 則評論</div>
+          <div class="left">💬 <span class="cmtCount">${totalComments(p)}</span> 則評論</div>
           <div class="right"><button class="addCmt">發表評論</button></div>
         </div>
       </div>
@@ -1893,6 +1921,7 @@ function sendThreadReply(){
   LS.set('artistPosts', POSTS);
   cdInput.value=''; updateCdComposer();
   renderCommentDetail();
+  refreshCommentCountUI(p.id);
   // 若你停留在貼文詳情時，更新那邊的數字
   if (CURRENT_POST_ID) renderPostDetail(CURRENT_POST_ID);
 } 
@@ -2826,10 +2855,7 @@ function renderPostDetail(postId){
   const nm = document.getElementById('pdName');  if (nm) nm.innerHTML = escapeHtml(displayName) + ' ' + VB(16);
   const tm = document.getElementById('pdTime');  if (tm) tm.textContent = timeAgo(p.ts);
   const hudBtn = document.getElementById('pdTransHUD'); if (hudBtn) hudBtn.onclick = ()=> togglePostTranslate(p.id);
-
-  // 只統計主樓（粉絲）留言數
-  const topFan = (p.cmts||[]).filter(c=>!c.replyTo && c.from!=='artist');
-  const topList = PD_FILTER_OTHERS ? [] : topFan; // 詳情頁卡片上的數字維持主樓數
+  const totalC = totalComments(p);
 
   wrap.innerHTML = `
     <div class="post card soft" data-post="${p.id}">
@@ -2850,7 +2876,7 @@ function renderPostDetail(postId){
       <div class="actions">
         ${renderReactionsBar(p.id)}
         <div class="commentBar">
-          <div class="left">💬 <span class="cmtCount">${topList.length}</span> 則評論</div>
+          <div class="left">💬 <span class="cmtCount">${totalComments(p)}</span> 則評論</div>
           <div class="right"></div>
         </div>
       </div>
@@ -2947,9 +2973,7 @@ function sendPostComment(){
   input.value = '';
   renderPostDetail(CURRENT_POST_ID);
 
-  // 更新首頁卡片上的留言數
-  document.querySelectorAll(`.post[data-post="${p.id}"] .cmtCount`)
-    .forEach(el => el.textContent = String(p.cmts.filter(x=>!x.replyTo).length));
+refreshCommentCountUI(p.id);
 }
 
 /* — 綁定貼文詳情輸入列（只綁一次）— */
