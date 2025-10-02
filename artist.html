@@ -301,12 +301,14 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
 
 /* =================== Story Bar（首頁） =================== */
 #storyWrap{
-  position:sticky;top:0;z-index:5;
-  background:linear-gradient(180deg,rgba(245,247,255,.96),rgba(245,247,255,.90));
-  backdrop-filter:blur(6px)
+  position: sticky; top: 0; z-index: 5;
+  background: linear-gradient(180deg, rgba(255,255,255,.32), rgba(255,255,255,.10));
+  border-bottom: 1px solid var(--glass-stroke);
+  backdrop-filter: saturate(160%) blur(10px);
+  -webkit-backdrop-filter: saturate(160%) blur(10px);
 }
-#storyBar{display:flex;gap:12px;overflow-x:auto;padding:10px 8px 12px;border-bottom:1px solid var(--line);scrollbar-width:none}
-#storyBar::-webkit-scrollbar{display:none}
+#storyBar{display:flex; gap:12px; overflow-x:auto;padding:8px 8px 10px; scrollbar-width:none; border-bottom: none;}
+#storyBar::-webkit-scrollbar{ display:none }
 .story-item{flex:0 0 auto;width:64px;text-align:center;cursor:pointer;position:relative}
 .story-item img{width:56px;height:56px;border-radius:50%;object-fit:cover;border:2px solid #d5d8f3;margin:0 auto}
 .story-item .name{font-size:12px;margin-top:4px;color:#9aa1ad}
@@ -347,6 +349,28 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
   padding:8px 8px 6px;
   background:linear-gradient(180deg, rgba(245,247,255,.75), rgba(245,247,255,0));
 }
+
+/* 1A. 進貼文詳情時，「社群」抬頭不要出現 */
+#postDetail .homeTop { display: none !important; }
+
+/* 1B. 貼文詳情的輸入列固定到底（跟 DM 一樣） */
+#pdComposer{
+  position: fixed !important;
+  left: 0; right: 0;
+  bottom: max(env(safe-area-inset-bottom,0px), var(--kb-offset));
+  z-index: 45;
+  margin: 0 !important;
+  border-radius: 0 !important;
+  padding: 8px 10px !important;
+  background: linear-gradient(180deg, rgba(255,255,255,.20), rgba(255,255,255,.90)) !important;
+  border-top: 1px solid var(--glass-stroke) !important;
+  backdrop-filter: blur(var(--glass-blur)) !important;
+  -webkit-backdrop-filter: blur(var(--glass-blur)) !important;
+}
+
+/* 1C. 讓 postDetail 內容底部預留空間（不被輸入列蓋住） */
+#postDetail { padding-bottom: calc(var(--footer-h) + 12px) !important; }
+  
 #postDetail .postHUD .back{ width:44px;height:44px;display:grid;place-items:center }
 #postDetail .postHUD .back svg{ width:22px;height:22px;stroke:#5b6ab0;stroke-width:2.6;fill:none }
 #postDetail .postHUD .center{ display:flex; align-items:center; gap:10px; min-width:0; flex:1 }
@@ -422,22 +446,47 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
 }
 
 /* 頂部 HUD 完全透明 */
-#dmDetail .chatHUD{
-  position: sticky; top: 0; z-index: 70;
-  display: flex; align-items: center; justify-content: space-between;
-  background: transparent !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; border: none !important;
+/* PATCH #8-C（刪舊貼新）— DM HUD 可讀性：不用陰影、加小底板 */
+#dmDetail .chatHUD{ background:transparent !important; }
+
+/* 小底板：背後墊透明白，避免被背景吃掉（非陰影） */
+#dmDetail .back, #dmDetail .hudBtn{
+  position:relative;
+  isolation:isolate;
 }
-#dmDetail .back, #dmDetail .hudBtn{ width:44px;height:44px;display:grid;place-items:center }
-#dmDetail .back svg{ width:22px;height:22px;stroke:#5b6ab0;stroke-width:2.6;fill:none }
+#dmDetail .back::before, 
+#dmDetail .hudBtn::before{
+  content:"";
+  position:absolute; inset:8px;
+  border-radius:10px;
+  background:rgba(255,255,255,.82);
+  border:1px solid rgba(0,0,0,.06);
+  z-index:-1;
+}
+
+/* 箭頭本體：固定墨色、不混色、不發陰影 */
+#dmDetail .back svg{
+  stroke:#2f3564 !important;
+  stroke-width:2.6;
+  stroke-linecap:round; stroke-linejoin:round;
+  fill:none;
+  mix-blend-mode:normal !important;
+  filter:none !important;
+}
+
+/* 右上 … 與中間標題：固定墨色、無陰影 */
 #dmDetail .hudBtn{
-  color:#111 !important; font-weight:900;
-  -webkit-text-stroke:.6px rgba(255,255,255,.75);
-  text-shadow:0 1px 2px rgba(255,255,255,.6), 0 0 .5px rgba(0,0,0,.85);
+  color:#2f3564 !important;
+  font-weight:900;
+  text-shadow:none !important;
+  mix-blend-mode:normal !important;
+  -webkit-text-stroke:0 !important;
+}
+#dmDetail .artistName{
+  color:#2f3564 !important;
+  text-shadow:none !important;
   mix-blend-mode:normal !important;
 }
-#dmDetail .chatHUD .center{ flex:1;min-width:0;display:flex;justify-content:center }
-#dmDetail .artistName{ color:#111 !important; text-shadow:0 1px 2px rgba(255,255,255,.6); }
-#dmDetail .back svg{ stroke:#111 !important; }
 
 /* Thread 佈局 */
 :root{ --hud-h:56px; }
@@ -600,6 +649,24 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
 .dmInputBar input{flex:1;border:none;outline:none;background:transparent;font-size:16px}
 .dmSend{width:30px;height:30px;color:#b2b7c8;display:grid;place-items:center}
 .hasText .dmSend{color:#111}
+
+  /* 3. 輸入框白底黑字（所有輸入場景統一） */
+.dmInputBar .box,
+#cdComposer .box,
+#pdComposer {
+  background: #fff !important;
+  border: 1px solid var(--line) !important;
+}
+
+.dmInputBar input,
+#cdComposer input,
+#pdComposer input,
+#liveInputBox {
+  color: #000 !important;
+  background: transparent !important;
+}
+
+::placeholder { color: #9aa0b4; opacity: 1; }
 
 /* 系統通知（玻璃膠囊） */
 .noticeBar{
@@ -830,7 +897,8 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
 }
 
 /* Page Title / 翻譯鈕 / Composer 玻璃 */
-.pageTitle{ padding:8px 12px 4px; font-weight:900; letter-spacing:.6px; font-size:22px; line-height:1; }
+.pageTitle { margin-bottom: 2px; }
+#storyWrap { margin-top: -2px; }
 .translate-btn{ position:absolute; right:0; top:0; padding:4px 10px; font-size:12px; line-height:1; }
 #postDetail #pdComposer{
   background:linear-gradient(180deg,rgba(255,255,255,.30),rgba(255,255,255,.14));
@@ -850,6 +918,28 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
 /* 無障礙：減少動效 */
 @media (prefers-reduced-motion: reduce){
   *{ animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important; scroll-behavior:auto !important }
+}
+  /* PATCH #8-A（新增）— 固定墨色、不受背景影響，且不使用陰影 */
+.ink-fixed{
+  color: var(--text) !important;
+  mix-blend-mode: normal !important;
+  text-shadow: none !important;
+  filter: none !important;
+  -webkit-text-stroke: 0 !important;
+}
+
+/* 若該區域背景偏亮或偏花，可用這個「微底色板」（不是陰影） */
+.ink-plate{
+  position: relative;
+  isolation: isolate;
+}
+.ink-plate::before{
+  content:"";
+  position:absolute; inset:-2px;
+  border-radius:8px;
+  background: rgba(255,255,255,.78);     /* 透明白底板 */
+  border:1px solid rgba(0,0,0,.06);
+  z-index:-1;
 }
 </style>
 </head>
@@ -1376,7 +1466,7 @@ function dataURLtoBlob(dataURL){
 }
   
 /* ===================== 導航 ===================== */
-const HIDE_NAV_IN = ['dmDetail','composerArtist'];
+const HIDE_NAV_IN = ['dmDetail','composerArtist','postDetail','commentDetail'];
 let PAGE_STACK = ['home'];
 
 function syncNavVisibility(){
@@ -1587,7 +1677,7 @@ function renderFeed(filter='me'){
           <b class="stage">${escapeHtml(displayName)} ${VB(18)}</b>
           <small class="ghost">${new Date(p.ts).toLocaleString()}</small>
         </div>
-        <button class="chip translate-btn" onclick="event.stopPropagation(); togglePostTranslate('${p.id}')">翻譯</button>
+        <button class="chip translate-btn" title="翻譯">가/A</button>
       </div>
 
       <div class="body">
@@ -2570,11 +2660,15 @@ function rePickBg(){
 
 /* ===================== 尺寸量測 & 貼底（強化版） ===================== */
 function measureFooter(){
-  const f = document.getElementById('dmFooter'); if (!f) return;
+  const f = document.getElementById('dmFooter')
+        || document.getElementById('pdComposer')
+        || document.getElementById('cdComposer');
+  if(!f) return;
   const h = Math.ceil(f.getBoundingClientRect().height || 0);
   document.documentElement.style.setProperty('--footer-h', `${h}px`);
-  tuneNoticePad(); // footer 改變時，浮動 notice 也要重新讓位
+  tuneNoticePad();
 }
+  
 function measureHUD(){
   const el = document.getElementById('dmHUD'); if (!el) return;
   const raw = Math.round(el.getBoundingClientRect().height || 56);
@@ -2731,83 +2825,105 @@ function renderPostDetail(postId){
   const av = document.getElementById('pdAvatar'); if (av) av.src = p.avatar || ME.avatar;
   const nm = document.getElementById('pdName');  if (nm) nm.innerHTML = escapeHtml(displayName) + ' ' + VB(16);
   const tm = document.getElementById('pdTime');  if (tm) tm.textContent = timeAgo(p.ts);
+  const hudBtn = document.getElementById('pdTransHUD'); if (hudBtn) hudBtn.onclick = ()=> togglePostTranslate(p.id);
 
-  const hudBtn = document.getElementById('pdTransHUD');
-  if (hudBtn) hudBtn.onclick = ()=> togglePostTranslate(p.id);
-
-  // 只統計主樓留言
-  let topCmts = (p.cmts || []).filter(c => !c.replyTo);
-  if (PD_FILTER_OTHERS) topCmts = topCmts.filter(c => c.from==='artist' && (c.artistId||'')!=='me');
+  // 只統計主樓（粉絲）留言數
+  const topFan = (p.cmts||[]).filter(c=>!c.replyTo && c.from!=='artist');
+  const topList = PD_FILTER_OTHERS ? [] : topFan; // 詳情頁卡片上的數字維持主樓數
 
   wrap.innerHTML = `
-    <div class="card soft" style="margin:10px 6px">
+    <div class="post card soft" data-post="${p.id}">
       <div class="hdr">
         <img class="avatar" src="${p.avatar}" alt="${escapeHtml(displayName)} 的頭像" onerror="imgFallback(this)">
         <div class="meta">
           <b class="stage">${escapeHtml(displayName)} ${VB(18)}</b>
           <small class="ghost">${timeAgo(p.ts)}</small>
         </div>
+        <button class="chip translate-btn" onclick="event.stopPropagation(); togglePostTranslate('${p.id}')" title="翻譯">가/A</button>
       </div>
 
       <div class="body">
         <p id="postText-${p.id}">${escapeHtml(p.text)}</p>
         ${p.img ? `<img class="hero" src="${p.img}" alt="貼文圖片" onerror="imgFallback(this)">` : ``}
-        ${Array.isArray(p.imgs) && p.imgs.length > 1
-          ? `<div class="pageDots">${p.imgs.map(()=>'<span class="dot"></span>').join('')}</div>`
-          : ``}
       </div>
 
       <div class="actions">
         ${renderReactionsBar(p.id)}
         <div class="commentBar">
-          <div class="left">💬 <span class="cmtCount">${topCmts.length}</span> 則評論</div>
+          <div class="left">💬 <span class="cmtCount">${topList.length}</span> 則評論</div>
           <div class="right"></div>
         </div>
       </div>
     </div>
-    <div id="cmtList" style="padding:6px 0"></div>
+
+    <!-- 僅其他藝人回覆開關（圖五/圖六） -->
+    <div style="display:flex;align-items:center;justify-content:flex-end;padding:6px 12px 2px;gap:8px">
+      <span class="ghost" style="font-weight:900">僅其他藝人的回覆</span>
+      <label class="switch"><input id="pdOnlyAdp" type="checkbox" ${PD_FILTER_OTHERS?'checked':''}><span class="slider"></span></label>
+    </div>
+
+    <div id="cmtList" style="padding:0 6px 120px"></div>
   `;
 
   renderPostComments(p);
+  measureFooter();
 }
 
 function renderPostComments(p){
   const listEl = document.getElementById('cmtList'); if (!listEl) return;
-  let cmts = (p.cmts || []).slice();
-  if (PD_FILTER_OTHERS) cmts = cmts.filter(c => c.from==='artist' && (c.artistId||'')!=='me');
 
-  if (!cmts.length){
+  // 只看主樓（粉絲）留言
+  const roots = (p.cmts || []).filter(c => !c.replyTo && c.from !== 'artist')
+                 .sort((a,b)=> (a.ts||0)-(b.ts||0));
+
+  // 「僅其他藝人回覆」= 只渲染其他藝人的回覆（不含我）
+  function artistRepliesOf(rootId){
+    let replies = (p.cmts||[]).filter(x => x.replyTo === rootId && x.from === 'artist');
+    if (PD_FILTER_OTHERS) replies = replies.filter(r => (r.artistId||'') !== 'me');
+    return replies.sort((a,b)=> (a.ts||0)-(b.ts||0));
+  }
+
+  if (!roots.length){
     listEl.innerHTML = `<div class="ghost" style="text-align:center;margin:14px 0">尚無評論</div>`;
     return;
   }
 
-  listEl.innerHTML = cmts.map(c=>{
-    const isArtist = c.from === 'artist';
-    const whoId    = c.artistId || '';
-    const name     = isArtist
-      ? (whoId==='me' ? NICKNAME : (c.artistStage || c.name || 'ARTIST'))
-      : (c.name || '粉絲');
-    const avatar   = isArtist
-      ? (whoId==='me' ? ME.avatar : (c.avatar || 'https://picsum.photos/40?u=artist'))
-      : (c.avatar || 'https://picsum.photos/40?u=fan');
-    const whenTs   = c.ts || p.ts;
-    const likeRow  = (c.likes && c.likes > 0)
-      ? `<div class="ghost" style="margin-top:6px;display:flex;align-items:center;gap:6px">♡ ${formatCount(c.likes)}</div>`
-      : ``;
+  listEl.innerHTML = roots.map(root=>{
+    const rootName = (root.name || '粉絲').toString().toUpperCase();
+    const rootAv   = root.avatar || 'https://picsum.photos/40?u=fan';
+    const replies  = artistRepliesOf(root.id);
+
+    const repliesHTML = replies.map(r=>{
+      const nm = (r.artistId==='me' ? NICKNAME : (r.artistStage || r.name || 'ARTIST')).toString().toUpperCase();
+      const av = (r.artistId==='me' ? ME.avatar : (r.avatar || 'https://picsum.photos/40?u=artist'));
+      return `
+        <div class="artistReply">
+          <img src="${av}" onerror="imgFallback(this)" alt="" style="width:28px;height:28px;border-radius:50%;object-fit:cover;border:1px solid var(--line)">
+          <div style="flex:1;min-width:0">
+            <div class="arName">${escapeHtml(nm)} ${VB(14)}</div>
+            <div class="arText">${escapeHtml(r.text||'')}</div>
+          </div>
+        </div>`;
+    }).join('');
 
     return `
+      <!-- 主樓（粉絲）可點進 commentdetail -->
       <div class="card soft commentItem"
-           data-post="${p.id}" data-cmt="${c.id}" data-root="${c.replyTo || c.id}" data-from="${c.from}"
+           data-post="${p.id}" data-cmt="${root.id}" data-root="${root.id}" data-from="fan"
            style="display:flex;gap:10px;align-items:flex-start;margin:10px 6px">
-        <img src="${avatar}" alt="" onerror="imgFallback(this)"
+        <img src="${rootAv}" onerror="imgFallback(this)"
              style="width:36px;height:36px;border-radius:50%;object-fit:cover;border:1px solid var(--line)">
         <div style="flex:1;min-width:0">
           <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
-            <b style="font-size:13px">${escapeHtml(String(name).toUpperCase())}${isArtist ? ' '+VB(14) : ''}</b>
-            <small class="ghost">${timeAgo(whenTs)}</small>
+            <b style="font-size:13px">${escapeHtml(rootName)}</b>
+            <small class="ghost">${timeAgo(root.ts || p.ts)}</small>
           </div>
-          <div style="margin-top:4px">${escapeHtml(c.text || '')}</div>
-          ${likeRow}
+          <div style="margin-top:4px">${escapeHtml(root.text || '')}</div>
+          <div class="ghost" style="margin-top:6px;display:flex;align-items:center;gap:16px">
+            <span>♡ ${formatCount(root.likes||0)}</span>
+            <span>🗨️ ${replies.length}</span>
+          </div>
+          ${repliesHTML}
         </div>
       </div>`;
   }).join('');
@@ -2837,18 +2953,22 @@ function sendPostComment(){
 }
 
 /* — 綁定貼文詳情輸入列（只綁一次）— */
-(function bindPdComposerOnce(){
-  if (window.__pdComposerBound) return;
-  window.__pdComposerBound = true;
+(function bindOpenCmtOnce(){
+  if (window.__openCmtBound) return;
+  window.__openCmtBound = true;
 
   document.addEventListener('click', (e)=>{
-    if (e.target && e.target.id === 'postCmtSend') sendPostComment();
-  });
-  document.addEventListener('keydown', (e)=>{
-    if (e.target && e.target.id === 'cmtInput' && e.key === 'Enter' && !e.shiftKey){
-      e.preventDefault(); sendPostComment();
-    }
-  });
+    const el = e.target.closest('.commentItem');
+    if(!el) return;
+
+    const isFan  = (el.dataset.from === 'fan');
+    const isRoot = (el.dataset.root === el.dataset.cmt) || !el.dataset.reply;
+    if (!(isFan && isRoot)) return; // 不是粉絲主樓 → 不要跳
+
+    const postId = el.dataset.post;
+    const rootId = el.dataset.root || el.dataset.cmt;
+    if (postId && rootId) openCommentDetail(postId, rootId);
+  }, { passive:true });
 })();
   
 /* ===== 文字直播：邏輯 ===== */
@@ -3029,6 +3149,12 @@ document.addEventListener('DOMContentLoaded', ()=>{
   document.getElementById('meAvatar') && (document.getElementById('meAvatar').src=AVATAR);
   const pdMe = document.getElementById('pdMeAvatar');
   if (pdMe) pdMe.src = ME.avatar;
+document.addEventListener('change', (e)=>{
+  if(e.target && e.target.id === 'pdOnlyAdp'){
+    PD_FILTER_OTHERS = e.target.checked;
+    if (CURRENT_POST_ID) renderPostDetail(CURRENT_POST_ID);
+  }
+});
   
   // 只有點「粉絲」留言才進評論詳情
   (function bindOpenCmtOnce(){
