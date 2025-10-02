@@ -445,64 +445,65 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
   z-index:-1;
 }
 
-/* 頂部 HUD 完全透明 */
-/* PATCH #8-C（刪舊貼新）— DM HUD 可讀性：不用陰影、加小底板 */
+/* PATCH #9 — DM HUD：最頂層 + 圖二素淨樣式（刪舊貼新） */
 #dmDetail .chatHUD{
-  display:flex; align-items:center; justify-content:space-between;
-  gap:6px; padding:8px 8px 6px; }
-
-/* 小底板：背後墊透明白，避免被背景吃掉（非陰影） */
-#dmDetail .back, #dmDetail .hudBtn{
-  position:relative;
-  isolation:isolate;
-}
-#dmDetail .back::before, 
-#dmDetail .hudBtn::before{
-  content:"";
-  position:absolute; inset:8px;
-  border-radius:10px;
-  background:rgba(255,255,255,.82);
-  border:1px solid rgba(0,0,0,.06);
-  z-index:-1;
+  /* 不捲動、不貼底，讓 thread 自己滾；但要有定位，z-index 才會生效 */
+  position: relative;
+  z-index: 70;                          /* ↑ 永遠壓在 thread（z:1）之上 */
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 6px;
+  /* 吃到安全區，避免瀏海/動態島；背景保持透明 */
+  padding: calc(8px + env(safe-area-inset-top,0px)) 8px 6px;
+  background: transparent;
 }
 
-/* 箭頭本體：固定墨色、不混色、不發陰影 */
+/* 左右按鈕固定寬，避免擠壓中間標題 */
+#dmDetail .chatHUD .back,
+#dmDetail .chatHUD .hudBtn{
+  width:44px; height:44px; flex:0 0 44px;
+  display:grid; place-items:center;
+}
+
+/* 中段容器：置中標題，並允許縮略 */
+#dmDetail .chatHUD .center{
+  flex:1; min-width:0; display:flex; justify-content:center; align-items:center;
+}
+
+/* 標題樣式（素淨、無陰影/描邊） */
+#dmTitle.artistName{
+  font-weight:1000; letter-spacing:.4px;
+  font-size:clamp(18px,5vw,22px);
+  text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  color:#111; text-shadow:none; -webkit-text-stroke:0; mix-blend-mode:normal;
+}
+
+/* 返回箭頭（純墨色、無陰影/混色） */
 #dmDetail .back svg{
-  stroke:#2f3564 !important;
-  stroke-width:2.6;
-  stroke-linecap:round; stroke-linejoin:round;
-  fill:none;
-  mix-blend-mode:normal !important;
-  filter:none !important;
+  width:22px;height:22px;
+  stroke:#111 !important; stroke-width:2.6; stroke-linecap:round; stroke-linejoin:round;
+  fill:none; mix-blend-mode:normal !important; filter:none !important;
 }
 
-/* 右上 … 與中間標題：固定墨色、無陰影 */
+/* 右上 ⋯（純墨色、無陰影/混色） */
 #dmDetail .hudBtn{
-  color:#2f3564 !important;
+  color:#111 !important;
   font-weight:900;
   text-shadow:none !important;
   mix-blend-mode:normal !important;
   -webkit-text-stroke:0 !important;
 }
-#dmTitle.artistName{
-  font-weight:1000; letter-spacing:.4px;
-  font-size:clamp(18px,5vw,22px);
-  text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+
+/* 明確關掉先前的小底板（圖一的白底），避免被舊樣式殘留影響 */
+#dmDetail .back::before,
+#dmDetail .hudBtn::before{
+  content:none !important;
 }
 
-/* 固定左右按鈕的寬度，避免擠壓標題 */
-#dmDetail .chatHUD .back,
-#dmDetail .chatHUD .hudBtn{
-  width:44px; height:44px;
-  flex:0 0 44px;
-  display:grid; place-items:center;
-}
+/* thread 本來就 z-index:1；這裡只提醒確保值存在（若你之前改過可以保留） */
+#dmDetail .thread{ z-index:1; }
 
-/* 讓中間這段吃滿可用空間，並把標題置中 */
-#dmDetail .chatHUD .center{
-  flex:1; min-width:0;
-  display:flex; justify-content:center; align-items:center;
-}
+/* 修正右上選單的位置：因為 HUD 高度已含安全區，這裡不再 +safe-area */
+#dmMenu{ top: calc(var(--hud-h) + 6px) !important; }
   
 /* Thread 佈局 */
 :root{ --hud-h:56px; }
