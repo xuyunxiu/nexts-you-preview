@@ -353,21 +353,6 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
 /* 1A. 進貼文詳情時，「社群」抬頭不要出現 */
 #postDetail .homeTop { display: none !important; }
 
-/* 1B. 貼文詳情的輸入列固定到底（跟 DM 一樣） */
-#pdComposer{
-  position: fixed !important;
-  left: 0; right: 0;
-  bottom: max(env(safe-area-inset-bottom,0px), var(--kb-offset));
-  z-index: 45;
-  margin: 0 !important;
-  border-radius: 0 !important;
-  padding: 8px 10px !important;
-  background: linear-gradient(180deg, rgba(255,255,255,.20), rgba(255,255,255,.90)) !important;
-  border-top: 1px solid var(--glass-stroke) !important;
-  backdrop-filter: blur(var(--glass-blur)) !important;
-  -webkit-backdrop-filter: blur(var(--glass-blur)) !important;
-}
-
 /* 1C. 讓 postDetail 內容底部預留空間（不被輸入列蓋住） */
 #postDetail { padding-bottom: calc(var(--footer-h) + 12px) !important; }
   
@@ -663,12 +648,11 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
   border: 1px solid var(--line) !important;
 }
 
-.dmInputBar input,
-#cdComposer input,
-#pdComposer input,
-#liveInputBox {
-  color: #000 !important;
-  background: transparent !important;
+.dmInputBar .box,
+#cdComposer .box,
+#pdComposer .box {
+  background: #fff !important;
+  border: 1px solid var(--line) !important;
 }
 
 ::placeholder { color: #9aa0b4; opacity: 1; }
@@ -911,12 +895,6 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
   line-height: 1.1; }
 #storyWrap { margin-top: -2px; }
 .translate-btn{ position:absolute; right:0; top:0; padding:4px 10px; font-size:12px; line-height:1; }
-#postDetail #pdComposer{
-  background:linear-gradient(180deg,rgba(255,255,255,.30),rgba(255,255,255,.14));
-  border:1px solid var(--glass-stroke);
-  backdrop-filter:saturate(160%) blur(10px);
-  -webkit-backdrop-filter:saturate(160%) blur(10px);
-}
 
 /* Switch */
 .switch{position:relative;display:inline-block;width:46px;height:26px;vertical-align:middle}
@@ -1010,14 +988,15 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
 
   <div id="postDetailWrap" style="padding:0 6px 12px"></div>
 
-  <!-- 留言輸入列（固定在底部） -->
-  <div id="pdComposer" class="card soft" style="position:sticky; bottom:calc(10px + env(safe-area-inset-bottom,0px)); margin:6px; border-radius:14px;">
-    <div style="display:flex;align-items:center;gap:8px">
-      <img src="" id="pdMeAvatar" alt="" onerror="imgFallback(this)" style="width:32px;height:32px;border-radius:50%;object-fit:cover;border:1px solid var(--line)">
-      <input id="cmtInput" placeholder="新增一則留言…" style="flex:1;border:none;outline:none;background:transparent;font-size:16px">
-      <button id="postCmtSend" class="chip btnGlassViolet">送出</button>
-    </div>
+  <!-- 留言輸入列（照抄 commentDetail 樣式） -->
+<div class="dmFooter" id="pdComposer">
+  <div class="dmInputBar">
+    <div class="box"><input id="cmtInput" placeholder="新增一則留言…" /></div>
+    <button class="dmSend" id="postCmtSend" aria-label="Send" disabled>
+      <svg viewBox="0 0 24 24"><path d="M3.4 12.6l16.7-7.2c.6-.3 1.2.3.9.9l-7.2 16.7c-.3.7-1.3.6-1.5-.1l-2.1-6.1-6.1-2.1c-.7-.2-.8-1.2-.1-1.5z" fill="currentColor"/></svg>
+    </button>
   </div>
+</div>
 </section>
 
 <!-- ====================== COMMENT DETAIL ====================== -->
@@ -2994,6 +2973,29 @@ refreshCommentCountUI(p.id);
     const rootId = el.dataset.root || el.dataset.cmt;
     if (postId && rootId) openCommentDetail(postId, rootId);
   }, { passive:true });
+})();
+
+  /* 貼文詳情輸入列：跟 commentDetail 一樣的互動 */
+(function bindPdComposer(){
+  const input = document.getElementById('cmtInput');
+  const btn   = document.getElementById('postCmtSend');
+  const host  = document.getElementById('pdComposer');
+
+  function sync(){
+    const has = (input?.value || '').trim().length > 0;
+    if (btn) btn.disabled = !has;
+    host?.classList.toggle('hasText', has);
+  }
+
+  input?.addEventListener('input', sync);
+  input?.addEventListener('keydown', e=>{
+    if(e.key==='Enter' && !e.shiftKey){
+      e.preventDefault();
+      sendPostComment();
+    }
+  });
+  btn?.addEventListener('click', sendPostComment);
+  sync();
 })();
   
 /* ===== 文字直播：邏輯 ===== */
