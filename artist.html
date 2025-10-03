@@ -2734,12 +2734,6 @@ window.recalcHud = function recalcHud(){
   _applyHudInk({ink:matchMedia('(prefers-color-scheme: dark)').matches?'#e9edf5':'#111', needPlate:false});
 };
 
-const _oldRecalcHud = window.recalcHud;
-window.recalcHud = function(){
-  _oldRecalcHud?.();
-  recalcRailGlass();        // ← 新增：一起重算外側玻璃色調
-}
-
  /* 取畫面底部等高於輸入列的亮度（保留你原本邏輯，收斂成工具函式） */
 async function _sampleStripLuma(url){
   return new Promise(res=>{
@@ -2820,15 +2814,6 @@ async function recalcDmRailGlass(){
     apply(null);
   }
 }
-
-/* Hook：只在 DM 頁面時，重算 DM 的 rail */
-const _oldRecalcHud = window.recalcHud;
-window.recalcHud = function(){
-  _oldRecalcHud?.();
-  if ((PAGE_STACK[PAGE_STACK.length-1]||'') === 'dmDetail') {
-    recalcDmRailGlass();
-  }
-};
   
 // 使用者調整遮罩/模糊時，立即重算
 window.onBgOptChanged = function onBgOptChanged(dim, blur){
@@ -2836,19 +2821,32 @@ window.onBgOptChanged = function onBgOptChanged(dim, blur){
   recalcHud();
 };
 
-/* === 將 HUD 重算 hook 合併成一個；同時在 DM 頁面時重算底部玻璃 === */
-(function(){
-  const _prev = window.recalcHud;   // 保存舊的 recalcHud（上面定義的那個）
-  window.recalcHud = function(){
-    // 先跑原本的亮度/字色邏輯
-    _prev?.();
+// === 單一版 recalcHud（合併且不再呼叫不存在的 recalcRailGlass） ===
+window.recalcHud = async function recalcHud(){
+  const prefersDark = matchMedia('(prefers-color-scheme: dark)').matches;
+  const url = LS.getStr('chatBg','');
+  const id  = LS.getStr('chatBgId','');
 
-    // 只在 DM 詳情頁，才重算外側 rail 的玻璃配色
-    if ((PAGE_STACK[PAGE_STACK.length - 1] || '') === 'dmDetail') {
-      recalcDmRailGlass();
+  const applyInk = (u)=> _decideHudInk(u).then(_applyHudInk);
+
+  if (url) {
+    applyInk(url);
+  } else if (id) {
+    try {
+      const u = await MEDIA_DB.getURL(id);
+      applyInk(u || '');
+    } catch {
+      _applyHudInk({ ink: prefersDark ? '#e9edf5' : '#111', needPlate:false });
     }
-  };
-})();
+  } else {
+    _applyHudInk({ ink: prefersDark ? '#e9edf5' : '#111', needPlate:false });
+  }
+
+  // 只在 DM 詳情頁時，順便重算底部玻璃色調
+  if ((PAGE_STACK[PAGE_STACK.length-1] || '') === 'dmDetail') {
+    await recalcDmRailGlass();
+  }
+};
 
 function backToCrop(){ closePreview(); openModal('cropModal'); }
 function rotateCrop(){ cropDeg = (cropDeg + 90) % 360; computeBaseScale(); updateCropTransform(); }
@@ -2973,10 +2971,14 @@ document.getElementById('btnEditNick')?.addEventListener('click', ()=>{
   const v = prompt('輸入新的暱稱（= 聊天室名稱）', NICKNAME);
   if (!v) return;
   const nv = v.trim(); if (!nv) return;
-  NICKNAME = nv; LS.setStr('artistNickname', NICKNAME);
+
+  NICKNAME = nv;
+  LS.setStr('artistNickname', NICKNAME);
+
   const me = document.getElementById('meNickname'); if (me) me.textContent = NICKNAME;
   const tt = document.getElementById('dmTitle');    if (tt) tt.textContent = NICKNAME.toUpperCase();
   const cw = document.getElementById('composerWho'); if (cw) cw.textContent = NICKNAME;
+
   renderDmList();
 });
 
