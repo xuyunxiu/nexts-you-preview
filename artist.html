@@ -490,7 +490,7 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
 :root{ --hud-h:56px; }
 #dmDetail .thread{
   position:absolute; left:0; right:0; top:0;
-  bottom: calc(var(--footer-h) + var(--kb-offset) + env(safe-area-inset-bottom,0px));
+  bottom: 0; /* 讓訊息可以延伸到 #dmFooter 背後 → rail 上會看到被模糊的訊息 */
   overflow-y:auto; -webkit-overflow-scrolling:touch;
   display:flex; flex-direction:column;
   padding: calc(var(--hud-h) + 4px) 2px calc(var(--notice-h) + 12px) !important;
@@ -674,6 +674,19 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
 .replyChipClose{position:absolute;top:6px;right:6px;width:28px;height:28px;display:grid;place-items:center;border:none;background:transparent;color:#6f78aa;border-radius:6px;cursor:pointer}
 .replyChipClose:hover{background:rgba(255,255,255,.10)}
 .replyChipClose svg{width:18px;height:18px;display:block}
+
+  /* DM 專用 Rail（只影響 #dmFooter） */
+#dmFooter{
+  /* 讓 .dmFooter 內用到的 --rail-* 變數，改從 DM 專用的 --dm-rail-* 取值 */
+  --rail-bg1:     var(--dm-rail-bg1, rgba(255,255,255,.18));
+  --rail-bg2:     var(--dm-rail-bg2, rgba(255,255,255,.78));
+  --rail-stroke:  var(--dm-rail-stroke, rgba(255,255,255,.45));
+  --rail-tint:    var(--dm-rail-tint, rgba(123,109,255,.22));
+
+  /* DM rail 要「能看見並模糊」後面的訊息 */
+  backdrop-filter: saturate(var(--glass-sat)) blur(var(--glass-blur));
+  -webkit-backdrop-filter: saturate(var(--glass-sat)) blur(var(--glass-blur));
+}
 
 /* =================== Modal / 裁切工具 =================== */
 .modal{position:fixed;inset:0;z-index:80;display:none;background:rgba(0,0,0,.45)}
@@ -2727,7 +2740,8 @@ window.recalcHud = function(){
   recalcRailGlass();        // ← 新增：一起重算外側玻璃色調
 }
 
-  async function _sampleStripLuma(url){
+ /* 取畫面底部等高於輸入列的亮度（保留你原本邏輯，收斂成工具函式） */
+async function _sampleStripLuma(url){
   return new Promise(res=>{
     if(!url || !(url.startsWith('data:')||url.startsWith('blob:'))) { res(null); return; }
     const img=new Image(); img.decoding='async';
@@ -2751,35 +2765,70 @@ window.recalcHud = function(){
         res(sum/Math.ceil(data.length/step));
       }catch(_){ res(null); }
     };
-    img.onerror=()=>res(null); img.src=url;
+    img.onerror=()=>res(null); 
+    img.src=url;
   });
 }
 
-async function recalcRailGlass(){
-  const dim=(LS.get('chatBgOpt',{dim:.18,blur:6})||{}).dim ?? .18;
-  const url=LS.getStr('chatBg',''); const id=LS.getStr('chatBgId','');
+/* 只改 DM 的 rail（#dmFooter）的玻璃配色；不動別的頁面 */
+async function recalcDmRailGlass(){
+  const dim = (LS.get('chatBgOpt', {dim:.18, blur:6})||{}).dim ?? .18;
+  const url = LS.getStr('chatBg',''); 
+  const id  = LS.getStr('chatBgId','');
+  const footer = document.getElementById('dmFooter');
+  if (!footer) return;
 
-  const apply=(eff)=>{
-    // 預設（暗背景）：淺玻璃
-    let railBg1='rgba(255,255,255,.18)', railBg2='rgba(255,255,255,.78)',
-        railStroke='rgba(255,255,255,.45)', railTint='rgba(123,109,255,.22)';
+  const apply = (eff)=>{
+    // 預設（底部偏暗）：淺色玻璃 + 淡藍紫光
+    let bg1='rgba(255,255,255,.18)',
+        bg2='rgba(255,255,255,.78)',
+        stroke='rgba(255,255,255,.45)',
+        tint='rgba(123,109,255,.26)';
 
-    // 若底部很亮 → 換深玻璃，避免輸入列外側太亮
-    if(eff!=null && eff>0.58){
-      railBg1='rgba(16,18,26,.28)'; railBg2='rgba(16,18,26,.68)';
-      railStroke='rgba(0,0,0,.35)'; railTint='rgba(90,80,210,.22)';
+    // 若底部很亮 → 換成深色玻璃，避免發白；仍保藍紫調
+    if (eff != null && eff > 0.58){
+      bg1='rgba(16,18,26,.28)';
+      bg2='rgba(16,18,26,.68)';
+      stroke='rgba(0,0,0,.35)';
+      tint='rgba(90,80,210,.22)';
     }
 
-    const R=(k,v)=>document.documentElement.style.setProperty(k,v);
-    R('--rail-bg1',railBg1); R('--rail-bg2',railBg2);
-    R('--rail-stroke',railStroke); R('--rail-tint',railTint);
+    // 僅設定在 #dmFooter（其它頁面完全不受影響）
+    footer.style.setProperty('--dm-rail-bg1',    bg1);
+    footer.style.setProperty('--dm-rail-bg2',    bg2);
+    footer.style.setProperty('--dm-rail-stroke', stroke);
+    footer.style.setProperty('--dm-rail-tint',   tint);
   };
 
-  const go=async(u)=>{ const L=await _sampleStripLuma(u); const eff=(L==null)?null:L*(1-dim); apply(eff); };
-  if(url) go(url);
-  else if(id) MEDIA_DB.getURL(id).then(u=>go(u||'')).catch(()=>apply(null));
-  else apply(null);
+  const go = async (u)=>{
+    if (!u) { apply(null); return; }
+    const L = await _sampleStripLuma(u);         // 取畫面底部亮度
+    const eff = (L==null) ? null : L*(1-dim);    // 扣掉你設定的遮罩強度
+    apply(eff);
+  };
+
+  if (url) {
+    await go(url);
+  } else if (id) {
+    try {
+      const u = await MEDIA_DB.getURL(id);
+      await go(u||'');
+    } catch {
+      apply(null);
+    }
+  } else {
+    apply(null);
+  }
 }
+
+/* Hook：只在 DM 頁面時，重算 DM 的 rail */
+const _oldRecalcHud = window.recalcHud;
+window.recalcHud = function(){
+  _oldRecalcHud?.();
+  if ((PAGE_STACK[PAGE_STACK.length-1]||'') === 'dmDetail') {
+    recalcDmRailGlass();
+  }
+};
   
 // 使用者調整遮罩/模糊時，立即重算
 window.onBgOptChanged = function onBgOptChanged(dim, blur){
