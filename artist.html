@@ -2836,12 +2836,18 @@ window.onBgOptChanged = function onBgOptChanged(dim, blur){
   recalcHud();
 };
 
-// 主題切換 / 螢幕尺寸變化 → 也重算一次（含防抖）
+/* === 將 HUD 重算 hook 合併成一個；同時在 DM 頁面時重算底部玻璃 === */
 (function(){
-  const mq = matchMedia('(prefers-color-scheme: dark)'); let t=null;
-  mq.addEventListener('change', ()=>{ clearTimeout(t); t=setTimeout(recalcHud, 60); });
-  window.addEventListener('resize',         ()=>{ clearTimeout(t); t=setTimeout(recalcHud, 60); });
-  window.addEventListener('orientationchange',()=>{ clearTimeout(t); t=setTimeout(recalcHud, 120); });
+  const _prev = window.recalcHud;   // 保存舊的 recalcHud（上面定義的那個）
+  window.recalcHud = function(){
+    // 先跑原本的亮度/字色邏輯
+    _prev?.();
+
+    // 只在 DM 詳情頁，才重算外側 rail 的玻璃配色
+    if ((PAGE_STACK[PAGE_STACK.length - 1] || '') === 'dmDetail') {
+      recalcDmRailGlass();
+    }
+  };
 })();
 
 function backToCrop(){ closePreview(); openModal('cropModal'); }
