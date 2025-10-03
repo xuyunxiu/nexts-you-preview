@@ -2184,18 +2184,26 @@ function getLastTs(role){
 function updateNoticeBanner(){
   const n = ensureNoticeRow(); if(!n) return;
   n.style.display = 'block';
-  requestAnimationFrame(()=>{
-    tuneNoticePad();
-    scrollToEndDuring(600);
+
+  requestAnimationFrame(()=>{        // 等插進 DOM
+    tuneNoticePad();                 // 量到高度並更新 padding / 墊片
+    requestAnimationFrame(()=>{      // 等樣式套用
+      scrollToEndDuring(600);
+    });
   });
 }
-  /* 讀取 notice 實際高度 → 回寫 --notice-h，讓 thread 底部自動讓位 */
 function tuneNoticePad(){
   const n = document.getElementById('noticeRow');
-  const h = (n && n.style.display !== 'none')
+  const h = (n && getComputedStyle(n).display !== 'none')
     ? Math.ceil((n.getBoundingClientRect().height || 0) + 14)  // 14px 緩衝
     : 0;
+
+  // 保留原本的 CSS 變數（給 padding-bottom 用）
   document.documentElement.style.setProperty('--notice-h', h + 'px');
+
+  // 同步用「實體墊片」確保就位（覆蓋掉 CSS 的 !important）
+  const pad = document.getElementById('threadPad');
+  if (pad) pad.style.setProperty('height', h + 'px', 'important');
 }
 
 /* ===================== 送訊息 / 回覆 ===================== */
