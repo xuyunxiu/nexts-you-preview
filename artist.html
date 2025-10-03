@@ -1061,7 +1061,6 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
   <!-- 右上 … 選單 -->
   <div id="dmMenu" class="card soft"
        style="display:none; position:fixed; right:10px;
-              top:calc(var(--hud-h) + env(safe-area-inset-top,0px) + 6px);
               z-index:80">
     <div class="row" style="flex-direction:column;gap:6px">
       <button class="chip" onclick="renameChat(); hideDmMenu()">更改聊天室名稱</button>
@@ -1357,8 +1356,10 @@ function refreshCommentCountUI(postId){
     .forEach(el => el.textContent = String(n));
 }
   
-/* 啟動時抓；抓不到就用內建假資料 */
-document.addEventListener('DOMContentLoaded', bootFromJSON);
+document.addEventListener('DOMContentLoaded', () => {
+  bootFromJSON();
+  recalcHud();
+});
 
 
 /* ===== IndexedDB：媒體存這裡 ===== */
@@ -1469,57 +1470,38 @@ function showPage(id, opts = {}) {
   const prev = PAGE_STACK[PAGE_STACK.length - 1] || 'home';
   if (prev === 'dmDetail' && id !== 'dmDetail') haltDmMedia();
 
-  // 目標頁
   const target = document.getElementById(id);
   if (!target) { console.warn('Page not found:', id); return; }
 
-  // 切換可見頁
   document.querySelectorAll('section.page.active').forEach(s => s.classList.remove('active'));
   target.classList.add('active');
 
-  // Page stack：同頁不重複推
   const top = PAGE_STACK[PAGE_STACK.length - 1];
   if (top !== id) PAGE_STACK.push(id);
 
-  // Tab 高亮（容錯：元素不存在不報錯）
   const tabMap = { home: 'tabHome', postList: 'tabPosts', dm: 'tabDM', store: 'tabStore', live: 'tabLive' };
   document.querySelectorAll('#nav .navItem').forEach(b => b.classList.remove('active'));
   const tabId = tabMap[id];
   if (tabId) document.getElementById(tabId)?.classList.add('active');
 
-  // 顯/隱底部 Nav
   syncNavVisibility();
 
-  // 進頁觸發（用 switch 比一長串 if 更不容易漏大括號）
   switch (id) {
     case 'home':
       renderHomeWeverse();
-  break;
+      break;
 
     case 'dm':
       renderDmList();
       break;
 
     case 'dmDetail':
-      // 延一幀讓 layout 先完成，尺寸量測比較準
       requestAnimationFrame(() => {
         measureHUD();
         measureFooter();
         renderThread();
-        applyChatBg();
-        case 'dmDetail':
-        requestAnimationFrame(() => {
-        measureHUD();
-        measureFooter();
-        renderThread();
-        applyChatBg();      // 先把背景掛上（你原本就有）
-        recalcHud();        // ← 新增：根據背景亮度決定 HUD 墨色 / 是否加底板
-        bindBottomObserver();
-        bindScrollGuard();
-        autoStick = true;
-        scrollToEndDuring(800);
-        setTimeout(hardStickBottom, 0);
-        updateNoticeBanner();
+        applyChatBg();      // 先掛背景
+        recalcHud();        // 再依背景決定 HUD 字色 / 是否加淡底板
         bindBottomObserver();
         bindScrollGuard();
         autoStick = true;
@@ -1540,12 +1522,11 @@ function showPage(id, opts = {}) {
       break;
 
     case 'postList':
-  renderStoryBar();
-  renderFeed(currentFilter);
-  break;
-      
+      renderStoryBar();
+      renderFeed(currentFilter);
+      break;
+
     case 'live':
-      // 目前沒有進場行為就先留空；之後要開播可在這裡加
       break;
   }
 }
@@ -2755,11 +2736,22 @@ function rePickBg(){
 
 /* ===================== 尺寸量測 & 貼底（強化版） ===================== */
 function measureFooter(){
-  const f = document.getElementById('dmFooter')
-        || document.getElementById('pdComposer')
-        || document.getElementById('cdComposer');
-  if(!f) return;
-  const h = Math.ceil(f.getBoundingClientRect().height || 0);
+  // 依「可見性」優先：postDetail → commentDetail → dmDetail
+  const order = ['#pdComposer', '#cdComposer', '#dmFooter'];
+  let f = null;
+
+  for (const sel of order) {
+    const el = document.querySelector(sel);
+    if (el) {
+      const rect = el.getBoundingClientRect();
+      const visible = rect.width > 0 && rect.height > 0 && getComputedStyle(el).display !== 'none';
+      if (visible) { f = el; break; }
+    }
+  }
+  // 後備：都不可見時，還是選到任一存在的元素
+  if (!f) f = document.getElementById('pdComposer') || document.getElementById('cdComposer') || document.getElementById('dmFooter');
+
+  const h = Math.ceil((f?.getBoundingClientRect().height || 0));
   document.documentElement.style.setProperty('--footer-h', `${h}px`);
   tuneNoticePad();
 }
