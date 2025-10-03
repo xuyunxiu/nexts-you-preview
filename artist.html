@@ -2721,6 +2721,66 @@ window.recalcHud = function recalcHud(){
   _applyHudInk({ink:matchMedia('(prefers-color-scheme: dark)').matches?'#e9edf5':'#111', needPlate:false});
 };
 
+const _oldRecalcHud = window.recalcHud;
+window.recalcHud = function(){
+  _oldRecalcHud?.();
+  recalcRailGlass();        // ← 新增：一起重算外側玻璃色調
+}
+
+  async function _sampleStripLuma(url){
+  return new Promise(res=>{
+    if(!url || !(url.startsWith('data:')||url.startsWith('blob:'))) { res(null); return; }
+    const img=new Image(); img.decoding='async';
+    img.onload=()=>{
+      try{
+        const vw = Math.max(1, innerWidth), vh = Math.max(1, innerHeight);
+        const fh = Math.min(120, Math.max(56, Math.round(
+          parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--footer-h')) || 84
+        )));
+        const c  = document.createElement('canvas'); c.width = vw; c.height = fh;
+        const ctx = c.getContext('2d',{willReadFrequently:true});
+        // 取「畫面底部」等高於輸入列的區域
+        ctx.drawImage(img, 0, vh-fh, vw, fh, 0, 0, vw, fh);
+        const data=ctx.getImageData(0,0,vw,fh).data;
+        let sum=0, step=16;
+        for(let i=0;i<data.length;i+=step){
+          const l = v=>{v/=255; v=v<=.03928? v/12.92:Math.pow((v+.055)/1.055,2.4); return v;}
+          const Y = .2126*l(data[i]) + .7152*l(data[i+1]) + .0722*l(data[i+2]);
+          sum+=Y;
+        }
+        res(sum/Math.ceil(data.length/step));
+      }catch(_){ res(null); }
+    };
+    img.onerror=()=>res(null); img.src=url;
+  });
+}
+
+async function recalcRailGlass(){
+  const dim=(LS.get('chatBgOpt',{dim:.18,blur:6})||{}).dim ?? .18;
+  const url=LS.getStr('chatBg',''); const id=LS.getStr('chatBgId','');
+
+  const apply=(eff)=>{
+    // 預設（暗背景）：淺玻璃
+    let railBg1='rgba(255,255,255,.18)', railBg2='rgba(255,255,255,.78)',
+        railStroke='rgba(255,255,255,.45)', railTint='rgba(123,109,255,.22)';
+
+    // 若底部很亮 → 換深玻璃，避免輸入列外側太亮
+    if(eff!=null && eff>0.58){
+      railBg1='rgba(16,18,26,.28)'; railBg2='rgba(16,18,26,.68)';
+      railStroke='rgba(0,0,0,.35)'; railTint='rgba(90,80,210,.22)';
+    }
+
+    const R=(k,v)=>document.documentElement.style.setProperty(k,v);
+    R('--rail-bg1',railBg1); R('--rail-bg2',railBg2);
+    R('--rail-stroke',railStroke); R('--rail-tint',railTint);
+  };
+
+  const go=async(u)=>{ const L=await _sampleStripLuma(u); const eff=(L==null)?null:L*(1-dim); apply(eff); };
+  if(url) go(url);
+  else if(id) MEDIA_DB.getURL(id).then(u=>go(u||'')).catch(()=>apply(null));
+  else apply(null);
+}
+  
 // 使用者調整遮罩/模糊時，立即重算
 window.onBgOptChanged = function onBgOptChanged(dim, blur){
   LS.set('chatBgOpt', { dim, blur });
