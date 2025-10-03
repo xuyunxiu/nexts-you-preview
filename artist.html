@@ -633,12 +633,16 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
 .hasText .dmSend{color:#111}
 
 /* === CommentDetail 與 PostDetail 的輸入框，100%跟 DM 一樣樣式（白底黑字） === */
-.dmInputBar .box, #cdComposer .box, #pdComposer{
-  background: #fff !important; border: 1px solid var(--line) !important;
+/* 正確：PostDetail 也鎖定到內層的 .box */
+.dmInputBar .box, #cdComposer .box, #pdComposer .box{
+  background:#fff !important; 
+  border:1px solid var(--line) !important;
 }
 
+/* 這段可以保留，字色/placeholder 會一致 */
 .dmInputBar input, #cdComposer input, #pdComposer input{
-  color:#000 !important; background: transparent !important;
+  color:#000 !important; 
+  background:transparent !important;
 }
 
 ::placeholder { color: #9aa0b4; opacity: 1; }
