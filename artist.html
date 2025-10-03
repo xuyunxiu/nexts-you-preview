@@ -665,14 +665,19 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
 ::placeholder { color: #9aa0b4; opacity: 1; }
 
 /* 系統通知（玻璃膠囊） */
+/* 更淡、像圖二的透明度 */
 .noticeBar{
-  align-self:center;margin:8px 0;padding:6px 12px;border-radius:999px;
-  font-size:12px;font-weight:900;letter-spacing:.3px;color:#2e2a6f;
-  background:linear-gradient(180deg,rgba(255,255,255,.28),rgba(255,255,255,.12));
-  border:.5px solid var(--rail-stroke);
-  backdrop-filter:saturate(160%) blur(calc(var(--glass-blur)*.6));
-  -webkit-backdrop-filter:saturate(160%) blur(calc(var(--glass-blur)*.6));
+  background: linear-gradient(180deg, rgba(255,255,255,.20), rgba(255,255,255,.08));
+  border: 1px solid rgba(255,255,255,.38);
+  backdrop-filter: saturate(160%) blur(calc(var(--glass-blur)*.6));
+  -webkit-backdrop-filter: saturate(160%) blur(calc(var(--glass-blur)*.6));
 }
+
+/* 浮在輸入列上方；改 8px 緩衝 */
+.noticeBar.is-floating{
+  position: fixed; left: 50%; transform: translateX(-50%);
+  bottom: calc(var(--footer-h) + var(--kb-offset) + env(safe-area-inset-bottom,0px) + 8px) !important;
+  z-index: 60; pointer-events: none;}
 
 /* Reply Chip */
 .replyChip{position:relative;display:flex;align-items:center;gap:8px;margin:0 14px 8px;padding:8px 36px 8px 12px;border-radius:13px;border:1px solid rgba(255,255,255,.28);background:rgba(255,255,255,.12);backdrop-filter:saturate(140%) blur(1.5px)}
@@ -693,6 +698,11 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
   /* DM rail 要「能看見並模糊」後面的訊息 */
   backdrop-filter: saturate(var(--glass-sat)) blur(var(--glass-blur));
   -webkit-backdrop-filter: saturate(var(--glass-sat)) blur(var(--glass-blur));
+}
+
+  /* thread 底部永遠依 notice 高度+額外緩衝預留空間 */
+#dmDetail .thread{
+  padding-bottom: calc(var(--notice-h) + 20px) !important;  /* 原本是 +12px */
 }
 
 /* =================== Modal / 裁切工具 =================== */
@@ -2143,7 +2153,8 @@ if (m.from === 'fan' && !m.type) {
   
 /* 把 notice 掛在輸入列容器（固定位置渲染） */
 function ensureNoticeRow(){
-  const host = document.getElementById('dmDetail') || document.body;
+  const host = document.getElementById('dmDetail');   // ← 原本是 dmFooter
+  if(!host) return null;
   let n = document.getElementById('noticeRow');
   if(!n){
     n = document.createElement('div');
@@ -2152,9 +2163,8 @@ function ensureNoticeRow(){
     n.setAttribute('role','status');
     n.setAttribute('aria-live','polite');
     n.textContent = '粉絲在等你的訊息喔 🤩';
-    host.appendChild(n);
+    host.appendChild(n);                               // ← 改這裡
   }
-  // 位置計算仍沿用你原本的 bottom: calc(var(--footer-h) + var(--kb-offset) + …)
   tuneNoticePad();
   return n;
 }
@@ -2201,12 +2211,14 @@ function updateNoticeBanner(){
 }
 function tuneNoticePad(){
   const n = document.getElementById('noticeRow');
-  let h = 0;
-  if(n && getComputedStyle(n).display !== 'none'){
-    // 用 offsetHeight 比 getBoundingClientRect() 更不容易回 0
-    h = Math.ceil(n.offsetHeight + 14); // 14px 緩衝
-  }
+  const h = (n && getComputedStyle(n).display !== 'none')
+    ? Math.ceil((n.getBoundingClientRect().height || 0) + 18)  // ← 18px 緩衝
+    : 0;
+
   document.documentElement.style.setProperty('--notice-h', h + 'px');
+
+  const pad = document.getElementById('threadPad');
+  if (pad) pad.style.setProperty('height', h + 'px', 'important');
 }
   
 /* ===================== 送訊息 / 回覆 ===================== */
