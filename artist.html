@@ -53,6 +53,10 @@
   --glass-stroke: rgba(255,255,255,.42);
   --glass-sheen: radial-gradient(130% 80% at 28% 22%, rgba(255,255,255,.75), rgba(255,255,255,0) 62%);
   --ink:#11131a;
+  --rail-bg1: rgba(255,255,255,.18);
+  --rail-bg2: rgba(255,255,255,.78);
+  --rail-stroke: rgba(255,255,255,.45);
+  --rail-tint: rgba(123,109,255,.22);
 
   /* Artist 主題漸層（沿用） */
   --artist: linear-gradient(180deg, var(--accent), var(--accent2));
@@ -609,26 +613,32 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
 .translateBtnA::after{ content:""; position:absolute; inset:4px; border-radius:50%; border:1.5px solid rgba(0,0,0,.10); }
 .translateBtnA:active{ transform:translateY(-50%) translateX(calc(100% + var(--reply-gap))) scale(.97); }
 
-/* DM Footer（輸入區玻璃） */
+/* DM Footer（輸入區外側玻璃 rail） */
 .dmFooter{
   position:fixed;left:0;right:0;
   bottom:max(env(safe-area-inset-bottom,0px),var(--kb-offset));
   z-index:50; padding:6px 0 calc(8px + env(safe-area-inset-bottom));
-  background:linear-gradient(180deg,rgba(255,255,255,.20),rgba(255,255,255,.90));
-  border-top:1px solid var(--glass-stroke);
+  background:linear-gradient(180deg, var(--rail-bg1), var(--rail-bg2));
+  border-top:1px solid var(--rail-stroke);
   backdrop-filter:blur(var(--glass-blur));
   -webkit-backdrop-filter:blur(var(--glass-blur));
 }
+.dmFooter::before{
+  content:""; position:absolute; inset:0; pointer-events:none;
+  background: radial-gradient(130% 90% at 10% 0%, var(--rail-tint), transparent 55%);
+  mix-blend-mode: soft-light;
+}
+
 .dmInputBar{display:flex;align-items:center;gap:8px;padding:0 10px}
 .iconBtn{width:30px;height:30px;display:grid;place-items:center;flex:0 0 auto;font-size:20px;line-height:1}
+
+/* 內層輸入框維持白底黑字 */
 .dmInputBar .box{
   flex:1;min-width:0;display:flex;align-items:center;height:44px;padding:0 14px;border-radius:20px;
-  background:linear-gradient(180deg,rgba(255,255,255,.35),rgba(255,255,255,.12));
-  border:1px solid var(--glass-stroke);
-  backdrop-filter:saturate(160%) blur(calc(var(--glass-blur)*.6));
-  -webkit-backdrop-filter:saturate(160%) blur(calc(var(--glass-blur)*.6));
+  background:#fff; border:1px solid var(--line);
 }
-.dmInputBar input{flex:1;border:none;outline:none;background:transparent;font-size:16px}
+.dmInputBar input{flex:1;border:none;outline:none;background:transparent;font-size:16px;color:#000}
+::placeholder{ color:#9aa0b4; opacity:1; }
 .dmSend{width:30px;height:30px;color:#b2b7c8;display:grid;place-items:center}
 .hasText .dmSend{color:#111}
 
@@ -652,7 +662,7 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
   align-self:center;margin:8px 0;padding:6px 12px;border-radius:999px;
   font-size:12px;font-weight:900;letter-spacing:.3px;color:#2e2a6f;
   background:linear-gradient(180deg,rgba(255,255,255,.28),rgba(255,255,255,.12));
-  border:1px solid var(--glass-stroke);
+  border:.5px solid var(--rail-stroke);
   backdrop-filter:saturate(160%) blur(calc(var(--glass-blur)*.6));
   -webkit-backdrop-filter:saturate(160%) blur(calc(var(--glass-blur)*.6));
 }
