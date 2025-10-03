@@ -454,28 +454,20 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
   flex:1; min-width:0; display:flex; justify-content:center; align-items:center;
 }
 
-/* 標題樣式（素淨、無陰影/描邊） */
 #dmTitle.artistName{
-  font-weight:1000; letter-spacing:.4px;
-  font-size:clamp(18px,5vw,22px);
-  text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
-  color:#111; text-shadow:none; -webkit-text-stroke:0; mix-blend-mode:normal;
+  color: var(--hud-ink, #111) !important;
+  text-shadow: none !important; -webkit-text-stroke: 0 !important; mix-blend-mode: normal !important;
 }
 
-/* 返回箭頭（純墨色、無陰影/混色） */
+/* === HUD 字色統一由 --hud-ink 控（自動偵測產生），強制關閉混色/陰影 === */
 #dmDetail .back svg{
-  width:22px;height:22px;
-  stroke:#111 !important; stroke-width:2.6; stroke-linecap:round; stroke-linejoin:round;
-  fill:none; mix-blend-mode:normal !important; filter:none !important;
+  stroke: var(--hud-ink, #111) !important;
+  stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round;
+  fill: none; mix-blend-mode: normal !important; filter: none !important;
 }
-
-/* 右上 ⋯（純墨色、無陰影/混色） */
 #dmDetail .hudBtn{
-  color:#111 !important;
-  font-weight:900;
-  text-shadow:none !important;
-  mix-blend-mode:normal !important;
-  -webkit-text-stroke:0 !important;
+  color: var(--hud-ink, #111) !important;
+  font-weight: 900; text-shadow: none !important; mix-blend-mode: normal !important;
 }
 
 /* 明確關掉先前的小底板（圖一的白底），避免被舊樣式殘留影響 */
@@ -640,19 +632,13 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
 .dmSend{width:30px;height:30px;color:#b2b7c8;display:grid;place-items:center}
 .hasText .dmSend{color:#111}
 
-  /* 3. 輸入框白底黑字（所有輸入場景統一） */
-.dmInputBar .box,
-#cdComposer .box,
-#pdComposer {
-  background: #fff !important;
-  border: 1px solid var(--line) !important;
+/* === CommentDetail 與 PostDetail 的輸入框，100%跟 DM 一樣樣式（白底黑字） === */
+.dmInputBar .box, #cdComposer .box, #pdComposer{
+  background: #fff !important; border: 1px solid var(--line) !important;
 }
 
-.dmInputBar .box,
-#cdComposer .box,
-#pdComposer .box {
-  background: #fff !important;
-  border: 1px solid var(--line) !important;
+.dmInputBar input, #cdComposer input, #pdComposer input{
+  color:#000 !important; background: transparent !important;
 }
 
 ::placeholder { color: #9aa0b4; opacity: 1; }
@@ -918,17 +904,11 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
 }
 
 /* 若該區域背景偏亮或偏花，可用這個「微底色板」（不是陰影） */
-.ink-plate{
-  position: relative;
-  isolation: isolate;
-}
+/* 在背景太花又很亮時，給 HUD 一片很淡的透明白底板（由 JS 決定是否掛 .ink-plate） */
+.ink-plate{ position: relative; isolation: isolate; }
 .ink-plate::before{
-  content:"";
-  position:absolute; inset:-2px;
-  border-radius:8px;
-  background: rgba(255,255,255,.78);     /* 透明白底板 */
-  border:1px solid rgba(0,0,0,.06);
-  z-index:-1;
+  content:""; position:absolute; inset:-2px; border-radius:8px;
+  background: rgba(255,255,255,.78); border:1px solid rgba(0,0,0,.06); z-index:-1;
 }
   /* PATCH #8-B（刪舊貼新）— 主要按鈕文字永遠可見、禁用任何混色/陰影 */
 .btnPrimary{
@@ -1527,6 +1507,19 @@ function showPage(id, opts = {}) {
         measureFooter();
         renderThread();
         applyChatBg();
+        case 'dmDetail':
+        requestAnimationFrame(() => {
+        measureHUD();
+        measureFooter();
+        renderThread();
+        applyChatBg();      // 先把背景掛上（你原本就有）
+        recalcHud();        // ← 新增：根據背景亮度決定 HUD 墨色 / 是否加底板
+        bindBottomObserver();
+        bindScrollGuard();
+        autoStick = true;
+        scrollToEndDuring(800);
+        setTimeout(hardStickBottom, 0);
+        updateNoticeBanner();
         bindBottomObserver();
         bindScrollGuard();
         autoStick = true;
@@ -2655,6 +2648,99 @@ async function confirmPreview(){
   closePreview();
 }
 
+  // 亮度計算（sRGB → 相對亮度）
+function _luma(r,g,b){
+  const srgb = [r,g,b].map(v=>v/255).map(v => v<=0.03928 ? v/12.92 : Math.pow((v+0.055)/1.055, 2.4));
+  return 0.2126*srgb[0] + 0.7152*srgb[1] + 0.0722*srgb[2];
+}
+
+// 取 HUD 區域平均亮度（畫面頂端約 64~72px）
+async function _sampleHudLuma(url){
+  return new Promise(res=>{
+    if(!url){ res(null); return; }
+    const ok = url.startsWith('data:') || url.startsWith('blob:');
+    if(!ok){ res(null); return; }               // 僅允許本地來源，避開汙染
+    const img = new Image(); img.decoding='async';
+    img.onload = ()=>{
+      try{
+        const vw = Math.max(1, window.innerWidth), vh = Math.max(1, window.innerHeight);
+        const h  = Math.min(80, Math.max(56, Math.round(parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--hud-h'))||64)));
+        const c  = document.createElement('canvas'); c.width = vw; c.height = h;
+        const ctx = c.getContext('2d', { willReadFrequently:true });
+        ctx.drawImage(img, 0, 0, vw, vh, 0, 0, vw, h);  // 只取頂部條
+        const data = ctx.getImageData(0, 0, vw, h).data;
+        let sum=0, step=4*4;               // 跳採樣，加速
+        for(let i=0;i<data.length;i+=step){ sum += _luma(data[i],data[i+1],data[i+2]); }
+        const n = Math.ceil(data.length/step);
+        res(sum / Math.max(1,n));
+      }catch(_){ res(null); }
+    };
+    img.onerror = ()=>res(null);
+    img.src = url;
+  });
+}
+
+// 依背景亮度 + 遮罩強度決定字色 / 是否加底板
+async function _decideHudInk(url){
+  const dim = (LS.get('chatBgOpt', {dim:.18, blur:6})||{}).dim ?? .18;  // 你已有的遮罩
+  const l = await _sampleHudLuma(url);  // 0(黑) ~ 1(白)；null=未知
+  // 遮罩會把背景往暗壓，粗略補償
+  const eff = (l==null) ? null : Math.max(0, Math.min(1, l*(1-dim)));
+
+  // 預設：依系統主題
+  const preferDark = matchMedia('(prefers-color-scheme: dark)').matches;
+  let ink = preferDark ? '#e9edf5' : '#111';   // 沒得算時的保底
+  let needPlate = false;
+
+  if(eff!=null){
+    // 門檻：偏暗 → 白字；偏亮 → 黑字；中間帶 + 亮又花時 → 加底板
+    if(eff < 0.50) ink = '#ffffff';
+    else ink = '#111111';
+
+    // 高亮且遮罩很低 → 容易雜訊，鋪個超淡底板
+    if(eff > 0.62 && dim < 0.14) needPlate = true;
+  }
+
+  return { ink, needPlate };
+}
+
+// 套用到 DOM（設定 CSS 變數 + 視需要掛 ink-plate）
+function _applyHudInk({ink, needPlate}){
+  document.documentElement.style.setProperty('--hud-ink', ink);
+  const hudCenter = document.querySelector('#dmDetail .chatHUD .center');
+  if(hudCenter){
+    hudCenter.classList.toggle('ink-plate', !!needPlate);
+  }
+}
+
+// 對外：隨叫隨算（你可在任何情境呼叫）
+window.recalcHud = function recalcHud(){
+  const url = LS.getStr('chatBg','');
+  const id  = LS.getStr('chatBgId','');
+  const apply = (u)=>{ _decideHudInk(u).then(_applyHudInk); };
+
+  if(url){ apply(url); return; }
+  if(id){
+    MEDIA_DB.getURL(id).then(u=>apply(u||'')).catch(()=>_applyHudInk({ink:matchMedia('(prefers-color-scheme: dark)').matches?'#e9edf5':'#111', needPlate:false}));
+    return;
+  }
+  _applyHudInk({ink:matchMedia('(prefers-color-scheme: dark)').matches?'#e9edf5':'#111', needPlate:false});
+};
+
+// 使用者調整遮罩/模糊時，立即重算
+window.onBgOptChanged = function onBgOptChanged(dim, blur){
+  LS.set('chatBgOpt', { dim, blur });
+  recalcHud();
+};
+
+// 主題切換 / 螢幕尺寸變化 → 也重算一次（含防抖）
+(function(){
+  const mq = matchMedia('(prefers-color-scheme: dark)'); let t=null;
+  mq.addEventListener('change', ()=>{ clearTimeout(t); t=setTimeout(recalcHud, 60); });
+  window.addEventListener('resize',         ()=>{ clearTimeout(t); t=setTimeout(recalcHud, 60); });
+  window.addEventListener('orientationchange',()=>{ clearTimeout(t); t=setTimeout(recalcHud, 120); });
+})();
+
 function backToCrop(){ closePreview(); openModal('cropModal'); }
 function rotateCrop(){ cropDeg = (cropDeg + 90) % 360; computeBaseScale(); updateCropTransform(); }
 
@@ -3205,6 +3291,7 @@ document.addEventListener('change', (e)=>{
 
   measureHUD(); measureFooter(); updateComposerUI();
   renderThread();
+  recalcHud();
   updateNoticeBanner();
 
   scrollToEndDuring(800);
