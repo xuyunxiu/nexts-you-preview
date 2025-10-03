@@ -2982,9 +2982,12 @@ document.getElementById('btnEditNick')?.addEventListener('click', ()=>{
   renderDmList();
 });
 
-document.getElementById('fabNew')?.addEventListener('click', ()=>{
-  if (document.getElementById('composerArtist')) showPage('composerArtist');
-  else alert('發文編輯器尚未掛上頁面。');
+document.getElementById('fabNew')?.addEventListener('click', () => {
+  if (document.getElementById('composerArtist')) {
+    showPage('composerArtist');
+  } else {
+    alert('（尚未實作）');
+  }
 });
 
 /* ===================== 首頁卡片點擊委派（防重複綁定） ===================== */
