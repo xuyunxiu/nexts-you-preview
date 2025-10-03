@@ -496,10 +496,17 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
   padding: calc(var(--hud-h) + 4px) 2px calc(var(--notice-h) + 12px) !important;
   scrollbar-gutter:stable both-edges; z-index: 1;
 }
-#threadPad{ height:0 !important; }
 #dmDetail .thread .msg + .msg{ margin-top:12px }
 #endAnchor{ height:1px; flex:0 0 auto; }
 
+/* 讓對話串底部永遠保留一塊「跟 noticeBar 一樣高」的空間 */
+#dmDetail .thread::after{
+  content: "";
+  display: block;
+  height: var(--notice-h, 0px);
+  flex: 0 0 auto;
+}
+  
 /* 浮動 noticeBar */
 .noticeBar.is-floating{
   position: fixed; left: 50%; transform: translateX(-50%);
@@ -2136,8 +2143,7 @@ if (m.from === 'fan' && !m.type) {
   
 /* 把 notice 掛在輸入列容器（固定位置渲染） */
 function ensureNoticeRow(){
-  const host = document.getElementById('dmFooter');
-  if(!host) return null;
+  const host = document.getElementById('dmDetail') || document.body;
   let n = document.getElementById('noticeRow');
   if(!n){
     n = document.createElement('div');
@@ -2148,6 +2154,7 @@ function ensureNoticeRow(){
     n.textContent = '粉絲在等你的訊息喔 🤩';
     host.appendChild(n);
   }
+  // 位置計算仍沿用你原本的 bottom: calc(var(--footer-h) + var(--kb-offset) + …)
   tuneNoticePad();
   return n;
 }
@@ -2194,18 +2201,14 @@ function updateNoticeBanner(){
 }
 function tuneNoticePad(){
   const n = document.getElementById('noticeRow');
-  const h = (n && getComputedStyle(n).display !== 'none')
-    ? Math.ceil((n.getBoundingClientRect().height || 0) + 14)  // 14px 緩衝
-    : 0;
-
-  // 保留原本的 CSS 變數（給 padding-bottom 用）
+  let h = 0;
+  if(n && getComputedStyle(n).display !== 'none'){
+    // 用 offsetHeight 比 getBoundingClientRect() 更不容易回 0
+    h = Math.ceil(n.offsetHeight + 14); // 14px 緩衝
+  }
   document.documentElement.style.setProperty('--notice-h', h + 'px');
-
-  // 同步用「實體墊片」確保就位（覆蓋掉 CSS 的 !important）
-  const pad = document.getElementById('threadPad');
-  if (pad) pad.style.setProperty('height', h + 'px', 'important');
 }
-
+  
 /* ===================== 送訊息 / 回覆 ===================== */
 function clearReply(){
   replyDraft=null;
