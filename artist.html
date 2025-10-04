@@ -1610,6 +1610,7 @@ function showPage(id, opts = {}) {
     requestAnimationFrame(bindPostDetailHUD);
   }
   break;
+  }
 
     case 'postList':
       renderStoryBar();
@@ -3014,8 +3015,6 @@ function bindBottomObserver(){
 
 /* 防呆：滾動守衛（此版先作為 no-op，避免未定義報錯） */
 function bindScrollGuard(){ /* reserved */ }
-
-
   
 /* ===================== Composer（首頁草稿） ===================== */
 function previewComposeMedia(e){
