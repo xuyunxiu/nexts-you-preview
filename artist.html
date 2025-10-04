@@ -347,26 +347,40 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
 
 /* =================== Post 卡結構 =================== */
 #postDetail .pageTitle{ display:none }
+/* PATCH — PostDetail HUD：進場只有返回鍵（刪舊貼新） */
 #postDetail .postHUD{
-  position:sticky; top:0; z-index:5;
-  display:flex; align-items:center; gap:8px;
-  padding:8px 8px 6px;
-  background:linear-gradient(180deg, rgba(245,247,255,.75), rgba(245,247,255,0));
+  position:sticky; top:0; z-index:8;
+  padding:calc(8px + env(safe-area-inset-top,0px)) 8px 6px;
+  background:transparent !important;  /* 取消白白的底（修正 2-1） */
 }
+/* 進場先隱藏「名字＋翻譯鍵」 */
+#postDetail .postHUD .center,
+#postDetail .postHUD .hudBtn{ display:none; }
 
-/* 1A. 進貼文詳情時，「社群」抬頭不要出現 */
-#postDetail .homeTop { display: none !important; }
+/* 捲動一定高度後，才在頂部顯示名字＋翻譯鍵，並加一點玻璃底 */
+#postDetail.scrolled .postHUD{
+  background:linear-gradient(180deg, rgba(245,247,255,.86), rgba(245,247,255,0));
+}
+#postDetail.scrolled .postHUD .center,
+#postDetail.scrolled .postHUD .hudBtn{ display:flex; }
 
-/* 1C. 讓 postDetail 內容底部預留空間（不被輸入列蓋住） */
-#postDetail { padding-bottom: calc(var(--footer-h) + 12px) !important; }
-  
-#postDetail .postHUD .back{ width:44px;height:44px;display:grid;place-items:center }
-#postDetail .postHUD .back svg{ width:22px;height:22px;stroke:#5b6ab0;stroke-width:2.6;fill:none }
-#postDetail .postHUD .center{ display:flex; align-items:center; gap:10px; min-width:0; flex:1 }
-#postDetail .postHUD .center img{ width:36px;height:36px;border-radius:50%;object-fit:cover;border:1px solid var(--line) }
-#postDetail .postHUD .meta b{ display:flex; align-items:center; gap:6px; font-weight:900; letter-spacing:.3px }
-#postDetail .postHUD .meta small{ display:block; color:var(--ghost) }
-#postDetail .postHUD .hudBtn{ width:44px;height:44px; color:#5b6ab0;font-weight:900 }
+/* PATCH — 貼文詳情 = 滿版呈現（刪舊貼新；修正 2-2 vs 4-2） */
+#postDetail .post{
+  background:transparent !important;
+  border:none !important; box-shadow:none !important;
+  margin:0 !important; padding:0 !important;
+}
+#postDetail .post .hdr{ display:none !important; }      /* 去掉卡片抬頭區 */
+#postDetail .post .body{ margin:0 !important; }
+#postDetail .post .hero{
+  /* 讓圖片真正滿版（不被容器左右 padding 影響） */
+  width:100vw; max-width:100vw; height:auto;
+  display:block; margin:0 calc(50% - 50vw);
+  border:none !important; border-radius:0 !important;
+}
+#postDetail .actions{
+  padding:10px 10px 0; border-top:none !important; margin-top:6px;
+}
 
 /* 留言清單 */
 .cmtItem{ display:flex; gap:10px; align-items:flex-start; margin:10px 6px }
@@ -402,6 +416,17 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
 .post .meta small{display:block;color:var(--ghost)}
 .post .body{margin-top:8px}
 .post .hero{width:100%;height:360px;object-fit:cover;border-radius:12px;border:1px solid rgba(255,255,255,.35)}
+
+  /* PATCH — Post 卡片上下加深（刪舊貼新） */
+.post.card{ position:relative; overflow:hidden; }
+.post.card::before{
+  content:""; position:absolute; inset:-1px; border-radius:inherit; pointer-events:none;
+  /* 上下加深、中段保留原玻璃感（對照範例 3-2） */
+  background:linear-gradient(180deg,
+    rgba(0,0,0,.10), rgba(0,0,0,0) 18%,
+    rgba(0,0,0,0) 82%, rgba(0,0,0,.10));
+  mix-blend-mode:multiply;
+}
 
 /* =================== DM 列表卡（玻璃） =================== */
 #dm .dmCard{
@@ -930,13 +955,12 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
 
 /* Page Title / 翻譯鈕 / Composer 玻璃 */
 /* 頁面抬頭：貼文/DM/直播等 */
-.pageTitle{
-  margin: 0 0 6px;
-  font-weight: 1000;
-  letter-spacing: .4px;
-  font-size: clamp(20px, 4.8vw, 24px);
-  line-height: 1.1; }
-#storyWrap { margin-top: -2px; }
+#postList .pageTitle{ margin:8px 8px 0 !important; } /* 標題底下幾乎緊貼 */
+#storyWrap{
+  position: sticky; top: 0; z-index: 5;
+  margin-top: 0 !important;               /* 移除多餘縫隙 */
+}
+#storyBar{ padding:6px 8px 10px !important; }  /* 與範例同等級的緊實高度 */
 .translate-btn{ position:absolute; right:0; top:0; padding:4px 10px; font-size:12px; line-height:1; }
 
 /* Switch */
@@ -1067,13 +1091,14 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
   </div>
 </section>
 
+<!-- PATCH — #postList 結構（刪舊貼新） -->
 <section id="postList" class="page">
   <div class="pageTitle">貼文</div>
-  <div id="postListWrap" style="padding:0 6px 100px"></div>
 
   <div id="storyWrap">
     <div id="storyBar"></div>
   </div>
+
   <div id="feedWrap" style="padding:0 6px 12px"></div>
 </section>
 
@@ -3121,6 +3146,28 @@ function renderPostDetail(postId){
   renderPostComments(p);
   measureFooter();
 }
+
+  /* PATCH — PostDetail 捲動門檻（刪舊貼新） */
+function bindPostDetailHUD(){
+  const page = document.getElementById('postDetail');
+  function threshold(){
+    const hero = document.querySelector('#postDetail .hero');
+    return hero ? hero.getBoundingClientRect().height * 0.55 : 180; // 約 55% 圖高
+  }
+  function onScroll(){
+    const y = window.scrollY || document.documentElement.scrollTop || 0;
+    if (y > threshold()) page.classList.add('scrolled');
+    else page.classList.remove('scrolled');
+  }
+  // 去重綁
+  if (window.__pdHUDScroll) window.removeEventListener('scroll', window.__pdHUDScroll, {passive:true});
+  window.__pdHUDScroll = onScroll;
+  window.addEventListener('scroll', onScroll, {passive:true});
+  onScroll();
+}
+
+/* 在 renderPostDetail(postId) 的最後附加一行（刪舊貼新） */
+bindPostDetailHUD();
 
 function renderPostComments(p){
   const listEl = document.getElementById('cmtList'); if (!listEl) return;
