@@ -3648,6 +3648,56 @@ function closeViewer(){
   // Esc 關閉（鍵盤）
   document.addEventListener('keydown', e=>{ if(e.key==='Escape' && v.style.display==='block') closeViewer(); });
 })();
+
+// 1) LIVE_ON 保底，避免 ReferenceError
+if (typeof window.LIVE_ON === 'undefined') window.LIVE_ON = false;
+
+// 2) 安全版 syncNavVisibility（只改一行）
+function syncNavVisibility(){
+  const nav = document.getElementById('nav');
+  const cur = PAGE_STACK[PAGE_STACK.length - 1] || 'home';
+  const liveOn = !!window.LIVE_ON;  // ← 這行
+  const mustHide = HIDE_NAV_IN.includes(cur) || (cur === 'live' && liveOn);
+  nav.classList.toggle('hidden', mustHide);
+  document.body.classList.toggle('nav-hidden', mustHide);
+}
+
+// 3) measureFooter：量到 0 就別覆寫
+function measureFooter(){
+  const order = ['#pdComposer', '#cdComposer', '#dmFooter'];
+  let f = null;
+  for (const sel of order) {
+    const el = document.querySelector(sel);
+    if (!el) continue;
+    const r = el.getBoundingClientRect();
+    if (r.width > 0 && r.height > 0 && getComputedStyle(el).display !== 'none') { f = el; break; }
+  }
+  const h = Math.ceil((f?.getBoundingClientRect().height || 0));
+  if (h > 0) {
+    document.documentElement.style.setProperty('--footer-h', `${h}px`);
+    tuneNoticePad();
+  }
+}
+
+// 4) 完整的 bindBottomObserver（避免你尾段被截斷）
+function bindBottomObserver(){
+  const t = document.getElementById('dmThread');
+  const end = document.getElementById('endAnchor');
+  if (!t || !end || !('IntersectionObserver' in window)) return;
+  if (window._dmIO) { try { window._dmIO.disconnect(); } catch(_){} }
+  window._dmIO = new IntersectionObserver((entries)=>{
+    autoStick = entries.some(e => e.isIntersecting);
+  }, { root: t, threshold: 0.01 });
+  window._dmIO.observe(end);
+}
+
+// 5) 初始化把首頁資料灌進去
+document.addEventListener('DOMContentLoaded', () => {
+  bootFromJSON();
+  renderHomeWeverse();
+  recalcHud();
+});
+  
 </script>
 </body>
 </html>
