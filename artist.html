@@ -3002,14 +3002,20 @@ function hardStickBottom(){
 
 /* —— 卷動守衛（控 autoStick） —— */
 function bindBottomObserver(){
-  const t = document.getElementById('dmThread'); if (!t) return;
+  const t = document.getElementById('dmThread'); 
+  if (!t) return;
   const onScroll = ()=>{
     const nearBottom = (t.scrollHeight - t.scrollTop - t.clientHeight) < 24;
     autoStick = nearBottom;
   };
-  t.addEventListener('scroll', onScroll, { passive:true });
+  t.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
 }
-function bindScrollGuard(){ bindBottomObserver(); }
+
+/* 防呆：滾動守衛（此版先作為 no-op，避免未定義報錯） */
+function bindScrollGuard(){ /* reserved */ }
+
+
   
 /* ===================== Composer（首頁草稿） ===================== */
 function previewComposeMedia(e){
