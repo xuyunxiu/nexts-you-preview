@@ -361,6 +361,10 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
 #postDetail.scrolled .postHUD{
   background:linear-gradient(180deg, rgba(245,247,255,.86), rgba(245,247,255,0));
 }
+  #postDetail .postHUD .back svg{
+  stroke:#111; stroke-width:2.6; stroke-linecap:round; stroke-linejoin:round; fill:none;
+}
+#postDetail.scrolled .postHUD .back svg{ stroke:#111; } /* 之後如要跟 HUD 墨色連動再換變數 */ 
 #postDetail.scrolled .postHUD .center,
 #postDetail.scrolled .postHUD .hudBtn{ display:flex; }
 
@@ -1028,8 +1032,7 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
 
 <!-- ====================== POST DETAIL (Artist) ====================== -->
 <section id="postDetail" class="page">
-  <div class="homeTop">
-    <div class="homeTitle">社群</div>
+  <div class="homeTitle">社群</div>
   </div>
 
   <!-- 貼文詳情 HUD（照圖2/圖3） -->
@@ -3168,6 +3171,33 @@ function bindPostDetailHUD(){
 
 /* 在 renderPostDetail(postId) 的最後附加一行（刪舊貼新） */
 bindPostDetailHUD();
+
+/* PATCH — PostDetail 捲動門檻（刪舊貼新） */
+function bindPostDetailHUD(){
+  const page = document.getElementById('postDetail');
+  function threshold(){
+    const hero = document.querySelector('#postDetail .hero');
+    return hero ? hero.getBoundingClientRect().height * 0.55 : 180; // 約 55% 圖高
+  }
+  function onScroll(){
+    const y = window.scrollY || document.documentElement.scrollTop || 0;
+    if (y > threshold()) page.classList.add('scrolled');
+    else page.classList.remove('scrolled');
+  }
+  // 去重綁
+  if (window.__pdHUDScroll) window.removeEventListener('scroll', window.__pdHUDScroll, {passive:true});
+  window.__pdHUDScroll = onScroll;
+  window.addEventListener('scroll', onScroll, {passive:true});
+  onScroll();
+}
+
+/* 在 showPage('postDetail') 渲染後加一行（刪舊貼新） */
+case 'postDetail':
+  if (CURRENT_POST_ID) {
+    renderPostDetail(CURRENT_POST_ID);
+    requestAnimationFrame(bindPostDetailHUD);
+  }
+  break;
 
 function renderPostComments(p){
   const listEl = document.getElementById('cmtList'); if (!listEl) return;
