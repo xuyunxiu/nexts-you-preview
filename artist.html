@@ -1544,13 +1544,10 @@ let PAGE_STACK = ['home'];
 function syncNavVisibility(){
   const nav = document.getElementById('nav');
   const cur = PAGE_STACK[PAGE_STACK.length - 1] || 'home';
-  const liveOn = !!window.LIVE_ON; // 防呆
-  const mustHide = HIDE_NAV_IN.includes(cur) || (cur === 'live' && liveOn);
-  if (nav){
-    nav.classList.toggle('hidden', mustHide);
-    document.body.classList.toggle('nav-hidden', mustHide);
-  }
-}
+  const mustHide = HIDE_NAV_IN.includes(cur) || (cur === 'live' && LIVE_ON);
+  nav.classList.toggle('hidden', mustHide);
+  document.body.classList.toggle('nav-hidden', mustHide); // ← 新增：讓 CSS 能收掉底部 padding
+}  
 function showPage(id, opts = {}) {
   // 上一頁
   const prev = PAGE_STACK[PAGE_STACK.length - 1] || 'home';
@@ -1603,14 +1600,9 @@ function showPage(id, opts = {}) {
       break;
     }
 
-    case 'postDetail': {
-  if (CURRENT_POST_ID) {
-    renderPostDetail(CURRENT_POST_ID);
-    // 讓 HUD 綁定捲動門檻在渲染後執行
-    requestAnimationFrame(bindPostDetailHUD);
-  }
-  break;
-  }
+    case 'postDetail':
+      if (CURRENT_POST_ID) renderPostDetail(CURRENT_POST_ID);
+      break;
 
     case 'postList':
       renderStoryBar();
@@ -3000,6 +2992,17 @@ function hardStickBottom(){
   setTimeout(stickBottomNow, 200);
   setTimeout(stickBottomNow, 600);
 }
+
+/* —— 卷動守衛（控 autoStick） —— */
+function bindBottomObserver(){
+  const t = document.getElementById('dmThread'); if (!t) return;
+  const onScroll = ()=>{
+    const nearBottom = (t.scrollHeight - t.scrollTop - t.clientHeight) < 24;
+    autoStick = nearBottom;
+  };
+  t.addEventListener('scroll', onScroll, { passive:true });
+}
+function bindScrollGuard(){ bindBottomObserver(); }
   
 /* ===================== Composer（首頁草稿） ===================== */
 function previewComposeMedia(e){
@@ -3191,6 +3194,15 @@ function bindPostDetailHUD(){
   window.__pdHUDScroll = onScroll;
   window.addEventListener('scroll', onScroll, {passive:true});
   onScroll();
+}
+
+/* 在 showPage('postDetail') 渲染後加一行（刪舊貼新） */
+case 'postDetail':
+  if (CURRENT_POST_ID) {
+    renderPostDetail(CURRENT_POST_ID);
+    requestAnimationFrame(bindPostDetailHUD);
+  }
+  break;
 
 function renderPostComments(p){
   const listEl = document.getElementById('cmtList'); if (!listEl) return;
@@ -3638,93 +3650,6 @@ function closeViewer(){
   // Esc 關閉（鍵盤）
   document.addEventListener('keydown', e=>{ if(e.key==='Escape' && v.style.display==='block') closeViewer(); });
 })();
-
-/* —— 卷動守衛（控 autoStick） —— */
-function bindBottomObserver(){
-  const t = document.getElementById('dmThread'); 
-  if (!t) return;
-  const onScroll = ()=>{
-    const nearBottom = (t.scrollHeight - t.scrollTop - t.clientHeight) < 24;
-    autoStick = nearBottom;
-  };
-  t.addEventListener('scroll', onScroll, { passive: true });
-  onScroll();
-}
-
-/* 防呆：滾動守衛（此版先作為 no-op，避免未定義報錯） */
-function bindScrollGuard(){ /* reserved */ }
-
-/* ====== Viewer（全螢幕檢視器開關） ====== */
-function openViewer(url, type='img'){
-  const viewer = document.getElementById('viewer'); if(!viewer) return;
-  const img = document.getElementById('viewerImg');
-  const vid = document.getElementById('viewerVideo');
-  if (img) { img.style.display='none'; img.removeAttribute('src'); }
-  if (vid) { try{ vid.pause(); }catch(_){} vid.style.display='none'; vid.removeAttribute('src'); vid.load(); }
-
-  if (type === 'video'){
-    if (vid){ vid.src = url; vid.style.display='block'; }
-  } else {
-    if (img){ img.src = url; img.style.display='block'; }
-  }
-  viewer.style.display='block';
-}
-function closeViewer(){
-  const viewer = document.getElementById('viewer'); if(!viewer) return;
-  const img = document.getElementById('viewerImg');
-  const vid = document.getElementById('viewerVideo');
-  if (img){ img.style.display='none'; img.removeAttribute('src'); }
-  if (vid){ try{ vid.pause(); }catch(_){} vid.style.display='none'; vid.removeAttribute('src'); vid.load(); }
-  viewer.style.display='none';
-}
-document.getElementById('viewerClose')?.addEventListener('click', closeViewer);
-document.getElementById('viewer')?.addEventListener('click', (e)=>{
-  if (e.target.id === 'viewer') closeViewer();
-});
-
-/* ====== PostDetail HUD 綁定（滾到一定高度才顯示標題/翻譯鍵） ====== */
-function bindPostDetailHUD(){
-  const root = document.getElementById('postDetail'); 
-  if (!root) return;
-  const onScroll = ()=>{
-    const y = window.scrollY || document.documentElement.scrollTop || 0;
-    root.classList.toggle('scrolled', y > 24);
-  };
-  window.addEventListener('scroll', onScroll, { passive:true });
-  onScroll();
-}
-
-/* 防呆：避免未定義的全域造成 ReferenceError */
-if (typeof window.CURRENT_POST_ID === 'undefined') window.CURRENT_POST_ID = null;
-
-/* 簡版貼文詳情渲染（讓 postDetail 能正常進場） */
-function renderPostDetail(id){
-  const wrap = document.getElementById('postDetailWrap'); if(!wrap) return;
-  const p = (window.POSTS || []).find(x => x.id === id);
-  if (!p){ wrap.innerHTML = '<div class="ghost" style="padding:12px">找不到貼文</div>'; return; }
-
-  const displayName = (p.artistId==='me' ? (window.NICKNAME||'ANNIE').toUpperCase()
-                                         : (p.artistStage||window.STAGE_NAME||'ARTIST').toUpperCase());
-  document.getElementById('pdAvatar')?.setAttribute('src', p.avatar || (window.ME?.avatar) || '');
-  const nm = document.getElementById('pdName'); if (nm) nm.textContent = displayName;
-  const tm = document.getElementById('pdTime'); if (tm) tm.textContent = new Date(p.ts).toLocaleString();
-
-  const safe = (s)=> (window.escapeHtml ? escapeHtml(s||'') : (s||''));
-  wrap.innerHTML = `
-    <div class="post">
-      <div class="body">
-        <p id="postText-${p.id}">${safe(p.text)}</p>
-        ${p.img ? `<img class="hero" src="${p.img}" alt="貼文圖片" onerror="imgFallback(this)">` : ``}
-      </div>
-      <div class="actions">
-        ${typeof renderReactionsBar === 'function' ? renderReactionsBar(p.id) : ''}
-        <div class="commentBar">
-          <div class="left">💬 <span class="cmtCount">${(typeof totalComments==='function')? totalComments(p) : ((p.cmts||[]).length)}</span> 則評論</div>
-          <div class="right"><button class="addCmt">發表評論</button></div>
-        </div>
-      </div>
-    </div>`;
-}  
 </script>
 </body>
 </html>
