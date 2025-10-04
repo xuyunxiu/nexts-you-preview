@@ -1603,9 +1603,13 @@ function showPage(id, opts = {}) {
       break;
     }
 
-    case 'postDetail':
-      if (CURRENT_POST_ID) renderPostDetail(CURRENT_POST_ID);
-      break;
+    case 'postDetail': {
+  if (CURRENT_POST_ID) {
+    renderPostDetail(CURRENT_POST_ID);
+    // 讓 HUD 綁定捲動門檻在渲染後執行
+    requestAnimationFrame(bindPostDetailHUD);
+  }
+  break;
 
     case 'postList':
       renderStoryBar();
@@ -3197,15 +3201,6 @@ function bindPostDetailHUD(){
   window.__pdHUDScroll = onScroll;
   window.addEventListener('scroll', onScroll, {passive:true});
   onScroll();
-}
-
-/* 在 showPage('postDetail') 渲染後加一行（刪舊貼新） */
-case 'postDetail':
-  if (CURRENT_POST_ID) {
-    renderPostDetail(CURRENT_POST_ID);
-    requestAnimationFrame(bindPostDetailHUD);
-  }
-  break;
 
 function renderPostComments(p){
   const listEl = document.getElementById('cmtList'); if (!listEl) return;
