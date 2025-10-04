@@ -665,19 +665,24 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
 ::placeholder { color: #9aa0b4; opacity: 1; }
 
 /* 系統通知（玻璃膠囊） */
-/* 更淡、像圖二的透明度 */
+/* 系統通知（玻璃膠囊）— 圖二樣式 */
 .noticeBar{
-  background: linear-gradient(180deg, rgba(255,255,255,.20), rgba(255,255,255,.08));
-  border: 1px solid rgba(255,255,255,.38);
-  backdrop-filter: saturate(160%) blur(calc(var(--glass-blur)*.6));
-  -webkit-backdrop-filter: saturate(160%) blur(calc(var(--glass-blur)*.6));
+  display:inline-flex; align-items:center; justify-content:center;
+  padding:8px 14px; border-radius:14px; font-weight:900; letter-spacing:.25px;
+  color:#2f3564;                         /* 圖二那種藍紫墨色 */
+  background: linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,.04));  /* 更淡 */
+  border: 1px solid rgba(255,255,255,.30);
+  box-shadow: 0 6px 14px rgba(0,0,0,.08);
+  backdrop-filter: saturate(160%) blur(calc(var(--glass-blur)*.5));
+  -webkit-backdrop-filter: saturate(160%) blur(calc(var(--glass-blur)*.5));
 }
 
-/* 浮在輸入列上方；改 8px 緩衝 */
+/* 浮在輸入列上方、間距照圖二 */
 .noticeBar.is-floating{
   position: fixed; left: 50%; transform: translateX(-50%);
   bottom: calc(var(--footer-h) + var(--kb-offset) + env(safe-area-inset-bottom,0px) + 8px) !important;
-  z-index: 60; pointer-events: none;}
+  z-index: 60; pointer-events: none;
+}
 
 /* Reply Chip */
 .replyChip{position:relative;display:flex;align-items:center;gap:8px;margin:0 14px 8px;padding:8px 36px 8px 12px;border-radius:13px;border:1px solid rgba(255,255,255,.28);background:rgba(255,255,255,.12);backdrop-filter:saturate(140%) blur(1.5px)}
