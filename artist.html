@@ -1033,6 +1033,7 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
 <!-- ====================== POST DETAIL (Artist) ====================== -->
 <section id="postDetail" class="page">
   <div class="homeTitle">社群</div>
+  </div>
 
   <!-- 貼文詳情 HUD（照圖2/圖3） -->
   <div class="postHUD" id="pdHUD"> 
@@ -1775,24 +1776,6 @@ function renderFeed(filter='me'){
     }
   });
 }
-
-  /* ===================== 事件代理：反應列 + 翻譯鈕 ===================== */
-document.addEventListener('click', (e)=>{
-  const btnReact = e.target.closest('.react');
-  if (btnReact){
-    const postEl = btnReact.closest('.post');
-    const postId = postEl?.dataset.post;
-    const type = btnReact.dataset.react;
-    if (postId && type) toggleReaction(postId, type);
-  }
-
-  const btnTrans = e.target.closest('.translate-btn');
-  if (btnTrans){
-    const postEl = btnTrans.closest('.post');
-    const postId = postEl?.dataset.post;
-    if (postId) togglePostTranslate(postId);
-  }
-}, { passive:true });
 
 /* ====== Fan 規則：6 種反應 + 單選 ====== */
 const REACTION_TYPES = [
@@ -2941,8 +2924,9 @@ function rePickBg(){
   setTimeout(()=> chooser && chooser.click(), 0);
 }
 
-/* ===================== 尺寸量測 & 貼底（修正版） ===================== */
+/* ===================== 尺寸量測 & 貼底（強化版） ===================== */
 function measureFooter(){
+  // 依「可見性」優先：postDetail → commentDetail → dmDetail
   const order = ['#pdComposer', '#cdComposer', '#dmFooter'];
   let f = null;
 
@@ -2954,13 +2938,14 @@ function measureFooter(){
       if (visible) { f = el; break; }
     }
   }
+  // 後備：都不可見時，還是選到任一存在的元素
   if (!f) f = document.getElementById('pdComposer') || document.getElementById('cdComposer') || document.getElementById('dmFooter');
 
   const h = Math.ceil((f?.getBoundingClientRect().height || 0));
   document.documentElement.style.setProperty('--footer-h', `${h}px`);
-  tuneNoticePad?.();
+  tuneNoticePad();
 }
-
+  
 function measureHUD(){
   const el = document.getElementById('dmHUD'); if (!el) return;
   const raw = Math.round(el.getBoundingClientRect().height || 56);
@@ -2968,42 +2953,52 @@ function measureHUD(){
   document.documentElement.style.setProperty('--hud-h', `${h}px`);
 }
 
-/* —— 真正貼底 —— */
 function stickBottomNow(){
   const t = document.getElementById('dmThread'); if (!t) return;
   document.getElementById('endAnchor')?.scrollIntoView({ block:'end' });
-  t.scrollTop = t.scrollHeight;
+  t.scrollTop = t.scrollHeight + 9999;
 }
-
 let autoStick = true;
 function scrollToEndDuring(ms=800){
   if (!autoStick) return;
-  const deadline = performance.now() + ms;
+  const end = performance.now() + ms;
   (function loop(){
     if (!autoStick) return;
     stickBottomNow();
-    if (performance.now() < deadline) requestAnimationFrame(loop);
+    if (performance.now() < end) requestAnimationFrame(loop);
+  })();
+}
+function hardStickBottom(){
+  const t = document.getElementById('dmThread'); if (!t) return;
+  t.scrollTop = t.scrollHeight + 9999;
+  let frames = 36;
+  (function pump(){
+    t.scrollTop = t.scrollHeight + 9999;
+    if (--frames > 0) requestAnimationFrame(pump);
   })();
 }
 
-function hardStickBottom(){
-  stickBottomNow();
-  setTimeout(stickBottomNow, 0);
-  setTimeout(stickBottomNow, 200);
-  setTimeout(stickBottomNow, 600);
+function bindScrollGuard(){
+  const t = document.getElementById('dmThread'); if (!t) return;
+  const nearBottom = ()=> ((t.scrollHeight - t.clientHeight) - t.scrollTop) < 6;
+  autoStick = nearBottom();
+  t.addEventListener('scroll', ()=>{
+    autoStick = nearBottom();
+  }, { passive:true });
+}
+function bindBottomObserver(){
+  const t = document.getElementById('dmThread');
+  const a = document.getElementById('endAnchor');
+  if (!t || !a) return;
+  try{
+    const io = new IntersectionObserver((entries)=>{
+      const e = entries[0];
+      autoStick = e.isIntersecting && e.intersectionRatio >= 0.96;
+    }, { root:t, threshold:[0.01,0.5,0.96], rootMargin:'0px 0px -1px 0px' });
+    io.observe(a);
+  }catch(_){}
 }
 
-/* —— 卷動守衛（控 autoStick） —— */
-function bindBottomObserver(){
-  const t = document.getElementById('dmThread'); if (!t) return;
-  const onScroll = ()=>{
-    const nearBottom = (t.scrollHeight - t.scrollTop - t.clientHeight) < 24;
-    autoStick = nearBottom;
-  };
-  t.addEventListener('scroll', onScroll, { passive:true });
-}
-function bindScrollGuard(){ bindBottomObserver(); }
-  
 /* ===================== Composer（首頁草稿） ===================== */
 function previewComposeMedia(e){
   const box  = document.getElementById('composePreview');
