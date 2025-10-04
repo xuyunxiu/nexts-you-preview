@@ -1033,7 +1033,6 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
 <!-- ====================== POST DETAIL (Artist) ====================== -->
 <section id="postDetail" class="page">
   <div class="homeTitle">社群</div>
-  </div>
 
   <!-- 貼文詳情 HUD（照圖2/圖3） -->
   <div class="postHUD" id="pdHUD"> 
@@ -1393,11 +1392,15 @@ function bindSwipeReply(hostEl, msg){
   hostEl.addEventListener('pointerup',   onEnd,   {passive:true});
 }
 
-/* === 零維護資料源 === */
+// 在 htmlpreview.github.io 用 raw.githack（有 CORS），其他情境用相對路徑
+const BASE = (location.hostname === 'htmlpreview.github.io')
+  ? 'https://raw.githack.com/xuyunxiu/nexts-you-preview/main/'
+  : './';
+
 const DATASRC = {
-  artists: '/data/artists.json',
-  posts:   '/data/posts.json',
-  thread:  '/data/group_msgs.json'
+  artists: BASE + 'data/artists.json',
+  posts:   BASE + 'data/posts.json',
+  thread:  BASE + 'data/group_msgs.json'
 };
 
 async function loadJSON(url, fallback){
