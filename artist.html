@@ -1544,10 +1544,13 @@ let PAGE_STACK = ['home'];
 function syncNavVisibility(){
   const nav = document.getElementById('nav');
   const cur = PAGE_STACK[PAGE_STACK.length - 1] || 'home';
-  const mustHide = HIDE_NAV_IN.includes(cur) || (cur === 'live' && LIVE_ON);
-  nav.classList.toggle('hidden', mustHide);
-  document.body.classList.toggle('nav-hidden', mustHide); // ← 新增：讓 CSS 能收掉底部 padding
-}  
+  const liveOn = !!window.LIVE_ON; // 防呆
+  const mustHide = HIDE_NAV_IN.includes(cur) || (cur === 'live' && liveOn);
+  if (nav){
+    nav.classList.toggle('hidden', mustHide);
+    document.body.classList.toggle('nav-hidden', mustHide);
+  }
+}
 function showPage(id, opts = {}) {
   // 上一頁
   const prev = PAGE_STACK[PAGE_STACK.length - 1] || 'home';
