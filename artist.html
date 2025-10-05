@@ -346,22 +346,25 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
 .homeTitle{font-weight:900;letter-spacing:.6px;font-size:22px;line-height:1}
 
 /* =================== Post 卡結構 =================== */
-#postDetail .pageTitle{ display:none }
-/* PATCH — PostDetail HUD：進場只有返回鍵（刪舊貼新） */
+#postDetail .pageTitle{ display:none } /* 詳情頁不顯示頁面標題列 */
 #postDetail .postHUD{
   position:sticky; top:0; z-index:8;
   padding:calc(8px + env(safe-area-inset-top,0px)) 8px 6px;
-  background:transparent !important;  /* 取消白白的底（修正 2-1） */
+  background:transparent !important; /* 進場無白白的底 */
 }
-/* 進場先隱藏「名字＋翻譯鍵」 */
 #postDetail .postHUD .center,
-#postDetail .postHUD .hudBtn{ display:none; }
-
-/* 捲動一定高度後，才在頂部顯示名字＋翻譯鍵，並加一點玻璃底 */
+#postDetail .postHUD .hudBtn{ display:none; } /* 一開始只留返回鍵 */
+#postDetail .postHUD .back svg{
+  stroke:#111; stroke-width:2.6; stroke-linecap:round; stroke-linejoin:round; fill:none;
+}
+/* 捲動後才露出「名字＋翻譯鍵」，並加一點淡玻璃底 */
 #postDetail.scrolled .postHUD{
   background:linear-gradient(180deg, rgba(245,247,255,.86), rgba(245,247,255,0));
 }
-  #postDetail .postHUD .back svg{
+#postDetail.scrolled .postHUD .center,
+#postDetail.scrolled .postHUD .hudBtn{ display:flex; }
+  
+#postDetail .postHUD .back svg{
   stroke:#111; stroke-width:2.6; stroke-linecap:round; stroke-linejoin:round; fill:none;
 }
 #postDetail.scrolled .postHUD .back svg{ stroke:#111; } /* 之後如要跟 HUD 墨色連動再換變數 */ 
@@ -374,10 +377,9 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
   border:none !important; box-shadow:none !important;
   margin:0 !important; padding:0 !important;
 }
-#postDetail .post .hdr{ display:none !important; }      /* 去掉卡片抬頭區 */
+#postDetail .post .hdr{ display:none !important; } /* 去掉卡片抬頭 */
 #postDetail .post .body{ margin:0 !important; }
 #postDetail .post .hero{
-  /* 讓圖片真正滿版（不被容器左右 padding 影響） */
   width:100vw; max-width:100vw; height:auto;
   display:block; margin:0 calc(50% - 50vw);
   border:none !important; border-radius:0 !important;
@@ -385,7 +387,7 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
 #postDetail .actions{
   padding:10px 10px 0; border-top:none !important; margin-top:6px;
 }
-
+  
 /* 留言清單 */
 .cmtItem{ display:flex; gap:10px; align-items:flex-start; margin:10px 6px }
 .cmtItem .avatar{ width:36px;height:36px;border-radius:50%;object-fit:cover;border:1px solid var(--line) }
@@ -421,11 +423,11 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
 .post .body{margin-top:8px}
 .post .hero{width:100%;height:360px;object-fit:cover;border-radius:12px;border:1px solid rgba(255,255,255,.35)}
 
-  /* PATCH — Post 卡片上下加深（刪舊貼新） */
+  /* === [PATCH-CSS-2] 卡片上下加深的樣式（1-2 / 3-2）=== */
 .post.card{ position:relative; overflow:hidden; }
 .post.card::before{
   content:""; position:absolute; inset:-1px; border-radius:inherit; pointer-events:none;
-  /* 上下加深、中段保留原玻璃感（對照範例 3-2） */
+  /* 上下加深、中段保留原玻璃感 */
   background:linear-gradient(180deg,
     rgba(0,0,0,.10), rgba(0,0,0,0) 18%,
     rgba(0,0,0,0) 82%, rgba(0,0,0,.10));
@@ -957,14 +959,17 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
   .fabNew{ background: rgba(255,255,255,.9); }
 }
 
-/* Page Title / 翻譯鈕 / Composer 玻璃 */
-/* 頁面抬頭：貼文/DM/直播等 */
-#postList .pageTitle{ margin:8px 8px 0 !important; } /* 標題底下幾乎緊貼 */
+/* === [PATCH-CSS-1] Story Bar 與頁面標題間距（1-1 / 3-1）=== */
+#postList .pageTitle{ margin:8px 8px 0 !important; } /* 標題更貼近 */
 #storyWrap{
   position: sticky; top: 0; z-index: 5;
-  margin-top: 0 !important;               /* 移除多餘縫隙 */
+  margin-top: 0 !important;
+  background: linear-gradient(180deg, rgba(255,255,255,.32), rgba(255,255,255,.10));
+  border-bottom: 1px solid var(--glass-stroke);
+  backdrop-filter: saturate(160%) blur(10px);
+  -webkit-backdrop-filter: saturate(160%) blur(10px);
 }
-#storyBar{ padding:6px 8px 10px !important; }  /* 與範例同等級的緊實高度 */
+#storyBar{ padding:6px 8px 10px !important; border-bottom: none; }
 .translate-btn{ position:absolute; right:0; top:0; padding:4px 10px; font-size:12px; line-height:1; }
 
 /* Switch */
@@ -3658,56 +3663,6 @@ function closeViewer(){
   // Esc 關閉（鍵盤）
   document.addEventListener('keydown', e=>{ if(e.key==='Escape' && v.style.display==='block') closeViewer(); });
 })();
-
-// 1) LIVE_ON 保底，避免 ReferenceError
-if (typeof window.LIVE_ON === 'undefined') window.LIVE_ON = false;
-
-// 2) 安全版 syncNavVisibility（只改一行）
-function syncNavVisibility(){
-  const nav = document.getElementById('nav');
-  const cur = PAGE_STACK[PAGE_STACK.length - 1] || 'home';
-  const liveOn = !!window.LIVE_ON;
-  const mustHide = HIDE_NAV_IN.includes(cur) || (cur === 'live' && liveOn);
-  if (nav) nav.classList.toggle('hidden', mustHide);
-  document.body.classList.toggle('nav-hidden', mustHide);
-}
-
-// 3) measureFooter：量到 0 就別覆寫
-function measureFooter(){
-  const order = ['#pdComposer', '#cdComposer', '#dmFooter'];
-  let f = null;
-  for (const sel of order) {
-    const el = document.querySelector(sel);
-    if (!el) continue;
-    const r = el.getBoundingClientRect();
-    if (r.width > 0 && r.height > 0 && getComputedStyle(el).display !== 'none') { f = el; break; }
-  }
-  const h = Math.ceil((f?.getBoundingClientRect().height || 0));
-  if (h > 0) {
-    document.documentElement.style.setProperty('--footer-h', `${h}px`);
-    tuneNoticePad();
-  }
-}
-
-// 4) 完整的 bindBottomObserver（避免你尾段被截斷）
-function bindBottomObserver(){
-  const t = document.getElementById('dmThread');
-  const end = document.getElementById('endAnchor');
-  if (!t || !end || !('IntersectionObserver' in window)) return;
-  if (window._dmIO) { try { window._dmIO.disconnect(); } catch(_){} }
-  window._dmIO = new IntersectionObserver((entries)=>{
-    autoStick = entries.some(e => e.isIntersecting);
-  }, { root: t, threshold: 0.01 });
-  window._dmIO.observe(end);
-}
-
-// 5) 初始化把首頁資料灌進去
-document.addEventListener('DOMContentLoaded', () => {
-  bootFromJSON();
-  renderHomeWeverse();
-  recalcHud();
-});
-  
 </script>
 </body>
 </html>
