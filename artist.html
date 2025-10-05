@@ -1439,7 +1439,9 @@ async function bootFromJSON(){
   renderStoryBar();
   renderFeed(currentFilter);
   renderDmList();
-  if ((PAGE_STACK[PAGE_STACK.length-1]||'') === 'dmDetail') renderThread();
+
+  // ★ 一進站也把首頁區塊畫起來（避免刷新後是空殼）
+  if ((PAGE_STACK.at(-1) || 'home') === 'home') renderHomeWeverse();
 }
 
 /* ===== 評論數工具（統一口徑） ===== */
