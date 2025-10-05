@@ -306,10 +306,10 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
 /* =================== Story Bar（首頁） =================== */
 #storyWrap{
   position: sticky; top: 0; z-index: 5;
-  background: linear-gradient(180deg, rgba(255,255,255,.32), rgba(255,255,255,.10));
-  border-bottom: 1px solid var(--glass-stroke);
-  backdrop-filter: saturate(160%) blur(10px);
-  -webkit-backdrop-filter: saturate(160%) blur(10px);
+  background: transparent !important;     /* ★ 完全透明 */
+  border: 0 !important;                   /* ★ 不要邊線 */
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
 #storyBar{display:flex; gap:12px; overflow-x:auto;padding:8px 8px 10px; scrollbar-width:none; border-bottom: none;}
 #storyBar::-webkit-scrollbar{ display:none }
@@ -966,11 +966,10 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
 #postList .pageTitle{ margin:8px 8px 0 !important; } /* 標題更貼近 */
 #storyWrap{
   position: sticky; top: 0; z-index: 5;
-  margin-top: 0 !important;
-  background: linear-gradient(180deg, rgba(255,255,255,.32), rgba(255,255,255,.10));
-  border-bottom: 1px solid var(--glass-stroke);
-  backdrop-filter: saturate(160%) blur(10px);
-  -webkit-backdrop-filter: saturate(160%) blur(10px);
+  background: transparent !important;     /* ★ 完全透明 */
+  border: 0 !important;                   /* ★ 不要邊線 */
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
 #storyBar{ padding:6px 8px 10px !important; border-bottom: none; }
 .translate-btn{ position:absolute; right:0; top:0; padding:4px 10px; font-size:12px; line-height:1; }
