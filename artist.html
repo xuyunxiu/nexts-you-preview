@@ -3179,9 +3179,28 @@ function renderPostDetail(postId){
   measureFooter();
 }
 
-  /* PATCH — PostDetail 捲動門檻（刪舊貼新） */
-function bindPostDetailHUD(){
+ function bindPostDetailHUD(){
   const page = document.getElementById('postDetail');
+  const wrap = document.getElementById('postDetailWrap');
+  if(!page || !wrap) return;
+
+  // 建一個 1px 的觀測錨點放在內容最前面
+  let sent = document.getElementById('pdSentinel');
+  if(!sent){
+    sent = document.createElement('div');
+    sent.id = 'pdSentinel';
+    sent.style.cssText = 'height:1px';
+    wrap.prepend(sent);
+  }
+
+  // 錨點離開視口 ⇒ 視為已捲動，HUD 顯示名字＋翻譯鍵
+  const io = new IntersectionObserver(
+    ([e]) => page.classList.toggle('scrolled', !e.isIntersecting),
+    { root: null, threshold: 0 }
+  );
+  io.observe(sent);
+}
+
   function threshold(){
     const hero = document.querySelector('#postDetail .hero');
     return hero ? hero.getBoundingClientRect().height * 0.55 : 180; // 約 55% 圖高
