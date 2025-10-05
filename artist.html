@@ -347,9 +347,22 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
 
 /* =================== Post 卡結構 =================== */
 /* 貼文列表頁：標題與 story bar 的間距 → 幾乎緊貼 */
-#postList .pageTitle{ margin:8px 8px 0 !important; }  /* 下緣 0 */
-#storyWrap{ margin-top:0 !important; }                /* 上緣 0（避免多一條縫） */
-#storyBar{ padding:6px 8px 10px !important; }         /* 高度收窄成範例等級 */
+.pageTitle{
+  margin: 12px 8px 6px !important;  /* 下緣留 6px，不會太貼 */
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: .6px;
+  line-height: 1.1;
+}
+#storyWrap{
+  position: sticky; top: 0; z-index: 5;
+  background: transparent !important;     /* ★ 完全透明 */
+  border: 0 !important;                   /* ★ 不要邊線 */
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+#storyBar{ padding: 8px 8px 10px !important; }
+.translate-btn{ position:absolute; right:0; top:0; padding:4px 10px; font-size:12px; line-height:1; }
   
 /* 進場只有返回鍵；背景透明（沒有白白的） */
 #postDetail .postHUD{
@@ -961,18 +974,6 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
 @supports not ((backdrop-filter: blur(10px)) or (-webkit-backdrop-filter: blur(10px))){
   .fabNew{ background: rgba(255,255,255,.9); }
 }
-
-/* === [PATCH-CSS-1] Story Bar 與頁面標題間距（1-1 / 3-1）=== */
-#postList .pageTitle{ margin:8px 8px 0 !important; } /* 標題更貼近 */
-#storyWrap{
-  position: sticky; top: 0; z-index: 5;
-  background: transparent !important;     /* ★ 完全透明 */
-  border: 0 !important;                   /* ★ 不要邊線 */
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-}
-#storyBar{ padding:6px 8px 10px !important; border-bottom: none; }
-.translate-btn{ position:absolute; right:0; top:0; padding:4px 10px; font-size:12px; line-height:1; }
 
 /* Switch */
 .switch{position:relative;display:inline-block;width:46px;height:26px;vertical-align:middle}
@@ -3083,6 +3084,15 @@ document.getElementById('fabNew')?.addEventListener('click', () => {
     alert('（尚未實作）');
   }
 });
+
+  function applyNicknameToUI(){
+  NICKNAME = LS.getStr('artistNickname', NICKNAME || 'Annie');
+  const up = (s)=> (s||'').toString().toUpperCase();
+  document.getElementById('dmTitle')?.replaceChildren(up(NICKNAME));
+  document.getElementById('meNickname') && (document.getElementById('meNickname').textContent = NICKNAME);
+  document.getElementById('composerWho') && (document.getElementById('composerWho').textContent = NICKNAME);
+  renderDmList(); // 列表預覽也一起更新
+}
 
 /* ===================== 首頁卡片點擊委派（防重複綁定） ===================== */
 (function bindPostCardDelegation(){
