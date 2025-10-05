@@ -1604,8 +1604,11 @@ function showPage(id, opts = {}) {
       break;
     }
 
-    case 'postDetail':
-      if (CURRENT_POST_ID) renderPostDetail(CURRENT_POST_ID);
+      case 'postDetail':
+      if (CURRENT_POST_ID) {
+        renderPostDetail(CURRENT_POST_ID);
+        requestAnimationFrame(bindPostDetailHUD);
+      }
       break;
 
     case 'postList':
@@ -3208,14 +3211,6 @@ function bindPostDetailHUD(){
   window.addEventListener('scroll', onScroll, {passive:true});
   onScroll();
 }
-
-/* 在 showPage('postDetail') 渲染後加一行（刪舊貼新） */
-case 'postDetail':
-  if (CURRENT_POST_ID) {
-    renderPostDetail(CURRENT_POST_ID);
-    requestAnimationFrame(bindPostDetailHUD);
-  }
-  break;
 
 function renderPostComments(p){
   const listEl = document.getElementById('cmtList'); if (!listEl) return;
