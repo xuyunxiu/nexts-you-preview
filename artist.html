@@ -3541,18 +3541,24 @@ document.addEventListener('DOMContentLoaded', ()=>{
   
 
 /* ===================== 啟動 ===================== */
-document.addEventListener('DOMContentLoaded', ()=>{
-  const el1 = document.getElementById('meNickname');
-  if (el1) el1.textContent = NICKNAME;
-  document.getElementById('dmTitle').textContent = NICKNAME.toUpperCase();
-  const el2 = document.getElementById('composerWho');
-  if (el2) el2.textContent = NICKNAME;
-  document.getElementById('meId') && (document.getElementById('meId').textContent='ARTIST-00001');
-  document.getElementById('meAvatar') && (document.getElementById('meAvatar').src=AVATAR);
+document.addEventListener('DOMContentLoaded', () => {
+  // ★ 統一把暱稱/標題灌上（會同時更新 meNickname / dmTitle / composerWho / DM 列表）
+  applyNicknameToUI();
+
+  // 其他初始化（非暱稱）
+  const meIdEl = document.getElementById('meId');
+  if (meIdEl) meIdEl.textContent = 'ARTIST-00001';
+
+  const meAvatarEl = document.getElementById('meAvatar');
+  if (meAvatarEl) meAvatarEl.src = AVATAR;
+
   const pdMe = document.getElementById('pdMeAvatar');
   if (pdMe) pdMe.src = ME.avatar;
-document.addEventListener('change', (e)=>{
-  if(e.target && e.target.id === 'pdOnlyAdp'){
+});
+
+// （這段事件監聽器你可放在這裡或上面那個 callback 裡，擇一）
+document.addEventListener('change', (e) => {
+  if (e.target && e.target.id === 'pdOnlyAdp') {
     PD_FILTER_OTHERS = e.target.checked;
     if (CURRENT_POST_ID) renderPostDetail(CURRENT_POST_ID);
   }
