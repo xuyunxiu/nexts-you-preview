@@ -2989,19 +2989,34 @@ function bindScrollGuard(){
     autoStick = nearBottom();
   }, { passive:true });
 }
+let _bottomIO = null;
+
 function bindBottomObserver(){
   const t = document.getElementById('dmThread');
-  const a = document.getElementById('endAnchor');
-  if (!t || !a) return;
-  try{
-    const io = new IntersectionObserver((entries)=>{
-      const e = entries[0];
-      autoStick = e.isIntersecting && e.intersectionRatio >= 0.96;
-    }, { root:t, threshold:[0.01,0.5,0.96], rootMargin:'0px 0px -1px 0px' });
-    io.observe(a);
-  }catch(_){}
-}
+  if (!t) return;
 
+  // 確保尾端錨點存在
+  let a = document.getElementById('endAnchor');
+  if (!a) {
+    a = document.createElement('div');
+    a.id = 'endAnchor';
+    t.appendChild(a);
+  }
+
+  // 重新綁前先清掉舊 observer
+  if (_bottomIO) {
+    try { _bottomIO.disconnect(); } catch(_) {}
+    _bottomIO = null;
+  }
+
+  // 觀察尾端錨點是否在視口內 → 決定 autoStick
+  _bottomIO = new IntersectionObserver(
+    (entries)=>{ autoStick = entries.some(e=>e.isIntersecting); },
+    { root: t, threshold: 0.98 }
+  );
+  _bottomIO.observe(a);
+}
+  
 /* ===================== Composer（首頁草稿） ===================== */
 function previewComposeMedia(e){
   const box  = document.getElementById('composePreview');
@@ -3656,9 +3671,9 @@ if (typeof window.LIVE_ON === 'undefined') window.LIVE_ON = false;
 function syncNavVisibility(){
   const nav = document.getElementById('nav');
   const cur = PAGE_STACK[PAGE_STACK.length - 1] || 'home';
-  const liveOn = !!window.LIVE_ON;  // ← 這行
+  const liveOn = !!window.LIVE_ON;
   const mustHide = HIDE_NAV_IN.includes(cur) || (cur === 'live' && liveOn);
-  nav.classList.toggle('hidden', mustHide);
+  if (nav) nav.classList.toggle('hidden', mustHide);
   document.body.classList.toggle('nav-hidden', mustHide);
 }
 
