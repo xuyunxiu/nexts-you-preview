@@ -346,44 +346,48 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
 .homeTitle{font-weight:900;letter-spacing:.6px;font-size:22px;line-height:1}
 
 /* =================== Post 卡結構 =================== */
-#postDetail .pageTitle{ display:none } /* 詳情頁不顯示頁面標題列 */
+/* 貼文列表頁：標題與 story bar 的間距 → 幾乎緊貼 */
+#postList .pageTitle{ margin:8px 8px 0 !important; }  /* 下緣 0 */
+#storyWrap{ margin-top:0 !important; }                /* 上緣 0（避免多一條縫） */
+#storyBar{ padding:6px 8px 10px !important; }         /* 高度收窄成範例等級 */
+  
+/* 進場只有返回鍵；背景透明（沒有白白的） */
 #postDetail .postHUD{
   position:sticky; top:0; z-index:8;
   padding:calc(8px + env(safe-area-inset-top,0px)) 8px 6px;
-  background:transparent !important; /* 進場無白白的底 */
+  background:transparent !important;
 }
 #postDetail .postHUD .center,
-#postDetail .postHUD .hudBtn{ display:none; } /* 一開始只留返回鍵 */
-#postDetail .postHUD .back svg{
-  stroke:#111; stroke-width:2.6; stroke-linecap:round; stroke-linejoin:round; fill:none;
-}
-/* 捲動後才露出「名字＋翻譯鍵」，並加一點淡玻璃底 */
+#postDetail .postHUD .hudBtn{ display:none; }   /* 名字＋翻譯鍵先藏起來 */
+
+/* 捲動後才出現名字＋翻譯鍵，並給淡淡玻璃底 */
 #postDetail.scrolled .postHUD{
   background:linear-gradient(180deg, rgba(245,247,255,.86), rgba(245,247,255,0));
 }
-#postDetail.scrolled .postHUD .center,
-#postDetail.scrolled .postHUD .hudBtn{ display:flex; }
-  
 #postDetail .postHUD .back svg{
   stroke:#111; stroke-width:2.6; stroke-linecap:round; stroke-linejoin:round; fill:none;
 }
-#postDetail.scrolled .postHUD .back svg{ stroke:#111; } /* 之後如要跟 HUD 墨色連動再換變數 */ 
 #postDetail.scrolled .postHUD .center,
 #postDetail.scrolled .postHUD .hudBtn{ display:flex; }
 
-/* PATCH — 貼文詳情 = 滿版呈現（刪舊貼新；修正 2-2 vs 4-2） */
+
+/* 詳情頁改成滿版；移除卡片感 */
 #postDetail .post{
   background:transparent !important;
   border:none !important; box-shadow:none !important;
   margin:0 !important; padding:0 !important;
 }
-#postDetail .post .hdr{ display:none !important; } /* 去掉卡片抬頭 */
+#postDetail .post .hdr{ display:none !important; }  /* 去掉卡片抬頭 */
 #postDetail .post .body{ margin:0 !important; }
+
+/* 圖片滿版（兩側出血） */
 #postDetail .post .hero{
   width:100vw; max-width:100vw; height:auto;
   display:block; margin:0 calc(50% - 50vw);
   border:none !important; border-radius:0 !important;
 }
+
+/* 動作列回到正文內邊距 */
 #postDetail .actions{
   padding:10px 10px 0; border-top:none !important; margin-top:6px;
 }
@@ -423,11 +427,10 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
 .post .body{margin-top:8px}
 .post .hero{width:100%;height:360px;object-fit:cover;border-radius:12px;border:1px solid rgba(255,255,255,.35)}
 
-  /* === [PATCH-CSS-2] 卡片上下加深的樣式（1-2 / 3-2）=== */
+ /* 卡片上下加深（上、下緣壓暗；中段保留玻璃） */
 .post.card{ position:relative; overflow:hidden; }
 .post.card::before{
   content:""; position:absolute; inset:-1px; border-radius:inherit; pointer-events:none;
-  /* 上下加深、中段保留原玻璃感 */
   background:linear-gradient(180deg,
     rgba(0,0,0,.10), rgba(0,0,0,0) 18%,
     rgba(0,0,0,0) 82%, rgba(0,0,0,.10));
