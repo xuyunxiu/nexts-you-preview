@@ -3087,12 +3087,29 @@ document.getElementById('fabNew')?.addEventListener('click', () => {
 });
 
   function applyNicknameToUI(){
+  // 讀最新暱稱/頭像
   NICKNAME = LS.getStr('artistNickname', NICKNAME || 'Annie');
-  const up = (s)=> (s||'').toString().toUpperCase();
-  document.getElementById('dmTitle')?.replaceChildren(up(NICKNAME));
-  document.getElementById('meNickname') && (document.getElementById('meNickname').textContent = NICKNAME);
-  document.getElementById('composerWho') && (document.getElementById('composerWho').textContent = NICKNAME);
-  renderDmList(); // 列表預覽也一起更新
+  AVATAR   = LS.getStr('artistAvatar',   AVATAR   || 'https://picsum.photos/80?u=artist');
+  ME.avatar = AVATAR;
+
+  const up = s => String(s||'').toUpperCase();
+
+  // Profile / DM 抬頭 / 作曲器標示
+  const el1 = document.getElementById('meNickname'); if (el1) el1.textContent = NICKNAME;
+  const el2 = document.getElementById('dmTitle');    if (el2) el2.textContent = up(NICKNAME);
+  const el3 = document.getElementById('composerWho');if (el3) el3.textContent = NICKNAME;
+
+  // 我的 ID / 頭像
+  const el4 = document.getElementById('meId');       if (el4) el4.textContent = 'ARTIST-00001';
+  const el5 = document.getElementById('meAvatar');   if (el5) el5.src = AVATAR;
+
+  // PostDetail 預設抬頭/頭像（實際仍會被 renderPostDetail 覆寫）
+  const pdName = document.getElementById('pdName');   if (pdName) pdName.textContent = up(STAGE_NAME || 'ANNIE');
+  const pdAv   = document.getElementById('pdAvatar'); if (pdAv)   pdAv.src = ME.avatar;
+  const pdMe   = document.getElementById('pdMeAvatar'); if (pdMe) pdMe.src = ME.avatar;
+
+  // DM 列表同步聊天室名稱
+  renderDmList();
 }
 
 /* ===================== 首頁卡片點擊委派（防重複綁定） ===================== */
