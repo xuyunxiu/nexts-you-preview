@@ -1040,15 +1040,15 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
 
 <!-- ====================== POST DETAIL (Artist) ====================== -->
 <section id="postDetail" class="page">
-  <div class="homeTitle">社群</div>
+  <!-- 不要「社群」標題，整個拿掉 -->
 
-  <!-- 貼文詳情 HUD（照圖2/圖3） -->
-  <div class="postHUD" id="pdHUD"> 
+  <!-- 貼文詳情 HUD -->
+  <div class="postHUD" id="pdHUD">
     <button class="back" onclick="goBack()" aria-label="Back">
       <svg viewBox="0 0 24 24"><path d="M15 19 8 12l7-7"/></svg>
     </button>
     <div class="center">
-    <img id="pdAvatar" alt="" onerror="imgFallback(this)">
+      <img id="pdAvatar" alt="" onerror="imgFallback(this)">
       <div class="meta">
         <b id="pdName">ANNIE</b>
         <small id="pdTime" class="ghost"></small>
@@ -1059,15 +1059,15 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
 
   <div id="postDetailWrap" style="padding:0 6px 12px"></div>
 
-  <!-- 留言輸入列（照抄 commentDetail 樣式） -->
-<div class="dmFooter" id="pdComposer">
-  <div class="dmInputBar">
-    <div class="box"><input id="cmtInput" placeholder="請輸入訊息" /></div>
-    <button class="dmSend" id="postCmtSend" aria-label="Send" disabled>
-      <svg viewBox="0 0 24 24"><path d="M3.4 12.6l16.7-7.2c.6-.3 1.2.3.9.9l-7.2 16.7c-.3.7-1.3.6-1.5-.1l-2.1-6.1-6.1-2.1c-.7-.2-.8-1.2-.1-1.5z" fill="currentColor"/></svg>
-    </button>
+  <!-- 留言輸入列 -->
+  <div class="dmFooter" id="pdComposer">
+    <div class="dmInputBar">
+      <div class="box"><input id="cmtInput" placeholder="請輸入訊息" /></div>
+      <button class="dmSend" id="postCmtSend" aria-label="Send" disabled>
+        <svg viewBox="0 0 24 24"><path d="M3.4 12.6l16.7-7.2c.6-.3 1.2.3.9.9l-7.2 16.7c-.3.7-1.3.6-1.5-.1l-2.1-6.1-6.1-2.1c-.7-.2-.8-1.2-.1-1.5z" fill="currentColor"/></svg>
+      </button>
+    </div>
   </div>
-</div>
 </section>
 
 <!-- ====================== COMMENT DETAIL ====================== -->
