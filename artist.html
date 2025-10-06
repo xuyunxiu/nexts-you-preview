@@ -3213,63 +3213,25 @@ function renderPostDetail(postId){
   measureFooter();
 }
 
- function bindPostDetailHUD(){
-  const page = document.getElementById('postDetail');
-  const wrap = document.getElementById('postDetailWrap');
-  if(!page || !wrap) return;
-
-  // 建一個 1px 的觀測錨點放在內容最前面
-  let sent = document.getElementById('pdSentinel');
-  if(!sent){
-    sent = document.createElement('div');
-    sent.id = 'pdSentinel';
-    sent.style.cssText = 'height:1px';
-    wrap.prepend(sent);
-  }
-
-  // 錨點離開視口 ⇒ 視為已捲動，HUD 顯示名字＋翻譯鍵
-  const io = new IntersectionObserver(
-    ([e]) => page.classList.toggle('scrolled', !e.isIntersecting),
-    { root: null, threshold: 0 }
-  );
-  io.observe(sent);
-}
-
-  function threshold(){
-    const hero = document.querySelector('#postDetail .hero');
-    return hero ? hero.getBoundingClientRect().height * 0.55 : 180; // 約 55% 圖高
-  }
-  function onScroll(){
-    const y = window.scrollY || document.documentElement.scrollTop || 0;
-    if (y > threshold()) page.classList.add('scrolled');
-    else page.classList.remove('scrolled');
-  }
-  // 去重綁
-  if (window.__pdHUDScroll) window.removeEventListener('scroll', window.__pdHUDScroll, {passive:true});
-  window.__pdHUDScroll = onScroll;
-  window.addEventListener('scroll', onScroll, {passive:true});
-  onScroll();
-
-/* 在 renderPostDetail(postId) 的最後附加一行（刪舊貼新） */
-bindPostDetailHUD();
-
-/* PATCH — PostDetail 捲動門檻（刪舊貼新） */
+ // 只留這一支
 function bindPostDetailHUD(){
   const page = document.getElementById('postDetail');
-  function threshold(){
-    const hero = document.querySelector('#postDetail .hero');
-    return hero ? hero.getBoundingClientRect().height * 0.55 : 180; // 約 55% 圖高
+  if(!page) return;
+
+  // 以第一張大圖是否被頂部蓋過為門檻
+  const hudH = parseFloat(getComputedStyle(document.documentElement)
+                  .getPropertyValue('--hud-h')) || 56;
+
+  function update(){
+    const hero = document.querySelector('#postDetail .post .hero');
+    const scrolled = hero
+      ? (hero.getBoundingClientRect().top <= hudH + 6)
+      : (window.scrollY > 20);
+    page.classList.toggle('scrolled', scrolled);
   }
-  function onScroll(){
-    const y = window.scrollY || document.documentElement.scrollTop || 0;
-    if (y > threshold()) page.classList.add('scrolled');
-    else page.classList.remove('scrolled');
-  }
-  // 去重綁
-  if (window.__pdHUDScroll) window.removeEventListener('scroll', window.__pdHUDScroll, {passive:true});
-  window.__pdHUDScroll = onScroll;
-  window.addEventListener('scroll', onScroll, {passive:true});
-  onScroll();
+
+  update();
+  window.addEventListener('scroll', update, {passive:true});
 }
 
 function renderPostComments(p){
