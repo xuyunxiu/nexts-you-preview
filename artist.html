@@ -3078,13 +3078,16 @@ document.getElementById('btnEditNick')?.addEventListener('click', ()=>{
   renderDmList();
 });
 
-document.getElementById('fabNew')?.addEventListener('click', () => {
-  if (document.getElementById('composerArtist')) {
-    showPage('composerArtist');
-  } else {
-    alert('（尚未實作）');
-  }
-});
+// === FAB：安全版（有就綁，沒就跳過；完整收好大括號） ===
+(function () {
+  const btn = document.getElementById('fabNew');
+  if (!btn) return;
+  btn.addEventListener('click', () => {
+    // TODO: 換成你要的動作
+    // 例如：publishDraft(); 或 showPage('composerArtist');
+    alert('FAB clicked');
+  });
+})();
 
   function applyNicknameToUI(){
   // 讀最新暱稱/頭像
