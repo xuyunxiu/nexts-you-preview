@@ -3213,23 +3213,16 @@ function renderPostDetail(postId){
   measureFooter();
 }
 
- // 只留這一支
 function bindPostDetailHUD(){
   const page = document.getElementById('postDetail');
   if(!page) return;
-
-  // 以第一張大圖是否被頂部蓋過為門檻
-  const hudH = parseFloat(getComputedStyle(document.documentElement)
-                  .getPropertyValue('--hud-h')) || 56;
+  const hudH = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--hud-h')) || 56;
 
   function update(){
     const hero = document.querySelector('#postDetail .post .hero');
-    const scrolled = hero
-      ? (hero.getBoundingClientRect().top <= hudH + 6)
-      : (window.scrollY > 20);
+    const scrolled = hero ? (hero.getBoundingClientRect().top <= hudH + 6) : (window.scrollY > 20);
     page.classList.toggle('scrolled', scrolled);
   }
-
   update();
   window.addEventListener('scroll', update, {passive:true});
 }
@@ -3547,6 +3540,16 @@ document.addEventListener('change', (e) => {
     if (CURRENT_POST_ID) renderPostDetail(CURRENT_POST_ID);
   }
 });
+
+  document.addEventListener('click', (e)=>{
+  const btn = e.target.closest('.translate-btn');
+  if(!btn) return;
+  const post = btn.closest('.post');
+  const id = post && post.getAttribute('data-post');
+  if(!id) return;
+  e.stopPropagation();               // 不要觸發「進詳情」
+  togglePostTranslate(id);           // 真的翻譯/還原
+}, { passive:true });
   
   // 只有點「粉絲」留言才進評論詳情
   (function bindOpenCmtOnce(){
