@@ -3187,9 +3187,9 @@ function renderPostDetail(postId){
       </div>
 
       <div class="body">
-        <p id="postText-${p.id}">${escapeHtml(p.text)}</p>
-        ${p.img ? `<img class="hero" src="${p.img}" alt="貼文圖片" onerror="imgFallback(this)">` : ``}
-      </div>
+      ${p.img ? `<img class="hero" src="${p.img}" alt="貼文圖片" onerror="imgFallback(this)">` : ``}
+    <p class="caption" id="postText-${p.id}">${escapeHtml(p.text)}</p>
+   </div>
 
       <div class="actions">
         ${renderReactionsBar(p.id)}
