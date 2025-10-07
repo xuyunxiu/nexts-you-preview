@@ -368,31 +368,79 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
    POST DETAIL（貼文詳情頁樣式）
    ================================ */
 
-/* === FIG.1 Post Detail — 不改色票/玻璃，只改結構與間距 === */
-
-/* 頂部 HUD：進場透明；捲動後加很淡的底（維持你既有的透明系） */
+/* ========== POST DETAIL：HUD 改為滿版出血 + 捲動後「實心」底 ========== */
 #postDetail .postHUD{
-  position: sticky; top: 0; z-index: 8;
-  display: flex; align-items: center; justify-content: space-between; gap: 6px;
-  padding: calc(8px + env(safe-area-inset-top,0px)) 8px 6px;
-  background: linear-gradient(180deg, rgba(245,247,255,0), rgba(245,247,255,0));
+  position: sticky; top: 0; z-index: 50;
+  /* ★ 滿版出血，直接佔滿視窗寬 */
+  margin: 0 calc(50% - 50vw);
+  width: 100vw;
+
+  display: flex; align-items: center; gap: 10px;
+  padding: calc(8px + env(safe-area-inset-top,0px)) 12px 10px;
+
+  /* 進場透明（覆蓋圖片），不要淡底 */
+  background: transparent !important;
+  border: 0 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
+  
+/* ★ 捲動後改為「實心」底（用你的背景色），並加極淡分隔線 */
 #postDetail.scrolled .postHUD{
-  background: linear-gradient(180deg, rgba(245,247,255,.86), rgba(245,247,255,0));
+  background: var(--bg) !important;    /* ← 實心 */
+  border-bottom: 1px solid var(--line) !important;
 }
+  
+/* 左右按鈕固定寬度 */
 #postDetail .postHUD .back,
 #postDetail .postHUD .hudBtn{
-  width:44px; height:44px; flex:0 0 44px; display:grid; place-items:center;
+  width: 44px; height: 44px; flex: 0 0 44px; display: grid; place-items: center;
 }
+  
+/* 內容靠左緊湊排版 */
 #postDetail .postHUD .center{
-  flex:1; min-width:0; display:flex; align-items:center; justify-content:center; gap:8px;
-  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  flex: 1; min-width: 0;
+  display: flex; align-items: center; gap: 10px;
+  justify-content: flex-start; overflow: hidden;
 }
-/* 返回鍵：進場白、捲動後黑 */
+  
+/* 圓形頭像（小巧） */
+#pdAvatar{
+  width: 32px; height: 32px; border-radius: 50%;
+  object-fit: cover; border: 1px solid var(--line);
+}
+
+/* 名稱/時間垂直堆疊，緊湊 */
+#postDetail .postHUD .meta{
+  display: flex; flex-direction: column; justify-content: center; min-width: 0;
+}
+#postDetail .postHUD .meta b{
+  font-size: 14px; line-height: 1.1;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+#postDetail .postHUD .meta small{
+  font-size: 12px; color: var(--ghost);
+}
+
+/* 右側再接一行貼文文字（同排，截斷） */
+#pdHudText{
+  margin-left: 8px; font-size: 13px; color: var(--sub);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+/* 圖示配色：進場白，捲動後用墨色 */
 #postDetail .postHUD .back svg{
   stroke:#fff !important; stroke-width:2.6; fill:none; stroke-linecap:round; stroke-linejoin:round;
 }
-#postDetail.scrolled .postHUD .back svg{ stroke:#111 !important; }
+#postDetail.scrolled .postHUD .back svg{ stroke:var(--text) !important; }
+#postDetail .postHUD .hudBtn{ color:#fff; font-weight:900; }
+#postDetail.scrolled .postHUD .hudBtn{ color:var(--text); }
+
+/* 讓貼文主圖滿版出血（你已有，這裡保險再補） */
+#postDetail .post .hero{
+  width:100vw !important; max-width:100vw !important;
+  margin:0 calc(50% - 50vw) !important; border-radius:0 !important; border:none !important;
+}
 
 /* 去卡片感：整張貼文完全「平鋪」；頭部資訊交給 HUD */
 #postDetail .post,
