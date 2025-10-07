@@ -365,16 +365,10 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
 }
 
 /* ================================
-   POST DETAIL（貼文詳情頁樣式｜刪舊貼新；HUD 無文案）
+   POST DETAIL（貼文詳情｜HUD 無文案｜刪舊貼新）
    ================================ */
 
-/* 實心底顏（捲動後使用） */
-:root{ --hud-solid:#0f1117; }                  /* light */
-@media (prefers-color-scheme: dark){
-  :root{ --hud-solid:#0b0e15; }                /* dark */
-}
-
-/* ========== POST DETAIL：HUD 滿版出血 + 捲動後「實心」底 ========== */
+/* ========== HUD 滿版出血 + 捲動後與背景同色 ========== */
 #postDetail .postHUD{
   position: sticky; top: 0; z-index: 50;
 
@@ -383,10 +377,11 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
   width: 100vw;
 
   display: flex; align-items: center; gap: 10px;
-  padding: calc(8px + env(safe-area-inset-top,0px))
-           calc(12px + env(safe-area-inset-right,0px))
-           10px
-           calc(12px + env(safe-area-inset-left,0px));
+  padding:
+    calc(8px + env(safe-area-inset-top,0px))
+    calc(12px + env(safe-area-inset-right,0px))
+    10px
+    calc(12px + env(safe-area-inset-left,0px));
 
   /* 進場透明（覆蓋主圖），完全無底 */
   background: transparent !important;
@@ -394,13 +389,14 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
 
-  color:#fff;                                  /* HUD 元件預設白色 */
+  color:#fff; /* 初始在圖上，元素採白色 */
 }
 
-/* ★ 捲動後：實心黑底 + 極淡分隔線（仍保持白色圖示/字） */
+/* ★ 捲動後：與頁面背景色一致的「實心底」 + 極淡分隔線 */
 #postDetail.scrolled .postHUD{
-  background: var(--hud-solid) !important;
-  border-bottom: 1px solid rgba(0,0,0,.28) !important;
+  background: var(--bg) !important;    /* 跟整體背景同色（會隨深淺主題變化） */
+  border-bottom: 1px solid var(--line) !important;
+  color: var(--text);                   /* 文字/圖示改用墨色 */
 }
 
 /* 左右按鈕固定寬度 */
@@ -410,49 +406,58 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
   display: grid; place-items: center;
 }
 
-/* 返回鍵圖示（兩狀態都白） */
+/* 返回鍵圖示：初始白，捲動後墨色 */
 #postDetail .postHUD .back svg{
   stroke:#fff !important; stroke-width:2.6; fill:none;
   stroke-linecap:round; stroke-linejoin:round;
 }
-/* 右側 HUD 按鈕（兩狀態都白） */
-#postDetail .postHUD .hudBtn{ color:#fff; font-weight:900; }
+#postDetail.scrolled .postHUD .back svg{ stroke:var(--text) !important; }
 
-/* 內容靠左緊湊排版（僅：圓頭像＋名稱＋時間） */
+/* 右側按鈕：初始白，捲動後墨色 */
+#postDetail .postHUD .hudBtn{ color:#fff; font-weight:900; }
+#postDetail.scrolled .postHUD .hudBtn{ color:var(--text); }
+
+/* 內容靠左緊湊排版（僅：圓頭像＋名稱＋時間；無貼文文案） */
 #postDetail .postHUD .center{
   flex: 1; min-width: 0;
   display: flex; align-items: center; gap: 10px;
   justify-content: flex-start; overflow: hidden;
 }
 
-/* 圓形頭像（小巧） */
+/* 圓形頭像 */
 #pdAvatar{
   width: 32px; height: 32px; border-radius: 50%;
-  object-fit: cover; border: 1px solid rgba(255,255,255,.35);
+  object-fit: cover;
+  border: 1px solid rgba(255,255,255,.35);
+}
+#postDetail.scrolled #pdAvatar{
+  border-color: var(--line);
 }
 
-/* 名稱/時間垂直堆疊，緊湊 */
+/* 名稱/時間：垂直堆疊、緊湊 */
 #postDetail .postHUD .meta{
-  display: flex; flex-direction: column; justify-content: center;
-  min-width: 0;
+  display: flex; flex-direction: column; justify-content: center; min-width: 0;
 }
 #postDetail .postHUD .meta b{
   font-size: 14px; line-height: 1.1;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  color:#fff;
+  color: inherit;
 }
 #postDetail .postHUD .meta small{
   font-size: 12px; color: rgba(255,255,255,.78);
 }
+#postDetail.scrolled .postHUD .meta small{
+  color: var(--ghost);
+}
 
-/* ====== Post 內容去卡片感 & 主圖滿版出血 ====== */
+/* ====== Post 內容去卡片感 & 主圖滿版出血（保險再補） ====== */
 #postDetail .post,
 #postDetail .post.card{
   background: transparent !important; border: none !important; box-shadow: none !important;
   margin: 0 !important; padding: 0 !important;
 }
 #postDetail .post.card::before{ content:none !important; }
-#postDetail .post .hdr{ display:none !important; }  /* HUD 已承接頭部資訊 */
+#postDetail .post .hdr{ display:none !important; }   /* HUD 已承接頭部資訊 */
 #postDetail .post .body{ margin:0 !important; }
 
 /* 主圖雙邊出血 */
@@ -3237,9 +3242,7 @@ function renderPostDetail(postId){
   const nm = document.getElementById('pdName');  if (nm) nm.textContent = displayName;
   const tm = document.getElementById('pdTime');  if (tm) tm.textContent = timeAgo(p.ts);
   const hudBtn = document.getElementById('pdTransHUD'); if (hudBtn) hudBtn.onclick = ()=> togglePostTranslate(p.id);
-  const txt = (p.text || '').replace(/\s+/g,' ').trim();
-  const hudText = document.getElementById('pdHudText'); if (hudText) hudText.textContent = txt.slice(0, 28);
-
+  
   /* 內容（重點：不再輸出 .hdr；主圖 + 內文 + 動作列） */
   wrap.innerHTML = `
     <div class="post" data-post="${p.id}">
