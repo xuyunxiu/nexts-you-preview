@@ -365,101 +365,104 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
 }
 
 /* ================================
-   POST DETAIL（貼文詳情頁樣式）
+   POST DETAIL（貼文詳情頁樣式｜刪舊貼新；HUD 無文案）
    ================================ */
 
-/* ========== POST DETAIL：HUD 改為滿版出血 + 捲動後「實心」底 ========== */
+/* 實心底顏（捲動後使用） */
+:root{ --hud-solid:#0f1117; }                  /* light */
+@media (prefers-color-scheme: dark){
+  :root{ --hud-solid:#0b0e15; }                /* dark */
+}
+
+/* ========== POST DETAIL：HUD 滿版出血 + 捲動後「實心」底 ========== */
 #postDetail .postHUD{
   position: sticky; top: 0; z-index: 50;
-  /* ★ 滿版出血，直接佔滿視窗寬 */
+
+  /* ★ 滿版出血（佔滿視窗寬） */
   margin: 0 calc(50% - 50vw);
   width: 100vw;
 
   display: flex; align-items: center; gap: 10px;
-  padding: calc(8px + env(safe-area-inset-top,0px)) 12px 10px;
+  padding: calc(8px + env(safe-area-inset-top,0px))
+           calc(12px + env(safe-area-inset-right,0px))
+           10px
+           calc(12px + env(safe-area-inset-left,0px));
 
-  /* 進場透明（覆蓋圖片），不要淡底 */
+  /* 進場透明（覆蓋主圖），完全無底 */
   background: transparent !important;
   border: 0 !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
+
+  color:#fff;                                  /* HUD 元件預設白色 */
 }
-  
-/* ★ 捲動後改為「實心」底（用你的背景色），並加極淡分隔線 */
+
+/* ★ 捲動後：實心黑底 + 極淡分隔線（仍保持白色圖示/字） */
 #postDetail.scrolled .postHUD{
-  background: var(--bg) !important;    /* ← 實心 */
-  border-bottom: 1px solid var(--line) !important;
+  background: var(--hud-solid) !important;
+  border-bottom: 1px solid rgba(0,0,0,.28) !important;
 }
-  
+
 /* 左右按鈕固定寬度 */
 #postDetail .postHUD .back,
 #postDetail .postHUD .hudBtn{
-  width: 44px; height: 44px; flex: 0 0 44px; display: grid; place-items: center;
+  width: 44px; height: 44px; flex: 0 0 44px;
+  display: grid; place-items: center;
 }
-  
-/* 內容靠左緊湊排版 */
+
+/* 返回鍵圖示（兩狀態都白） */
+#postDetail .postHUD .back svg{
+  stroke:#fff !important; stroke-width:2.6; fill:none;
+  stroke-linecap:round; stroke-linejoin:round;
+}
+/* 右側 HUD 按鈕（兩狀態都白） */
+#postDetail .postHUD .hudBtn{ color:#fff; font-weight:900; }
+
+/* 內容靠左緊湊排版（僅：圓頭像＋名稱＋時間） */
 #postDetail .postHUD .center{
   flex: 1; min-width: 0;
   display: flex; align-items: center; gap: 10px;
   justify-content: flex-start; overflow: hidden;
 }
-  
+
 /* 圓形頭像（小巧） */
 #pdAvatar{
   width: 32px; height: 32px; border-radius: 50%;
-  object-fit: cover; border: 1px solid var(--line);
+  object-fit: cover; border: 1px solid rgba(255,255,255,.35);
 }
 
 /* 名稱/時間垂直堆疊，緊湊 */
 #postDetail .postHUD .meta{
-  display: flex; flex-direction: column; justify-content: center; min-width: 0;
+  display: flex; flex-direction: column; justify-content: center;
+  min-width: 0;
 }
 #postDetail .postHUD .meta b{
   font-size: 14px; line-height: 1.1;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  color:#fff;
 }
 #postDetail .postHUD .meta small{
-  font-size: 12px; color: var(--ghost);
+  font-size: 12px; color: rgba(255,255,255,.78);
 }
 
-/* 右側再接一行貼文文字（同排，截斷） */
-#pdHudText{
-  margin-left: 8px; font-size: 13px; color: var(--sub);
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-
-/* 圖示配色：進場白，捲動後用墨色 */
-#postDetail .postHUD .back svg{
-  stroke:#fff !important; stroke-width:2.6; fill:none; stroke-linecap:round; stroke-linejoin:round;
-}
-#postDetail.scrolled .postHUD .back svg{ stroke:var(--text) !important; }
-#postDetail .postHUD .hudBtn{ color:#fff; font-weight:900; }
-#postDetail.scrolled .postHUD .hudBtn{ color:var(--text); }
-
-/* 讓貼文主圖滿版出血（你已有，這裡保險再補） */
-#postDetail .post .hero{
-  width:100vw !important; max-width:100vw !important;
-  margin:0 calc(50% - 50vw) !important; border-radius:0 !important; border:none !important;
-}
-
-/* 去卡片感：整張貼文完全「平鋪」；頭部資訊交給 HUD */
+/* ====== Post 內容去卡片感 & 主圖滿版出血 ====== */
 #postDetail .post,
 #postDetail .post.card{
-  background:transparent !important; border:none !important; box-shadow:none !important;
-  margin:0 !important; padding:0 !important;
+  background: transparent !important; border: none !important; box-shadow: none !important;
+  margin: 0 !important; padding: 0 !important;
 }
 #postDetail .post.card::before{ content:none !important; }
-#postDetail .post .hdr{ display:none !important; }
+#postDetail .post .hdr{ display:none !important; }  /* HUD 已承接頭部資訊 */
 #postDetail .post .body{ margin:0 !important; }
 
-/* 圖片滿版雙邊出血（像圖①） */
+/* 主圖雙邊出血 */
 #postDetail .post .hero{
-  width:100vw !important; max-width:100vw !important; height:auto !important;
-  display:block; margin:0 calc(50% - 50vw) !important;
-  border:none !important; border-radius:0 !important;
+  width: 100vw !important; max-width: 100vw !important; height: auto !important;
+  display: block; margin: 0 calc(50% - 50vw) !important;
+  border: none !important; border-radius: 0 !important;
 }
 
-/* 內文與動作列：貼正文、緊湊 */
+/* 內文與動作列：貼正文、緊湊（保留你的原質感） */
 #postDetail .post .caption{
   padding:10px 10px 0; font-size:15px; line-height:1.45;
 }
@@ -467,12 +470,9 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
   padding:10px 10px 0 !important; border-top:none !important; margin-top:6px !important;
 }
 
-/* 反應列：沿用你的玻璃質感，但把尺寸/間距收斂成圖①的緊湊感 */
+/* 反應列/評論列：收斂尺寸 */
 #postDetail .reacts{ gap:8px; }
-#postDetail .react{
-  height:36px; padding:6px 12px; border-radius:18px;
-  /* 不動你原本的玻璃背景與邊線 */
-}
+#postDetail .react{ height:36px; padding:6px 12px; border-radius:18px; }
 #postDetail .commentBar{ padding:6px 2px 0; }
 
 /* 留言清單：清爽緊湊 */
@@ -484,10 +484,8 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
 #postDetail .cmtTime{ color:var(--ghost); font-size:12px; }
 #postDetail .cmtText{ margin-top:4px; }
 
-/* 藝人回覆：保留你的玻璃材質，只調尺寸 */
-#postDetail .artistReply{
-  margin:8px 0 0 0; padding:8px 10px; border-radius:12px;
-}
+/* 藝人回覆：保持玻璃材質，只調尺寸 */
+#postDetail .artistReply{ margin:8px 0 0 0; padding:8px 10px; border-radius:12px; }
 
 /* ================================
    列表卡（首頁/動態牆保留）
