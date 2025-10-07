@@ -368,48 +368,44 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
    POST DETAIL（貼文詳情｜HUD 無文案｜刪舊貼新）
    ================================ */
 
-/* ========== HUD 滿版出血 + 捲動後與背景同色 ========== */
+<style>
+:root{ --hud-solid: var(--bg); }  /* 捲動後的實心底色，預設跟頁面背景一致 */
+
+/* 滿版出血 + 進場透明（完全無底） */
 #postDetail .postHUD{
-  position: sticky; top: 0; z-index: 50;
+  position:sticky; top:0; z-index:50;
+  margin:0 calc(50% - 50vw);            /* ★滿版出血 */
+  width:100vw;
 
-  /* ★ 滿版出血（佔滿視窗寬） */
-  margin: 0 calc(50% - 50vw);
-  width: 100vw;
+  display:flex; align-items:center; gap:10px;
+  padding:calc(8px + env(safe-area-inset-top,0px))
+          calc(12px + env(safe-area-inset-right,0px))
+          10px
+          calc(12px + env(safe-area-inset-left,0px));
 
-  display: flex; align-items: center; gap: 10px;
-  padding:
-    calc(8px + env(safe-area-inset-top,0px))
-    calc(12px + env(safe-area-inset-right,0px))
-    10px
-    calc(12px + env(safe-area-inset-left,0px));
+  background:transparent !important;
+  border:0 !important;
+  backdrop-filter:none !important;
+  -webkit-backdrop-filter:none !important;
 
-  /* 進場透明（覆蓋主圖），完全無底 */
-  background: transparent !important;
-  border: 0 !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-
-  color:#fff; /* 初始在圖上，元素採白色 */
+  color:#fff;                           /* 初始：白色 HUD 元件 */
 }
-
-/* ★ 捲動後：與頁面背景色一致的「實心底」 + 極淡分隔線 */
+  
+/* 捲動後：實心底（跟背景同色）+ 極淡分隔線 */
 #postDetail.scrolled .postHUD{
-  background: var(--bg) !important;    /* 跟整體背景同色（會隨深淺主題變化） */
-  border-bottom: 1px solid var(--line) !important;
-  color: var(--text);                   /* 文字/圖示改用墨色 */
+  background:var(--hud-solid) !important;
+  border-bottom:1px solid var(--line) !important;
 }
 
-/* 左右按鈕固定寬度 */
+/* 左右固定寬；翻譯鍵自然靠最右 */
 #postDetail .postHUD .back,
 #postDetail .postHUD .hudBtn{
-  width: 44px; height: 44px; flex: 0 0 44px;
-  display: grid; place-items: center;
+  width:44px; height:44px; flex:0 0 44px; display:grid; place-items:center;
 }
 
-/* 返回鍵圖示：初始白，捲動後墨色 */
+/* 返回鍵圖示兩狀態都白（若想切換顏色，再自行改） */
 #postDetail .postHUD .back svg{
-  stroke:#fff !important; stroke-width:2.6; fill:none;
-  stroke-linecap:round; stroke-linejoin:round;
+  stroke:#fff !important; stroke-width:2.6; fill:none; stroke-linecap:round; stroke-linejoin:round;
 }
 #postDetail.scrolled .postHUD .back svg{ stroke:var(--text) !important; }
 
@@ -417,34 +413,31 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
 #postDetail .postHUD .hudBtn{ color:#fff; font-weight:900; }
 #postDetail.scrolled .postHUD .hudBtn{ color:var(--text); }
 
-/* 內容靠左緊湊排版（僅：圓頭像＋名稱＋時間；無貼文文案） */
+/* 內容靠左緊湊：只放 圓頭像 + 名稱/時間（上下堆） */
 #postDetail .postHUD .center{
-  flex: 1; min-width: 0;
-  display: flex; align-items: center; gap: 10px;
-  justify-content: flex-start; overflow: hidden;
+  flex:1; min-width:0; display:flex; align-items:center; gap:10px;
+  justify-content:flex-start; overflow:hidden;
 }
 
-/* 圓形頭像 */
 #pdAvatar{
-  width: 32px; height: 32px; border-radius: 50%;
-  object-fit: cover;
-  border: 1px solid rgba(255,255,255,.35);
+  width:32px; height:32px; border-radius:50%;
+  object-fit:cover; border:1px solid rgba(255,255,255,.35);
 }
+  
 #postDetail.scrolled #pdAvatar{
   border-color: var(--line);
 }
 
-/* 名稱/時間：垂直堆疊、緊湊 */
 #postDetail .postHUD .meta{
-  display: flex; flex-direction: column; justify-content: center; min-width: 0;
+  display:flex; flex-direction:column; justify-content:center; min-width:0;
 }
+
 #postDetail .postHUD .meta b{
-  font-size: 14px; line-height: 1.1;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  color: inherit;
+  font-size:14px; line-height:1.1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:#fff;
 }
+  
 #postDetail .postHUD .meta small{
-  font-size: 12px; color: rgba(255,255,255,.78);
+  font-size:12px; color:rgba(255,255,255,.78);
 }
 #postDetail.scrolled .postHUD .meta small{
   color: var(--ghost);
@@ -456,6 +449,10 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
   background: transparent !important; border: none !important; box-shadow: none !important;
   margin: 0 !important; padding: 0 !important;
 }
+
+/* 保險：不要在 HUD 注入任何貼文文案 */
+#pdHudText{ display:none !important; }
+  
 #postDetail .post.card::before{ content:none !important; }
 #postDetail .post .hdr{ display:none !important; }   /* HUD 已承接頭部資訊 */
 #postDetail .post .body{ margin:0 !important; }
@@ -1109,19 +1106,16 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
   <!-- 不要「社群」標題，整個拿掉 -->
 
   <!-- 貼文詳情 HUD -->
-  <!-- 貼文詳情 HUD（無文案） -->
-<div class="postHUD" id="pdHUD">
+  <div class="postHUD" id="pdHUD">
   <button class="back" onclick="goBack()" aria-label="Back">
     <svg viewBox="0 0 24 24"><path d="M15 19 8 12l7-7"/></svg>
   </button>
 
-  <div class="left">
-    <img id="pdAvatar" alt="">
-    <div class="txt">
-      <div class="row1">
-        <b id="pdName" class="name">ANNIE</b>
-        <small id="pdTime" class="time">—</small>
-      </div>
+  <div class="center">
+    <img id="pdAvatar" alt="" onerror="imgFallback(this)">
+    <div class="meta">
+      <b id="pdName"></b>
+      <small id="pdTime" class="ghost"></small>
     </div>
   </div>
 
