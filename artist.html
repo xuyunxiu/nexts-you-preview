@@ -368,18 +368,18 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
    POST DETAIL（貼文詳情頁樣式）
    ================================ */
 
-/* 頂部 HUD 固定（進場透明；滑動後加淡底） */
+/* === FIG.1 Post Detail — 不改色票/玻璃，只改結構與間距 === */
+
+/* 頂部 HUD：進場透明；捲動後加很淡的底（維持你既有的透明系） */
 #postDetail .postHUD{
-  position:sticky; top:0; z-index:8;
-  display:flex; align-items:center; justify-content:space-between; gap:6px;
-  padding:calc(8px + env(safe-area-inset-top,0px)) 8px 6px;
-  background:linear-gradient(180deg, rgba(245,247,255,0), rgba(245,247,255,0));
+  position: sticky; top: 0; z-index: 8;
+  display: flex; align-items: center; justify-content: space-between; gap: 6px;
+  padding: calc(8px + env(safe-area-inset-top,0px)) 8px 6px;
+  background: linear-gradient(180deg, rgba(245,247,255,0), rgba(245,247,255,0));
 }
 #postDetail.scrolled .postHUD{
-  background:linear-gradient(180deg, rgba(245,247,255,.86), rgba(245,247,255,0));
+  background: linear-gradient(180deg, rgba(245,247,255,.86), rgba(245,247,255,0));
 }
-
-/* HUD：左右固定寬避免中段換行 */
 #postDetail .postHUD .back,
 #postDetail .postHUD .hudBtn{
   width:44px; height:44px; flex:0 0 44px; display:grid; place-items:center;
@@ -388,14 +388,13 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
   flex:1; min-width:0; display:flex; align-items:center; justify-content:center; gap:8px;
   white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
 }
-
-/* 返回鍵顏色：進場白／滑動黑 */
+/* 返回鍵：進場白、捲動後黑 */
 #postDetail .postHUD .back svg{
   stroke:#fff !important; stroke-width:2.6; fill:none; stroke-linecap:round; stroke-linejoin:round;
 }
 #postDetail.scrolled .postHUD .back svg{ stroke:#111 !important; }
 
-/* 詳情頁：去卡片感與頭部資訊交給 HUD */
+/* 去卡片感：整張貼文完全「平鋪」；頭部資訊交給 HUD */
 #postDetail .post,
 #postDetail .post.card{
   background:transparent !important; border:none !important; box-shadow:none !important;
@@ -405,43 +404,42 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
 #postDetail .post .hdr{ display:none !important; }
 #postDetail .post .body{ margin:0 !important; }
 
-/* 圖片滿版雙邊出血（hero） */
+/* 圖片滿版雙邊出血（像圖①） */
 #postDetail .post .hero{
   width:100vw !important; max-width:100vw !important; height:auto !important;
-  display:block; margin:0 calc(50% - 50vw) !important; border:none !important; border-radius:0 !important;
+  display:block; margin:0 calc(50% - 50vw) !important;
+  border:none !important; border-radius:0 !important;
 }
 
-/* 文案置於圖片下方 */
+/* 內文與動作列：貼正文、緊湊 */
 #postDetail .post .caption{
   padding:10px 10px 0; font-size:15px; line-height:1.45;
 }
-
-/* 動作列貼正文內距 */
 #postDetail .actions{
   padding:10px 10px 0 !important; border-top:none !important; margin-top:6px !important;
 }
 
-/* ===== 詳情頁留言區 ===== */
-.cmtItem{ display:flex; gap:10px; align-items:flex-start; margin:10px 6px; }
-.cmtItem .avatar{ width:36px; height:36px; border-radius:50%; object-fit:cover; border:1px solid var(--line); }
-.cmtBody{ flex:1; min-width:0; }
-.cmtHead{ display:flex; align-items:center; justify-content:space-between; gap:10px; }
-.cmtName{ font-size:13px; font-weight:900; }
-.cmtTime{ color:var(--ghost); font-size:12px; }
-.cmtText{ margin-top:4px; }
-
-/* 藝人回覆（玻璃卡） */
-.artistReply{
-  margin:8px 0 0 0; padding:8px 10px; border-radius:12px;
-  background:linear-gradient(180deg,rgba(255,255,255,.30),rgba(255,255,255,.12));
-  border:1px solid var(--glass-stroke);
-  backdrop-filter:saturate(160%) blur(calc(var(--glass-blur)*.6));
-  -webkit-backdrop-filter:saturate(160%) blur(calc(var(--glass-blur)*.6));
-  box-shadow:0 6px 14px rgba(0,0,0,.08);
-  color:inherit; display:flex; gap:8px; align-items:flex-start;
+/* 反應列：沿用你的玻璃質感，但把尺寸/間距收斂成圖①的緊湊感 */
+#postDetail .reacts{ gap:8px; }
+#postDetail .react{
+  height:36px; padding:6px 12px; border-radius:18px;
+  /* 不動你原本的玻璃背景與邊線 */
 }
-.artistReply .arName{ font-size:12px; font-weight:900; display:flex; align-items:center; gap:6px; }
-.artistReply .arText{ margin-top:2px; }
+#postDetail .commentBar{ padding:6px 2px 0; }
+
+/* 留言清單：清爽緊湊 */
+#postDetail .cmtItem{ display:flex; gap:10px; align-items:flex-start; margin:10px 6px; }
+#postDetail .cmtItem .avatar{ width:36px; height:36px; border-radius:50%; object-fit:cover; border:1px solid var(--line); }
+#postDetail .cmtBody{ flex:1; min-width:0; }
+#postDetail .cmtHead{ display:flex; align-items:center; justify-content:space-between; gap:10px; }
+#postDetail .cmtName{ font-size:13px; font-weight:900; }
+#postDetail .cmtTime{ color:var(--ghost); font-size:12px; }
+#postDetail .cmtText{ margin-top:4px; }
+
+/* 藝人回覆：保留你的玻璃材質，只調尺寸 */
+#postDetail .artistReply{
+  margin:8px 0 0 0; padding:8px 10px; border-radius:12px;
+}
 
 /* ================================
    列表卡（首頁/動態牆保留）
