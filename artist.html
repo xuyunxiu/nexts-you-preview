@@ -3241,7 +3241,6 @@ function renderPostDetail(postId){
     <div class="post" data-post="${p.id}">
       ${p.img ? `<img class="hero" src="${p.img}" alt="貼文圖片" onerror="imgFallback(this)">` : ``}
       <p class="caption" id="postText-${p.id}">${escapeHtml(p.text || '')}</p>
-      hydratePostHud(p);
 
       <div class="actions">
         ${renderReactionsBar(p.id)}
@@ -3251,6 +3250,7 @@ function renderPostDetail(postId){
         </div>
       </div>
     </div>
+    
 
     <!-- 僅其他藝人回覆開關（保留） -->
     <div style="display:flex;align-items:center;justify-content:flex-end;padding:6px 12px 2px;gap:8px">
@@ -3284,6 +3284,7 @@ function renderPostDetail(postId){
 
   renderPostComments(p);
   measureFooter();
+  hydratePostHud(p);
 }
 
 /* 綁定：依主圖捲動切換 .scrolled（直接覆蓋舊的 bindPostDetailHUD） */
