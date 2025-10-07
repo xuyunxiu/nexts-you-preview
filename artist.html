@@ -3241,6 +3241,7 @@ function renderPostDetail(postId){
     <div class="post" data-post="${p.id}">
       ${p.img ? `<img class="hero" src="${p.img}" alt="貼文圖片" onerror="imgFallback(this)">` : ``}
       <p class="caption" id="postText-${p.id}">${escapeHtml(p.text || '')}</p>
+      hydratePostHud(p);
 
       <div class="actions">
         ${renderReactionsBar(p.id)}
@@ -3285,6 +3286,7 @@ function renderPostDetail(postId){
   measureFooter();
 }
 
+/* 綁定：依主圖捲動切換 .scrolled（直接覆蓋舊的 bindPostDetailHUD） */
 function bindPostDetailHUD(){
   const page = document.getElementById('postDetail'); if(!page) return;
   const hudH = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--hud-h')) || 56;
@@ -3295,6 +3297,24 @@ function bindPostDetailHUD(){
   }
   update();
   window.addEventListener('scroll', update, {passive:true});
+}
+
+/* 新增：只灌 HUD 的頭像 / 名稱 / 時間（不放任何貼文文案） */
+function hydratePostHud(p){
+  const stage = (p.artistStage || (window.STAGE_NAME||'')).toString().toUpperCase();
+  const displayName = (p.artistId === 'me') ? (window.NICKNAME||'').toUpperCase() : stage;
+
+  const av = document.getElementById('pdAvatar');
+  if (av) av.src = p.avatar || (window.ME && ME.avatar) || '';
+
+  const nm = document.getElementById('pdName');
+  if (nm) nm.textContent = displayName;
+
+  const tm = document.getElementById('pdTime');
+  if (tm) tm.textContent = (typeof timeAgo==='function') ? timeAgo(p.ts) : '';
+
+  const hudBtn = document.getElementById('pdTransHUD');
+  if (hudBtn) hudBtn.onclick = ()=> (typeof togglePostTranslate==='function' && togglePostTranslate(p.id));
 }
 
 function renderPostComments(p){
