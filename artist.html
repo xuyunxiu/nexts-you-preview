@@ -3235,6 +3235,8 @@ function renderPostDetail(postId){
   const nm = document.getElementById('pdName');  if (nm) nm.textContent = displayName;
   const tm = document.getElementById('pdTime');  if (tm) tm.textContent = timeAgo(p.ts);
   const hudBtn = document.getElementById('pdTransHUD'); if (hudBtn) hudBtn.onclick = ()=> togglePostTranslate(p.id);
+  const txt = (p.text || '').replace(/\s+/g,' ').trim();
+  const hudText = document.getElementById('pdHudText'); if (hudText) hudText.textContent = txt.slice(0, 28);
 
   /* 內容（重點：不再輸出 .hdr；主圖 + 內文 + 動作列） */
   wrap.innerHTML = `
