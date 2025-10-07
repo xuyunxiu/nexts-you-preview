@@ -3163,13 +3163,16 @@ document.getElementById('btnEditNick')?.addEventListener('click', ()=>{
 })();
 
 /* ===================== Post 詳情（藝人端） ===================== */
-let CURRENT_POST_ID = null;
+let CURRENT_POST_ID = window.CURRENT_POST_ID || null;
 let PD_FILTER_OTHERS = false; // 「僅其他藝人的回覆」
 
-function openPostDetail(postId, opts={}){
-  CURRENT_POST_ID = postId;
-  showPage('postDetail');
-  if (opts.focusInput) setTimeout(()=> document.getElementById('cmtInput')?.focus(), 0);
+function openPostDetail(id){
+  CURRENT_POST_ID = id;
+  showPage('postDetail');        // 你的頁籤切換函式
+  requestAnimationFrame(()=>{
+    renderPostDetail(CURRENT_POST_ID);
+    bindPostDetailHUD();
+  });
 }
 
 function renderPostDetail(postId){
