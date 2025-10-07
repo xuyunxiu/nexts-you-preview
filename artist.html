@@ -3162,13 +3162,13 @@ document.getElementById('btnEditNick')?.addEventListener('click', ()=>{
   });
 })();
 
-/* ===================== Post 詳情（藝人端） ===================== */
+/* ===================== Post 詳情（藝人端）— 最小改動：去卡片頭、IO 偵測 ===================== */
 let CURRENT_POST_ID = window.CURRENT_POST_ID || null;
 let PD_FILTER_OTHERS = false; // 「僅其他藝人的回覆」
 
 function openPostDetail(id){
   CURRENT_POST_ID = id;
-  showPage('postDetail');        // 你的頁籤切換函式
+  showPage('postDetail');
   requestAnimationFrame(()=>{
     renderPostDetail(CURRENT_POST_ID);
     bindPostDetailHUD();
@@ -3179,41 +3179,30 @@ function renderPostDetail(postId){
   const p = POSTS.find(x=>x.id === postId); if (!p) return;
   const wrap = document.getElementById('postDetailWrap'); if (!wrap) return;
 
-  // HUD
+  /* HUD（頂部） */
   const stage = (p.artistStage || STAGE_NAME || '').toString().toUpperCase();
   const displayName = (p.artistId === 'me') ? NICKNAME.toUpperCase() : stage;
-  const av = document.getElementById('pdAvatar'); if (av) av.src = p.avatar || ME.avatar;
-  const nm = document.getElementById('pdName');  if (nm) nm.innerHTML = escapeHtml(displayName) + ' ' + VB(16);
+  const av = document.getElementById('pdAvatar'); if (av) { av.src = p.avatar || ME.avatar; av.width = 28; av.height = 28; av.style.cssText = 'width:28px;height:28px;border-radius:50%;object-fit:cover;border:1px solid var(--line)'; }
+  const nm = document.getElementById('pdName');  if (nm) nm.textContent = displayName;
   const tm = document.getElementById('pdTime');  if (tm) tm.textContent = timeAgo(p.ts);
   const hudBtn = document.getElementById('pdTransHUD'); if (hudBtn) hudBtn.onclick = ()=> togglePostTranslate(p.id);
-  const totalC = totalComments(p);
 
+  /* 內容（重點：不再輸出 .hdr；主圖 + 內文 + 動作列） */
   wrap.innerHTML = `
-    <div class="post card soft" data-post="${p.id}">
-      <div class="hdr">
-        <img class="avatar" src="${p.avatar}" alt="${escapeHtml(displayName)} 的頭像" onerror="imgFallback(this)">
-        <div class="meta">
-          <b class="stage">${escapeHtml(displayName)} ${VB(18)}</b>
-          <small class="ghost">${timeAgo(p.ts)}</small>
-        </div>
-        <button class="chip translate-btn" onclick="event.stopPropagation(); togglePostTranslate('${p.id}')" title="翻譯">가/A</button>
-      </div>
-
-      <div class="body">
+    <div class="post" data-post="${p.id}">
       ${p.img ? `<img class="hero" src="${p.img}" alt="貼文圖片" onerror="imgFallback(this)">` : ``}
-    <p class="caption" id="postText-${p.id}">${escapeHtml(p.text)}</p>
-   </div>
+      <p class="caption" id="postText-${p.id}">${escapeHtml(p.text || '')}</p>
 
       <div class="actions">
         ${renderReactionsBar(p.id)}
         <div class="commentBar">
           <div class="left">💬 <span class="cmtCount">${totalComments(p)}</span> 則評論</div>
-          <div class="right"></div>
+          <div class="right"><button class="addCmt" aria-label="發表評論">發表評論</button></div>
         </div>
       </div>
     </div>
 
-    <!-- 僅其他藝人回覆開關（圖五/圖六） -->
+    <!-- 僅其他藝人回覆開關（保留） -->
     <div style="display:flex;align-items:center;justify-content:flex-end;padding:6px 12px 2px;gap:8px">
       <span class="ghost" style="font-weight:900">僅其他藝人的回覆</span>
       <label class="switch"><input id="pdOnlyAdp" type="checkbox" ${PD_FILTER_OTHERS?'checked':''}><span class="slider"></span></label>
@@ -3222,32 +3211,61 @@ function renderPostDetail(postId){
     <div id="cmtList" style="padding:0 6px 120px"></div>
   `;
 
+  /* 綁定反應列（同頁刷新） */
+  wrap.querySelectorAll('.react').forEach(btn=>{
+    btn.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      toggleReaction(p.id, btn.dataset.react);
+      const area = wrap.querySelector('.reacts');
+      if (area) area.outerHTML = renderReactionsBar(p.id);
+    }, {passive:true});
+  });
+
+  /* 發表評論（跳進子樓 or 聚焦輸入） */
+  wrap.querySelector('.addCmt')?.addEventListener('click', (e)=>{
+    e.stopPropagation();
+    const root = (p.cmts||[]).find(c=>!c.replyTo)?.id;
+    if (typeof openCommentDetail === 'function' && root){
+      openCommentDetail(p.id, root);
+    } else {
+      document.getElementById('cmtInput')?.focus();
+    }
+  });
+
   renderPostComments(p);
   measureFooter();
 }
 
 function bindPostDetailHUD(){
   const page = document.getElementById('postDetail');
-  if(!page) return;
-  const hudH = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--hud-h')) || 56;
+  const wrap = document.getElementById('postDetailWrap');
+  if(!page || !wrap) return;
 
-  function update(){
-    const hero = document.querySelector('#postDetail .post .hero');
-    const scrolled = hero ? (hero.getBoundingClientRect().top <= hudH + 6) : (window.scrollY > 20);
-    page.classList.toggle('scrolled', scrolled);
+  // 放一個哨兵在內容最上緣，用 IO 切換 .scrolled（省電）
+  let sent = document.getElementById('pdSentinel');
+  if (!sent){
+    sent = document.createElement('div');
+    sent.id = 'pdSentinel';
+    sent.style.cssText = 'height:1px;margin-top:-1px';
+    wrap.prepend(sent);
   }
-  update();
-  window.addEventListener('scroll', update, {passive:true});
+
+  // 清除舊的 observer 避免重複
+  if (bindPostDetailHUD._io) { try{ bindPostDetailHUD._io.disconnect(); }catch(_){} }
+  const io = new IntersectionObserver(
+    (entries)=>{ page.classList.toggle('scrolled', !entries[0].isIntersecting); },
+    { root: null, threshold: 1, rootMargin: '-64px 0px 0px 0px' }
+  );
+  io.observe(sent);
+  bindPostDetailHUD._io = io;
 }
 
 function renderPostComments(p){
   const listEl = document.getElementById('cmtList'); if (!listEl) return;
 
-  // 只看主樓（粉絲）留言
   const roots = (p.cmts || []).filter(c => !c.replyTo && c.from !== 'artist')
                  .sort((a,b)=> (a.ts||0)-(b.ts||0));
 
-  // 「僅其他藝人回覆」= 只渲染其他藝人的回覆（不含我）
   function artistRepliesOf(rootId){
     let replies = (p.cmts||[]).filter(x => x.replyTo === rootId && x.from === 'artist');
     if (PD_FILTER_OTHERS) replies = replies.filter(r => (r.artistId||'') !== 'me');
@@ -3278,7 +3296,7 @@ function renderPostComments(p){
     }).join('');
 
     return `
-      <!-- 主樓（粉絲）可點進 commentdetail -->
+      <!-- 主樓（粉絲）可點進 commentDetail -->
       <div class="card soft commentItem"
            data-post="${p.id}" data-cmt="${root.id}" data-root="${root.id}" data-from="fan"
            style="display:flex;gap:10px;align-items:flex-start;margin:10px 6px">
@@ -3298,6 +3316,12 @@ function renderPostComments(p){
         </div>
       </div>`;
   }).join('');
+
+  // 切換「僅其他藝人回覆」
+  document.getElementById('pdOnlyAdp')?.addEventListener('change', (e)=>{
+    PD_FILTER_OTHERS = !!e.target.checked;
+    renderPostComments(p);
+  }, { once:true });
 }
 
 /* — 送出留言（藝人身分）— */
@@ -3317,11 +3341,10 @@ function sendPostComment(){
 
   input.value = '';
   renderPostDetail(CURRENT_POST_ID);
-
-refreshCommentCountUI(p.id);
+  refreshCommentCountUI(p.id);
 }
 
-/* — 綁定貼文詳情輸入列（只綁一次）— */
+/* — 綁定進入子樓（沿用）— */
 (function bindOpenCmtOnce(){
   if (window.__openCmtBound) return;
   window.__openCmtBound = true;
@@ -3332,7 +3355,7 @@ refreshCommentCountUI(p.id);
 
     const isFan  = (el.dataset.from === 'fan');
     const isRoot = (el.dataset.root === el.dataset.cmt) || !el.dataset.reply;
-    if (!(isFan && isRoot)) return; // 不是粉絲主樓 → 不要跳
+    if (!(isFan && isRoot)) return;
 
     const postId = el.dataset.post;
     const rootId = el.dataset.root || el.dataset.cmt;
@@ -3340,7 +3363,7 @@ refreshCommentCountUI(p.id);
   }, { passive:true });
 })();
 
-  /* 貼文詳情輸入列：跟 commentDetail 一樣的互動 */
+/* — 貼文詳情輸入列（沿用）— */
 (function bindPdComposer(){
   const input = document.getElementById('cmtInput');
   const btn   = document.getElementById('postCmtSend');
