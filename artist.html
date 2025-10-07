@@ -3286,27 +3286,15 @@ function renderPostDetail(postId){
 }
 
 function bindPostDetailHUD(){
-  const page = document.getElementById('postDetail');
-  const wrap = document.getElementById('postDetailWrap');
-  if(!page || !wrap) return;
-
-  // 放一個哨兵在內容最上緣，用 IO 切換 .scrolled（省電）
-  let sent = document.getElementById('pdSentinel');
-  if (!sent){
-    sent = document.createElement('div');
-    sent.id = 'pdSentinel';
-    sent.style.cssText = 'height:1px;margin-top:-1px';
-    wrap.prepend(sent);
+  const page = document.getElementById('postDetail'); if(!page) return;
+  const hudH = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--hud-h')) || 56;
+  function update(){
+    const hero = document.querySelector('#postDetail .post .hero');
+    const scrolled = hero ? (hero.getBoundingClientRect().top <= hudH + 6) : (window.scrollY > 20);
+    page.classList.toggle('scrolled', scrolled);
   }
-
-  // 清除舊的 observer 避免重複
-  if (bindPostDetailHUD._io) { try{ bindPostDetailHUD._io.disconnect(); }catch(_){} }
-  const io = new IntersectionObserver(
-    (entries)=>{ page.classList.toggle('scrolled', !entries[0].isIntersecting); },
-    { root: null, threshold: 1, rootMargin: '-64px 0px 0px 0px' }
-  );
-  io.observe(sent);
-  bindPostDetailHUD._io = io;
+  update();
+  window.addEventListener('scroll', update, {passive:true});
 }
 
 function renderPostComments(p){
