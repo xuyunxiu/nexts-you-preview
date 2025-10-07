@@ -1104,20 +1104,24 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
   <!-- 不要「社群」標題，整個拿掉 -->
 
   <!-- 貼文詳情 HUD -->
-  <div class="postHUD" id="pdHUD">
-    <button class="back" onclick="goBack()" aria-label="Back">
-      <svg viewBox="0 0 24 24"><path d="M15 19 8 12l7-7"/></svg>
-    </button>
-   <div class="center">
-  <img id="pdAvatar" alt="" onerror="imgFallback(this)">
-  <div class="meta">
-    <b id="pdName">ANNIE</b>
-    <small id="pdTime" class="ghost"></small>
+  <!-- 貼文詳情 HUD（無文案） -->
+<div class="postHUD" id="pdHUD">
+  <button class="back" onclick="goBack()" aria-label="Back">
+    <svg viewBox="0 0 24 24"><path d="M15 19 8 12l7-7"/></svg>
+  </button>
+
+  <div class="left">
+    <img id="pdAvatar" alt="">
+    <div class="txt">
+      <div class="row1">
+        <b id="pdName" class="name">ANNIE</b>
+        <small id="pdTime" class="time">—</small>
+      </div>
+    </div>
   </div>
-  <span id="pdHudText" class="ink-fixed"></span>
+
+  <button class="hudBtn" id="pdTransHUD" title="翻譯">가/A</button>
 </div>
-    <button class="hudBtn" id="pdTransHUD" title="翻譯">가/A</button>
-  </div>
 
   <div id="postDetailWrap" style="padding:0 6px 12px"></div>
 
