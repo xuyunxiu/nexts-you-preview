@@ -1443,11 +1443,11 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
 <section id="live" class="page">
   <div class="pageTitle">直播</div>
 
-  <!-- 分頁 Segmented Control -->
-  <div class="segControl">
-    <button id="tabMyLive" class="segBtn active">我的直播</button>
-    <button id="tabLiveList" class="segBtn">直播列表</button>
-  </div>
+  <!-- 分頁 Segmented Control（照你畫的兩顆） -->
+<div class="liveTabs">
+  <button id="liveTabMe" class="seg active">ME</button>
+  <button id="liveTabLive" class="seg">LIVE</button>
+</div>
 
   <!-- 我的直播（照圖四、已把你不要的項目移除） -->
   <div id="panelMyLive" class="liveGlassCard">
@@ -1479,16 +1479,38 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
     <b id="liveRoomTitle">直播中</b>
   </div>
 
-  <div class="liveStage card"></div>
+  <!-- 直播舞台：會用封面做模糊背景 -->
+  <div class="liveStage card">
+    <div class="musicDock">
+      <button id="musicOpen" class="chip">🎵 音樂</button>
+      <button id="musicStop" class="chip">停止</button>
+    </div>
+  </div>
 
-  <div id="liveRoomChat" class="liveThread" style="height:calc(100vh - 340px);overflow:auto"></div>
+  <!-- 平鋪的 embed 區（貼了連結才會出現內容） -->
+  <div id="musicEmbed" class="musicEmbed"></div>
 
+  <div id="liveRoomChat" class="liveThread"></div>
+
+  <!-- 直播輸入列 -->
   <div class="liveInputBar">
     <button id="liveRoomHeart" title="送愛心">💗</button>
     <input id="liveRoomInput" placeholder="請輸入訊息" />
     <button id="liveRoomSend" class="chip btnPrimary">送出</button>
   </div>
 </section>
+
+<div id="musicModal" class="modal" style="display:none">
+  <div class="panel">
+    <b style="font-weight:900">設定音樂連結</b>
+    <div class="tip" style="margin:8px 0">支援：YouTube / Spotify / Apple Music / KKBOX（貼該平台的分享連結）</div>
+    <div class="inputGlass"><input id="musicUrlInput" placeholder="貼上連結…"></div>
+    <div class="btnRow">
+      <button class="btn" id="musicClose">取消</button>
+      <button class="btn btnPrimary" id="musicApply">使用這個連結</button>
+    </div>
+  </div>
+</div>
 
 <!-- ====================== Bottom Nav ====================== -->
 <nav id="nav" class="weverse">
