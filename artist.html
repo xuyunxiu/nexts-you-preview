@@ -901,16 +901,94 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
 }
 .btnStart{width:100%;height:48px;border-radius:14px}
 
-/* —— 直播列表 —— */
-.liveGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.liveCard{border-radius:14px;overflow:hidden}
-.liveCard .ph{aspect-ratio:16/9;background:#222;position:relative}
-.liveCard .ph img{width:100%;height:100%;object-fit:cover;display:block}
-.liveCard .ph .tag{
-  position:absolute;left:6px;top:6px;background:#ff3b30;color:#fff;
-  font-size:12px;border-radius:999px;padding:2px 6px;font-weight:900
+/* ==== LIVE 列表卡（刪舊貼新；方形封面＋液態玻璃） ==== */
+#panelLiveList{ padding: 6px 6px 120px; }
+#liveList{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:12px;
 }
-.liveCard .meta{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 10px}
+@container (min-width:520px){ #liveList{ grid-template-columns:1fr 1fr; } }
+
+.liveCard{
+  border-radius:16px;
+  overflow:hidden;
+  background:linear-gradient(180deg, rgba(255,255,255,.22), rgba(255,255,255,.10));
+  border:1px solid var(--glass-stroke);
+  box-shadow:var(--shadow-2);
+  backdrop-filter:saturate(160%) blur(calc(var(--glass-blur)*.6));
+  -webkit-backdrop-filter:saturate(160%) blur(calc(var(--glass-blur)*.6));
+  cursor:pointer;
+}
+.liveCard .ph{ position:relative; aspect-ratio:1/1; background:#0e111a; }
+.liveCard .ph img{ width:100%; height:100%; object-fit:cover; display:block; }
+.liveCard .ph .tag{
+  position:absolute; left:8px; top:8px;
+  padding:4px 8px; border-radius:999px; font-size:12px; font-weight:900;
+  color:#fff; background:#ff3b30; box-shadow:0 6px 18px rgba(255,46,46,.28);
+}
+.liveCard .meta{
+  display:flex; flex-direction:column; gap:6px;
+  padding:10px 10px 12px;
+}
+.liveCard .title{
+  font-weight:900; letter-spacing:.3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.liveCard .info{
+  display:flex; align-items:center; gap:10px; color:#6b7287; font-weight:800; font-size:12px;
+}
+.liveCard .go{
+  margin-left:auto; font-weight:900; color:var(--accent-ink);
+  padding:6px 10px; border-radius:10px;
+  background:linear-gradient(180deg,rgba(255,255,255,.42),rgba(255,255,255,.12));
+  border:1px solid rgba(255,255,255,.55);
+  backdrop-filter:saturate(180%) blur(12px);
+}
+
+/* ==== LIVE 房聊天室泡泡（粉絲=淺藍流動；藝人=#E0B0FF 流動＋陰影） ==== */
+#liveRoomChat{
+  display:flex; flex-direction:column; gap:10px;
+  padding:10px 10px 120px;
+  overflow-y:auto; -webkit-overflow-scrolling:touch;
+}
+
+#liveRoom .msg{
+  max-width:76%;
+  padding:12px 14px;
+  border-radius:16px;
+  position:relative;
+  border:1px solid transparent;
+  font-size:15px; line-height:1.35;
+}
+#liveRoom .msg .time{
+  display:block; margin-top:2px; font-size:11px; opacity:.85; text-align:right;
+}
+
+/* 粉絲（靠左）：淺藍流動漸層 */
+#liveRoom .msg.fan{
+  align-self:flex-start; color:#0f172a;
+  background:linear-gradient(120deg, #e6f0ff, #d7ecff, #e6f0ff);
+  background-size:200% 200%;
+  animation:liveFlow 6s ease infinite;
+  border-color:rgba(59,130,246,.22);
+  box-shadow:0 10px 22px rgba(59,130,246,.22);
+}
+
+/* 藝人（靠右）：#E0B0FF 流動漸層＋陰影 */
+#liveRoom .msg.artist{
+  align-self:flex-end; color:#342042;
+  background:linear-gradient(120deg, #E0B0FF, #f1d7ff, #E0B0FF);
+  background-size:200% 200%;
+  animation:liveFlow 7s ease infinite;
+  border-color:rgba(0,0,0,.06);
+  box-shadow:0 14px 26px rgba(106,90,205,.28);
+}
+
+@keyframes liveFlow{
+  0%{ background-position:0% 50% }
+  50%{ background-position:100% 50% }
+  100%{ background-position:0% 50% }
+}
 
 /* —— 簡化 liveRoom（保留乾淨觀看/開播） —— */
 #liveRoom .liveStage{height:36vh;min-height:220px;margin:8px 6px 12px;border-radius:18px}
@@ -1774,6 +1852,7 @@ function showPage(id, opts = {}) {
       break;
 
     case 'live':
+      renderLiveList();
       break;
   }
 }
@@ -3610,6 +3689,68 @@ showPage = function(id, opts){
     renderLiveList();
   }
 };
+
+  /* ==== LIVE 列表（刪舊貼新） ==== */
+function renderLiveList(){
+  const host = document.getElementById('liveList'); if(!host) return;
+  const lives = [
+    {id:'L1', cover:'https://picsum.photos/800?u=lv1', title:'開箱唱聊', host:'ANNIE', live:true, viewers:'2.3K'},
+    {id:'L2', cover:'https://picsum.photos/800?u=lv2', title:'練團室直擊', host:'DOHEE', live:false, viewers:'—'},
+    {id:'L3', cover:'https://picsum.photos/800?u=lv3', title:'Q&A Night', host:'WOOCHAN', live:true, viewers:'987'},
+    {id:'L4', cover:'https://picsum.photos/800?u=lv4', title:'聲音直播', host:'Hebi.', live:false, viewers:'—'},
+  ];
+  host.innerHTML = lives.map(x=>`
+    <div class="liveCard" onclick="enterLiveFromList('${x.id}', '${escapeHtml(x.title)}', '${x.cover}')">
+      <div class="ph">
+        <img src="${x.cover}" onerror="imgFallback(this)" alt="">
+        ${x.live ? `<span class="tag">LIVE</span>` : ``}
+      </div>
+      <div class="meta">
+        <div class="title">${escapeHtml(x.title)}</div>
+        <div class="info">
+          <span>👤 ${escapeHtml(x.host)}</span>
+          <span>·</span>
+          <span>${x.live?`👀 ${x.viewers}`:'預告'}</span>
+          <span class="go">進入</span>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+let LIVE_COVER_URL = '';
+window.enterLiveFromList = function(id, title, cover){
+  LIVE_COVER_URL = cover || '';
+  const t = document.getElementById('liveRoomTitle'); if (t) t.textContent = title || '直播中';
+  showPage('liveRoom');
+};
+
+/* ==== LIVE 房：送出訊息 / 模擬粉絲訊息 ==== */
+function pushLiveMsg(role, text){
+  const box = document.getElementById('liveRoomChat'); if(!box) return;
+  const el  = document.createElement('div');
+  el.className = `msg ${role==='artist'?'artist':'fan'}`;
+  el.innerHTML = `${escapeHtml(text)}<span class="time">${fmtTime(Date.now())}</span>`;
+  box.appendChild(el);
+  box.scrollTop = box.scrollHeight;
+}
+
+document.getElementById('liveRoomSend')?.addEventListener('click', ()=>{
+  const inp = document.getElementById('liveRoomInput');
+  const t = (inp.value||'').trim(); if(!t) return;
+  pushLiveMsg('artist', t);
+  inp.value='';
+});
+
+document.getElementById('liveRoomInput')?.addEventListener('keydown', e=>{
+  if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); document.getElementById('liveRoomSend').click(); }
+});
+
+/* 用愛心鍵丟一則粉絲訊息（demo） */
+document.getElementById('liveRoomHeart')?.addEventListener('click', ()=>{
+  const demos = ['好聽！','求歌單～','可以說晚安嗎','愛你🫶','這首循環中！'];
+  pushLiveMsg('fan', demos[Math.floor(Math.random()*demos.length)]);
+});
 
 // --- 分頁切換 ---
 (function(){
