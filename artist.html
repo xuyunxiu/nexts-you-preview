@@ -1010,6 +1010,49 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
 }
 #live .liveInput input{ flex:1; height:44px; padding:0 12px; background:#fff; border:1px solid var(--line); border-radius:14px; }
 
+  
+/* —— 直播分頁（仿你圈的樣式） —— */
+.liveTabs{display:flex;gap:8px;padding:6px 8px 10px}
+.liveTabs .seg{
+  flex:1;height:40px;border-radius:12px;font-weight:900;letter-spacing:.3px;
+  color:#2f246f;border:1px solid rgba(255,255,255,.55);
+  background:linear-gradient(180deg,rgba(255,255,255,.42),rgba(255,255,255,.12));
+  backdrop-filter:saturate(180%) blur(14px);-webkit-backdrop-filter:saturate(180%) blur(14px);
+}
+.liveTabs .seg.active{
+  color:var(--accent-ink);
+  background:linear-gradient(180deg,rgba(198,186,255,.62),rgba(210,200,255,.22));
+  box-shadow:0 10px 26px rgba(106,90,205,.28);
+}
+.livePanel{padding:8px 8px 120px}
+
+/* —— 我的直播（照抄圖四、刪你圈的） —— */
+.preLiveBox{display:flex;flex-direction:column;align-items:center;gap:16px}
+.preLiveBox .coverPick{
+  width:96px;height:96px;border-radius:12px;border:1px dashed var(--line);
+  display:grid;place-items:center;font-weight:900;color:#6b6f86;background:#fff;
+}
+.preLiveBox .inputBox{width:100%;display:flex;gap:10px}
+.preLiveBox .inputBox input{
+  flex:1;height:44px;border-radius:12px;border:1px solid var(--line);
+  padding:0 12px;background:#fff;font-size:16px;
+}
+.btnStart{width:100%;height:48px;border-radius:14px}
+
+/* —— 直播列表 —— */
+.liveGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.liveCard{border-radius:14px;overflow:hidden}
+.liveCard .ph{aspect-ratio:16/9;background:#222;position:relative}
+.liveCard .ph img{width:100%;height:100%;object-fit:cover;display:block}
+.liveCard .ph .tag{
+  position:absolute;left:6px;top:6px;background:#ff3b30;color:#fff;
+  font-size:12px;border-radius:999px;padding:2px 6px;font-weight:900
+}
+.liveCard .meta{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 10px}
+
+/* —— 簡化 liveRoom（保留乾淨觀看/開播） —— */
+#liveRoom .liveStage{height:36vh;min-height:220px;margin:8px 6px 12px;border-radius:18px}
+
 /* ===== Profile v2（黑系風格） ===== */
 #store { padding: 0; }
 #store .profileV2{
