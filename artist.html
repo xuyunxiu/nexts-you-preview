@@ -3595,174 +3595,84 @@ function renderProfileV2(){
   const nm = document.getElementById('prName');
   if (nm) nm.textContent = (window.NICKNAME || window.STAGE_NAME || 'ME').toString();
 }
-  
-/* ===== 文字直播：邏輯 ===== */
-let LIVE_ON = false;
-let LIVE_PAUSED = false;
 
-function livePushArtist(text){
-  const box = document.getElementById('liveChat'); if(!box) return;
-  box.querySelector('.welcome')?.remove();
-  const el = document.createElement('div');
-  el.className = 'msg host';
-  el.innerHTML = `${escapeHtml(text)}<span class="time">${new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}</span>`;
-  box.appendChild(el);
-  box.scrollTop = box.scrollHeight;
+// —— 分頁切換 —— //
+function switchLiveTab(which){
+  const isMy = which === 'my';
+  document.getElementById('segMy')  .classList.toggle('active', isMy);
+  document.getElementById('segList').classList.toggle('active', !isMy);
+  document.getElementById('liveMy') .style.display = isMy ? 'block' : 'none';
+  document.getElementById('liveList').style.display = isMy ? 'none'  : 'block';
 }
 
-function livePushFan(name, text){
-  const box = document.getElementById('liveChat'); if(!box) return;
-  const el = document.createElement('div');
-  el.className = 'msg fan';
-  el.innerHTML = `<div class="name">${escapeHtml(name)}</div>${escapeHtml(text)}<span class="time">${new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}</span>`;
-  box.appendChild(el);
-  box.scrollTop = box.scrollHeight;
+// —— 直播列表（假資料；之後串接你的 API 即可） —— //
+function renderLiveList(){
+  const data = [
+    {thumb:'https://picsum.photos/600/340?u=l1', name:'WOOCHAN', title:'陪我聊聊', live:true},
+    {thumb:'https://picsum.photos/600/340?u=l2', name:'DOHEE',   title:'練舞直播', live:true},
+    {thumb:'https://picsum.photos/600/340?u=l3', name:'ANNIE',   title:'深夜閒聊', live:false}
+  ];
+  const box = document.getElementById('liveListGrid');
+  box.innerHTML = data.filter(x=>x.live).map(x=>`
+    <div class="card liveCard">
+      <div class="ph">
+        <img src="${x.thumb}" onerror="imgFallback(this)" alt="">
+        <span class="tag">LIVE</span>
+      </div>
+      <div class="meta">
+        <div style="min-width:0">
+          <b style="display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${x.name}</b>
+          <small class="ghost" style="display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${x.title}</small>
+        </div>
+        <button class="chip btnPrimary" onclick="enterLiveRoom('${x.name} — ${x.title}')">觀看</button>
+      </div>
+    </div>
+  `).join('');
 }
 
-// （可供「快速操作」或測試呼叫）window.liveFan(name,text)
-window.liveFan = livePushFan;
-
-// 開始／暫停／結束
-function liveStart(){
-  if(LIVE_ON) return;
-  LIVE_ON = true; LIVE_PAUSED = false;
-
-  document.getElementById('liveHUD').style.display = 'flex';
-  
-  // UI 切換
-  document.getElementById('liveStart').style.display = 'none';
-  document.getElementById('livePause').style.display = '';
-  document.getElementById('liveEnd').style.display = '';
-  document.getElementById('liveInputBox').disabled = false;
-  document.getElementById('liveSend').disabled = false;
-
-  syncNavVisibility();
-  livePushArtist('（直播開始）');
+// —— 進入 liveRoom（自己開播或點列表觀看） —— //
+function enterLiveRoom(title){
+  const t = (title != null) ? title : ((document.getElementById('liveTitle').value||'我的直播').trim());
+  document.getElementById('liveRoomTitle').textContent = t || '直播中';
+  showPage('liveRoom');
+  renderLiveRoom();
 }
 
-function liveTogglePause(){
-  if(!LIVE_ON) return;
-  LIVE_PAUSED = !LIVE_PAUSED;
-  const mask = document.getElementById('livePaused'); // 可能不存在
-  const btn  = document.getElementById('livePause');
-  if(LIVE_PAUSED){
-    if(mask) mask.style.display = 'grid';
-    btn.textContent = '恢復';
-    livePushArtist('（主持人暫時離開）');
-  }else{
-    if(mask) mask.style.display = 'none';
-    btn.textContent = '暫時離開';
-    livePushArtist('（主持人回來了）');
-  }
+// —— 最簡聊天室（乾淨、與新樣式一致） —— //
+let LIVE_CHAT = [];
+function renderLiveRoom(){
+  const list = document.getElementById('liveRoomChat');
+  if(!list) return;
+  list.innerHTML = LIVE_CHAT.map(m=>`
+    <div class="msg ${m.role==='host'?'host':'fan'}">
+      <div class="name">${m.name}</div>
+      <div class="bubble">${m.text}</div>
+      <div class="time">${new Date(m.ts).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}</div>
+    </div>
+  `).join('') || `<div class="msg welcome">聊天室已開啟</div>`;
+  list.scrollTop = list.scrollHeight + 9999;
 }
-
-function liveEnd(){
-  if(!LIVE_ON) return;
-  if(!confirm('要結束此次直播嗎？')) return;
-
-  LIVE_ON = false; LIVE_PAUSED = false;
-
-  document.getElementById('liveHUD').style.display = 'none';
-  document.getElementById('livePaused').style.display = 'none';
-  document.getElementById('liveStart').style.display = '';
-  document.getElementById('livePause').style.display = 'none';
-  document.getElementById('liveEnd').style.display = 'none';
-  document.getElementById('liveInputBox').disabled = true;
-  document.getElementById('liveSend').disabled = true;
-
-  syncNavVisibility();
-  livePushArtist('（直播已結束）');
-
-  const o = document.createElement('div');
-  o.className = 'liveEndedScene';
-  o.innerHTML = `<div class="text">直播已結束</div>`;
-  document.body.appendChild(o);
-  setTimeout(()=> o.remove(), 1200);
-}
-
-// 送出（藝人 → 右側）
-function liveSend(){
-  if(!LIVE_ON || LIVE_PAUSED) return;
-  const inp = document.getElementById('liveInputBox');
-  const t = (inp.value||'').trim(); if(!t) return;
-  livePushArtist(t);
-  inp.value = '';
-}
-
-/* 綁定按鈕（在 DOMContentLoaded 之後就有了） */
-document.addEventListener('DOMContentLoaded', ()=>{
-  // 讓底部 nav 的「直播」可以開這頁
-  const tab = document.getElementById('tabLive');
-  if(tab) tab.setAttribute('onclick',"showPage('live')");
-
-  document.getElementById('liveStart')?.addEventListener('click', liveStart);
-  document.getElementById('livePause')?.addEventListener('click', liveTogglePause);
-  document.getElementById('liveEnd')?.addEventListener('click', liveEnd);
-  document.getElementById('liveSend')?.addEventListener('click', liveSend);
-  document.getElementById('liveInputBox')?.addEventListener('keydown', e=>{
-    if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); liveSend(); }
-  });
-  // 進頁面時算一次
-  syncNavVisibility();
+document.getElementById('liveRoomSend').addEventListener('click', ()=>{
+  const inp = document.getElementById('liveRoomInput');
+  const v = (inp.value||'').trim(); if(!v) return;
+  LIVE_CHAT.push({role:'host',name:'ME',text:v,ts:Date.now()});
+  inp.value=''; renderLiveRoom();
+});
+document.getElementById('liveRoomHeart').addEventListener('click', ()=>{
+  LIVE_CHAT.push({role:'fan',name:'粉絲',text:'💗',ts:Date.now()});
+  renderLiveRoom();
 });
 
-// 愛心數＆動畫
-(function(){
-  let liveHearts = 0;
-  const heartBtn = document.getElementById('liveHeartBtn');
-  const heartCnt = document.getElementById('liveHeartCount');
-
-  function spawnHeart(el){
-    const r = el.getBoundingClientRect();
-    const n = 2 + Math.floor(Math.random()*2); // 2~3 顆
-    for(let i=0;i<n;i++){
-      const h = document.createElement('div');
-      h.className = 'flying-heart';
-      h.textContent = '💗';
-      document.body.appendChild(h);
-      const x = r.left + r.width/2 + (Math.random()*30-15);
-      const y = r.top  + (Math.random()*10-5);
-      h.style.left = x+'px'; h.style.top = y+'px';
-      h.animate(
-        [
-          { transform:'translate(0,0) scale(1)', opacity:1 },
-          { transform:`translate(${(Math.random()*40-20)}px,-120px) scale(1.6)`, opacity:0 }
-        ],
-        { duration: 900 + Math.random()*300, easing:'ease-out' }
-      ).onfinish = ()=> h.remove();
-    }
+// 進到「直播」分頁時，預設顯示【我的直播】並刷新列表
+const _origShowPage = showPage;
+showPage = function(id, opts){
+  _origShowPage(id, opts);
+  if(id === 'live'){
+    switchLiveTab('my');
+    renderLiveList();
   }
-
-  if(heartBtn){
-    heartBtn.addEventListener('click', ()=>{
-      liveHearts++;
-      if(heartCnt) heartCnt.textContent = liveHearts;
-      spawnHeart(heartBtn);
-    });
-  }
-
-  // UI 跟著開播/暫離/結束變化（不覆蓋你的業務邏輯）
-  const hud      = document.getElementById('liveHUD');
-  const inp      = document.getElementById('liveInputBox');
-  const sendBtn  = document.getElementById('liveSend');
-  const btnStart = document.getElementById('liveStart');
-  const btnPause = document.getElementById('livePause');
-  const btnEnd   = document.getElementById('liveEnd');
-
-  btnStart?.addEventListener('click', ()=>{
-    hud.style.display = 'flex';
-    inp.disabled = false; sendBtn.disabled = false;
-    btnStart.style.display = 'none';
-    btnPause.style.display = ''; btnEnd.style.display = '';
-  });
-
-  btnPause?.addEventListener('click', ()=>{
-    // 只做視覺提示；實際狀態由你原本 JS 處理
-    btnPause.textContent = (btnPause.textContent.includes('暫時離開')) ? '恢復' : '暫時離開';
-  });
-})();
+};
   
-
 /* ===================== 啟動 ===================== */
 document.addEventListener('DOMContentLoaded', () => {
   // ★ 統一把暱稱/標題灌上（會同時更新 meNickname / dmTitle / composerWho / DM 列表）
