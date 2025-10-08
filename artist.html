@@ -1427,33 +1427,50 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
   </div>
 </div>
 
-<!-- ====================== LIVE（純文字版） ====================== -->
+<!-- ====================== LIVE（全新） ====================== -->
 <section id="live" class="page">
   <div class="pageTitle">直播</div>
 
-  <div id="liveHUD" class="liveHUD" style="display:none">
-    <span class="liveTag">LIVE</span>
-    <span class="liveHearts">💗 <span id="liveHeartCount">0</span></span>
+  <!-- 分頁按鈕（像你圈的樣式） -->
+  <div class="liveTabs">
+    <button id="segMy"   class="seg active" onclick="switchLiveTab('my')">我的直播</button>
+    <button id="segList" class="seg"        onclick="switchLiveTab('list')">直播列表</button>
   </div>
 
-  <!-- 新：和粉絲端同一套 liveThread / msg 氣泡 -->
-  <div id="liveChat" class="liveThread">
-    <div class="msg welcome">尚未開始直播</div>
+  <!-- 分頁 1：我的直播（照抄圖四：只留封面 / 標題 / 開始） -->
+  <div id="liveMy" class="livePanel">
+    <div class="card soft preLiveBox">
+      <div id="liveCoverPick" class="coverPick">＋ 封面</div>
+      <div class="inputBox">
+        <input id="liveTitle" placeholder="輸入直播標題" />
+      </div>
+      <button class="chip btnPrimary btnStart" onclick="enterLiveRoom()">開始直播</button>
+    </div>
   </div>
 
-  <div id="livePaused" class="pausedMask" style="display:none">主持人暫時離開中</div>
+  <!-- 分頁 2：直播列表（看別的藝人是否開台） -->
+  <div id="liveList" class="livePanel" style="display:none">
+    <div id="liveListGrid" class="liveGrid"></div>
+  </div>
+</section>
+
+<!-- ====================== LIVE ROOM（開播/看播共用） ====================== -->
+<section id="liveRoom" class="page">
+  <div class="pageTitle" style="display:flex;align-items:center;gap:6px">
+    <button class="back" onclick="goBack()" aria-label="Back" style="width:44px;height:44px;border:none;background:transparent;display:grid;place-items:center">
+      <svg viewBox="0 0 24 24" width="22" height="22"><path d="M15 19 8 12l7-7" stroke="#5b6ab0" stroke-width="2.6" fill="none"/></svg>
+    </button>
+    <b id="liveRoomTitle">直播中</b>
+  </div>
+
+  <div class="liveStage card"></div>
+
+  <div id="liveRoomChat" class="liveThread" style="height:calc(100vh - 340px);overflow:auto"></div>
 
   <div class="liveInputBar">
-    <button id="liveHeartBtn" title="送愛心">💗</button>
-    <input id="liveInputBox" placeholder="請輸入訊息" disabled />
-    <button id="liveSend" class="chip btnPrimary" disabled>送出</button>
-  </div>
-
-  <div class="ctrlRow" style="margin-top:8px">
-    <button id="liveStart" class="chip btnPrimary">開始</button>
-    <div class="spacer"></div>
-    <button id="livePause" class="chip" style="display:none">暫時離開</button>
-    <button id="liveEnd" class="chip danger" style="display:none">結束直播</button>
+    <button id="liveRoomHeart" title="送愛心">💗</button>
+    <input id="liveRoomInput" placeholder="請輸入訊息" />
+    <button id="liveRoomSend" class="chip btnPrimary">送出</button>
   </div>
 </section>
 
