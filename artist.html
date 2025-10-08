@@ -974,6 +974,78 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
   background-repeat: no-repeat; background-size: 8px 14px;
   background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="14" viewBox="0 0 8 14"><path d="M1 1l6 6-6 6" stroke="white" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>');
 }
+
+  /* ===== Segmented tabs（液態玻璃） ===== */
+.segControl{
+  display:flex; gap:12px; padding:6px 8px 10px; margin:2px 6px 10px;
+  border-radius:18px;
+  background: linear-gradient(180deg, rgba(255,255,255,.24), rgba(255,255,255,.10));
+  border:1px solid var(--glass-stroke);
+  box-shadow: var(--shadow-1);
+  backdrop-filter: saturate(160%) blur(calc(var(--glass-blur)*.6));
+  -webkit-backdrop-filter: saturate(160%) blur(calc(var(--glass-blur)*.6));
+}
+.segBtn{
+  flex:1; height:42px; border-radius:12px; font-weight:900; letter-spacing:.3px;
+  color:#2f246f;
+  background:linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.06));
+  border:1px solid var(--glass-stroke);
+}
+.segBtn.active{
+  color:#fff; border-color:transparent;
+  background: linear-gradient(180deg, var(--accent), var(--accent2));
+  box-shadow: 0 10px 26px rgba(106,90,205,.28);
+}
+
+/* ===== 外框卡（液態玻璃容器） ===== */
+.liveGlassCard{
+  margin:10px 6px 18px; padding:14px; border-radius:18px;
+  background: linear-gradient(180deg, var(--glass-bg), var(--glass-bg-2));
+  border:1px solid var(--glass-stroke);
+  box-shadow: var(--shadow-2);
+  backdrop-filter: saturate(var(--glass-sat)) blur(var(--glass-blur));
+  -webkit-backdrop-filter: saturate(var(--glass-sat)) blur(var(--glass-blur));
+}
+
+/* 封面挑選（玻璃框 + 虛線占位） */
+.coverPicker{
+  width:112px; height:112px; border-radius:14px; overflow:hidden; display:grid; place-items:center;
+  background:linear-gradient(180deg, rgba(255,255,255,.22), rgba(255,255,255,.08));
+  border:1px dashed var(--line);
+  box-shadow: 0 1px 0 rgba(255,255,255,.50) inset, 0 8px 18px rgba(17,23,41,.14);
+}
+.coverPicker .ph{
+  color:#7a86b7; font-weight:900; letter-spacing:.3px;
+}
+
+/* 玻璃輸入框 */
+.inputGlass{
+  margin:14px 0; height:48px; border-radius:14px; display:flex; align-items:center; padding:0 12px;
+  background:#fff; border:1px solid var(--line);
+}
+.inputGlass input{
+  width:100%; border:none; outline:none; background:transparent; font-size:16px; color:#111;
+}
+
+/* 主按鈕鋪滿 */
+.btnPrimary.full{ width:100%; height:48px; border-radius:14px; font-weight:900 }
+
+/* 列表卡 */
+.liveList{ display:flex; flex-direction:column; gap:12px }
+.liveItemCard{
+  display:flex; gap:12px; align-items:center; padding:10px; border-radius:14px;
+  background:linear-gradient(180deg, rgba(255,255,255,.22), rgba(255,255,255,.08));
+  border:1px solid var(--glass-stroke);
+  backdrop-filter:saturate(160%) blur(calc(var(--glass-blur)*.6));
+  -webkit-backdrop-filter:saturate(160%) blur(calc(var(--glass-blur)*.6));
+}
+.liveThumb{
+  width:86px; height:56px; border-radius:10px; object-fit:cover; border:1px solid var(--line)
+}
+.liveMeta{ flex:1; min-width:0 }
+.liveMeta b{ display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.liveMeta small{ color:var(--ghost) }
+.liveGo{ white-space:nowrap; font-weight:900; color:var(--accent) }
   
 /* ===== FAB：高透圓形 ===== */
 .fabNew{
@@ -1293,26 +1365,30 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
 <section id="live" class="page">
   <div class="pageTitle">直播</div>
 
-  <!-- 分頁按鈕（像你圈的樣式） -->
-  <div class="liveTabs">
-    <button id="segMy"   class="seg active" onclick="switchLiveTab('my')">我的直播</button>
-    <button id="segList" class="seg"        onclick="switchLiveTab('list')">直播列表</button>
+  <!-- 分頁 Segmented Control -->
+  <div class="segControl">
+    <button id="tabMyLive" class="segBtn active">我的直播</button>
+    <button id="tabLiveList" class="segBtn">直播列表</button>
   </div>
 
-  <!-- 分頁 1：我的直播（照抄圖四：只留封面 / 標題 / 開始） -->
-  <div id="liveMy" class="livePanel">
-    <div class="card soft preLiveBox">
-      <div id="liveCoverPick" class="coverPick">＋ 封面</div>
-      <div class="inputBox">
-        <input id="liveTitle" placeholder="輸入直播標題" />
-      </div>
-      <button class="chip btnPrimary btnStart" onclick="enterLiveRoom()">開始直播</button>
+  <!-- 我的直播（照圖四、已把你不要的項目移除） -->
+  <div id="panelMyLive" class="liveGlassCard">
+    <label class="coverPicker" for="liveCover">
+      <img id="liveCoverPreview" alt="" style="display:none">
+      <span class="ph">＋ 封面</span>
+      <input id="liveCover" type="file" accept="image/*" hidden>
+    </label>
+
+    <div class="inputGlass">
+      <input id="liveTitle" placeholder="輸入直播標題">
     </div>
+
+    <button id="btnStartLive" class="btnPrimary full">開始直播</button>
   </div>
 
-  <!-- 分頁 2：直播列表（看別的藝人是否開台） -->
-  <div id="liveList" class="livePanel" style="display:none">
-    <div id="liveListGrid" class="liveGrid"></div>
+  <!-- 直播列表 -->
+  <div id="panelLiveList" class="liveGlassCard" style="display:none">
+    <div id="liveList" class="liveList"></div>
   </div>
 </section>
 
@@ -3534,6 +3610,65 @@ showPage = function(id, opts){
     renderLiveList();
   }
 };
+
+// --- 分頁切換 ---
+(function(){
+  const tabA = document.getElementById('tabMyLive');
+  const tabB = document.getElementById('tabLiveList');
+  const panelA = document.getElementById('panelMyLive');
+  const panelB = document.getElementById('panelLiveList');
+
+  function activate(which){
+    const a = (which === 'mine');
+    tabA.classList.toggle('active', a);
+    tabB.classList.toggle('active', !a);
+    panelA.style.display = a ? '' : 'none';
+    panelB.style.display = a ? 'none' : '';
+  }
+  tabA?.addEventListener('click', ()=>activate('mine'));
+  tabB?.addEventListener('click', ()=>activate('list'));
+})();
+
+// --- 封面挑選預覽 ---
+(function(){
+  const file = document.getElementById('liveCover');
+  const prev = document.getElementById('liveCoverPreview');
+  const ph   = document.querySelector('.coverPicker .ph');
+  file?.addEventListener('change', e=>{
+    const f = e.target.files?.[0]; if(!f) return;
+    const url = URL.createObjectURL(f);
+    prev.src = url; prev.style.display = 'block';
+    prev.style.width='100%'; prev.style.height='100%'; prev.style.objectFit='cover';
+    if (ph) ph.style.display = 'none';
+  });
+})();
+
+// --- 直播列表（示意／可接後端資料）---
+(function renderLiveList(){
+  const list = document.getElementById('liveList'); if(!list) return;
+  const data = [
+    {thumb:'https://picsum.photos/320/200?u=l1', title:'Hebi. — Voice Only', host:'HEBI', viewers:1287},
+    {thumb:'https://picsum.photos/320/200?u=l2', title:'TEMPEST — 드루와✌️', host:'TEMPEST', viewers:932},
+    {thumb:'https://picsum.photos/320/200?u=l3', title:'FUM — 深夜閒聊', host:'FUM', viewers:406}
+  ];
+  list.innerHTML = data.map(x=>`
+    <div class="liveItemCard" role="button" onclick="alert('進入 ${x.title}')">
+      <img class="liveThumb" src="${x.thumb}" alt="" onerror="imgFallback(this)">
+      <div class="liveMeta">
+        <b>${escapeHtml(x.title)}</b>
+        <small>${escapeHtml(x.host)}・${x.viewers.toLocaleString()} 人</small>
+      </div>
+      <span class="liveGo">觀看</span>
+    </div>
+  `).join('');
+})();
+
+// --- 「開始直播」按鈕（先給個回饋；之後你可串實際流程）---
+document.getElementById('btnStartLive')?.addEventListener('click', ()=>{
+  const title = (document.getElementById('liveTitle').value||'').trim() || '未命名直播';
+  alert(`已建立：「${title}」\n（後端串好後在這裡進房）`);
+});
+
   
 /* ===================== 啟動 ===================== */
 document.addEventListener('DOMContentLoaded', () => {
