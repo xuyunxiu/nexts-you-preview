@@ -2644,6 +2644,7 @@ function renameChat(){
   const t1 = document.getElementById('dmTitle');      if (t1) t1.textContent = NICKNAME.toUpperCase();
   const t2 = document.getElementById('meNickname');   if (t2) t2.textContent = NICKNAME;
   const t3 = document.getElementById('composerWho');  if (t3) t3.textContent = NICKNAME;
+  const t4 = document.getElementById('prName'); if (t4) t4.textContent = NICKNAME;
 
   renderDmList(); // 更新 DM 列表預覽
 }
