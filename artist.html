@@ -1053,28 +1053,23 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
   background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="14" viewBox="0 0 8 14"><path d="M1 1l6 6-6 6" stroke="white" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>');
 }
 
-  /* ===== Segmented tabs（液態玻璃） ===== */
-.segControl{
-  display:flex; gap:12px; padding:6px 8px 10px; margin:2px 6px 10px;
-  border-radius:18px;
-  background: linear-gradient(180deg, rgba(255,255,255,.24), rgba(255,255,255,.10));
-  border:1px solid var(--glass-stroke);
-  box-shadow: var(--shadow-1);
-  backdrop-filter: saturate(160%) blur(calc(var(--glass-blur)*.6));
-  -webkit-backdrop-filter: saturate(160%) blur(calc(var(--glass-blur)*.6));
+  /* ================= LIVE 分頁（照你畫的樣式） ================ */
+/* 先把舊的 .segControl / .segBtn 整段刪掉，再用這組 */
+.liveTabs{
+  display:flex; gap:8px; padding:6px 8px 10px;
 }
-.segBtn{
-  flex:1; height:42px; border-radius:12px; font-weight:900; letter-spacing:.3px;
-  color:#2f246f;
-  background:linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.06));
-  border:1px solid var(--glass-stroke);
+.liveTabs .seg{
+  flex:1; height:40px; border-radius:12px; font-weight:900; letter-spacing:.3px;
+  color:#2f246f; border:1px solid rgba(255,255,255,.55);
+  background:linear-gradient(180deg,rgba(255,255,255,.42),rgba(255,255,255,.12));
+  backdrop-filter:saturate(180%) blur(14px); -webkit-backdrop-filter:saturate(180%) blur(14px);
 }
-.segBtn.active{
-  color:#fff; border-color:transparent;
-  background: linear-gradient(180deg, var(--accent), var(--accent2));
-  box-shadow: 0 10px 26px rgba(106,90,205,.28);
+.liveTabs .seg.active{
+  color:var(--accent-ink);
+  background:linear-gradient(180deg,rgba(198,186,255,.62),rgba(210,200,255,.22));
+  box-shadow:0 10px 26px rgba(106,90,205,.28);
 }
-
+  
 /* ===== 外框卡（液態玻璃容器） ===== */
 .liveGlassCard{
   margin:10px 6px 18px; padding:14px; border-radius:18px;
