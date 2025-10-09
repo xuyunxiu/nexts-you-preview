@@ -873,20 +873,6 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
 /* 保底：關掉橫向滾動 */
 #dmDetail, .thread { overflow-x: hidden; touch-action: pan-y; }
 
-/* —— 直播分頁（仿你圈的樣式） —— */
-.liveTabs{display:flex;gap:8px;padding:6px 8px 10px}
-.liveTabs .seg{
-  flex:1;height:40px;border-radius:12px;font-weight:900;letter-spacing:.3px;
-  color:#2f246f;border:1px solid rgba(255,255,255,.55);
-  background:linear-gradient(180deg,rgba(255,255,255,.42),rgba(255,255,255,.12));
-  backdrop-filter:saturate(180%) blur(14px);-webkit-backdrop-filter:saturate(180%) blur(14px);
-}
-.liveTabs .seg.active{
-  color:var(--accent-ink);
-  background:linear-gradient(180deg,rgba(198,186,255,.62),rgba(210,200,255,.22));
-  box-shadow:0 10px 26px rgba(106,90,205,.28);
-}
-.livePanel{padding:8px 8px 120px}
 
 /* —— 我的直播（照抄圖四、刪你圈的） —— */
 .preLiveBox{display:flex;flex-direction:column;align-items:center;gap:16px}
@@ -990,15 +976,49 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
   100%{ background-position:0% 50% }
 }
 
-/* 舞台縮短一點（讓聊天室能吃到更多高度） */
+/* 舞台縮短一點（讓聊天室能吃到更多高度）——改成透明，讓封面背景可見 */
 #liveRoom .liveStage{
   height: 34vh; min-height: 200px; margin: 8px 6px 10px; border-radius: 18px;
-  background:linear-gradient(180deg, var(--glass-bg), var(--glass-bg-2));
-  border:1px solid var(--glass-stroke);
-  box-shadow: var(--shadow-2);
-  backdrop-filter: saturate(var(--glass-sat)) blur(var(--glass-blur));
-  -webkit-backdrop-filter: saturate(var(--glass-sat)) blur(var(--glass-blur));
+  background: transparent !important; border: 0 !important; box-shadow: none !important;
+  position: relative;
 }
+
+  /* ==== LIVE 房：封面→模糊背景層 ==== */
+#liveRoom{
+  position: relative;
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+#liveRoom::after{
+  content:"";
+  position: fixed; inset: 0; z-index: -1;
+  background: rgba(0,0,0,.38);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+/* 音樂 Dock & 嵌入區 */
+#liveRoom .musicDock{ position:absolute; top:10px; left:10px; display:flex; gap:8px }
+#musicEmbed{ display:none; margin:8px 6px; border-radius:12px; overflow:hidden; background:#000 }
+#musicEmbed.active{ display:block }
+
+/* 直播輸入列固定在底部（玻璃 rail） */
+.liveInputBar{
+  position: fixed; left:0; right:0;
+  bottom: max(env(safe-area-inset-bottom,0px), var(--kb-offset));
+  z-index: 50; display:flex; align-items:center; gap:8px;
+  padding: 6px 10px calc(8px + env(safe-area-inset-bottom));
+  background: linear-gradient(180deg, var(--rail-bg1), var(--rail-bg2));
+  border-top: 1px solid var(--rail-stroke);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+}
+.liveInputBar input{
+  flex:1; height:44px; border-radius:20px; padding:0 12px;
+  border:1px solid var(--line); background:#fff; color:#000; font-size:16px;
+}
+
   
 /* ===== Profile v2（黑系風格） ===== */
 #store { padding: 0; }
