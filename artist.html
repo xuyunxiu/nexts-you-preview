@@ -3658,204 +3658,12 @@ function renderProfileV2(){
   if (nm) nm.textContent = (window.NICKNAME || window.STAGE_NAME || 'ME').toString();
 }
 
-// —— 分頁切換 —— //
-function switchLiveTab(which){
-  const isMy = which === 'my';
-  document.getElementById('segMy')  .classList.toggle('active', isMy);
-  document.getElementById('segList').classList.toggle('active', !isMy);
-  document.getElementById('liveMy') .style.display = isMy ? 'block' : 'none';
-  document.getElementById('liveList').style.display = isMy ? 'none'  : 'block';
-}
+/* ===== LIVE（刪舊貼新：單一來源、無重複宣告） ===== */
 
-// —— 直播列表（假資料；之後串接你的 API 即可） —— //
-function renderLiveList(){
-  const data = [
-    {thumb:'https://picsum.photos/600/340?u=l1', name:'WOOCHAN', title:'陪我聊聊', live:true},
-    {thumb:'https://picsum.photos/600/340?u=l2', name:'DOHEE',   title:'練舞直播', live:true},
-    {thumb:'https://picsum.photos/600/340?u=l3', name:'ANNIE',   title:'深夜閒聊', live:false}
-  ];
-  const box = document.getElementById('liveListGrid');
-  box.innerHTML = data.filter(x=>x.live).map(x=>`
-    <div class="card liveCard">
-      <div class="ph">
-        <img src="${x.thumb}" onerror="imgFallback(this)" alt="">
-        <span class="tag">LIVE</span>
-      </div>
-      <div class="meta">
-        <div style="min-width:0">
-          <b style="display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${x.name}</b>
-          <small class="ghost" style="display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${x.title}</small>
-        </div>
-        <button class="chip btnPrimary" onclick="enterLiveRoom('${x.name} — ${x.title}')">觀看</button>
-      </div>
-    </div>
-  `).join('');
-}
+/* 0) 全域封面變數（只宣告一次） */
+if (typeof window.LIVE_COVER_URL === 'undefined') window.LIVE_COVER_URL = '';
 
-// —— 進入 liveRoom（自己開播或點列表觀看） —— //
-function enterLiveRoom(title){
-  const t = (title != null) ? title : ((document.getElementById('liveTitle').value||'我的直播').trim());
-  document.getElementById('liveRoomTitle').textContent = t || '直播中';
-  showPage('liveRoom');
-  renderLiveRoom();
-}
-
-// —— 最簡聊天室（乾淨、與新樣式一致） —— //
-let LIVE_CHAT = [];
-function renderLiveRoom(){
-  const list = document.getElementById('liveRoomChat');
-  if(!list) return;
-  list.innerHTML = LIVE_CHAT.map(m=>`
-    <div class="msg ${m.role==='host'?'host':'fan'}">
-      <div class="name">${m.name}</div>
-      <div class="bubble">${m.text}</div>
-      <div class="time">${new Date(m.ts).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}</div>
-    </div>
-  `).join('') || `<div class="msg welcome">聊天室已開啟</div>`;
-  list.scrollTop = list.scrollHeight + 9999;
-}
-document.getElementById('liveRoomSend').addEventListener('click', ()=>{
-  const inp = document.getElementById('liveRoomInput');
-  const v = (inp.value||'').trim(); if(!v) return;
-  LIVE_CHAT.push({role:'host',name:'ME',text:v,ts:Date.now()});
-  inp.value=''; renderLiveRoom();
-});
-document.getElementById('liveRoomHeart').addEventListener('click', ()=>{
-  LIVE_CHAT.push({role:'fan',name:'粉絲',text:'💗',ts:Date.now()});
-  renderLiveRoom();
-});
-
-// 進到「直播」分頁時，預設顯示【我的直播】並刷新列表
-const _origShowPage = showPage;
-showPage = function(id, opts){
-  _origShowPage(id, opts);
-  if(id === 'live'){
-    switchLiveTab('my');
-    renderLiveList();
-  }
-};
-
-  /* ==== LIVE 列表（刪舊貼新） ==== */
-function renderLiveList(){
-  const host = document.getElementById('liveList'); if(!host) return;
-  const lives = [
-    {id:'L1', cover:'https://picsum.photos/800?u=lv1', title:'開箱唱聊', host:'ANNIE', live:true, viewers:'2.3K'},
-    {id:'L2', cover:'https://picsum.photos/800?u=lv2', title:'練團室直擊', host:'DOHEE', live:false, viewers:'—'},
-    {id:'L3', cover:'https://picsum.photos/800?u=lv3', title:'Q&A Night', host:'WOOCHAN', live:true, viewers:'987'},
-    {id:'L4', cover:'https://picsum.photos/800?u=lv4', title:'聲音直播', host:'Hebi.', live:false, viewers:'—'},
-  ];
-  host.innerHTML = lives.map(x=>`
-    <div class="liveCard" onclick="enterLiveFromList('${x.id}', '${escapeHtml(x.title)}', '${x.cover}')">
-      <div class="ph">
-        <img src="${x.cover}" onerror="imgFallback(this)" alt="">
-        ${x.live ? `<span class="tag">LIVE</span>` : ``}
-      </div>
-      <div class="meta">
-        <div class="title">${escapeHtml(x.title)}</div>
-        <div class="info">
-          <span>👤 ${escapeHtml(x.host)}</span>
-          <span>·</span>
-          <span>${x.live?`👀 ${x.viewers}`:'預告'}</span>
-          <span class="go">進入</span>
-        </div>
-      </div>
-    </div>
-  `).join('');
-}
-
-let LIVE_COVER_URL = '';
-window.enterLiveFromList = function(id, title, cover){
-  LIVE_COVER_URL = cover || '';
-  const t = document.getElementById('liveRoomTitle'); if (t) t.textContent = title || '直播中';
-  showPage('liveRoom');
-};
-
-/* ==== LIVE 房：送出訊息 / 模擬粉絲訊息 ==== */
-function pushLiveMsg(role, text){
-  const box = document.getElementById('liveRoomChat'); if(!box) return;
-  const el  = document.createElement('div');
-  el.className = `msg ${role==='artist'?'artist':'fan'}`;
-  el.innerHTML = `${escapeHtml(text)}<span class="time">${fmtTime(Date.now())}</span>`;
-  box.appendChild(el);
-  box.scrollTop = box.scrollHeight;
-}
-
-document.getElementById('liveRoomSend')?.addEventListener('click', ()=>{
-  const inp = document.getElementById('liveRoomInput');
-  const t = (inp.value||'').trim(); if(!t) return;
-  pushLiveMsg('artist', t);
-  inp.value='';
-});
-
-document.getElementById('liveRoomInput')?.addEventListener('keydown', e=>{
-  if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); document.getElementById('liveRoomSend').click(); }
-});
-
-/* 用愛心鍵丟一則粉絲訊息（demo） */
-document.getElementById('liveRoomHeart')?.addEventListener('click', ()=>{
-  const demos = ['好聽！','求歌單～','可以說晚安嗎','愛你🫶','這首循環中！'];
-  pushLiveMsg('fan', demos[Math.floor(Math.random()*demos.length)]);
-});
-
-// --- 分頁切換 ---
-(function(){
-  const tabA = document.getElementById('tabMyLive');
-  const tabB = document.getElementById('tabLiveList');
-  const panelA = document.getElementById('panelMyLive');
-  const panelB = document.getElementById('panelLiveList');
-
-  function activate(which){
-    const a = (which === 'mine');
-    tabA.classList.toggle('active', a);
-    tabB.classList.toggle('active', !a);
-    panelA.style.display = a ? '' : 'none';
-    panelB.style.display = a ? 'none' : '';
-  }
-  tabA?.addEventListener('click', ()=>activate('mine'));
-  tabB?.addEventListener('click', ()=>activate('list'));
-})();
-
-// --- 封面挑選預覽 ---
-(function(){
-  const file = document.getElementById('liveCover');
-  const prev = document.getElementById('liveCoverPreview');
-  const ph   = document.querySelector('.coverPicker .ph');
-  file?.addEventListener('change', e=>{
-    const f = e.target.files?.[0]; if(!f) return;
-    const url = URL.createObjectURL(f);
-    prev.src = url; prev.style.display = 'block';
-    prev.style.width='100%'; prev.style.height='100%'; prev.style.objectFit='cover';
-    if (ph) ph.style.display = 'none';
-  });
-})();
-
-// --- 直播列表（示意／可接後端資料）---
-(function renderLiveList(){
-  const list = document.getElementById('liveList'); if(!list) return;
-  const data = [
-    {thumb:'https://picsum.photos/320/200?u=l1', title:'Hebi. — Voice Only', host:'HEBI', viewers:1287},
-    {thumb:'https://picsum.photos/320/200?u=l2', title:'TEMPEST — 드루와✌️', host:'TEMPEST', viewers:932},
-    {thumb:'https://picsum.photos/320/200?u=l3', title:'FUM — 深夜閒聊', host:'FUM', viewers:406}
-  ];
-  list.innerHTML = data.map(x=>`
-    <div class="liveItemCard" role="button" onclick="alert('進入 ${x.title}')">
-      <img class="liveThumb" src="${x.thumb}" alt="" onerror="imgFallback(this)">
-      <div class="liveMeta">
-        <b>${escapeHtml(x.title)}</b>
-        <small>${escapeHtml(x.host)}・${x.viewers.toLocaleString()} 人</small>
-      </div>
-      <span class="liveGo">觀看</span>
-    </div>
-  `).join('');
-})();
-
-// --- 「開始直播」按鈕（先給個回饋；之後你可串實際流程）---
-document.getElementById('btnStartLive')?.addEventListener('click', ()=>{
-  const title = (document.getElementById('liveTitle').value||'').trim() || '未命名直播';
-  alert(`已建立：「${title}」\n（後端串好後在這裡進房）`);
-});
-
-/* LIVE 分頁：預設 ME / 切換 */
+/* 1) 分頁切換（ME / LIVE 列表） */
 function setLiveTab(which){
   const tMe = document.getElementById('liveTabMe');
   const tLv = document.getElementById('liveTabLive');
@@ -3870,42 +3678,109 @@ function setLiveTab(which){
 document.getElementById('liveTabMe')?.addEventListener('click', ()=>setLiveTab('me'));
 document.getElementById('liveTabLive')?.addEventListener('click', ()=>setLiveTab('live'));
 
-/* ===== 開播：封面預覽 → 變成聊天室背景（模糊），並進 liveRoom ===== */
-let LIVE_COVER_URL = '';
-
-const liveCover = document.getElementById('liveCover');
-const liveCoverPreview = document.getElementById('liveCoverPreview');
-
-liveCover?.addEventListener('change', (e)=>{
-  const f = e.target.files?.[0]; if(!f) return;
-  const r = new FileReader();
-  r.onload = ev=>{
-    LIVE_COVER_URL = String(ev.target.result || '');
-    if (liveCoverPreview){
-      liveCoverPreview.src = LIVE_COVER_URL;
-      liveCoverPreview.style.display = 'block';
-    }
-    const ph = document.querySelector('#panelMyLive .coverPicker .ph');
-    if (ph) ph.style.display='none';
+/* 1.1) 只補一次 showPage 勾點，避免重覆覆寫 */
+if (!window.__liveHooked){
+  const _origShowPage = window.showPage;
+  window.showPage = function(id, opts){
+    _origShowPage(id, opts);
+    if (id === 'live'){ setLiveTab('me'); renderLiveList(); }
   };
-  r.readAsDataURL(f);
-});
+  window.__liveHooked = true;
+}
 
-document.getElementById('btnStartLive')?.addEventListener('click', ()=>{
-  const title = (document.getElementById('liveTitle')?.value || '').trim() || '直播中';
-  document.getElementById('liveRoomTitle').textContent = title;
+/* 2) 直播列表（單一函式） */
+function renderLiveList(){
+  const host = document.getElementById('liveList'); if(!host) return;
+  const lives = [
+    {id:'L1', cover:'https://picsum.photos/800?u=lv1', title:'開箱唱聊',  host:'ANNIE',   live:true,  viewers:'2.3K'},
+    {id:'L2', cover:'https://picsum.photos/800?u=lv2', title:'練團室直擊', host:'DOHEE',   live:false, viewers:'—'},
+    {id:'L3', cover:'https://picsum.photos/800?u=lv3', title:'Q&A Night', host:'WOOCHAN', live:true,  viewers:'987'},
+  ];
+  host.innerHTML = lives.map(x=>`
+    <div class="liveCard" onclick="enterLiveFromList('${x.id}', '${escapeHtml(x.title)}', '${x.cover}')">
+      <div class="ph">
+        <img src="${x.cover}" onerror="imgFallback(this)" alt="">
+        ${x.live ? `<span class="tag">LIVE</span>` : ``}
+      </div>
+      <div class="meta">
+        <div class="title">${escapeHtml(x.title)}</div>
+        <div class="info">
+          <span>👤 ${escapeHtml(x.host)}</span><span>·</span>
+          <span>${x.live?`👀 ${x.viewers}`:'預告'}</span>
+          <span class="go">進入</span>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
 
-  // 封面 → liveRoom 背景
+/* 3) 進入直播房（列表 or 自己開播） */
+function enterLiveRoom(title){
+  const t = (title || (document.getElementById('liveTitle')?.value || '').trim() || '直播中');
+  const titleEl = document.getElementById('liveRoomTitle'); if (titleEl) titleEl.textContent = t;
+
   const room = document.getElementById('liveRoom');
   if (room){
-    room.style.backgroundImage = LIVE_COVER_URL ? `url("${LIVE_COVER_URL}")` : '';
+    room.style.backgroundImage = window.LIVE_COVER_URL ? `url("${window.LIVE_COVER_URL}")` : '';
   }
-
-  // 進入直播房（底部 nav 已在 HIDE_NAV_IN 隱藏）
   showPage('liveRoom');
+}
+window.enterLiveFromList = function(id, title, cover){
+  window.LIVE_COVER_URL = cover || '';
+  enterLiveRoom(title);
+};
+
+/* 4) 封面挑選（預覽＋存到全域，供進房當背景） */
+(function(){
+  const file = document.getElementById('liveCover');
+  const prev = document.getElementById('liveCoverPreview');
+  const ph   = document.querySelector('#panelMyLive .coverPicker .ph');
+  file?.addEventListener('change', e=>{
+    const f = e.target.files?.[0]; if(!f) return;
+    const r = new FileReader();
+    r.onload = ev=>{
+      window.LIVE_COVER_URL = String(ev.target.result || '');
+      if (prev){
+        prev.src = window.LIVE_COVER_URL;
+        prev.style.display = 'block';
+        prev.style.width='100%'; prev.style.height='100%'; prev.style.objectFit='cover';
+      }
+      if (ph) ph.style.display = 'none';
+    };
+    r.readAsDataURL(f);
+  });
+})();
+
+/* 5) 「開始直播」→ 進房、套背景 */
+document.getElementById('btnStartLive')?.addEventListener('click', ()=>{
+  const title = (document.getElementById('liveTitle')?.value || '').trim() || '直播中';
+  enterLiveRoom(title);
 });
 
-/* ===== 音樂連結：支援 YouTube / Spotify / Apple Music / KKBOX ===== */
+/* 6) 房內聊天室（送出／愛心 demo） */
+function pushLiveMsg(role, text){
+  const box = document.getElementById('liveRoomChat'); if(!box) return;
+  const el  = document.createElement('div');
+  el.className = `msg ${role==='artist'?'artist':'fan'}`;
+  el.innerHTML = `${escapeHtml(text)}<span class="time">${fmtTime(Date.now())}</span>`;
+  box.appendChild(el);
+  box.scrollTop = box.scrollHeight;
+}
+document.getElementById('liveRoomSend')?.addEventListener('click', ()=>{
+  const inp = document.getElementById('liveRoomInput');
+  const t = (inp.value||'').trim(); if(!t) return;
+  pushLiveMsg('artist', t);
+  inp.value='';
+});
+document.getElementById('liveRoomInput')?.addEventListener('keydown', e=>{
+  if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); document.getElementById('liveRoomSend').click(); }
+});
+document.getElementById('liveRoomHeart')?.addEventListener('click', ()=>{
+  const demos = ['好聽！','求歌單～','可以說晚安嗎','愛你🫶','這首循環中！'];
+  pushLiveMsg('fan', demos[Math.floor(Math.random()*demos.length)]);
+});
+
+/* 7) 音樂連結內嵌（YouTube / Spotify / Apple Music / KKBOX） */
 function buildMusicEmbed(url){
   const u = (url||'').trim();
 
@@ -3947,13 +3822,10 @@ function buildMusicEmbed(url){
     return `<iframe style="width:100%;height:152px;border:0" scrolling="no"
       src="https://widget.kkbox.com/v1/?id=${id}&type=${type}&terr=TW&lang=tc"></iframe>`;
   }
-
   return '';
 }
-
 const musicEmbed = document.getElementById('musicEmbed');
 const musicUrlInput = document.getElementById('musicUrlInput');
-
 document.getElementById('musicOpen')?.addEventListener('click', ()=> openModal('musicModal'));
 document.getElementById('musicClose')?.addEventListener('click', ()=> closeModal('musicModal'));
 document.getElementById('musicApply')?.addEventListener('click', ()=>{
