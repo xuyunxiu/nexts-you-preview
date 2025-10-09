@@ -990,9 +990,16 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
   100%{ background-position:0% 50% }
 }
 
-/* —— 簡化 liveRoom（保留乾淨觀看/開播） —— */
-#liveRoom .liveStage{height:36vh;min-height:220px;margin:8px 6px 12px;border-radius:18px}
-
+/* 舞台縮短一點（讓聊天室能吃到更多高度） */
+#liveRoom .liveStage{
+  height: 34vh; min-height: 200px; margin: 8px 6px 10px; border-radius: 18px;
+  background:linear-gradient(180deg, var(--glass-bg), var(--glass-bg-2));
+  border:1px solid var(--glass-stroke);
+  box-shadow: var(--shadow-2);
+  backdrop-filter: saturate(var(--glass-sat)) blur(var(--glass-blur));
+  -webkit-backdrop-filter: saturate(var(--glass-sat)) blur(var(--glass-blur));
+}
+  
 /* ===== Profile v2（黑系風格） ===== */
 #store { padding: 0; }
 #store .profileV2{
