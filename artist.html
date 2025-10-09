@@ -3835,6 +3835,119 @@ document.getElementById('btnStartLive')?.addEventListener('click', ()=>{
   alert(`已建立：「${title}」\n（後端串好後在這裡進房）`);
 });
 
+/* LIVE 分頁（ME/LIVE）— 新增 */
+function setLiveTab(which){
+  const tMe = document.getElementById('liveTabMe');
+  const tLv = document.getElementById('liveTabLive');
+  const pMe = document.getElementById('panelMyLive');
+  const pLv = document.getElementById('panelLiveList');
+  const isMe = (which === 'me');
+  tMe?.classList.toggle('active', isMe);
+  tLv?.classList.toggle('active', !isMe);
+  if (pMe) pMe.style.display = isMe ? 'block' : 'none';
+  if (pLv) pLv.style.display = isMe ? 'none' : 'block';
+}
+document.getElementById('liveTabMe')?.addEventListener('click', ()=>setLiveTab('me'));
+document.getElementById('liveTabLive')?.addEventListener('click', ()=>setLiveTab('live'));
+
+/* ===== 開播：封面預覽 → 變成聊天室背景（模糊），並進 liveRoom ===== */
+let LIVE_COVER_URL = '';
+
+const liveCover = document.getElementById('liveCover');
+const liveCoverPreview = document.getElementById('liveCoverPreview');
+liveCover?.addEventListener('change', (e)=>{
+  const f = e.target.files?.[0]; if(!f) return;
+  const r = new FileReader();
+  r.onload = ev=>{
+    LIVE_COVER_URL = String(ev.target.result || '');
+    if (liveCoverPreview){
+      liveCoverPreview.src = LIVE_COVER_URL;
+      liveCoverPreview.style.display = 'block';
+    }
+    // 把佔位「＋ 封面」藏起來
+    document.querySelector('#panelMyLive .coverPicker .ph')?.style && (document.querySelector('#panelMyLive .coverPicker .ph').style.display='none');
+  };
+  r.readAsDataURL(f);
+});
+
+document.getElementById('btnStartLive')?.addEventListener('click', ()=>{
+  const title = (document.getElementById('liveTitle')?.value || '').trim() || '直播中';
+  document.getElementById('liveRoomTitle').textContent = title;
+
+  // 封面 → liveRoom 背景（CSS 會自動模糊＋壓暗）
+  const room = document.getElementById('liveRoom');
+  if (room){
+    room.style.backgroundImage = LIVE_COVER_URL ? `url("${LIVE_COVER_URL}")` : '';
+  }
+
+  // 進入直播房；你的 HIDE_NAV_IN 已含 'liveRoom' → 底部 nav 會自動隱藏
+  showPage('liveRoom');
+});
+
+/* ===== 音樂連結：支援 YouTube / Spotify / Apple Music / KKBOX ===== */
+function buildMusicEmbed(url){
+  const u = (url||'').trim();
+
+  // YouTube / YouTube Music
+  try{
+    const y1 = u.match(/youtu\.be\/([A-Za-z0-9_-]{6,})/);
+    const y2 = u.match(/youtube\.com\/.*[?&]v=([A-Za-z0-9_-]{6,})/);
+    const y3 = u.match(/music\.youtube\.com\/.*[?&]v=([A-Za-z0-9_-]{6,})/);
+    const id = (y1 && y1[1]) || (y2 && y2[1]) || (y3 && y3[1]) || '';
+    if (id) return `<iframe width="100%" height="200" frameborder="0"
+      allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen
+      src="https://www.youtube.com/embed/${id}?autoplay=1&modestbranding=1&playsinline=1"></iframe>`;
+  }catch(_){}
+
+  // Spotify（track/playlist/album/artist）
+  try{
+    const m = u.match(/open\.spotify\.com\/(track|playlist|album|artist)\/([A-Za-z0-9]+)/);
+    if (m){
+      const type=m[1], id=m[2];
+      return `<iframe style="width:100%;height:152px;border:0"
+        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"
+        src="https://open.spotify.com/embed/${type}/${id}?utm_source=generator"></iframe>`;
+    }
+  }catch(_){}
+
+  // Apple Music（把 music → embed.music）
+  if (u.includes('music.apple.com/')){
+    const em = u.replace('https://music.apple.com', 'https://embed.music.apple.com');
+    return `<iframe allow="autoplay *; encrypted-media *; fullscreen *" frameborder="0" height="175"
+      style="width:100%;overflow:hidden;background:transparent"
+      sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-top-navigation-by-user-activation"
+      src="${em}"></iframe>`;
+  }
+
+  // KKBOX（playlist/song/album）
+  const kk = u.match(/kkbox\.com\/.*\/(playlist|song|album)\/([A-Za-z0-9_-]+)/i);
+  if (kk){
+    const type=kk[1], id=kk[2];
+    return `<iframe style="width:100%;height:152px;border:0" scrolling="no"
+      src="https://widget.kkbox.com/v1/?id=${id}&type=${type}&terr=TW&lang=tc"></iframe>`;
+  }
+
+  return '';
+}
+
+const musicEmbed = document.getElementById('musicEmbed');
+const musicUrlInput = document.getElementById('musicUrlInput');
+
+document.getElementById('musicOpen')?.addEventListener('click', ()=> openModal('musicModal'));
+document.getElementById('musicClose')?.addEventListener('click', ()=> closeModal('musicModal'));
+document.getElementById('musicApply')?.addEventListener('click', ()=>{
+  const url = musicUrlInput?.value || '';
+  const html = buildMusicEmbed(url);
+  if (!html) { alert('這個連結格式不支援，請貼平台的分享連結'); return; }
+  musicEmbed.innerHTML = html;
+  musicEmbed.classList.add('active');
+  closeModal('musicModal');
+});
+document.getElementById('musicStop')?.addEventListener('click', ()=>{
+  musicEmbed.classList.remove('active');
+  musicEmbed.innerHTML = '';
+});
+
   
 /* ===================== 啟動 ===================== */
 document.addEventListener('DOMContentLoaded', () => {
