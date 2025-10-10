@@ -998,10 +998,37 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
   -webkit-backdrop-filter: blur(14px);
 }
 
-/* 音樂 Dock & 嵌入區 */
-#liveRoom .musicDock{ position:absolute; top:10px; left:10px; display:flex; gap:8px }
-#musicEmbed{ display:none; margin:8px 6px; border-radius:12px; overflow:hidden; background:#000 }
-#musicEmbed.active{ display:block }
+/* === Live 音樂小膠囊（只在 owner=true 顯示） === */
+.musicPill{
+  display:none;
+  margin:4px 6px 0;
+  padding:6px 10px;
+  border-radius:999px;
+  border:1px solid var(--glass-stroke);
+  background:linear-gradient(180deg,rgba(255,255,255,.42),rgba(255,255,255,.16));
+  backdrop-filter:saturate(160%) blur(10px);
+  -webkit-backdrop-filter:saturate(160%) blur(10px);
+  font-size:12px; font-weight:900; letter-spacing:.2px; color:#2f246f;
+  gap:8px; display:inline-flex; align-items:center; cursor:pointer;
+}
+.musicPill .dot{ width:6px; height:6px; border-radius:50%; background:#cfd3e1 }
+.musicPill.playing{ box-shadow:0 10px 22px rgba(106,90,205,.22) }
+.musicPill.playing .dot{ background:#34c759 }
+.musicPill .state{ font-weight:900 }
+.musicPill .src{ max-width:36vw; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:#6b7287; font-weight:800 }
+
+/* 修復：音樂連結 Modal 主按鈕文字消失（強制白字+關混色） */
+#musicModal .btnPrimary{
+  color:#fff !important;
+  -webkit-text-fill-color:#fff !important;
+  display:inline-flex; align-items:center; justify-content:center;
+  mix-blend-mode:normal !important;
+  text-shadow:none !important;
+  filter:none !important;
+}
+
+/* 若一時無法改 HTML，可暫時保險隱藏舊的音樂區塊（之後可刪節點） */
+#liveRoom .musicDock, #musicEmbed{ display:none !important }
 
 /* 直播輸入列固定在底部（玻璃 rail） */
 .liveInputBar{
@@ -1494,16 +1521,25 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
 
   <!-- 直播舞台：會用封面做模糊背景 -->
   <div class="liveStage card">
-    <div class="musicDock">
-      <button id="musicOpen" class="chip">🎵 音樂</button>
-      <button id="musicStop" class="chip">停止</button>
-    </div>
+     <!-- liveRoom 標題 + 音樂膠囊（僅 owner 顯示） -->
+<div class="pageTitle" style="display:flex;align-items:center;gap:6px">
+  <button class="back" onclick="goBack()" aria-label="Back" style="width:44px;height:44px;border:none;background:transparent;display:grid;place-items:center">
+    <svg viewBox="0 0 24 24" width="22" height="22"><path d="M15 19 8 12l7-7" stroke="#5b6ab0" stroke-width="2.6" fill="none"/></svg>
+  </button>
+  <div style="display:flex;flex-direction:column">
+    <b id="liveRoomTitle">直播中</b>
+    <!-- 只有自己開播時（owner=true）會被 JS 顯示 -->
+    <button id="musicPill" class="musicPill stopped" type="button" title="設定直播背景音樂" style="display:none">
+      <span class="dot" aria-hidden="true"></span>
+      <span class="state">未播放</span>
+      <span class="src" id="musicSrcTip">（未設定）</span>
+    </button>
   </div>
+</div>
 
-  <!-- 平鋪的 embed 區（貼了連結才會出現內容） -->
-  <div id="musicEmbed" class="musicEmbed"></div>
-
-  <div id="liveRoomChat" class="liveThread"></div>
+<!-- 舞台仍保留（做背景模糊即可，沒有任何音樂畫面） -->
+<div class="liveStage card"></div>
+<!-- 注意：不再需要 #musicEmbed，也不需要 .musicDock -->
 
   <!-- 直播輸入列 -->
   <div class="liveInputBar">
