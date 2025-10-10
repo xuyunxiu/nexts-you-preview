@@ -1519,27 +1519,15 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
     <b id="liveRoomTitle">直播中</b>
   </div>
 
-  <!-- 直播舞台：會用封面做模糊背景 -->
-  <div class="liveStage card">
-     <!-- liveRoom 標題 + 音樂膠囊（僅 owner 顯示） -->
-<div class="pageTitle" style="display:flex;align-items:center;gap:6px">
-  <button class="back" onclick="goBack()" aria-label="Back" style="width:44px;height:44px;border:none;background:transparent;display:grid;place-items:center">
-    <svg viewBox="0 0 24 24" width="22" height="22"><path d="M15 19 8 12l7-7" stroke="#5b6ab0" stroke-width="2.6" fill="none"/></svg>
-  </button>
-  <div style="display:flex;flex-direction:column">
-    <b id="liveRoomTitle">直播中</b>
-    <!-- 只有自己開播時（owner=true）會被 JS 顯示 -->
-    <button id="musicPill" class="musicPill stopped" type="button" title="設定直播背景音樂" style="display:none">
-      <span class="dot" aria-hidden="true"></span>
-      <span class="state">未播放</span>
-      <span class="src" id="musicSrcTip">（未設定）</span>
-    </button>
-  </div>
-</div>
+<!-- 直播音樂（僅 owner 顯示） -->
+<button id="musicPill" class="musicPill stopped" type="button" title="設定直播背景音樂" style="display:none">
+  <span class="dot" aria-hidden="true"></span>
+  <span class="state">未播放</span>
+  <span class="src" id="musicSrcTip">（未設定）</span>
+</button>
 
-<!-- 舞台仍保留（做背景模糊即可，沒有任何音樂畫面） -->
-<div class="liveStage card"></div>
-<!-- 注意：不再需要 #musicEmbed，也不需要 .musicDock -->
+<!-- 隱藏播放元件（只有聲音，沒有畫面） -->
+<audio id="liveBgm" preload="none" loop></audio>
 
   <!-- 直播輸入列 -->
   <div class="liveInputBar">
