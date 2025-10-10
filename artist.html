@@ -3704,28 +3704,27 @@ if (!window.__liveHooked){
 
 /* 2) 直播列表（單一函式） */
 function renderLiveList(){
-  const host = document.getElementById('liveList'); if(!host) return;
-  const lives = [
-    {id:'L1', cover:'https://picsum.photos/800?u=lv1', title:'開箱唱聊',  host:'ANNIE',   live:true,  viewers:'2.3K'},
-    {id:'L2', cover:'https://picsum.photos/800?u=lv2', title:'練團室直擊', host:'DOHEE',   live:false, viewers:'—'},
-    {id:'L3', cover:'https://picsum.photos/800?u=lv3', title:'Q&A Night', host:'WOOCHAN', live:true,  viewers:'987'},
+  const wrap = document.getElementById('panelLiveList') || document.getElementById('liveList')?.closest('.liveGlassCard');
+  const list = document.getElementById('liveList');
+  if(!list) return;
+  const data = [
+    {id:'L1', thumb:'https://picsum.photos/600/600?u=L1', title:'Voice only', info:'LIVE · 2.1k'},
+    {id:'L2', thumb:'https://picsum.photos/600/600?u=L2', title:'Dance practice', info:'LIVE · 8.4k'}
   ];
-  host.innerHTML = lives.map(x=>`
-    <div class="liveCard" onclick="enterLiveFromList('${x.id}', '${escapeHtml(x.title)}', '${x.cover}')">
-      <div class="ph">
-        <img src="${x.cover}" onerror="imgFallback(this)" alt="">
-        ${x.live ? `<span class="tag">LIVE</span>` : ``}
+  list.innerHTML = data.map(x=>`
+    <div class="liveCard" onclick="joinLive('${x.id}', '${x.title.replace(/'/g, "\\'")}')">
+      <div class="ph"><img src="${x.thumb}" onerror="imgFallback(this)" alt="">
+        <span class="tag">LIVE</span>
       </div>
       <div class="meta">
         <div class="title">${escapeHtml(x.title)}</div>
         <div class="info">
-          <span>👤 ${escapeHtml(x.host)}</span><span>·</span>
-          <span>${x.live?`👀 ${x.viewers}`:'預告'}</span>
+          <span>${escapeHtml(x.info)}</span>
           <span class="go">進入</span>
         </div>
       </div>
-    </div>
-  `).join('');
+    </div>`).join('');
+  if (wrap) { wrap.style.display=''; }
 }
 
 /* 3) 進入直播房（列表 or 自己開播） */
