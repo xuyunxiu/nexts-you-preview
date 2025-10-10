@@ -1017,17 +1017,16 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
 .musicPill .state{ font-weight:900 }
 .musicPill .src{ max-width:36vw; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:#6b7287; font-weight:800 }
 
-/* 修復：音樂連結 Modal 主按鈕文字消失（強制白字+關混色） */
+/* 音樂連結 Modal 主按鈕文字固定可見（避免混色消字） */
 #musicModal .btnPrimary{
   color:#fff !important;
   -webkit-text-fill-color:#fff !important;
-  display:inline-flex; align-items:center; justify-content:center;
   mix-blend-mode:normal !important;
   text-shadow:none !important;
   filter:none !important;
 }
 
-/* 若一時無法改 HTML，可暫時保險隱藏舊的音樂區塊（之後可刪節點） */
+/* 若先前遺留任何舊音樂嵌入區，全部關掉 */
 #liveRoom .musicDock, #musicEmbed{ display:none !important }
 
 /* 直播輸入列固定在底部（玻璃 rail） */
