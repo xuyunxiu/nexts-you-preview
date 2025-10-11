@@ -1029,6 +1029,16 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
 /* 若先前遺留任何舊音樂嵌入區，全部關掉 */
 #liveRoom .musicDock, #musicEmbed{ display:none !important }
 
+/* ===== PATCH:BGMV2（新增）— 模式按鈕狀態 ===== */
+#musicModal .chip.active{
+  background:linear-gradient(180deg, var(--accent), var(--accent2));
+  color:#fff; border-color:transparent;
+  box-shadow:0 6px 18px rgba(123,109,255,.30);
+}
+#musicModal textarea{
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+  
 /* 直播輸入列固定在底部（玻璃 rail） */
 .liveInputBar{
   position: fixed; left:0; right:0;
@@ -1526,7 +1536,9 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
 </button>
 
 <!-- 隱藏播放元件（只有聲音，沒有畫面） -->
-<audio id="liveBgm" preload="none" loop></audio>
+<!-- 隱藏播放元件（只有聲音，沒有畫面） -->
+<audio id="liveBgm" preload="none" style="display:none"></audio>
+<video id="liveBgmV" playsinline muted style="display:none"></video>
 
   <!-- 直播輸入列 -->
   <div class="liveInputBar">
@@ -1538,12 +1550,35 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
 
 <div id="musicModal" class="modal" style="display:none">
   <div class="panel">
-    <b style="font-weight:900">設定音樂連結</b>
-    <div class="tip" style="margin:8px 0">支援：YouTube / Spotify / Apple Music / KKBOX（貼該平台的分享連結）</div>
-    <div class="inputGlass"><input id="musicUrlInput" placeholder="貼上連結…"></div>
+    <b style="font-weight:900">設定 BGM</b>
+    <div class="tip" style="margin:8px 0">
+      一行一個連結（支援：mp3 / m4a / aac / ogg / opus / wav / mp4 / webm / data:audio）。<br>
+      想用 Apple Music / YouTube / Spotify → 請按下面「用此分頁聲音當 BGM（β）」。
+    </div>
+
+    <!-- 多行輸入＝播放清單 -->
+    <div class="inputGlass" style="height:auto">
+      <textarea id="musicListInput" placeholder="一行一個連結…" style="width:100%;height:120px;border:0;outline:0;resize:vertical"></textarea>
+    </div>
+
+    <!-- 播放模式 -->
+    <div class="row" style="gap:8px;flex-wrap:wrap;margin:6px 0 2px">
+      <button class="chip" data-mode="one"    id="modeOne">單曲循環</button>
+      <button class="chip" data-mode="all"    id="modeAll">播放清單循環</button>
+      <button class="chip" data-mode="shuffle" id="modeShuf">（播放清單）隨機</button>
+      <span class="ghost" id="modeTip" style="margin-left:auto">模式：單曲循環</span>
+    </div>
+
+    <!-- Apple Music / YouTube / Spotify 用：tab 聲音擷取 -->
+    <div class="row" style="gap:10px;margin:8px 0 10px">
+      <button class="btnGlassViolet" id="btnStartTabCapture" title="把本分頁正在播放的音樂，直接當作房內 BGM（桌機 Chrome/Edge）">
+        用此分頁聲音當 BGM（β）
+      </button>
+    </div>
+
     <div class="btnRow">
       <button class="btn" id="musicClose">取消</button>
-      <button class="btn btnPrimary" id="musicApply">使用這個連結</button>
+      <button class="btn btnPrimary" id="musicApply">使用以上清單</button>
     </div>
   </div>
 </div>
