@@ -998,33 +998,76 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
   -webkit-backdrop-filter: blur(14px);
 }
 
-/* === Live 音樂小膠囊（只在 owner=true 顯示） === */
+/* === BGM V3：膠囊 + 迷你播放器（取代舊 .musicPill 區塊） === */
 .musicPill{
-  display:none;
+  display:none;  /* 預設不顯示；owner 進房才打開 */
   margin:4px 6px 0;
-  padding:6px 10px;
+  padding:6px 12px;
   border-radius:999px;
-  border:1px solid var(--glass-stroke);
+  border:1px solid rgba(255,255,255,.42);
   background:linear-gradient(180deg,rgba(255,255,255,.42),rgba(255,255,255,.16));
   backdrop-filter:saturate(160%) blur(10px);
   -webkit-backdrop-filter:saturate(160%) blur(10px);
-  font-size:12px; font-weight:900; letter-spacing:.2px; color:#2f246f;
+  font-size:13px; font-weight:900; letter-spacing:.2px; color:#2f246f;
   gap:8px; display:inline-flex; align-items:center; cursor:pointer;
+  box-shadow:0 8px 18px rgba(106,90,205,.16);
 }
-.musicPill .dot{ width:6px; height:6px; border-radius:50%; background:#cfd3e1 }
-.musicPill.playing{ box-shadow:0 10px 22px rgba(106,90,205,.22) }
+.musicPill .dot{ width:8px;height:8px;border-radius:50%; background:#cfd3e1 }
 .musicPill.playing .dot{ background:#34c759 }
-.musicPill .state{ font-weight:900 }
-.musicPill .src{ max-width:36vw; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:#6b7287; font-weight:800 }
+.musicPill .txt{ display:flex; gap:6px; align-items:center; }
+.musicPill .txt b{ font-weight:900 }
+.musicPill .src{ color:#6b7287; font-weight:800; opacity:.9; }
 
-/* 音樂連結 Modal 主按鈕文字固定可見（避免混色消字） */
-#musicModal .btnPrimary{
-  color:#fff !important;
-  -webkit-text-fill-color:#fff !important;
-  mix-blend-mode:normal !important;
-  text-shadow:none !important;
-  filter:none !important;
+/* 膠囊高亮（播放中） */
+.musicPill.playing{
+  box-shadow:0 12px 26px rgba(106,90,205,.28);
+  background:linear-gradient(180deg,rgba(198,186,255,.62),rgba(210,200,255,.22));
+  border-color:rgba(255,255,255,.65);
+  color:#20185a;
 }
+
+/* 迷你播放器（像 iOS Now Playing；沒有你打 ✖️ 的那顆，只留 …） */
+.miniMask{ position:fixed; inset:0; z-index:48; display:none; background:transparent; }
+.miniPlayer{
+  position:fixed; left:12px; right:12px; top:calc(64px + env(safe-area-inset-top,0px));
+  z-index:50; display:none;
+  border-radius:16px;
+  background:linear-gradient(180deg,rgba(255,255,255,.30),rgba(255,255,255,.14));
+  border:1px solid var(--glass-stroke);
+  box-shadow:var(--shadow-2);
+  backdrop-filter:saturate(160%) blur(var(--glass-blur));
+  -webkit-backdrop-filter:saturate(160%) blur(var(--glass-blur));
+  padding:12px;
+}
+.miniPlayer .hdr{ display:flex; align-items:center; justify-content:space-between; }
+.miniPlayer .titleRow{ display:flex; align-items:center; gap:8px; }
+.miniPlayer .titleRow b{ font-size:16px; letter-spacing:.3px; }
+.miniPlayer .titleRow .ghost{ font-weight:800; }
+.miniPlayer .more{
+  width:36px;height:36px;border-radius:10px;
+  display:grid;place-items:center;font-weight:900;color:#2f246f;
+  border:1px solid rgba(255,255,255,.55);
+  background:linear-gradient(180deg,rgba(255,255,255,.42),rgba(255,255,255,.12));
+}
+.miniPlayer .progress{ margin:10px 2px 6px; }
+.miniPlayer .progress input[type="range"]{
+  -webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:999px;
+  background:linear-gradient(90deg,var(--accent) var(--mpFill,0%), #e1e4f0 0);
+  outline:none;border:none;
+}
+.miniPlayer .times{ display:flex; justify-content:space-between; font-size:12px; color:#6b7287; font-weight:800; }
+.miniPlayer .ctrls{
+  display:flex; align-items:center; justify-content:center; gap:14px; margin-top:8px;
+}
+.miniPlayer .round{
+  width:42px;height:42px;border-radius:50%;
+  display:grid;place-items:center; font-size:18px; font-weight:900;
+  color:#2f246f;
+  border:1px solid rgba(255,255,255,.55);
+  background:linear-gradient(180deg,rgba(255,255,255,.42),rgba(255,255,255,.12));
+}
+.miniPlayer .round.big{ width:54px;height:54px;font-size:22px }
+.miniPlayer .round:disabled{ opacity:.55; cursor:not-allowed }
 
 /* 若先前遺留任何舊音樂嵌入區，全部關掉 */
 #liveRoom .musicDock, #musicEmbed{ display:none !important }
@@ -1528,15 +1571,37 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
     <b id="liveRoomTitle">直播中</b>
   </div>
 
-<!-- 直播音樂（僅 owner 顯示） -->
-<button id="musicPill" class="musicPill stopped" type="button" title="設定直播背景音樂" style="display:none">
+<!-- 直播音樂（owner 專用；改版 V3） -->
+<button id="musicPill" class="musicPill stopped" type="button" title="設定/控制 BGM" style="display:none">
   <span class="dot" aria-hidden="true"></span>
-  <span class="state">未播放</span>
-  <span class="src" id="musicSrcTip">（未設定）</span>
+  <span class="txt"><b id="pillState">未播放</b> <span id="pillSrc" class="src">（未設定）</span></span>
 </button>
 
-<!-- 隱藏播放元件（只有聲音，沒有畫面） -->
-<!-- 隱藏播放元件（只有聲音，沒有畫面） -->
+<div id="miniMask" class="miniMask"></div>
+<div id="miniPlayer" class="miniPlayer" role="dialog" aria-modal="true" aria-label="BGM 控制台" style="display:none">
+  <div class="hdr">
+    <div class="titleRow">
+      <b>播放中</b>
+      <small id="mpSource" class="ghost">（—）</small>
+    </div>
+    <button id="mpMore" class="more" aria-label="更多">⋯</button>
+  </div>
+
+  <div class="progress">
+    <input id="mpSeek" type="range" min="0" max="1000" value="0" />
+  </div>
+  <div class="times">
+    <span id="mpCur">0:00</span>
+    <span id="mpDur">0:00</span>
+  </div>
+  <div class="ctrls">
+    <button id="mpPrev" class="round" title="上一首">⏮︎</button>
+    <button id="mpPlay" class="round big" title="播放/暫停">▶︎</button>
+    <button id="mpNext" class="round" title="下一首">⏭︎</button>
+  </div>
+</div>
+
+<!-- 隱藏播放元件（維持） -->
 <audio id="liveBgm" preload="none" style="display:none"></audio>
 <video id="liveBgmV" playsinline muted style="display:none"></video>
 
