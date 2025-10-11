@@ -1772,6 +1772,224 @@ document.addEventListener('DOMContentLoaded', () => {
   recalcHud();
 });
 
+  
+/* ===================== PATCH:BGMV2 — LIVE 背景音（owner-only 控） ===================== */
+/* 功能：
+   1) 直接檔案/連結播放（mp3/m4a/ogg/opus/wav/mp4/webm/data:audio）
+      → 單曲循環 / 清單循環 / 隨機
+   2) 「此分頁聲音」擷取（Apple Music / YouTube / Spotify）
+      → 你有訂閱→你聽無廣告→房內音軌也無廣告；粉絲無需登入平台。
+   3) 觀眾端不顯示控制，只接收音軌
+   備註：tab 聲音擷取要接你的 WebRTC/SFU 才能送到多觀眾，已留鉤子。
+*/
+
+(function BGMV2_boot(){
+  const ctx = { roomId: 'me', isOwner: false, ready:false };     // 單房 demo：roomId 固定 'me'
+  const K = {
+    mode:   r=>`bgmv2:${r}:mode`,      // 'one' | 'all' | 'shuffle'
+    list:   r=>`bgmv2:${r}:list`,      // string[]
+    index:  r=>`bgmv2:${r}:index`,     // number
+    source: r=>`bgmv2:${r}:source`,    // 'file' | 'tab'
+    playing:r=>`bgmv2:${r}:playing`,   // '0' | '1'
+  };
+
+  // 元件
+  const elPill = document.getElementById('musicPill');
+  const elModal= document.getElementById('musicModal');
+  const elList = document.getElementById('musicListInput');
+  const elApply= document.getElementById('musicApply');
+  const elClose= document.getElementById('musicClose');
+  const elModeOne = document.getElementById('modeOne');
+  const elModeAll = document.getElementById('modeAll');
+  const elModeShf = document.getElementById('modeShuf');
+  const elModeTip = document.getElementById('modeTip');
+  const elTabBtn  = document.getElementById('btnStartTabCapture');
+  const elAudio   = document.getElementById('liveBgm');
+  const elVideo   = document.getElementById('liveBgmV');
+
+  // ==== 公用 ====
+  function curMode(){ return LS.getStr(K.mode(ctx.roomId), 'one'); }
+  function setMode(m){ LS.setStr(K.mode(ctx.roomId), m); setModeUI(m); }
+  function modeTxt(m){ return m==='one'?'單曲循環': m==='all'?'播放清單循環':'（播放清單）隨機'; }
+  function setIndex(i){ LS.setStr(K.index(ctx.roomId), String(i)); }
+  function getIndex(){ return parseInt(LS.getStr(K.index(ctx.roomId),'0')||'0',10); }
+  function getList(){ return LS.get(K.list(ctx.roomId), []) || []; }
+  function setList(arr){ LS.set(K.list(ctx.roomId), arr||[]); }
+  function setSrcType(t){ LS.setStr(K.source(ctx.roomId), t); }
+  function getSrcType(){ return LS.getStr(K.source(ctx.roomId), ''); }
+  function setPlaying(v){ LS.setStr(K.playing(ctx.roomId), v?'1':'0'); }
+  function isPlaying(){ return LS.getStr(K.playing(ctx.roomId),'0')==='1'; }
+
+  function sanitizeList(text){
+    const lines=(text||'').split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
+    const ok=/^(data:audio\/|https?:\/\/.+\.(mp3|m4a|aac|ogg|opus|wav|mp4|webm)(\?.*)?$)/i;
+    return lines.filter(u=>ok.test(u));
+  }
+
+  // ==== owner 標記（避免你既有 startLive 衝突，只寫 LS 不接管流程）====
+  const startBtn = document.getElementById('btnStartLive');
+  if (startBtn){
+    startBtn.addEventListener('click', ()=>{
+      ctx.isOwner = true;
+      // 進直播房後，MutationObserver 會觸發 attach
+      // 不修改你原本 showPage 流程
+    });
+  }
+
+  // 當 #liveRoom 變成 active 時，初始化一次
+  const liveRoom = document.getElementById('liveRoom');
+  if (liveRoom){
+    const mo = new MutationObserver(()=>{
+      const active = liveRoom.classList.contains('active');
+      if (active && !ctx.ready){ ctx.ready = true; onEnterLiveRoom(); }
+      if (!active && ctx.ready){ ctx.ready = false; }   // 離房
+    });
+    mo.observe(liveRoom, { attributes:true, attributeFilter:['class'] });
+  }
+
+  function onEnterLiveRoom(){
+    syncPill();                // 讓 owner pill 出現/隱藏
+    attachAudience();          // file 模式觀眾自拉；tab 模式等遠端音軌
+    bindStorageSync();         // 多分頁 demo 同步
+  }
+
+  // ==== UI：pill 與 modal ====
+  function syncPill(){
+    if (!elPill) return;
+    elPill.style.display = ctx.isOwner ? 'inline-flex' : 'none';
+    updatePillState();
+    elPill.onclick = ()=>{ if(ctx.isOwner) openModal(); };
+  }
+  function updatePillState(){
+    if (!elPill) return;
+    const dot = elPill.querySelector('.dot');
+    const state = elPill.querySelector('.state');
+    const tip = document.getElementById('musicSrcTip') || elPill.querySelector('.src');
+    const type = getSrcType();
+    const playing = isPlaying();
+    if (dot) dot.style.background = playing ? '#34c759' : '#cfd3e1';
+    if (state) state.textContent = playing ? '播放中' : '未播放';
+    if (tip) tip.textContent = type ? (type==='tab'?'（本分頁聲音）':'（清單）') : '（未設定）';
+    elPill.classList.toggle('playing', playing);
+  }
+  function openModal(){
+    if (!elModal) return;
+    elModal.style.display = 'block';
+    // 回填清單與模式
+    const list = getList();
+    if (elList) elList.value = (Array.isArray(list)?list:[]).join('\n');
+    setModeUI(curMode());
+  }
+  function closeModal(){ if (elModal) elModal.style.display='none'; }
+  elClose && elClose.addEventListener('click', closeModal);
+
+  function setModeUI(m){
+    [elModeOne, elModeAll, elModeShf].forEach(b=>b&&b.classList.remove('active'));
+    ({one:elModeOne, all:elModeAll, shuffle:elModeShf}[m])?.classList.add('active');
+    if (elModeTip) elModeTip.textContent = `模式：${modeTxt(m)}`;
+  }
+  elModeOne && elModeOne.addEventListener('click', ()=>setMode('one'));
+  elModeAll && elModeAll.addEventListener('click', ()=>setMode('all'));
+  elModeShf && elModeShf.addEventListener('click', ()=>setMode('shuffle'));
+
+  // 使用「清單」：file 模式
+  elApply && elApply.addEventListener('click', ()=>{
+    if (!ctx.isOwner) return closeModal();
+    const list = sanitizeList(elList?.value || '');
+    if (!list.length){ alert('請至少提供一個可直連的音訊/影片檔網址，或改用「本分頁聲音」'); return; }
+    setList(list); setSrcType('file'); setIndex(0); setPlaying(true);
+    closeModal(); startFilePlayback(); updatePillState();
+  });
+
+  // 此分頁聲音（Apple/YouTube/Spotify）
+  elTabBtn && elTabBtn.addEventListener('click', async ()=>{
+    if (!ctx.isOwner) return;
+    try{
+      const stream = await navigator.mediaDevices.getDisplayMedia({ video: false, audio: true });
+      // owner 本地預聽：掛一個隱形 <audio>
+      const prev = document.createElement('audio'); prev.autoplay = true; prev.srcObject = stream; prev.style.display='none'; document.body.appendChild(prev);
+
+      setSrcType('tab'); setPlaying(true); closeModal(); updatePillState();
+
+      // TODO：把這條 audio track 推給所有觀眾（接上你的 WebRTC/SFU）
+      BGMV2_sendTabStreamToRoom(stream);
+
+      const a = stream.getAudioTracks()[0];
+      a && a.addEventListener('ended', ()=>{ setPlaying(false); updatePillState(); });
+
+    }catch(e){
+      alert('瀏覽器未允許或不支援擷取分頁聲音。請改用清單模式，或用桌機 Chrome/Edge。');
+    }
+  });
+
+  // ==== 播放（file 模式；單曲循環 / 清單循環 / 隨機）====
+  function startFilePlayback(){
+    const list = getList(); if(!list.length) return;
+    const i = Math.max(0, Math.min(getIndex(), list.length-1));
+    const url = list[i];
+
+    const isVideo = /\.(mp4|webm)(\?.*)?$/i.test(url);
+    const node = isVideo ? elVideo : elAudio;
+    const other= isVideo ? elAudio : elVideo;
+
+    try{ other.pause(); }catch(_){}
+    other.removeAttribute('src'); other.load?.();
+
+    const mode = curMode();
+    node.loop = (mode==='one');
+    node.src = url;
+    node.play().catch(()=>{ /* 行動裝置可能需要使用者手勢 */ });
+
+    node.onended = ()=>{
+      if (curMode()==='one'){ node.play().catch(()=>{}); return; }
+      const list = getList(); if(!list.length) return;
+      let next = 0;
+      if (curMode()==='shuffle'){
+        if (list.length===1){ next = 0; }
+        else{
+          do{ next = Math.floor(Math.random()*list.length); } while(next===getIndex());
+        }
+      }else{ // all
+        next = (getIndex()+1) % list.length;
+      }
+      setIndex(next); startFilePlayback();
+    };
+
+    setPlaying(true); updatePillState();
+  }
+
+  // ==== 觀眾端（file：本地直拉；tab：等遠端音軌）====
+  function attachAudience(){
+    const type = getSrcType();
+    if (type==='file'){ startFilePlayback(); }
+    // type==='tab'：等你把遠端音軌接進來 → 呼叫 window.BGMV2_onRemoteTabStream(stream)
+  }
+
+  // 多分頁/多終端 demo 同步（正式請改用你的房態後端）
+  function bindStorageSync(){
+    window.addEventListener('storage', (e)=>{
+      if (!e.key || !e.key.startsWith(`bgmv2:${ctx.roomId}:`)) return;
+      const what = e.key.split(':').pop();
+      if (what==='list' || what==='mode' || what==='index' || what==='source' || what==='playing'){
+        if (getSrcType()==='file'){ startFilePlayback(); }
+        updatePillState();
+      }
+    });
+  }
+
+  // ==== WebRTC / SFU 鉤子（你接上 signaling 後把音軌餵進來）====
+  window.BGMV2_onRemoteTabStream = function(stream){
+    // 觀眾端拿到遠端音軌後，就播它（隱形）
+    try{ elAudio.pause(); elVideo.pause(); elAudio.removeAttribute('src'); elVideo.removeAttribute('src'); }catch(_){}
+    const out = document.createElement('audio'); out.autoplay = true; out.srcObject = stream; out.style.display='none'; document.body.appendChild(out);
+  };
+  function BGMV2_sendTabStreamToRoom(stream){
+    // TODO: 這裡把 stream.getAudioTracks()[0] 加到 PeerConnection → 推到房內
+    // 例如：pc.addTrack(stream.getAudioTracks()[0], stream)
+  }
+
+})();
+
 
 /* ===== IndexedDB：媒體存這裡 ===== */
 const MEDIA_DB = (()=> {
