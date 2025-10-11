@@ -1807,6 +1807,146 @@ document.addEventListener('DOMContentLoaded', () => {
   const elAudio   = document.getElementById('liveBgm');
   const elVideo   = document.getElementById('liveBgmV');
 
+  // —— 平台偵測 —— //
+  function parsePlatform(u){
+    try{
+      const url = new URL(u);
+      const host = url.hostname.replace(/^www\./,'');
+      if (/music\.apple\.com|itunes\.apple\.com/.test(host)) return {kind:'apple', url};
+      if (/open\.spotify\.com/.test(host))                   return {kind:'spotify', url};
+      if (/youtube\.com|youtu\.be/.test(host))               return {kind:'youtube', url};
+    }catch(_){}
+    return {kind:'direct', url:null};
+  }
+  function pickFirstPlatform(lines){
+    for(const s of lines){
+      const p = parsePlatform(s);
+      if (p.kind !== 'direct') return { ...p, raw:s };
+    }
+    return {kind:'direct', url:null, raw:''};
+  }
+
+  // —— Apple Music（MusicKit JS）—— //
+  async function getAppleDeveloperToken(){
+    // TODO: 換成你後端的 endpoint（回傳純文字 JWT）
+    const r = await fetch('/api/apple/devtoken');
+    if(!r.ok) throw new Error('devtoken failed');
+    return (await r.text()).trim();
+  }
+  async function ensureMusicKit(){
+    if (!window.MusicKit){
+      await new Promise((res,rej)=>{
+        const s=document.createElement('script');
+        s.src='https://js-cdn.music.apple.com/musickit/v3/musickit.js';
+        s.onload=res; s.onerror=()=>rej(new Error('MusicKit load failed'));
+        document.head.appendChild(s);
+      });
+    }
+    if (!MusicKit.getInstance()){
+      await MusicKit.configure({
+        developerToken: await getAppleDeveloperToken(),
+        app: { name: 'NEXTS YOU', build: '1.0' }
+      });
+    }
+    const mk = MusicKit.getInstance();
+    if(!mk.isAuthorized) await mk.authorize();   // 取得 Music User Token
+    return mk;
+  }
+  async function startAppleFromUrl(url){
+    const mk = await ensureMusicKit();
+    const trackId = url.searchParams.get('i');
+    if (trackId){
+      await mk.setQueue({ songs: [trackId] });
+    }else{
+      const id = url.pathname.split('/').pop();
+      await mk.setQueue({ album: id });
+    }
+    mk.player.repeatMode = 2; // 2=單曲循環
+    await mk.play();
+    setSrcType('apple'); setPlaying(true); updatePillState(); closeModal();
+  }
+
+  // —— Spotify（Web Playback SDK；需要 Premium）—— //
+  let _spPlayer = null;
+  function loadSpotifySDK(){
+    if (window.Spotify) return Promise.resolve();
+    return new Promise((res)=>{
+      window.onSpotifyWebPlaybackSDKReady = res;
+      const s=document.createElement('script');
+      s.src='https://sdk.scdn.co/spotify-player.js';
+      document.head.appendChild(s);
+    });
+  }
+  async function getSpotifyAccessToken(){
+    // TODO：向你後端取 OAuth token（需 scopes：streaming user-read-playback-state user-modify-playback-state）
+    const r = await fetch('/api/spotify/token');
+    if(!r.ok) throw new Error('spotify token failed');
+    return (await r.json()).access_token;
+  }
+  async function ensureSpotifyPlayer(){
+    await loadSpotifySDK();
+    const token = await getSpotifyAccessToken();
+    if(!_spPlayer){
+      _spPlayer = new Spotify.Player({
+        name: 'NEXTS YOU (Web)',
+        getOAuthToken: cb => cb(token),
+        volume: 0.8
+      });
+      await _spPlayer.connect();
+    }
+    return { player:_spPlayer, token };
+  }
+  function spotifyUriFromUrl(url){
+    const parts = url.pathname.split('/').filter(Boolean); // ['track','<id>']
+    const kind = parts[0], id = parts[1];
+    if (kind === 'track' && id) return `spotify:track:${id}`;
+    return null;
+  }
+  async function startSpotifyFromUrl(url){
+    const { player, token } = await ensureSpotifyPlayer();
+    const devId = await new Promise(res=>{
+      const h = ({device_id})=>{ player.removeListener('ready', h); res(device_id); };
+      player.addListener('ready', h);
+    });
+    // 轉移播放到 web player
+    await fetch('https://api.spotify.com/v1/me/player', {
+      method:'PUT',
+      headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},
+      body: JSON.stringify({ device_ids:[devId], play:true })
+    });
+    const uri = spotifyUriFromUrl(url);
+    await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${devId}`, {
+      method:'PUT',
+      headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},
+      body: JSON.stringify({ uris: [uri] })
+    });
+    setSrcType('spotify'); setPlaying(true); updatePillState(); closeModal();
+  }
+
+  // —— YouTube（IFrame Player API）—— //
+  let _yt, _ytPlayer;
+  function ytLoad(){ if(_yt) return Promise.resolve(); return new Promise((res)=>{
+    const s=document.createElement('script'); s.src='https://www.youtube.com/iframe_api';
+    window.onYouTubeIframeAPIReady = ()=>{ _yt = YT; res(); };
+    document.head.appendChild(s);
+  });}
+  function getYouTubeId(url){
+    if (url.hostname==='youtu.be') return url.pathname.slice(1);
+    const id = url.searchParams.get('v'); return id || '';
+  }
+  async function startYouTubeFromUrl(url){
+    await ytLoad();
+    const id = getYouTubeId(url);
+    let host = document.getElementById('ytHiddenHost');
+    if(!host){ host=document.createElement('div'); host.id='ytHiddenHost'; host.style.display='none'; document.body.appendChild(host); }
+    if(!_ytPlayer){
+      _ytPlayer = new _yt.Player('ytHiddenHost', { videoId: id, playerVars:{ autoplay:1, controls:0 } });
+    }else{
+      _ytPlayer.loadVideoById(id);
+    }
+    setSrcType('youtube'); setPlaying(true); updatePillState(); closeModal();
+  }
+  
   // ==== 公用 ====
   function curMode(){ return LS.getStr(K.mode(ctx.roomId), 'one'); }
   function setMode(m){ LS.setStr(K.mode(ctx.roomId), m); setModeUI(m); }
@@ -1860,16 +2000,23 @@ document.addEventListener('DOMContentLoaded', () => {
     updatePillState();
     elPill.onclick = ()=>{ if(ctx.isOwner) openModal(); };
   }
-  function updatePillState(){
+    function updatePillState(){
     if (!elPill) return;
     const dot = elPill.querySelector('.dot');
     const state = elPill.querySelector('.state');
     const tip = document.getElementById('musicSrcTip') || elPill.querySelector('.src');
     const type = getSrcType();
     const playing = isPlaying();
+    const labelMap = {
+      tab: '（本分頁聲音）',
+      file:'（清單）',
+      apple:'（Apple Music）',
+      spotify:'（Spotify）',
+      youtube:'（YouTube）'
+    };
     if (dot) dot.style.background = playing ? '#34c759' : '#cfd3e1';
     if (state) state.textContent = playing ? '播放中' : '未播放';
-    if (tip) tip.textContent = type ? (type==='tab'?'（本分頁聲音）':'（清單）') : '（未設定）';
+    if (tip) tip.textContent = type ? (labelMap[type] || '（來源）') : '（未設定）';
     elPill.classList.toggle('playing', playing);
   }
   function openModal(){
@@ -1892,11 +2039,28 @@ document.addEventListener('DOMContentLoaded', () => {
   elModeAll && elModeAll.addEventListener('click', ()=>setMode('all'));
   elModeShf && elModeShf.addEventListener('click', ()=>setMode('shuffle'));
 
-  // 使用「清單」：file 模式
-  elApply && elApply.addEventListener('click', ()=>{
+  // 使用「清單 / 或 自動識別平台連結」
+  elApply && elApply.addEventListener('click', async ()=>{
     if (!ctx.isOwner) return closeModal();
-    const list = sanitizeList(elList?.value || '');
-    if (!list.length){ alert('請至少提供一個可直連的音訊/影片檔網址，或改用「本分頁聲音」'); return; }
+
+    const rawLines=(elList?.value||'').split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
+    const first = pickFirstPlatform(rawLines);
+
+    try{
+      if (first.kind === 'apple')   { await startAppleFromUrl(first.url); return; }
+      if (first.kind === 'spotify') { await startSpotifyFromUrl(first.url); return; }
+      if (first.kind === 'youtube') { await startYouTubeFromUrl(first.url); return; }
+    }catch(e){
+      alert(`平台播放失敗：${e.message}。你可改用「此分頁聲音（β）」或貼直連檔案。`);
+      return;
+    }
+
+    // 走原本「直連檔案清單」邏輯
+    const list = sanitizeList(rawLines.join('\n'));
+    if (!list.length){
+      alert('沒有可直接播放的音訊/影片網址。若是 Apple/Spotify/YouTube，直接貼該連結或改用「此分頁聲音（β）」。');
+      return;
+    }
     setList(list); setSrcType('file'); setIndex(0); setPlaying(true);
     closeModal(); startFilePlayback(); updatePillState();
   });
