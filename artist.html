@@ -306,13 +306,19 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
 /* =================== Story Bar（首頁） =================== */
 #storyWrap{
   position: sticky; top: 0; z-index: 5;
-  background: transparent !important;     /* ★ 完全透明 */
-  border: 0 !important;                   /* ★ 不要邊線 */
+  background: transparent !important;
+  border: 0 !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
 }
-#storyBar{display:flex; gap:12px; overflow-x:auto;padding:8px 8px 10px; scrollbar-width:none; border-bottom: none;}
+
+#storyBar{
+  display:flex; gap:12px; overflow-x:auto;
+  padding:8px 8px 10px !important;
+  scrollbar-width:none; border-bottom: none;
+}
 #storyBar::-webkit-scrollbar{ display:none }
+
 .story-item{flex:0 0 auto;width:64px;text-align:center;cursor:pointer;position:relative}
 .story-item img{width:56px;height:56px;border-radius:50%;object-fit:cover;border:2px solid #d5d8f3;margin:0 auto}
 .story-item .name{font-size:12px;margin-top:4px;color:#9aa1ad}
