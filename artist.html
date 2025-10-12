@@ -1977,7 +1977,7 @@ function updatePill(){
   // ── Modal：設定 BGM（沿用）
   function openMusicModal(){ if (elModal){ elModal.style.display='block'; fillModal(); } }
   function closeMusicModal(){ if (elModal) elModal.style.display='none'; }
-  elClose && elClose.addEventListener('click', closeModal);
+  elClose && elClose.addEventListener('click', closeMusicModal);
 
   function fillModal(){
     if (elList){ const list=getList(); elList.value=(Array.isArray(list)?list:[]).join('\n'); }
