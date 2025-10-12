@@ -1915,7 +1915,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function sanitizeList(text){
     const lines=(text||'').split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
-    const ok=/^(data:audio\/|https?:\/\/.+\.(mp3|m4a|aac|ogg|opus|wav|mp4|webm)(\?.*)?$)/i;
+    const ok=/^(data:audio\/|https?:\/\/.+\.(mp3|m4a|aac|ogg|opus|wav|mp4|webm|m3u8)(\?.*)?$)/i;
     return lines.filter(u=>ok.test(u));
   }
   function timeFmt(sec){ sec=Math.max(0,Math.floor(sec||0)); const m=Math.floor(sec/60), s=sec%60; return `${m}:${s.toString().padStart(2,'0')}`; }
