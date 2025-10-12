@@ -1946,7 +1946,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ── Pill（你圈的那顆）
- function updatePill(){
+function updatePill(){
+  if (!pillState || !pillSrc || !elPill) return; // ★ 保險
   const playing = isPlaying();
   const type    = getSrcType();                // 'tab' | 'file' | ''
   const pf      = getPlatform();               // 'YouTube' / 'YouTube Music' / ... / ''
