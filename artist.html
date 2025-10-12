@@ -1993,56 +1993,74 @@ function updatePill(){
   elModeShf && elModeShf.addEventListener('click', ()=>setMode('shuffle'));
 
   // 清單模式套用
-  elApply && elApply.addEventListener('click', ()=>{
-    if (!ctx.isOwner) return closeModal();
-    const list = sanitizeList(elList?.value || '');
-    if (!list.length){ alert('請至少提供一個可直連的音訊/影片網址，或改用「本分頁聲音」。'); return; }
-    setList(list); setSrcType('file'); setPlatform('清單'); setIndex(0); setPlaying(true);
-    closeModal(); startFilePlayback(); updatePill();
-  });
+ elApply && elApply.addEventListener('click', ()=>{
+  if (!ctx.isOwner) { closeMusicModal(); return; }
+  const list = sanitizeList(elList?.value || '');
+  if (!list.length){
+    alert('請至少提供一個可直連的音訊/影片網址，或改用「本分頁聲音」。');
+    return;
+  }
+  setList(list);
+  setSrcType('file');
+  setPlatform('清單');
+  setIndex(0);
+  setPlaying(true);
+  closeMusicModal();           // ★ 這裡改掉
+  startFilePlayback();
+  updatePill();
+});
 
-  // 分頁聲音（Apple Music / YouTube / Spotify）
-  elTabBtn && elTabBtn.addEventListener('click', async ()=>{
+ // 分頁聲音（Apple Music / YouTube / Spotify）
+elTabBtn && elTabBtn.addEventListener('click', async ()=>{
   if (!ctx.isOwner) return;
   if (!canTabCapture){
     alert('此裝置/瀏覽器不支援擷取「本分頁聲音」。iOS Safari 限制，請改用清單或桌機 Chrome/Edge。');
     return;
   }
+
   try{
     const stream = await navigator.mediaDevices.getDisplayMedia({ video:false, audio:true });
 
     // 本地預聽（隱形）
     const prev = document.createElement('audio');
-    prev.autoplay = true; prev.srcObject = stream; prev.style.display='none';
+    prev.autoplay = true;
+    prev.srcObject = stream;
+    prev.style.display = 'none';
     document.body.appendChild(prev);
 
-    // 依 track.label 自動猜平台（YouTube / Apple Music / Spotify / …）
+    // 依 track.label 猜平台
     const aTrack = stream.getAudioTracks()[0];
     const guess  = detectPlatformFromLabel(aTrack?.label || stream.id || '');
     setPlatform(guess || '此分頁');
 
     setSrcType('tab');
     setPlaying(true);
-    closeModal();
+    closeMusicModal();          // ★ 這裡改掉
     updatePill();
     refreshMini();
 
-    // TODO：把 stream 推進 SFU/RTC → 觀眾端：window.BGMV3_onRemoteTabStream(stream)
-    
+    // TODO: 將 stream 丟到 SFU/RTC，觀眾端播放
+
     if (aTrack){
-    const stop = ()=>{
-      setPlaying(false);
-      setPlatform('');                 // ★ 清掉「YouTube / 此分頁」等標籤
-      try { prev && (prev.srcObject=null, prev.remove()); } catch(_){}
-      try { stream && stream.getTracks().forEach(t=>t.stop()); } catch(_){}
-      updatePill(); refreshMini(); if (mp) closeMini();
-    };
-    aTrack.addEventListener('ended',    stop);
-    aTrack.addEventListener('mute',     stop);
-    aTrack.addEventListener('inactive', stop);
+      const stop = ()=>{
+        setPlaying(false);
+        setPlatform('');
+        try { prev && (prev.srcObject = null, prev.remove()); } catch(_){}
+        try { stream && stream.getTracks().forEach(t => t.stop()); } catch(_){}
+        updatePill();
+        refreshMini();
+        if (mp) closeMini();
+      };
+      aTrack.addEventListener('ended',    stop);
+      aTrack.addEventListener('mute',     stop);
+      aTrack.addEventListener('inactive', stop);
+    }
+  } catch (err) {
+    console.error('Tab capture failed:', err);
+    alert('無法擷取本分頁的聲音，請確認已允許「分享此分頁」與「分享音訊」。');
   }
 });
-  
+
   // ── File 模式播放
   function nodeFor(url){
     const isVideo = /\.(mp4|webm)(\?.*)?$/i.test(url||'');
