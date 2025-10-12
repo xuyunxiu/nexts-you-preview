@@ -3288,6 +3288,16 @@ trimUse.addEventListener('click', async ()=>{
   }
 })();
 
+  document.addEventListener('click', (e)=>{
+  const btn = e.target.closest('.translate-btn');
+  if(!btn) return;
+  const post = btn.closest('.post');
+  if(!post) return;
+  const id = post.dataset.post;
+  if(!id) return;
+  togglePostTranslate(id);
+});
+
 /* 更改聊天室名稱（= 藝人暱稱） */
 function renameChat(){
   const cur = getRoomTitle();
@@ -4547,7 +4557,7 @@ function closeViewer(){
   // Esc 關閉（鍵盤）
   document.addEventListener('keydown', e=>{ if(e.key==='Escape' && v.style.display==='block') closeViewer(); });
 })();
-<script src="https://cdn.jsdelivr.net/npm/hls.js@latest">
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 </script>
 </body>
 </html>
