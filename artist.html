@@ -1995,21 +1995,26 @@ function updatePill(){
   // 清單模式套用
  elApply && elApply.addEventListener('click', ()=>{
   if (!ctx.isOwner) { closeMusicModal(); return; }
+
+  const rawLines = (elList?.value || '').split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
   const list = sanitizeList(elList?.value || '');
+
   if (!list.length){
-    alert('請至少提供一個可直連的音訊/影片網址，或改用「本分頁聲音」。');
+    const bads = rawLines.slice(0,3).join('\n') || '（空白）';
+    alert('目前只支援「可直接下載」的音/影檔連結（mp3/m4a/ogg/opus/wav/mp4/webm，或 m3u8）與 data:audio。\n\n以下範例屬於「平台頁面」或受保護串流，不能直接播：\n' + bads + '\n\n請改用「用此分頁聲音當 BGM（β）」或提供檔案直連。');
     return;
   }
+
   setList(list);
   setSrcType('file');
   setPlatform('清單');
   setIndex(0);
   setPlaying(true);
-  closeMusicModal();           // ★ 這裡改掉
+  closeMusicModal();
   startFilePlayback();
   updatePill();
 });
-
+  
  // 分頁聲音（Apple Music / YouTube / Spotify）
 elTabBtn && elTabBtn.addEventListener('click', async ()=>{
   if (!ctx.isOwner) return;
