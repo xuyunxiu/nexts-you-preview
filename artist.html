@@ -1910,8 +1910,6 @@ document.addEventListener('DOMContentLoaded', () => {
   function setList(arr){ LS.set(K.list(ctx.roomId), arr||[]); }
   function setSrcType(t){ LS.setStr(K.source(ctx.roomId), t); }
   function getSrcType(){ return LS.getStr(K.source(ctx.roomId), ''); }
-  function setLabel(s){ LS.setStr(K.label(ctx.roomId), s||''); }
-  function getLabel(){ return LS.getStr(K.label(ctx.roomId), ''); }
   function setPlaying(v){ LS.setStr(K.playing(ctx.roomId), v?'1':'0'); }
   function isPlaying(){ return LS.getStr(K.playing(ctx.roomId),'0')==='1'; }
 
@@ -1948,13 +1946,21 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ── Pill（你圈的那顆）
-  function updatePill(){
-    const playing = isPlaying();
-    const label   = getLabel() || (getSrcType()==='tab' ? '（本分頁聲音）' : '（清單）');
-    pillState.textContent = playing ? '播放中' : '未播放';
-    pillSrc.textContent   = label ? `（${label.replace(/[()]/g,'')}）` : '（未設定）';
-    elPill.classList.toggle('playing', playing);
-  }
+ function updatePill(){
+  const playing = isPlaying();
+  const type    = getSrcType();                // 'tab' | 'file' | ''
+  const pf      = getPlatform();               // 'YouTube' / 'YouTube Music' / ... / ''
+
+  pillState.textContent = playing ? '播放中' : '未播放';
+
+  let tag = '未設定';
+  if (type === 'tab')  tag = pf || '此分頁';
+  else if (type)       tag = pf || (type === 'file' ? '清單' : '—');
+
+  pillSrc.textContent = `（${tag}）`;
+  elPill.classList.toggle('playing', playing);
+}
+
   function syncPill(){
     if (!elPill) return;
     elPill.style.display = ctx.isOwner ? 'inline-flex' : 'none';
@@ -1989,28 +1995,49 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!ctx.isOwner) return closeModal();
     const list = sanitizeList(elList?.value || '');
     if (!list.length){ alert('請至少提供一個可直連的音訊/影片網址，或改用「本分頁聲音」。'); return; }
-    setList(list); setSrcType('file'); setLabel('清單'); setIndex(0); setPlaying(true);
+    setList(list); setSrcType('file'); setPlatform('清單'); setIndex(0); setPlaying(true);
     closeModal(); startFilePlayback(); updatePill();
   });
 
   // 分頁聲音（Apple Music / YouTube / Spotify）
   elTabBtn && elTabBtn.addEventListener('click', async ()=>{
-    if (!ctx.isOwner) return;
-    if (!canTabCapture){ alert('此裝置/瀏覽器不支援擷取「本分頁聲音」。iOS Safari 限制，請改用清單或桌機 Chrome/Edge。'); return; }
-    const userLabel = (prompt('輸入來源名稱（例如：YouTube、Apple Music、Spotify）', 'YouTube') || '本分頁聲音').trim();
-    try{
-      const stream = await navigator.mediaDevices.getDisplayMedia({ video:false, audio:true });
-      // 本地預聽（隱形）
-      const prev = document.createElement('audio'); prev.autoplay = true; prev.srcObject = stream; prev.style.display='none'; document.body.appendChild(prev);
-      setSrcType('tab'); setLabel(userLabel); setPlaying(true); closeModal(); updatePill();
-      // TODO：把 stream 推進 SFU/RTC → 觀眾端：window.BGMV3_onRemoteTabStream(stream)
-      const a = stream.getAudioTracks()[0];
-      a && a.addEventListener('ended', ()=>{ setPlaying(false); updatePill(); if (mp) closeMini(); });
-    }catch(e){
-      alert('未取得權限或中止。');
-    }
-  });
+  if (!ctx.isOwner) return;
+  if (!canTabCapture){
+    alert('此裝置/瀏覽器不支援擷取「本分頁聲音」。iOS Safari 限制，請改用清單或桌機 Chrome/Edge。');
+    return;
+  }
+  try{
+    const stream = await navigator.mediaDevices.getDisplayMedia({ video:false, audio:true });
 
+    // 本地預聽（隱形）
+    const prev = document.createElement('audio');
+    prev.autoplay = true; prev.srcObject = stream; prev.style.display='none';
+    document.body.appendChild(prev);
+
+    // 依 track.label 自動猜平台（YouTube / Apple Music / Spotify / …）
+    const aTrack = stream.getAudioTracks()[0];
+    const guess  = detectPlatformFromLabel(aTrack?.label || stream.id || '');
+    setPlatform(guess || '此分頁');
+
+    setSrcType('tab');
+    setPlaying(true);
+    closeModal();
+    updatePill();
+    refreshMini();
+
+    // TODO：把 stream 推進 SFU/RTC → 觀眾端：window.BGMV3_onRemoteTabStream(stream)
+
+    if (aTrack){
+      const stop = ()=>{ setPlaying(false); updatePill(); refreshMini(); if (mp) closeMini(); };
+      aTrack.addEventListener('ended',  stop);
+      aTrack.addEventListener('mute',   stop);
+      aTrack.addEventListener('inactive', stop);
+    }
+  }catch(e){
+    alert('未取得權限或中止。');
+  }
+});
+  
   // ── File 模式播放
   function nodeFor(url){
     const isVideo = /\.(mp4|webm)(\?.*)?$/i.test(url||'');
@@ -2074,21 +2101,21 @@ document.addEventListener('DOMContentLoaded', () => {
   mpMore && mpMore.addEventListener('click', ()=>{ closeMini(); openModal(); });
 
   function refreshMini(){
-    if (!mp) return;
-    const type = getSrcType();
-    mpSource.textContent = `（${getLabel() || (type==='tab'?'本分頁聲音':'清單')}）`;
+  if (!mp) return;
+  const type = getSrcType();
+  const pf   = getPlatform();
+  mpSource.textContent = `（${pf || (type==='tab'?'此分頁':'清單')}）`;
 
-    const isFile = (type==='file');
-    [mpPrev, mpNext, mpSeek, mpPlay].forEach(b=> b && (b.disabled = !isFile));
+  const isFile = (type==='file');
+  [mpPrev, mpNext, mpSeek, mpPlay].forEach(b=> b && (b.disabled = !isFile));
 
-    if (!isFile){   // tab：無法控制來源
-      mpSeek.style.setProperty('--mpFill', '0%');
-      mpCur.textContent='0:00'; mpDur.textContent='0:00';
-      mpPlay.textContent='▶︎';
-      detachNode();
-      return;
-    }
-
+  if (!isFile){
+    mpSeek.style.setProperty('--mpFill', '0%');
+    mpCur.textContent='0:00'; mpDur.textContent='0:00';
+    mpPlay.textContent='▶︎';
+    detachNode();
+    return;
+  }
     const list=getList(); if(!list.length){ detachNode(); return; }
     const n = currentPlayable(); if (!n){ detachNode(); return; }
     attachNode(n);
