@@ -2074,33 +2074,71 @@ elTabBtn && elTabBtn.addEventListener('click', async ()=>{
   }
 
   function startFilePlayback(){
-    const list = getList(); if(!list.length) return;
-    const i = Math.max(0, Math.min(getIndex(), list.length-1));
-    const url = list[i];
-    const who = nodeFor(url);
-    const other = (who===elAudio?elVideo:elAudio);
+  const list = getList(); if(!list.length) return;
+  const i = Math.max(0, Math.min(getIndex(), list.length-1));
+  const url = list[i];
 
-    try{ other.pause(); }catch(_){}
+  // HLS（.m3u8）
+  if (/\.m3u8(\?.*)?$/i.test(url)) {
+    const other = elAudio; try{ other.pause(); }catch(_){}
     other.removeAttribute('src'); other.load?.();
 
-    who.loop = (curMode()==='one');
-    who.src = url;
-    who.play().catch(()=>{ /* 行動裝置可能需要使用者手勢 */ });
+    const v = elVideo;
+    v.removeAttribute('src'); v.load?.();
+    v.loop = (curMode()==='one');
 
-    who.onended = ()=>{
-      if (curMode()==='one'){ who.play().catch(()=>{}); return; }
-      let next = 0;
-      if (curMode()==='shuffle'){
-        if (list.length===1){ next = 0; }
-        else{
-          do{ next = Math.floor(Math.random()*list.length); } while(next===getIndex());
-        }
-      }else{ next = (getIndex()+1) % list.length; }
-      setIndex(next); startFilePlayback(); refreshMini();
-    };
+    if (window.Hls && Hls.isSupported()) {
+      // 清掉舊的 instance（如果有）
+      if (v._hls) { try { v._hls.destroy(); } catch(_){} v._hls = null; }
+      const hls = new Hls();
+      hls.loadSource(url);
+      hls.attachMedia(v);
+      v._hls = hls;
+      v.play().catch(()=>{});
+      v.onended = null; // 用下面統一的 onended 流程
+    } else if (v.canPlayType('application/vnd.apple.mpegurl')) {
+      v.src = url; v.play().catch(()=>{});
+    } else {
+      alert('此瀏覽器不支援 HLS（m3u8），請改用桌機 Chrome/Edge 或用「本分頁聲音」。');
+      return;
+    }
 
+    wireOnEnded(v, list);      // ⬅️ 用跟底下相同的 onended 流程
     setPlaying(true); updatePill(); refreshMini();
+    return;
   }
+
+  // 原本的檔案直連播放（mp3/mp4…）
+  const who = nodeFor(url);
+  const other = (who===elAudio?elVideo:elAudio);
+  try{ other.pause(); }catch(_){}
+  other.removeAttribute('src'); other.load?.();
+
+  who.loop = (curMode()==='one');
+  who.src = url;
+  who.play().catch(()=>{});
+  wireOnEnded(who, list);
+  setPlaying(true); updatePill(); refreshMini();
+}
+
+// 把 onended 抽出來共用（HLS/一般檔案都套同一套循環/隨機邏輯）
+function wireOnEnded(mediaNode, list){
+  mediaNode.onended = ()=> {
+    if (curMode()==='one'){ mediaNode.play().catch(()=>{}); return; }
+    let next = 0;
+    if (curMode()==='shuffle'){
+      if (list.length===1){ next = 0; }
+      else{
+        do{ next = Math.floor(Math.random()*list.length); } while(next===getIndex());
+      }
+    }else{
+      next = (getIndex()+1) % list.length;
+    }
+    setIndex(next);
+    startFilePlayback();
+    refreshMini();
+  };
+}
 
   // ── 觀眾端：tab=等遠端音軌、file=自拉
   function attachAudience(){
