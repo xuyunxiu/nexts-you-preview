@@ -2016,11 +2016,16 @@ elTabBtn && elTabBtn.addEventListener('click', async ()=>{
   }
 
   try{
-    const prev = document.createElement('audio');
+   const stream = await navigator.mediaDevices.getDisplayMedia({
+  video: { preferCurrentTab: true },   // Chrome/Edge 會偏好目前這個分頁
+  audio: true
+ });
     
     // 本地預聽（隱形）
-    const prev = document.createElement('audio');
+   const prev = document.createElement('audio');
     prev.autoplay = true;
+    prev.muted = true;   // 🔇 避免回授，也避免自動播放被擋
+    prev.srcObject = stream;
     prev.srcObject = stream;
     prev.style.display = 'none';
     document.body.appendChild(prev);
