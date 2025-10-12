@@ -2028,15 +2028,18 @@ function updatePill(){
     refreshMini();
 
     // TODO：把 stream 推進 SFU/RTC → 觀眾端：window.BGMV3_onRemoteTabStream(stream)
-
+    
     if (aTrack){
-      const stop = ()=>{ setPlaying(false); updatePill(); refreshMini(); if (mp) closeMini(); };
-      aTrack.addEventListener('ended',  stop);
-      aTrack.addEventListener('mute',   stop);
-      aTrack.addEventListener('inactive', stop);
-    }
-  }catch(e){
-    alert('未取得權限或中止。');
+    const stop = ()=>{
+      setPlaying(false);
+      setPlatform('');                 // ★ 清掉「YouTube / 此分頁」等標籤
+      try { prev && (prev.srcObject=null, prev.remove()); } catch(_){}
+      try { stream && stream.getTracks().forEach(t=>t.stop()); } catch(_){}
+      updatePill(); refreshMini(); if (mp) closeMini();
+    };
+    aTrack.addEventListener('ended',    stop);
+    aTrack.addEventListener('mute',     stop);
+    aTrack.addEventListener('inactive', stop);
   }
 });
   
