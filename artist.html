@@ -1938,6 +1938,7 @@ document.addEventListener('DOMContentLoaded', () => {
     syncPill();
     attachAudience();       // file 模式本地拉；tab 模式等遠端音軌（見下）
     bindStorageSync();      // demo：多分頁同步
+    refreshMini();
     // iOS 限制提示
     if (!canTabCapture && elTabBtn){
       elTabBtn.disabled = true;
