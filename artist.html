@@ -2016,8 +2016,8 @@ elTabBtn && elTabBtn.addEventListener('click', async ()=>{
   }
 
   try{
-    const stream = await navigator.mediaDevices.getDisplayMedia({ video:false, audio:true });
-
+    const prev = document.createElement('audio');
+    
     // 本地預聽（隱形）
     const prev = document.createElement('audio');
     prev.autoplay = true;
