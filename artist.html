@@ -1842,14 +1842,32 @@ document.addEventListener('DOMContentLoaded', () => {
   const ctx = { roomId: 'me', isOwner: false, ready:false };
 
   // ── LocalStorage keys
-  const K = {
-    mode:   r=>`bgmv2:${r}:mode`,
-    list:   r=>`bgmv2:${r}:list`,
-    index:  r=>`bgmv2:${r}:index`,
-    source: r=>`bgmv2:${r}:source`,   // 'file' | 'tab'
-    label:  r=>`bgmv2:${r}:label`,    // 顯示用（YouTube / Apple Music…）
-    playing:r=>`bgmv2:${r}:playing`,  // '0' | '1'
+   const K = {
+    mode:     r=>`bgmv2:${r}:mode`,
+    list:     r=>`bgmv2:${r}:list`,
+    index:    r=>`bgmv2:${r}:index`,
+    source:   r=>`bgmv2:${r}:source`,     // 'file' | 'tab'
+    platform: r=>`bgmv2:${r}:platform`,   // ← 新增：'YouTube' / 'YouTube Music' / 'Spotify' / ...
+    playing:  r=>`bgmv2:${r}:playing`,
   };
+
+    function setPlatform(name){ LS.setStr(K.platform(ctx.roomId), name || ''); }
+  function getPlatform(){ return LS.getStr(K.platform(ctx.roomId), ''); }
+
+  // 從 track.label / stream.id 粗略判斷平台
+  function detectPlatformFromLabel(labelRaw){
+    const s = (labelRaw||'').toLowerCase();
+    // 先判斷常見平台（順序重要）
+    if (/\byt\s*music|\bytmusic|\byoutube\s*music/.test(s)) return 'YouTube Music';
+    if (/youtube|yt\b/.test(s))                                return 'YouTube';
+    if (/spotify/.test(s))                                     return 'Spotify';
+    if (/apple\s*music|music\.apple\.com/.test(s))             return 'Apple Music';
+    if (/soundcloud/.test(s))                                  return 'SoundCloud';
+    if (/bilibili|b23\.tv/.test(s))                            return 'Bilibili';
+    if (/kkbox/.test(s))                                       return 'KKBOX';
+    if (/melon/.test(s))                                       return 'Melon';
+    return '';
+  }
 
   // ── elements
   const elPill = document.getElementById('musicPill');
