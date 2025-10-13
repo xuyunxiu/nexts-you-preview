@@ -1069,6 +1069,17 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
 .miniPlayer .round.big{ width:54px;height:54px;font-size:22px }
 .miniPlayer .round:disabled{ opacity:.55; cursor:not-allowed }
 
+  /* ==== Minimal BGM：搜尋結果 + mini 樣式 ==== */
+#musicSearchRow{display:flex;gap:8px;margin:8px 0 6px}
+#musicSearchRow input{flex:1;height:40px;border-radius:10px;border:1px solid var(--line);padding:0 10px;background:#fff}
+#musicSearchRow button{height:40px;border-radius:10px}
+#musicUpload{display:inline-block}
+#searchResults{max-height:180px;overflow:auto;margin:6px 0;border:1px dashed var(--line);border-radius:10px;padding:6px}
+.searchItem{display:flex;align-items:center;gap:8px;padding:6px;border-radius:8px}
+.searchItem:hover{background:rgba(0,0,0,.04)}
+.searchItem .add{margin-left:auto}
+
+
 /* 若先前遺留任何舊音樂嵌入區，全部關掉 */
 #liveRoom .musicDock, #musicEmbed{ display:none !important }
 
