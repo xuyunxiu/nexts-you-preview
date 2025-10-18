@@ -3113,19 +3113,18 @@ trimUse.addEventListener('click', async ()=>{
   const dur = Math.max(0, (trimState.end||0) - (trimState.start||0));
   if(!confirm(`要發送 ${mmss(dur)} 的語音片段嗎？`)) return;
 
-  const id = await MEDIA_DB.put(trimState.blob);
-  GROUP_MSGS.push({
-    id:'v'+Date.now()+Math.random(),
-    from:'artist',
-    type:'voice',
-    isVideo: trimState.blob.type.startsWith('video/'),
-    mediaId:id,
-    start:trimState.start,
-    end:trimState.end,
-    ts:Date.now()
+  await NxuSDK.chat.sendVoice(trimState.blob, {
+    start: trimState.start,
+    end:   trimState.end,
+    isVideo: trimState.blob.type.startsWith('video/')
   });
-  LS.set('groupMsgs', GROUP_MSGS);
-  closeTrim(); renderThread(); renderDmList(); clearNoticeNow(); hardStickBottom(); updateNoticeBanner();
+
+  closeTrim(); 
+  renderThread(); 
+  renderDmList(); 
+  clearNoticeNow(); 
+  hardStickBottom(); 
+  updateNoticeBanner();
 });
 
 /* ===================== DM 菜單 / 改名（穩健版） ===================== */
