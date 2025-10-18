@@ -1697,6 +1697,187 @@ body.nav-hidden nav#nav{ transform: translateX(-50%) translateY(120%) }
     background:rgba(255,255,255,.14);backdrop-filter:blur(6px);color:#fff;padding:6px 10px;">✕</button>
 </div>
 <script>
+
+/* ============ 這是要新增的：NXU SDK + DemoProvider + 鏡射（雙窗互通） ============ */
+(function(global){
+  // 迷你事件匯流排
+  const Evt = new Map();
+  function emit(evt, payload){ (Evt.get(evt)||[]).forEach(fn=>{ try{ fn(payload);}catch(_){}}); }
+  function on(evt, fn){ const q = Evt.get(evt)||[]; q.push(fn); Evt.set(evt,q); return ()=>off(evt,fn); }
+  function off(evt, fn){ Evt.set(evt, (Evt.get(evt)||[]).filter(f=>f!==fn)); }
+
+  // 廣播：BroadcastChannel + localStorage 雙通道（確保多視窗／分頁能同步）
+  const BC = ('BroadcastChannel' in window) ? new BroadcastChannel('nxu-mirror-v1') : null;
+  function broadcast(type, data){
+    const msg = { type, data, t: Date.now() };
+    try{ BC && BC.postMessage(msg); }catch(_){}
+    try{ localStorage.setItem('nxu:bcast', JSON.stringify(msg)); }catch(_){}
+  }
+  function handleBus(msg){
+    if(!msg || !msg.type) return;
+    switch(msg.type){
+      case 'msg:new': {
+        const m = msg.data || {};
+        global.GROUP_MSGS = global.GROUP_MSGS || [];
+        if(!global.GROUP_MSGS.find(x=>x.id===m.id)){
+          global.GROUP_MSGS.push(m);
+          try{ LS.set('groupMsgs', global.GROUP_MSGS); }catch(_){}
+        }
+        // 即時刷新（若該畫面有 DM 視圖）
+        try{ renderThread(); renderDmList(); }catch(_){}
+        emit('msg:new', m);
+        break;
+      }
+      case 'posts:update': {
+        const arr = msg.data || [];
+        global.POSTS = Array.isArray(arr)?arr:global.POSTS;
+        try{ LS.set('artistPosts', global.POSTS); }catch(_){}
+        try{ if(global.currentFilter) renderFeed(global.currentFilter); }catch(_){}
+        emit('posts:update', global.POSTS);
+        break;
+      }
+      // 可再擴充 live/* 等型別
+    }
+  }
+  BC && (BC.onmessage = (e)=>handleBus(e.data));
+  window.addEventListener('storage', (e)=>{
+    if(e.key!=='nxu:bcast' || !e.newValue) return;
+    try{ handleBus(JSON.parse(e.newValue)); }catch(_){}
+  });
+
+  // 小工具
+  function makeId(p){ return p + Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+  function ensureArr(name, fallback){ 
+    const a = global[name]; 
+    if(Array.isArray(a)) return a;
+    const ls = LS.get(name==='GROUP_MSGS'?'groupMsgs':(name==='POSTS'?'artistPosts':'artistsCache'), fallback||[]);
+    global[name] = ls;
+    return global[name];
+  }
+
+  // ===== Demo Provider（本地假資料＋IndexedDB 媒體；帶鏡射廣播） =====
+  const DemoProvider = {
+    role: 'artist',
+    async init(opts={}){
+      this.role = (opts.role || 'artist');
+      // 確保三大陣列存在
+      ensureArr('ARTISTS', []);
+      ensureArr('POSTS',   []);
+      ensureArr('GROUP_MSGS',[]);
+      return;
+    },
+
+    // 訊息（文字）
+    async sendMessage({ text, replyTo }){
+      const msg = {
+        id: makeId(this.role==='artist'?'u':'f'),
+        from: this.role==='artist' ? 'artist' : 'fan',
+        text: text||'',
+        ts: Date.now(),
+        replyTo: replyTo || null
+      };
+      const box = ensureArr('GROUP_MSGS',[]);
+      box.push(msg);
+      try{ LS.set('groupMsgs', box); }catch(_){}
+      broadcast('msg:new', msg);
+      return msg;
+    },
+
+    // 相片/影片
+    async sendMedia(file){
+      const idb = await MEDIA_DB.put(file);  // 你現成的 IndexedDB 包裝
+      const isVideo = (file?.type||'').startsWith('video/');
+      const msg = {
+        id: makeId('m'),
+        from: this.role==='artist' ? 'artist' : 'fan',
+        type: isVideo ? 'video' : 'image',
+        mediaId: idb,
+        ts: Date.now()
+      };
+      const box = ensureArr('GROUP_MSGS',[]);
+      box.push(msg);
+      try{ LS.set('groupMsgs', box); }catch(_){}
+      broadcast('msg:new', msg);
+      return msg;
+    },
+
+    // 語音（或影片音訊片段）
+    async sendVoice(blob, meta={}){
+      const idb = await MEDIA_DB.put(blob);
+      const msg = {
+        id: makeId('v'),
+        from: this.role==='artist' ? 'artist' : 'fan',
+        type: 'voice',
+        isVideo: !!meta.isVideo,
+        mediaId: idb,
+        start: Number(meta.start||0),
+        end:   Number(meta.end||0),
+        ts: Date.now()
+      };
+      const box = ensureArr('GROUP_MSGS',[]);
+      box.push(msg);
+      try{ LS.set('groupMsgs', box); }catch(_){}
+      broadcast('msg:new', msg);
+      return msg;
+    },
+
+    // （可擴充）貼文／反應／評論等，這裡先留接口
+    async updatePosts(nextList){
+      global.POSTS = Array.isArray(nextList) ? nextList : ensureArr('POSTS',[]);
+      try{ LS.set('artistPosts', global.POSTS); }catch(_){}
+      broadcast('posts:update', global.POSTS);
+      return global.POSTS;
+    }
+  };
+
+  // ===== SDK 封裝 =====
+  const SDK = {
+    _provider: DemoProvider,
+
+    async init(opts={}){
+      await this._provider.init(opts);
+      return this;
+    },
+
+    on, off, emit,
+
+    chat: {
+      send:     (text, opt={}) => SDK._provider.sendMessage({ text, replyTo: opt.replyTo||null }),
+      sendMedia:(file)         => SDK._provider.sendMedia(file),
+      sendVoice:(blob, meta={})=> SDK._provider.sendVoice(blob, meta)
+    },
+
+    posts: {
+      // 範例：整批替換（demo 用）
+      replaceAll: (next)=> SDK._provider.updatePosts(next||[])
+    },
+
+    util: {
+      // UI：在底部 nav 上面加一顆鏡射按鈕
+      mountMirrorChip(){
+        if(document.getElementById('nxuMirrorChip')) return;
+        const holder = document.body;
+        const chip = document.createElement('button');
+        chip.id = 'nxuMirrorChip';
+        chip.className = 'chip';
+        chip.textContent = '開鏡射（粉絲視角）';
+        chip.style.position='fixed';
+        chip.style.left='12px';
+        chip.style.bottom='calc(88px + var(--safe))';
+        chip.style.zIndex='60';
+        chip.title='開新視窗 → 粉絲端鏡射';
+        chip.onclick = ()=>{
+          const url = new URL(location.href);
+          url.searchParams.set('role','fan');
+          window.open(url.toString(), 'nxu_fan', 'width=420,height=800');
+        };
+        holder.appendChild(chip);
+      }
+    }
+  };
+
+  global.NxuSDK = SDK;
+})(window);
   
 /* ===================== 工具 ===================== */
 function imgFallback(img){
@@ -1835,8 +2016,12 @@ function refreshCommentCountUI(postId){
     .forEach(el => el.textContent = String(n));
 }
   
-document.addEventListener('DOMContentLoaded', () => {
-  bootFromJSON();
+document.addEventListener('DOMContentLoaded', async () => {
+  // 先啟動 SDK（含 demo provider / 鏡射）
+  await NxuSDK.init({ role: new URL(location.href).searchParams.get('role') || 'artist' });
+
+  // 原本你的初始化：載入 JSON 假資料並渲染 UI
+  await bootFromJSON();
   recalcHud();
 });
 
