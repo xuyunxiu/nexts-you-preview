@@ -2966,23 +2966,23 @@ function clearReply(){
   scrollToEndDuring(400);
 }
 
-function sendArtistMsg(){
-  const inp=document.getElementById('dmMessageInput');
-  let t=(inp.value||'').trim();
-  if(!t) return;
+async function sendArtistMsg(){
+  const inp = document.getElementById('dmMessageInput');
+  const text = (inp.value||'').trim(); 
+  if(!text) return;
 
-  GROUP_MSGS.push({
-    id:'u'+Date.now(),
-    from:'artist',
-    text:t,
-    ts:Date.now(),
-    replyTo:replyDraft?{text:replyDraft.text}:null
-  });
+  const reply = replyDraft ? { text: replyDraft.text } : null;
 
-  LS.set('groupMsgs', GROUP_MSGS);
-  inp.value=''; updateComposerUI(); clearReply(); renderThread(); renderDmList();
-  clearNoticeNow();
-  hardStickBottom();
+  await NxuSDK.chat.send(text, { replyTo: reply });
+
+  inp.value=''; 
+  updateComposerUI(); 
+  clearReply();
+
+  // 本地立即刷新；鏡射視窗也會透過廣播自動刷新
+  renderThread(); 
+  renderDmList();
+  hardStickBottom(); 
   updateNoticeBanner();
 }
 
