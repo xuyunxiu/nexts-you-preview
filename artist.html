@@ -3014,20 +3014,15 @@ document.getElementById('btnCamera').addEventListener('click', ()=>pickMedia.cli
 document.getElementById('btnMic').addEventListener('click', ()=>pickVoice.click());
 
 pickMedia.addEventListener('change', async e=>{
-  const files=[...e.target.files];
+  const files=[...e.target.files||[]];
   for(const f of files){
-    const id = await MEDIA_DB.put(f);
-    const isVideo = f.type.startsWith('video/');
-    GROUP_MSGS.push({
-      id:'m'+Date.now()+Math.random(),
-      from:'artist',
-      type:isVideo?'video':'image',
-      mediaId:id,
-      ts:Date.now()
-    });
+    await NxuSDK.chat.sendMedia(f);  // 交給 SDK；自帶儲存＋廣播
   }
-  LS.set('groupMsgs', GROUP_MSGS);
-  renderThread(); renderDmList(); clearNoticeNow(); hardStickBottom(); updateNoticeBanner();
+  renderThread(); 
+  renderDmList(); 
+  clearNoticeNow(); 
+  hardStickBottom(); 
+  updateNoticeBanner();
   e.target.value='';
 });
 
